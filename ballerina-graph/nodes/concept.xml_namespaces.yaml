@@ -1,0 +1,57 @@
+schema_version: "0.1"
+id: concept.xml_namespaces
+type: concept
+title: XML namespaces and xmlns declarations
+summary: How XML element and attribute names are represented as expanded names, how namespace attributes are kept and synthesized, and how xmlns declarations bind prefixes at block and module level.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.3.2.1", kind: spec, note: "5.3.2.1 XML namespaces"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#XML_namespace_declaration_statement", kind: spec, note: "7.13 XML namespace declaration statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.10", kind: spec, note: "8.10 Module XML namespace declaration"}
+must_cover:
+  - id: expanded_names
+    text: 'Explain that element and attribute names are expanded-name strings of the form `{namespace-uri}local-name`, or just the local name when there is no namespace'
+    difficulty: [intermediate]
+  - id: xmlns_statement
+    text: 'Declare namespace prefixes in a block with `xmlns "http://example.com/ns" as ex;`, or a default namespace by omitting `as`, where the URI is a simple constant expression of type string'
+    difficulty: [beginner, intermediate]
+  - id: module_xmlns
+    text: 'Declare module-level `xmlns` declarations, which apply only to the source part in which they occur, like imports'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.10", kind: spec, note: "8.10 Module XML namespace declaration"}
+  - id: templates_use_namespaces
+    text: 'Explain that the prefixes and default namespace declared by `xmlns` declarations are the in-scope namespaces used when xml templates are processed'
+    difficulty: [intermediate]
+  - id: qualified_name_reference
+    text: 'Explain that `ex:local` with an xmlns-declared prefix evaluates to the expanded name string `{uri}local`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.9", kind: spec, note: "6.9 Variable reference expression"}
+  - id: prefix_symbol_space
+    text: 'Explain that xmlns prefixes share a symbol space with import module prefixes, separate from the main symbol space, and that `xmlns` is predeclared as `http://www.w3.org/2000/xmlns/` and cannot be redeclared'
+    difficulty: [intermediate]
+  - id: namespace_attributes
+    text: 'Explain that an element attributes map also holds its namespace declarations, whose keys start with `{http://www.w3.org/2000/xmlns/}`'
+    difficulty: [advanced]
+  - id: synthesized_namespace_attributes
+    text: 'Explain that namespace attributes are synthesized for prefixes (other than `xml` and the default namespace) that are used by an element or its attributes but not declared on it, so prefixes survive when the element is extracted'
+    difficulty: [advanced]
+  - id: serialization_prefixes
+    text: 'Describe how converting xml to an infoset for serialization prunes redundant namespace declarations, uses the `xml` prefix for the XML namespace, reuses or generates prefixes and adds `xmlns=""` to undeclare an inherited default namespace'
+    difficulty: [advanced]
+  - id: namespace_constants
+    text: 'Use the `lang.xml` constants `xml:XML_NAMESPACE_URI`, `xml:XMLNS_NAMESPACE_URI` and the expanded-name constants `xml:lang`, `xml:space` and `xml:base`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.xml", kind: spec, note: "11.3.16 lang.xml module"}
+out_of_scope:
+  - "Name patterns with prefixes in navigation expressions (concept.xml_navigation)"
+  - "Import declarations and module prefixes (concept.modules_imports)"
+edges:
+  - {to: concept.xml, rel: requires}
+  - {to: concept.xml, rel: part_of}
+  - {to: concept.langlib, rel: uses, via: [namespace_constants], target_items: [lang_xml]}
+  - {to: concept.modules_imports, rel: uses, via: [prefix_symbol_space, module_xmlns]}
+notes: "5.3.2.1 serialization rules are long and implementation-oriented; marked advanced."

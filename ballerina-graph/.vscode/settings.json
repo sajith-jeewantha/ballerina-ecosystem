@@ -1,0 +1,1 @@
+{ "yaml.schemas": { "./schema/node.schema.json": "nodes/*.yaml" } }

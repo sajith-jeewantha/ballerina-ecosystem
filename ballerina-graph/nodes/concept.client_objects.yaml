@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: concept.client_objects
+type: concept
+title: Client objects, remote methods and resource access actions
+summary: Network interaction objects for outbound calls, their remote methods and resources, and the remote method call and resource access actions used to invoke them.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.1", kind: spec, note: "5.5.3.1 Network interaction"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.4", kind: spec, note: "5.5.3.4 Remote methods"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9", kind: spec, note: "7.9 Outbound network interaction"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9.1", kind: spec, note: "7.9.1 Remote methods"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9.2", kind: spec, note: "7.9.2 Resources"}
+must_cover:
+  - id: client_vs_service
+    text: "Distinguish client objects (network interaction originated by the program) from service objects (interaction originated by the remote system), knowing an object can be one, the other or neither, but not both"
+    difficulty: [beginner, intermediate]
+  - id: client_qual
+    text: "Declare client object types and classes with the `client` qualifier, e.g. `client class Api { ... }`, knowing only client objects belong to an object type that has the `client` qualifier"
+    difficulty: [intermediate]
+  - id: remote_decl
+    text: "Declare remote methods with `remote function send(string msg) returns error?`, allowed only in client or service objects and kept in a symbol space separate from fields and ordinary methods, so a remote method may share a name with a non-remote method"
+    difficulty: [intermediate]
+  - id: ctor_network_qual
+    text: "Explain that an object constructor must specify `client` if it defines a remote method, and that remote and resource method definitions are allowed only when a network qualifier (`client` or `service`) is present"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.3", kind: spec, note: "6.8.1.3 Remote methods"}
+  - id: remote_call_action
+    text: "Call a client's remote method with the action `clientObj->send(\"hi\")`, knowing a remote method cannot be called with `.` method-call syntax and `->` has the same precedence as `.`"
+    difficulty: [beginner]
+  - id: remote_return_not_never
+    text: "Know that the return type of a client object's remote method must not be `never`"
+    difficulty: [advanced]
+  - id: actions_not_in_expressions
+    text: "Explain that remote method calls and resource accesses are actions: they cannot be nested inside expressions and occur only as part of statements or inside other actions such as `check`, `trap` or a type cast"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.1", kind: spec, note: "7.1 Actions"}
+  - id: resource_access_action
+    text: "Access a client's resources with the resource access action, e.g. `check c->/users/[id].get()` or `c->/users.post(user)`, where an omitted method name defaults to `get` and omitted parentheses default to an empty argument list"
+    difficulty: [beginner, intermediate]
+  - id: computed_and_rest_segments
+    text: "Use computed path segments `[expr]` and a rest segment `[...segments]` in a resource access path, and `c->/` for the empty path; evaluation builds a list of path values from names, computed values and the members of the rest list"
+    difficulty: [intermediate]
+  - id: resource_access_typing
+    text: "Explain that the client's static type must contain a resource with the given method name for every path the access could construct, and that arguments and the result are typed using the intersection of the function types of the matching resource methods"
+    difficulty: [advanced]
+  - id: sequence_diagram
+    text: "Explain that a local variable of client object type is shown as a lifeline in the function's sequence diagram, and a remote method call as a horizontal arrow from the worker to that lifeline"
+    difficulty: [beginner]
+out_of_scope:
+  - "Resource method declarations and resource paths (concept.resource_methods)"
+  - "Service objects and listeners (concept.services_listeners)"
+  - "Protocol-specific clients such as HTTP, which belong to the standard library"
+edges:
+  - {to: concept.objects, rel: requires}
+  - {to: concept.resource_methods, rel: uses, via: [resource_access_action, computed_and_rest_segments, resource_access_typing], target_items: [path_segments, resource_access_operation]}
+  - {to: concept.services_listeners, rel: counterpart_of, via: [client_vs_service], target_items: [service_objects]}
+  - {to: concept.error_handling, rel: uses, via: [actions_not_in_expressions]}
+notes: "5.5.3.1 says 'A object-network-qual is not allowed in conjunction with public', but object-type-quals has no public; the intended restriction is unclear, so no item states it."

@@ -1,0 +1,74 @@
+schema_version: "0.1"
+id: concept.classes
+type: concept
+title: Classes, init methods and new
+summary: Module-level class definitions that describe an object type and how to construct it, the init method rules and the new expression.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.6", kind: spec, note: "8.6 Module class definition"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.5", kind: spec, note: "6.8.1.5 Initialization"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.2", kind: spec, note: "6.8.2 New expression"}
+must_cover:
+  - id: class_defn
+    text: "Define classes such as `class Person { string name; function init(string name) { self.name = name; } }`, optionally `public`, containing fields, methods, remote and resource methods and object type inclusions"
+    difficulty: [beginner]
+  - id: class_quals
+    text: "Apply the class qualifiers `distinct`, `readonly`, `isolated`, `client` and `service` to a class definition, knowing each keyword may appear at most once"
+    difficulty: [intermediate]
+  - id: private_members
+    text: "Use `private` fields and methods, visible only within the class's method definitions, and know that a class with private members has no other object types as subtypes"
+    difficulty: [intermediate]
+  - id: new_explicit
+    text: "Create instances with `new Person(\"Ann\")`, which allocates the object and passes the argument list to the class's `init` method, with a compile error if the arguments do not match `init`'s signature"
+    difficulty: [beginner]
+  - id: new_implicit
+    text: "Use implicit `new` or `new(args)` when the applicable contextually expected type is a class or stream type, e.g. `Person p = new(\"Ann\");`"
+    difficulty: [intermediate]
+  - id: init_error
+    text: "Declare `init` with return type `error?` and explain that `new T(...)` then has static type `T|E` and evaluates to the error value instead of the object when `init` returns an error"
+    difficulty: [intermediate]
+  - id: init_rules
+    text: "Follow the `init` method rules: its return type must be a subtype of `error?` that contains `()`, it cannot be `private`, it is not part of the object's shape, and it can be called explicitly only as `self.init(...)`"
+    difficulty: [intermediate, advanced]
+  - id: init_definite_assignment
+    text: "Explain that within `init` the compiler tracks potentially uninitialized fields, and it is a compile error to read such a field, or to return nil or use `self` other than to access or modify a field while any field is potentially uninitialized"
+    difficulty: [advanced]
+  - id: init_params
+    text: "Know that a class's `init` method may declare parameters, whereas an `init` method in an object constructor must have an empty parameter list"
+    difficulty: [beginner, intermediate]
+  - id: missing_init
+    text: "Explain that a missing `init` method is equivalent to an isolated `init` with no parameters and an empty body"
+    difficulty: [intermediate]
+  - id: field_initializer_check
+    text: "Explain that if a field initializer completes with a check-fail, `init` returns that error before its body runs (so `init`'s return type must allow it), and that without an `init` method a `check` in a field initializer is a compile error"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
+  - id: init_order
+    text: "Describe how an object of a class is initialized: allocate storage, run each field initializer, attach the methods from the class's method definitions, then call `init` if there is one"
+    difficulty: [intermediate]
+  - id: class_inclusion
+    text: "Include an object type in a class with `*T;`, which requires the class to define every method declared in `T` with the same visibility (and to be in `T`'s module if `T` has module-level members); including a class copies only its type, not its method bodies or field initializers"
+    difficulty: [intermediate, advanced]
+  - id: readonly_class
+    text: "Define a `readonly class` whose objects have the read-only bit set, where each field's effective type is its declared type intersected with `readonly` and only read-only objects belong to the class's type"
+    difficulty: [intermediate]
+  - id: distinct_class
+    text: "Define a `distinct class` whose primary type-id comes from that `distinct` occurrence, with the type-ids of included object types as secondary type-ids"
+    difficulty: [advanced]
+  - id: isolated_class
+    text: "Define an `isolated class`, whose objects have the isolated bit set and whose fields and methods follow the rules of an explicitly isolated object constructor (non-isolated fields must be `private` and initializers must be isolated expressions)"
+    difficulty: [advanced]
+out_of_scope:
+  - "Object type descriptors and object constructors (concept.objects)"
+  - "Constructing streams with new (concept.streams)"
+  - "Detailed isolated-object rules for self and lock (concept.isolation, concept.lock_statement)"
+edges:
+  - {to: concept.objects, rel: requires}
+  - {to: concept.objects, rel: implements, via: [class_defn], target_items: [object_type_desc]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [distinct_class]}
+  - {to: concept.isolation, rel: uses, via: [isolated_class]}
+  - {to: concept.mutability_readonly, rel: uses, via: [readonly_class]}
+  - {to: concept.error_handling, rel: uses, via: [init_error, field_initializer_check]}
+notes: "6.8.1.5 says it is a compile error for init to 'access a field at a point where it is potentially initialized'; this is a typo for 'potentially uninitialized'. 6.8.2 says 'An explicit-type-expr specifying a class-descriptor T has static type T' (should be explicit-new-expr)."

@@ -1,0 +1,76 @@
+schema_version: "0.1"
+id: concept.control_flow
+type: concept
+title: Statements, blocks and conditional control flow
+summary: How statements and statement blocks execute and complete, including if/else, do, return, call, action and checking statements, and the distinction between actions and expressions.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4", kind: spec, note: "7.4 Statements"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4.1", kind: spec, note: "7.4.1 Statement execution"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4.2", kind: spec, note: "7.4.2 Statement blocks"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4.3", kind: spec, note: "7.4.3 Unreachability"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.18", kind: spec, note: "7.18 Conditional statement"}
+must_cover:
+  - id: if_else
+    text: "Write `if cond { ... } else if cond { ... } else { ... }` statements whose conditions have static type boolean, executing the first block whose condition is true or the `else` block if none is"
+    difficulty: [beginner]
+  - id: do_stmt
+    text: "Use a `do { ... }` statement to execute a statement block as a single compound statement (commonly so that an `on fail` clause can be attached)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.19", kind: spec, note: "7.19 Do statement"}
+  - id: return_stmt
+    text: "Use `return expr;` to terminate the current worker normally with a value, and know that `return;` and falling off the end of a body are equivalent to `return ();`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.26", kind: spec, note: "7.26 Return statement"}
+  - id: statement_blocks
+    text: "Explain that a statement block `{ ... }` runs its statements in order and that as soon as one statement does not complete normally none of the following statements run"
+    difficulty: [beginner]
+  - id: completion_kinds
+    text: "Distinguish the three ways a statement can complete: normally, by terminating the current worker (return, panic, unhandled fail), or by transferring control within the worker (break, continue, fail to an on fail clause)"
+    difficulty: [intermediate]
+  - id: abrupt_in_statements
+    text: "Explain that when an expression in a statement completes abruptly, a check-fail behaves like a `fail` statement with that error value and a panic terminates the worker like a `panic` statement"
+    difficulty: [intermediate]
+  - id: unreachable_code
+    text: "Explain that any unreachable statement other than `panic` is a compile-time error (e.g. code after `return`), and that reachability analysis assumes a condition can be true or false unless its static type (such as singleton `true`) rules it out"
+    difficulty: [intermediate, advanced]
+  - id: call_stmt
+    text: "Use a function or method call as a statement only when its static type is `()` or `never`; to discard a non-nil result, use a destructuring assignment to the wildcard such as `_ = f();`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.16", kind: spec, note: "7.16 Call statement"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+  - id: action_stmt
+    text: "Write an action (such as a remote method call `c->m();`, a send or a `wait`) as a statement only when its static type is nil"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.15", kind: spec, note: "7.15 Action statement"}
+  - id: checking_stmt
+    text: "Write `check f();` or `checkpanic f();` as a checking statement when the checked call's non-error result type is `()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.17", kind: spec, note: "7.17 Checking statement"}
+  - id: actions_vs_expressions
+    text: "Distinguish actions (start, wait, send, receive, flush, `->` remote method calls, `->/` resource access, query actions, commit) from expressions, and know an action cannot be nested inside an expression but may appear in a statement or inside `check`, `trap`, a type cast or another action"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.1", kind: spec, note: "7.1 Actions"}
+  - id: arrow_precedence
+    text: "Know that the `->` operator of a client remote method call action has the same precedence as `.` in a method call expression"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.1", kind: spec, note: "7.1 Actions"}
+out_of_scope:
+  - "Loops, break and continue (concept.loops)"
+  - "Match statement (concept.match_statement)"
+  - "fail, on fail, panic and trap semantics (concept.error_handling)"
+  - "Local variable declarations and scoping (concept.variables)"
+  - "Type narrowing in if/else (concept.type_narrowing)"
+  - "Assignment statements (concept.assignment)"
+edges:
+  - {to: concept.variables, rel: requires}
+  - {to: concept.expression_typing, rel: requires}
+notes: "7.16 says that if a call-stmt's static type is `never`, then 'it is possible for the call-stmt to complete normally'; this looks like a typo for 'not possible' and was not turned into an item."

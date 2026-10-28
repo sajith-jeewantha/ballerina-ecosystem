@@ -1,0 +1,71 @@
+schema_version: "0.1"
+id: concept.json_anydata
+type: concept
+title: anydata, json and lax static typing
+summary: The anydata type of plain data, the json type with lax static typing for field access and check, and the lang.value functions for converting between json, JSON text and user-defined types.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#anydata", kind: spec, note: "5.6.10 Anydata type"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.11", kind: spec, note: "5.6.11 JSON types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lax_static_typing", kind: spec, note: "6.2.1 Lax static typing"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value"}
+must_cover:
+  - id: anydata_type
+    text: Use `anydata` for plain data, equivalent to `() | boolean | int | float | decimal | string | xml | regexp:RegExp | anydata[] | map<anydata> | table<map<anydata>>`, which excludes errors, functions, objects and other behavioral values
+    difficulty: [beginner, intermediate]
+  - id: json_type
+    text: Use `json`, the built-in union `() | boolean | int | float | decimal | string | json[] | map<json>`, to represent JSON data, writing JSON null as `()` or `null`
+    difficulty: [beginner]
+  - id: lax_types
+    text: Explain that `json` is lax and `map<T>` is lax when T is lax, and that laxness only relaxes typing of field access, optional field access and `check`
+    difficulty: [intermediate]
+  - id: lax_field_access
+    text: Access json fields with `j.name` (or chains like `j.a.b`) without a cast, where the static type is `json|error` and the result is an error at runtime if the value is not a mapping or lacks the field
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.10", kind: spec, note: "6.10 Field access expression"}
+  - id: lax_optional_access
+    text: Use optional field access `j?.name` on json, which returns `()` when the value is nil or the field is missing and an error when the value is not a mapping
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.11", kind: spec, note: "6.11 Optional field access expression"}
+  - id: lax_check
+    text: Write `int age = check j.age;`, where `check` on a lax expression whose expected type is a simple type is treated as `check value:ensureType(j.age, int)`, failing with an error if the value has the wrong type
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.33", kind: spec, note: "6.33 Checking expression"}
+  - id: to_json
+    text: Convert anydata to json with `v.toJson()`, a deep copy that turns xml into a string and tables into lists of mappings, gives arrays and maps inherent types `json[]` and `map<json>`, copies even immutable values, and panics on cyclic values
+    difficulty: [intermediate]
+  - id: to_json_string
+    text: Serialize with `v.toJsonString()`, which first converts the value as `toJson` does and returns JSON text
+    difficulty: [beginner]
+  - id: from_json_string
+    text: Parse JSON text with `value:fromJsonString(s)` (or `s.fromJsonString()`), which returns an error on invalid input and maps numbers to int when they have integer syntax and fit in int, to float `-0.0` for negative zero, and to decimal otherwise
+    difficulty: [intermediate]
+  - id: json_float_decimal
+    text: Use `fromJsonFloatString` and `fromJsonDecimalString` to parse JSON numbers uniformly as float (`value:JsonFloat`) or decimal (`value:JsonDecimal`)
+    difficulty: [advanced]
+  - id: from_json_with_type
+    text: Convert json to a user type with `j.fromJsonWithType(T)` or `T x = check j.fromJsonWithType();`, which works like cloneWithType plus the inverse of toJson conversions, and use `fromJsonStringWithType` to parse and convert in one step
+    difficulty: [intermediate]
+  - id: merge_json
+    text: 'Use `value:mergeJson(j1, j2)` which returns j2 if j1 is nil, j1 if j2 is nil, recursively merges two mappings key by key (mutating j1), and otherwise returns an error leaving j1 unchanged'
+    difficulty: [advanced]
+  - id: open_record_rest_anydata
+    text: Explain that an inclusive record type `record { ... }` allows extra fields only of type anydata, i.e. it is `record {| ...; anydata...; |}`
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.2", kind: spec, note: "5.4.2.2 Record types"}
+out_of_scope:
+  - "General cloneWithType semantics (concept.value_cloning)"
+  - "Record and map types in general (concept.records, concept.maps)"
+  - "Strict (non-lax) field access rules (concept.field_member_access)"
+edges:
+  - {to: concept.maps, rel: requires}
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [to_json, to_json_string, from_json_string, json_float_decimal, from_json_with_type, merge_json], target_items: [lang_value]}
+  - {to: concept.value_cloning, rel: uses, via: [from_json_with_type], target_items: [clone_with_type]}
+  - {to: concept.type_cast_test, rel: uses, via: [lax_check], target_items: [ensure_type]}
+notes: "5.6.10 says plain data includes tagged data values; since `re` is the only data tag in 2024R1 all tagged data values belong to regexp:RegExp."

@@ -1,0 +1,50 @@
+schema_version: "0.1"
+id: concept.program_execution
+type: concept
+title: Module initialization and program execution
+summary: How a Ballerina program made of a root module and its imports runs through an initialization phase and a listening phase, including the module init function.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.2", kind: spec, note: "8.2 Module and program execution"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.4", kind: spec, note: "8.4 Function definition (module init function)"}
+must_cover:
+  - id: root_module
+    text: "Explain that a program consists of a distinguished root module plus every module it imports directly or indirectly, determined at compile time from the root module"
+    difficulty: [beginner, intermediate]
+  - id: two_phases
+    text: "Describe program execution as two consecutive phases, an initialization phase followed by a listening phase, and that execution terminates either successfully or unsuccessfully with an error value"
+    difficulty: [intermediate]
+  - id: module_init_order
+    text: "Explain that a module is initialized only after all the modules it depends on, and that otherwise modules are initialized in the order they are imported"
+    difficulty: [intermediate, advanced]
+  - id: synthesized_init
+    text: "Explain that the compiler synthesizes an initialization function for each module that evaluates the expressions initializing its module-level declarations and returns the associated error if any evaluation completes abruptly"
+    difficulty: [intermediate, advanced]
+  - id: init_failure_terminates
+    text: "Explain that if any module's initialization fails, program execution immediately terminates unsuccessfully with the error returned by that module's initialization function"
+    difficulty: [intermediate]
+  - id: module_init_function
+    text: "Define a module-level `function init() returns error? { ... }`, which is called automatically at the end of the module's initialization; it must not be `public`, must take no parameters, and its return type must be a subtype of `error?` that contains `()`"
+    difficulty: [beginner, intermediate]
+  - id: init_function_errors
+    text: "Explain that if the module `init` function returns an error or terminates abruptly, the module's initialization fails, and that the root module's `init` function is the last function called in the initialization phase"
+    difficulty: [intermediate]
+  - id: command_line_platform
+    text: "Explain that the spec defines no mechanism for command-line arguments: the platform generates a command-line processing module, which becomes the new root module, parses the arguments according to the parameter types, annotations and names of the original root module's public functions, and calls one of them (typically `main`)"
+    difficulty: [intermediate]
+  - id: listening_phase_entry
+    text: "Explain that execution proceeds to the listening phase only if the initialization phase succeeds, and that if there are then no module listeners the program terminates gracefully"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec, note: "8.3 Listeners and services"}
+out_of_scope:
+  - "Configurable variables and the configuration check (concept.configurable)"
+  - "Listener lifecycle in the listening phase (concept.services_listeners)"
+  - "Module variables that must be initialized in init (concept.variables)"
+  - "Command-line argument syntax and `main` conventions, which are platform-defined"
+edges:
+  - {to: concept.modules_imports, rel: requires}
+  - {to: concept.functions, rel: requires}
+  - {to: concept.services_listeners, rel: uses, via: [listening_phase_entry], target_items: [listening_phase]}
+notes: "The spec only says the generated command-line module calls 'a public function of the specified root module (typically the main function)'; main-function rules are not specified by 2024R1."

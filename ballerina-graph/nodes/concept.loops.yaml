@@ -1,0 +1,69 @@
+schema_version: "0.1"
+id: concept.loops
+type: concept
+title: "Loops: foreach, while, break, continue and ranges"
+summary: Iteration with foreach over any iterable value, while loops, break and continue, and integer range expressions.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21", kind: spec, note: "7.21 Loops"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.1", kind: spec, note: "7.21.1 Foreach statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.2", kind: spec, note: "7.21.2 While statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.26", kind: spec, note: "6.26 Range expression"}
+must_cover:
+  - id: foreach_basic
+    text: "Iterate with `foreach T x in expr { ... }` or `foreach var x in expr { ... }` over any iterable value (list, mapping, table, string, xml, stream or Iterable object), with `var` inferring the iteration value type"
+    difficulty: [beginner]
+  - id: foreach_binding
+    text: "Use a binding pattern in foreach, such as `foreach var [i, v] in arr.enumerate()` or `foreach var [k, v] in m.entries()`, knowing the compiler must be able to guarantee the pattern matches"
+    difficulty: [intermediate]
+  - id: foreach_semantics
+    text: "Explain how foreach executes: it creates an iterator with `iterator()`, calls `next()` until it returns nil, and binds the `value` field of each result to the binding pattern"
+    difficulty: [intermediate, advanced]
+  - id: loop_vars_final
+    text: "Know that variables bound by a foreach are implicitly final and scoped to the loop body"
+    difficulty: [beginner, intermediate]
+  - id: foreach_completion_type
+    text: "Know that foreach requires an iterable whose iteration completion type is nil, so iterating a `stream<T, error?>` with foreach is a compile-time error"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+  - id: while_stmt
+    text: "Write `while cond { ... }` loops, where the boolean condition is re-evaluated before each iteration"
+    difficulty: [beginner]
+  - id: break_stmt
+    text: "Use `break;` to make the nearest enclosing while or foreach complete normally, and know it is allowed only lexically inside one"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.4", kind: spec, note: "7.21.4 Break statement"}
+  - id: continue_stmt
+    text: "Use `continue;` to end the current iteration of the nearest enclosing while or foreach and go on with the next one, allowed only lexically inside a loop"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.3", kind: spec, note: "7.21.3 Continue statement"}
+  - id: range_expressions
+    text: "Use range expressions `a ... b` (inclusive) and `a ..< b` (exclusive) with int operands, as in `foreach int i in 0 ..< n`, which produce an `Iterable<int,()>` object iterating in increasing order"
+    difficulty: [beginner]
+  - id: range_semantics
+    text: "Know that a range expression is an ordinary iterable object usable outside foreach, is always isolated, yields nothing when the start is past the end, and is a compile error with non-int operands"
+    difficulty: [intermediate]
+  - id: int_range_step
+    text: "Use `int:range(start, end, step)` for stepped or descending iteration, which excludes `end` and panics when `step` is 0"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int range"}
+  - id: mutation_during_iteration
+    text: "Explain that mutating a list or mapping while iterating it makes the iterator's `next()` panic, except for removing a member already returned or changing the value at an existing key (in which case the new value is returned)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.1", kind: spec, note: "5.7.1 Iterator"}
+out_of_scope:
+  - "The Iterator/Iterable protocol in general (concept.iterability)"
+  - "Query expressions as an alternative to loops (concept.query_expressions)"
+  - "on fail clauses attached to loops (concept.error_handling)"
+  - "Type narrowing by while conditions (concept.type_narrowing)"
+edges:
+  - {to: concept.control_flow, rel: requires}
+  - {to: concept.iterability, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [int_range_step], target_items: [lang_int]}
+  - {to: concept.streams, rel: uses, via: [foreach_completion_type]}

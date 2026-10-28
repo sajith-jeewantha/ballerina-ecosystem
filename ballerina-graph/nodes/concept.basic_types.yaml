@@ -1,0 +1,65 @@
+schema_version: "0.1"
+id: concept.basic_types
+type: concept
+title: Basic types, values and the type system
+summary: How Ballerina partitions values into basic types, describes them with structural type descriptors and semantic subtyping, and the simple nil and boolean types.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.1", kind: spec, note: "5.1.1 Type system fundamentals"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.4", kind: spec, note: "5.1.4 Type descriptors"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2", kind: spec, note: "5.2 Simple values"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.1", kind: spec, note: "5.2.1 Nil"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.2", kind: spec, note: "5.2.2 Boolean"}
+must_cover:
+  - id: value_kinds
+    text: 'Classify values into the four kinds of basic type: simple (nil, boolean, int, float, decimal, tagged data), sequence (string, xml), structured (list, mapping, table) and behavioral (error, function, future, object, typedesc, handle, stream)'
+    difficulty: [beginner]
+  - id: basic_types_disjoint
+    text: Explain that every value belongs to exactly one basic type, so for example the empty string, the empty xml value and nil are distinct values
+    difficulty: [beginner, intermediate]
+  - id: storage_identity
+    text: Explain storage identity, that structured and behavioral values have it while simple values do not, so variables and members hold references to such values and mutation through one reference is visible through all of them
+    difficulty: [intermediate]
+  - id: shapes_semantic_subtyping
+    text: Explain that a type denotes a set of shapes and that subtyping is semantic, so S is a subtype of T exactly when every shape in S is in T, with no explicit declaration of compatibility (structural typing)
+    difficulty: [intermediate, advanced]
+  - id: plain_data
+    text: Define plain data as simple values, sequence values and structured values containing no behavioral values at any depth, and know that plain data (even cyclic) can be compared for equality
+    difficulty: [intermediate]
+  - id: type_descriptor_table
+    text: Name the type descriptor for each basic type (`()`, `boolean`, `int`, `float`, `decimal`, `string`, `xml`, array, tuple, `map`, record, `table`, `error`, `function`, `future`, `object`, `typedesc`, `handle`, `stream`) and the other descriptors (singleton, `readonly`, `any`, `never`, optional, union, intersection, `distinct`, `anydata`, `json`, `byte`)
+    difficulty: [beginner]
+  - id: type_descriptor_precedence
+    text: 'Apply type-descriptor precedence: `distinct T` binds tightest, then `T[]` and `T?`, then `T1 & T2`, then `T1 | T2` (both left-associative), then `function(args) returns T` (right-associative), and use `( T )` to group'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6", kind: spec, note: "5.6 Other type descriptors (parenthesized type descriptor)"}
+  - id: nil_value
+    text: Use the nil value `()` to represent absence of a value, know `null` is an alternative spelling meant only for JSON-related contexts, and that nil is the only basic type with a single value
+    difficulty: [beginner]
+  - id: boolean_values
+    text: Use the `boolean` type with the literals `true` and `false`
+    difficulty: [beginner]
+  - id: simple_types_immutable
+    text: Explain that all simple basic types are inherently immutable and that a simple type descriptor contains every value of its basic type
+    difficulty: [beginner, intermediate]
+  - id: type_definitions
+    text: Define named types with `type Name T;` (optionally `public`) and refer to them by a type reference, unqualified or as `prefix:Name` for a type defined in another module
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.5", kind: spec, note: "8.5 Module type definition"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.1", kind: spec, note: "5.6.1 Type reference"}
+  - id: value_belongs_many_types
+    text: Explain that a value has exactly one basic type yet can belong to arbitrarily many types, because type descriptors such as unions and singletons describe overlapping subsets of the universe of values
+    difficulty: [intermediate]
+out_of_scope:
+  - "Numeric types int, float, decimal and byte (concept.numeric_types)"
+  - "Union, optional, singleton, any, never and intersection descriptors in detail (concept.union_intersection_types)"
+  - "Read-only bit and the readonly type (concept.mutability_readonly)"
+  - "Distinct types and type-ids (concept.type_ids_distinct)"
+  - "Strings and XML (concept.strings, concept.xml)"
+edges:
+  - {to: concept.lexical_structure, rel: related, note: "type names and literals are built from lexical tokens"}
+  - {to: concept.langlib, rel: related, note: "each basic type has a corresponding lang library module"}
+notes: "The 5.1.4 table lists `distinct` with an empty value-set description; items do not attempt to define it beyond 5.6.6."

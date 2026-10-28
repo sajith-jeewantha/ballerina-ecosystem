@@ -1,0 +1,57 @@
+schema_version: "0.1"
+id: concept.type_cast_test
+type: concept
+title: Type casts, type tests and conversion
+summary: The distinction between casting and conversion, the `<T>` type cast expression with numeric conversion, the `is`/`!is` type test, and the error-returning `ensureType`.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.3", kind: spec, note: "6.3 Casting and conversion"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.28", kind: spec, note: "6.28 Type test expression"}
+must_cover:
+  - id: cast_vs_conversion
+    text: Distinguish casting, which checks that a value belongs to another type without changing it, from conversion, which produces a possibly different value and never mutates its input; all conversions must be explicit
+    difficulty: [beginner, intermediate]
+  - id: type_cast_basic
+    text: Write a type cast `<T> expr`, which returns the value unchanged if it belongs to T and otherwise panics
+    difficulty: [beginner]
+  - id: numeric_cast
+    text: Use a type cast to convert between numeric types when T contains exactly one numeric basic type (e.g. `<int>3.7`, `<float>n`, `<decimal>f`), applying NumericConvert and panicking if the conversion fails (e.g. NaN or out-of-range to int)
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.8.4", kind: spec, note: "5.8.4 NumericConvert"}
+  - id: cast_static_type
+    text: Explain that the static type of `<T> e` is the intersection of T with e's static type (adjusted for possible numeric conversion)
+    difficulty: [advanced]
+  - id: cannot_cast_away_error
+    text: Explain that casting a possibly-error expression to a type that excludes error is a compile error, and use `checkpanic` instead to assert an expression is not an error
+    difficulty: [intermediate]
+  - id: cast_expected_type
+    text: Explain that the contextually expected type for the operand of a cast is the intersection of the cast's own expected type and T, so constructors inside the cast build values of T
+    difficulty: [advanced]
+  - id: readonly_cast
+    text: Use `<readonly>` both to make constructors in the operand build immutable values and to verify at runtime that the result's read-only bit is on
+    difficulty: [intermediate]
+  - id: annotation_only_cast
+    text: Recognize a cast whose parameter is only annotations, such as `<@a> expr`, whose sole effect is to add annotations to the contextually expected type
+    difficulty: [advanced]
+  - id: is_expr
+    text: Use `expr is T` and `expr !is T` to test at runtime whether a value belongs to a type, producing boolean
+    difficulty: [beginner]
+  - id: ensure_type
+    text: Use `value:ensureType(v, T)` (or `v.ensureType()` with an inferred typedesc) to cast safely, returning an error instead of panicking when the value does not belong to the type
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value ensureType"}
+out_of_scope:
+  - "Narrowing variables with `is` in conditions (concept.type_narrowing)"
+  - "Structural conversion with cloneWithType / fromJsonWithType (concept.value_cloning, concept.json_anydata)"
+  - "String parsing with fromString functions (concept.string_conversion)"
+edges:
+  - {to: concept.union_intersection_types, rel: requires}
+  - {to: concept.numeric_types, rel: requires}
+  - {to: concept.numeric_types, rel: uses, via: [numeric_cast], target_items: [numeric_convert, no_implicit_conversion]}
+  - {to: concept.langlib, rel: uses, via: [ensure_type], target_items: [lang_value]}
+  - {to: concept.mutability_readonly, rel: uses, via: [readonly_cast], target_items: [constructing_immutable]}
+notes: "6.28 says the result of `is` is true if v belongs to the type; elsewhere (match patterns) 'looks like' is used, so a mutable value that merely looks like T does not satisfy `is T`."

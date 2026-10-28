@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: concept.assignment
+type: concept
+title: Assignment, compound assignment and lvalues
+summary: Assignment and compound assignment statements, with the lvalue model that defines how stores, removals, reads and filling-reads work on variables, object fields and structure members.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14", kind: spec, note: "7.14 Assignment"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.2", kind: spec, note: "7.14.2 Assignment statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.3", kind: spec, note: "7.14.3 Compound assignment statement"}
+must_cover:
+  - id: assignment_stmt
+    text: 'Write assignments `x = expr;`, `obj.f = expr;`, `m["k"] = expr;` and `arr[i] = expr;`, where the left side type provides the contextually expected type for the right side'
+    difficulty: [beginner]
+  - id: lvalue_kinds
+    text: 'Explain that an lvalue refers to a variable, a named object field or a structure member with an out-of-line key (list index or mapping key), and never to a table member'
+    difficulty: [intermediate]
+  - id: evaluation_order
+    text: 'Explain that an assignment statement evaluates the right-hand side before evaluating the left-hand lvexpr'
+    difficulty: [intermediate]
+  - id: nil_removes_member
+    text: 'Explain that assigning `()` to an optional mapping member whose type excludes nil (e.g. `r.f = ();` for `int f?`) removes the member, and removing an absent member has no effect'
+    difficulty: [advanced]
+  - id: runtime_store_checks
+    text: 'Explain why stores into structure members are checked at runtime and panic when they would violate the inherent type, add a key a closed record or fixed-length list disallows, or mutate an immutable value'
+    difficulty: [intermediate, advanced]
+  - id: impermissible_remove
+    text: 'Explain that removing a member panics when the inherent type requires that key or the mapping is immutable'
+    difficulty: [advanced]
+  - id: filling_read
+    text: 'Explain chained assignment such as `m["a"]["b"] = 1;`, where a missing intermediate member is created by a filling-read using filler values, and the store panics if no filler value can be made'
+    difficulty: [advanced]
+  - id: field_lvexpr_rules
+    text: 'Explain that `lv.f = v` on a mapping requires `f` to be an individual field of the type (in every union member) and `lv` not to be potentially uninitialized, though it may be potentially undefined'
+    difficulty: [advanced]
+  - id: member_lvexpr_rules
+    text: 'Explain that `lv[k] = v` needs a `string` key for mappings and an `int` key for lists'
+    difficulty: [intermediate]
+  - id: compound_assignment
+    text: 'Use compound assignment operators `+=`, `-=`, `*=`, `/=`, `&=`, `|=`, `^=`, `<<=`, `>>=` and `>>>=`, where `x op= e` must be valid for the non-nil-lifted operator and its result must be a subtype of the type of `x`'
+    difficulty: [beginner, intermediate]
+  - id: compound_undefined
+    text: 'Explain that a compound assignment target must not be potentially uninitialized or potentially undefined (unless it is a list member), and that it panics at runtime if the list member is undefined'
+    difficulty: [advanced]
+  - id: isolated_variable_lvalue
+    text: 'Explain that assigning to a module variable declared `isolated` is allowed only inside a `lock` statement'
+    difficulty: [intermediate]
+out_of_scope:
+  - "Destructuring assignment (concept.binding_patterns)"
+  - "Variable declarations, final and definite assignment (concept.variables)"
+  - "The filler value table (concept.filler_values)"
+edges:
+  - {to: concept.field_member_access, rel: requires}
+  - {to: concept.variables, rel: requires}
+  - {to: concept.filler_values, rel: uses, via: [filling_read]}
+  - {to: concept.arithmetic_operators, rel: uses, via: [compound_assignment]}
+  - {to: concept.lock_statement, rel: uses, via: [isolated_variable_lvalue]}
+  - {to: concept.mutability_readonly, rel: uses, via: [runtime_store_checks, impermissible_remove]}
+notes: "7.14.1 member-access-lvexpr evaluation says 'evaluate expression ... then evaluate lvexpr' (key before container), whereas 6.14 member-access-expr evaluates container first; the lvalue text also says 'member of c' where it means v (typo)."

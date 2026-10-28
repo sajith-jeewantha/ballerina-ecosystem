@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: concept.union_intersection_types
+type: concept
+title: Union, optional, singleton, any, never and intersection types
+summary: Type descriptors that describe subsets of the existing values, such as unions, optional types, singleton types, any, never and intersections.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6", kind: spec, note: "5.6 Other type descriptors"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.2", kind: spec, note: "5.6.2 Singleton types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.3", kind: spec, note: "5.6.3 Any type"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.4", kind: spec, note: "5.6.4 Never type"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.7", kind: spec, note: "5.6.7 Union types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.8", kind: spec, note: "5.6.8 Intersection types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.9", kind: spec, note: "5.6.9 Optional types"}
+must_cover:
+  - id: no_new_values
+    text: Explain that these type descriptors add no new values to the universe; they only describe subsets of existing values
+    difficulty: [intermediate]
+  - id: union_types
+    text: Declare union types such as `int|string`, whose shapes are the union of the members' shapes, and use them for variables and parameters that accept several types
+    difficulty: [beginner]
+  - id: optional_types
+    text: Use optional types `T?`, which are exactly equivalent to `T|()`
+    difficulty: [beginner]
+  - id: singleton_types
+    text: Define singleton types from constant expressions, such as `"GET"|"POST"` or `1|2|3`, each containing exactly one shape
+    difficulty: [beginner, intermediate]
+  - id: singleton_structured_readonly
+    text: Explain that a singleton type referencing a structured constant contains only values with the read-only bit set, so a mutable value never belongs to a singleton type
+    difficulty: [advanced]
+  - id: any_type
+    text: Use `any` for every value except errors, know that `any|error` covers all values, and that a list or mapping containing error members still belongs to `any`
+    difficulty: [beginner, intermediate]
+  - id: never_type
+    text: Use `never` for the empty type, for example as the return type of a function that never returns or in `xml<never>` for the empty xml value, and know `T|never` is the same as `T`
+    difficulty: [intermediate]
+  - id: intersection_types
+    text: Write intersection types `T1 & T2` whose shapes are in both types, most commonly `readonly & T`, and know an intersection that denotes an empty set of shapes is a compile error
+    difficulty: [intermediate]
+  - id: intersection_function_types
+    text: Explain that intersecting two function types is an error unless a single function type descriptor is a subtype of both
+    difficulty: [advanced]
+  - id: not_classes
+    text: Explain that `T1|T2` and `T1&T2` are not classes and cannot be used with `new`, even when T1 or T2 is a class
+    difficulty: [intermediate]
+  - id: readonly_record_defaults
+    text: Explain that for `R & readonly` with a record type R, a field default whose closure returns a Cloneable value is wrapped to apply ImmutableClone, and otherwise the field loses its default
+    difficulty: [advanced]
+  - id: definite_unions
+    text: Explain that `any` is not definite and a union is definite only if its members are definite and induce the same type-ids, which matters when constructing objects or errors from the expected type
+    difficulty: [advanced]
+out_of_scope:
+  - "The readonly type and read-only bit (concept.mutability_readonly)"
+  - "anydata and json (concept.json_anydata)"
+  - "distinct types (concept.type_ids_distinct)"
+  - "Narrowing union-typed variables (concept.type_narrowing)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.type_ids_distinct, rel: uses, via: [definite_unions], target_items: [definite_type_descriptors]}
+  - {to: concept.value_cloning, rel: uses, via: [readonly_record_defaults], target_items: [immutable_clone]}

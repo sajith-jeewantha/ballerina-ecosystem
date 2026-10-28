@@ -1,0 +1,49 @@
+schema_version: "0.1"
+id: concept.filler_values
+type: concept
+title: Filler values and FillMember
+summary: The FillMember abstract operation and the filler value defined for each type descriptor, which let lists and mappings be filled in automatically.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#FillMember", kind: spec, note: "5.8.1 FillMember"}
+must_cover:
+  - id: fill_member
+    text: Explain FillMember(s, k), which adds a member with key k to a structured value only if its inherent type allows that key and a filler value exists for the required member type, and otherwise fails
+    difficulty: [advanced]
+  - id: simple_fillers
+    text: 'Name the filler values of simple types: `()` for nil, `false` for boolean, `0` for int, byte and built-in int subtypes, `+0.0f` for float, `+0d` for decimal and `""` for string'
+    difficulty: [intermediate]
+  - id: structured_fillers
+    text: Explain that arrays and tuples have filler `[]` and maps and records have filler `{}` only when that is a valid constructor for the type (so a record with required fields has no filler), and tables fill with an empty table
+    difficulty: [intermediate, advanced]
+  - id: other_fillers
+    text: Name the remaining fillers, namely an empty stream for streams, `xml``` for xml and for `xml:Text` (but not other xml built-in subtypes), `re``` for `regexp:RegExp`, and the single value for a singleton type
+    difficulty: [advanced]
+  - id: object_filler
+    text: Explain that an object type has filler `new T()` only when T is a class whose `init` method allows no arguments and cannot return an error
+    difficulty: [advanced]
+  - id: union_fillers
+    text: 'Explain union fillers: `()` when nil is a member (so `T?`, `any`, `anydata` and `json` fill with `()`), or the basic type''s filler when all members share one basic type and that filler belongs to the union; `readonly & T` uses T''s filler constructed read-only if it belongs'
+    difficulty: [advanced]
+  - id: partial_list_constructor
+    text: Use filler values to give fewer members than a fixed length in a list constructor, e.g. `int[3] a = [1];` yields `[1, 0, 0]`, which is a compile error when the member type has no filler
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.1", kind: spec, note: "6.7.1 List constructor"}
+  - id: store_beyond_length
+    text: Explain that storing to index k beyond a list's length fills indices in between with FillMember, and panics if filling fails, for example on a fixed-length array
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+  - id: filling_read
+    text: Explain the filling-read used by chained assignments such as `m["a"]["b"] = 1;`, which creates a missing intermediate member with FillMember and panics if no filler exists
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+out_of_scope:
+  - "General assignment semantics (concept.assignment)"
+edges:
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.maps, rel: requires}
+notes: "Filling-read is described for lvalues with a structured static type; the example `m[\"a\"][\"b\"] = 1` assumes the member type of m has a `{}` filler (e.g. map<map<int>>)."

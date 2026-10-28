@@ -1,0 +1,81 @@
+schema_version: "0.1"
+id: concept.isolation
+type: concept
+title: "Isolation: isolated functions, objects, variables and expressions"
+summary: The isolation model that guarantees data-race freedom through isolated functions, isolated objects and classes, isolated module variables, isolated expressions and compiler-inferred isolation.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.3", kind: spec, note: "5.1.3 Isolation"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#isolated_expressions", kind: spec, note: "6.2.6 Isolated expressions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#isolated_functions", kind: spec, note: "7.3.5 Isolated functions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.3", kind: spec, note: "8.3.3 Isolated inference"}
+must_cover:
+  - id: isolated_roots
+    text: "Explain the isolation guarantee: isolated objects and isolated variables are isolated roots whose freely reachable mutable state is accessed only under a lock statement, so there are no data races on it"
+    difficulty: [intermediate, advanced]
+  - id: isolated_function_guarantee
+    text: "Explain what calling an `isolated` function guarantees: it touches only mutable state reachable from its arguments (on the calling strand), state reachable from isolated variables or isolated objects, and new values it creates"
+    difficulty: [advanced]
+  - id: isolated_calls
+    text: "Write `isolated function` bodies that call only isolated functions and methods, including an isolated `init` when using `new` or an object constructor (a missing init counts as isolated)"
+    difficulty: [intermediate]
+  - id: module_state_rules
+    text: "Know that an isolated function may read a non-isolated module-level identifier only if it is declared `final` or `configurable` (or by a listener or service declaration) and its static type is a subtype of `readonly` or `isolated object {}`, and may never assign a non-isolated module variable"
+    difficulty: [intermediate, advanced]
+  - id: captured_variables
+    text: "Know that an anonymous function or named worker in an isolated function may only capture variables that are final and have a readonly or isolated-object type"
+    difficulty: [advanced]
+  - id: start_in_isolated
+    text: "Know that an isolated function may contain a `start` only when the started call is isolated"
+    difficulty: [advanced]
+  - id: isolated_module_variables
+    text: "Declare `isolated` module variables, which must not be public, must bind a plain variable name and must have an isolated initializer, and access them only inside `lock`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.7", kind: spec, note: "8.7 Module variable declaration"}
+  - id: isolated_expressions
+    text: "Identify isolated expressions: any expression whose static type is readonly or an isolated object, list, mapping and table constructors, templates, casts, `check`, `trap` and conditional expressions whose subexpressions are isolated, range expressions, and calls to `clone` or `cloneReadOnly`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: isolated_objects
+    text: "Define isolated objects with `isolated class C { ... }` or `isolated object { ... }`, where every field initializer must be isolated, fields that are not isolated (final with readonly or isolated-object type) must be `private`, and `self` must be used inside a `lock` except in `self.f` where `f` is an isolated field"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.6", kind: spec, note: "8.6 Module class definition"}
+  - id: implicitly_isolated_objects
+    text: "Know that an object constructor is implicitly isolated (its isolated bit is set and its type intersected with `isolated object {}`) when it is implicitly readonly or all its fields are isolated"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
+  - id: isolated_function_types
+    text: "Know that an `isolated function` type admits only function values with the isolated bit set, and that a method value obtained by `obj.m` is isolated only if both the object and the method are"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.10", kind: spec, note: "6.10 Field access expression"}
+  - id: isolated_external
+    text: "Know that an isolated function with an external body must itself access only mutable state reachable from its parameters and behave correctly when called concurrently from several strands"
+    difficulty: [advanced]
+  - id: isolated_inference
+    text: "Explain isolated inference: the compiler may infer `isolated` for service declarations, object constructors (added in 2024R1), module variables, classes, functions and methods that would meet the rules, as an optimization that does not change types visible to other modules"
+    difficulty: [advanced]
+  - id: concurrency_benefit
+    text: "Know why isolation matters: listeners can use the isolated bit of services and remote methods to call them concurrently, and named workers, forks and isolated starts in isolated functions may run on separate threads"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.3", kind: spec, note: "8.3.3 Isolated inference"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.2", kind: spec, note: "7.3.2 Workers"}
+out_of_scope:
+  - "Lock statement rules (concept.lock_statement)"
+  - "Readonly and immutability (concept.mutability_readonly)"
+  - "@isolatedParam on langlib functions (concept.langlib_conventions)"
+edges:
+  - {to: concept.functions, rel: requires}
+  - {to: concept.mutability_readonly, rel: requires}
+  - {to: concept.objects, rel: requires}
+  - {to: concept.lock_statement, rel: uses, via: [isolated_module_variables, isolated_objects], target_items: [isolated_var_access, self_in_isolated_object]}
+  - {to: concept.services_listeners, rel: uses, via: [isolated_inference, concurrency_benefit]}
+  - {to: concept.strands_workers, rel: related}

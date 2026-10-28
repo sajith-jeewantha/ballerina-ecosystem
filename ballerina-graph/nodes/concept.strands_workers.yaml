@@ -1,0 +1,62 @@
+schema_version: "0.1"
+id: concept.strands_workers
+type: concept
+title: Strands, named workers and fork
+summary: Ballerina's concurrency model of threads and cooperatively scheduled strands, the default and named workers of a function, and the fork statement.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.2", kind: spec, note: "7.2 Threads and strands"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.2", kind: spec, note: "7.3.2 Workers"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.5", kind: spec, note: "7.5 Fork statement"}
+must_cover:
+  - id: threads_strands
+    text: "Explain the concurrency model: a program runs on one or more threads, each divided into strands that are cooperatively multitasked like coroutines, so two strands of the same thread never run at the same time"
+    difficulty: [intermediate]
+  - id: yielding
+    text: "Identify what makes a strand yield: receive actions, wait actions, flush actions, sync send actions, `runtime:sleep`, and external functions that block; other langlib functions do not yield by themselves"
+    difficulty: [intermediate]
+  - id: new_strands
+    text: "Know that only named worker declarations and `start` create new strands, which stay on the current thread unless the spec allows otherwise (named workers and fork in an isolated function, or an isolated start)"
+    difficulty: [advanced]
+  - id: named_workers
+    text: "Declare named workers in a function body with `worker w returns T { ... }` (return type defaulting to `()`), each running on its own new strand"
+    difficulty: [beginner, intermediate]
+  - id: default_worker
+    text: "Explain the default worker: the function's unnamed worker runs on the caller's strand, its termination value becomes the function's return value, and a panic in it makes the call panic"
+    difficulty: [intermediate]
+  - id: three_stages
+    text: "Explain that with named workers a function body runs in three stages: statements before the worker declarations, then all named workers start, then the remaining default-worker statements run without waiting for the workers"
+    difficulty: [intermediate]
+  - id: worker_scope
+    text: "Know that parameters and variables declared before the worker declarations are visible inside named workers, while variables declared after them in the default worker are not"
+    difficulty: [intermediate]
+  - id: worker_name_future
+    text: "Use a worker name as a variable reference to get a `future<T>` for its return value, and know it is a compile error if that name could be evaluated more than once in one execution"
+    difficulty: [advanced]
+  - id: function_does_not_wait
+    text: "Know that when a function's default worker terminates the function returns without waiting for, or terminating, its named workers"
+    difficulty: [intermediate]
+  - id: worker_termination
+    text: "Distinguish normal termination (with success, or with failure when the termination value is an error) from abnormal termination caused by a panic, and know that falling off the end of a worker returns `()`"
+    difficulty: [intermediate]
+  - id: fork_stmt
+    text: "Use `fork { worker a { ... } worker b { ... } }` to start workers that run in parallel on new strands, see in-scope variables, and whose names can be referenced after the fork statement"
+    difficulty: [intermediate]
+  - id: fork_peers
+    text: "Know that workers created by a fork statement are peers of each other but not of the function's default worker or its named workers"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8", kind: spec, note: "7.8 Worker message passing"}
+  - id: transactional_worker
+    text: "Declare `transactional worker w { ... }` only in the body of a `transactional` function; such a worker is a transactional scope"
+    difficulty: [advanced]
+out_of_scope:
+  - "start, futures and wait (concept.futures_wait)"
+  - "Message passing between workers (concept.worker_messages)"
+  - "on fail on named workers (concept.error_handling)"
+  - "Isolation rules that allow parallel threads (concept.isolation)"
+edges:
+  - {to: concept.functions, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [yielding], target_items: [lang_runtime]}
+  - {to: concept.worker_messages, rel: related}

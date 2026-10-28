@@ -1,0 +1,64 @@
+schema_version: "0.1"
+id: concept.annotations
+type: concept
+title: Annotations
+summary: Structured metadata attached to constructs with @tag annotations, declared with annotation declarations and readable at runtime through typedesc values.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#metadata", kind: spec, note: "9 Metadata"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.1", kind: spec, note: "9.1 Annotations"}
+must_cover:
+  - id: annotation_syntax
+    text: "Attach annotations such as `@marker`, `@info {label: \"Name\"}` or the qualified `@mod:config {...}` in a construct's metadata (after any documentation string), with several annotations allowed on one construct"
+    difficulty: [beginner]
+  - id: annotation_decl
+    text: "Declare annotation tags with `annotation Info info on function;` (optionally `public` and `const`), knowing annotation tags live in their own symbol space, separate from other module declarations and from module and XML namespace prefixes"
+    difficulty: [intermediate]
+  - id: annotation_types
+    text: "Explain that an annotation tag's type must be a subtype of `true`, `map<value:Cloneable>` or `map<value:Cloneable>[]`, defaulting to `true` when omitted, and that a `true`-typed annotation cannot take a mapping value"
+    difficulty: [intermediate]
+  - id: repeated_annotations
+    text: "Explain that when a tag's type is `M[]` the annotation may be applied several times and its effective value is an array of the values; otherwise only one annotation with that tag is allowed on a construct"
+    difficulty: [intermediate, advanced]
+  - id: annotation_value
+    text: "Explain that an omitted annotation value defaults to `{}` for mapping-typed tags, that the mapping constructor is evaluated with the tag's mapping type as the contextually expected type, and that the result has ImmutableClone applied"
+    difficulty: [advanced]
+  - id: attach_points
+    text: "Restrict where a tag may be used with attachment points: `type`, `class`, `function`, `object function`, `service remote function`, `return`, `parameter`, `service`, `field`, `object field`, `record field`, and the source-only `annotation`, `external`, `var`, `const`, `listener`, `client` and `worker`"
+    difficulty: [intermediate]
+  - id: source_only
+    text: "Explain that an attachment point prefixed with `source` attaches the annotation to the source fragment only (not available at runtime), and that the annotation declaration must then be `const`"
+    difficulty: [advanced]
+  - id: const_annotations
+    text: "Explain that for a `const` annotation tag the value must be a const-expr evaluated at compile time, whereas other annotation values are evaluated at runtime"
+    difficulty: [advanced]
+  - id: evaluation_time
+    text: "Explain when annotations are evaluated: those on module-level declarations during module initialization, those on a service constructor when it is evaluated, and those inside a type descriptor when it is resolved"
+    difficulty: [advanced]
+  - id: runtime_access
+    text: "Read an annotation at runtime with the annotation access expression `t.@tag`, where `t` is a `typedesc`, which yields the annotation value or `()` and has static type `T?`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.13", kind: spec, note: "6.13 Annotation access expression"}
+  - id: runtime_targets
+    text: "Explain which type descriptor a non-source annotation is attached to at runtime: the defined type for `type` and `class`, the function's type for `function`, `return` and `parameter`, and the containing mapping, list or object type for fields"
+    difficulty: [advanced]
+  - id: unqualified_tags
+    text: "Explain that an unqualified annotation tag reference does not refer to a tag declared in the same module; the compilation environment decides which unqualified tags exist and which module defines them, while a qualified reference resolves through an import"
+    difficulty: [advanced]
+  - id: annotation_only_cast
+    text: "Use a type cast containing only annotations, `<@tag {...}> expr`, whose only effect is to add the annotations to the contextually expected type of `expr`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
+out_of_scope:
+  - "Documentation strings (concept.documentation)"
+  - "Specific platform or standard-library annotations"
+edges:
+  - {to: concept.maps, rel: requires}
+  - {to: concept.constants_enums, rel: requires}
+  - {to: concept.typedesc, rel: uses, via: [runtime_access, runtime_targets]}
+  - {to: concept.value_cloning, rel: uses, via: [annotation_value]}
+  - {to: concept.documentation, rel: related, via: [annotation_syntax], target_items: [doc_lines]}
+notes: "The source-only-attach-point grammar includes `client`, but the attachment-point table in 9.1 has no `client` row, so what it attaches to is unclear. 9.1 also says 'annotation-tag-reference' where the grammar says 'annot-tag-reference'."

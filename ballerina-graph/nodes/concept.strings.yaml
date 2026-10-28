@@ -1,0 +1,68 @@
+schema_version: "0.1"
+id: concept.strings
+type: concept
+title: Strings and string templates
+summary: The immutable string sequence type of Unicode scalar values, string literals and escapes, indexing, iteration, concatenation and string template expressions.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.3", kind: spec, note: "5.3 Sequence values"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.3.1", kind: spec, note: "5.3.1 Strings"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6", kind: spec, note: "6.6 Template expressions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.1", kind: spec, note: "6.6.1 String template expression"}
+must_cover:
+  - id: string_values
+    text: Explain that a string is a sequence of zero or more Unicode scalar values (code points 0x0 to 0x10FFFF excluding surrogates), may contain noncharacters such as 0xFFFE, and is inherently immutable with no storage identity
+    difficulty: [beginner, intermediate]
+  - id: string_literals
+    text: Write double-quoted string literals that cannot contain raw newlines, using the escapes `\t`, `\n`, `\r`, `\\`, `\"` and numeric escapes `\u{1F600}`
+    difficulty: [beginner]
+  - id: sequence_semantics
+    text: Explain sequence semantics for strings, that a single character is itself a string of length 1 (a singleton), concatenating with the empty string gives the same value, and this differs from lists whose members are separate values
+    difficulty: [intermediate]
+  - id: string_char
+    text: Use the built-in subtype `string:Char` for strings of length 1
+    difficulty: [beginner, intermediate]
+  - id: string_indexing
+    text: Index a string with `s[i]` to get a `string:Char`, knowing it panics when `i < 0` or `i >= s.length()`
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+  - id: string_iteration
+    text: Iterate over a string with `foreach`, which yields each character as a `string:Char` in order with nil completion
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+  - id: string_concat
+    text: Concatenate strings with `+`, whose static type is `string` modified by singleton typing when both operands are constant
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.24", kind: spec, note: "6.24 Additive expression"}
+  - id: string_template
+    text: 'Build strings with string templates ``string `Hello ${name}!` ``, where each interpolation `${expr}` must have static type that is a subtype of `boolean|int|float|decimal|string`'
+    difficulty: [beginner]
+  - id: template_evaluation
+    text: Explain that string template interpolations are evaluated left to right and each result is converted with the direct-style ToString, so `string `${1.0}`` gives "1.0"
+    difficulty: [intermediate]
+  - id: backtick_string_rules
+    text: Explain that every character in a BacktickString outside `${...}` is literal (no escape sequences), and include a literal backtick with the interpolation `${"`"}`
+    difficulty: [intermediate]
+  - id: string_ordering
+    text: Compare strings with `<`, `<=`, `>`, `>=`, which order lexicographically by Unicode code point
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ordering", kind: spec, note: "5.8.6 Ordering"}
+  - id: string_langlib
+    text: Call `lang.string` functions with method-call syntax, such as `s.length()`, `s.substring(0, 3)`, `s.indexOf("x")`, `s.trim()` and `s.toUpperAscii()`
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.string", kind: spec, note: "11.3.13 lang.string"}
+out_of_scope:
+  - "Detailed lang.string function semantics (concept.langlib_string)"
+  - "XML, raw and regular-expression templates (concept.xml, concept.raw_templates, concept.regexp)"
+  - "toString / toBalString conversions (concept.string_conversion)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [string_langlib, string_char], target_items: [lang_string]}
+  - {to: concept.string_conversion, rel: uses, via: [template_evaluation], target_items: [tostring_styles]}
+notes: "String literal grammar has only double-quoted literals; there is no separate multi-line string literal form in 2024R1."

@@ -1,0 +1,62 @@
+schema_version: "0.1"
+id: concept.langlib_string
+type: concept
+title: lang.string functions
+summary: Detailed semantics of the `lang.string` module's functions for measuring, slicing, searching, comparing, case-converting, padding, encoding and regex-matching strings.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.string", kind: spec, note: "11.3.13 lang.string module"}
+must_cover:
+  - id: length_iteration
+    text: "Use `str.length()`, which counts characters (code points), and iterate over a string with `foreach` or `str.iterator()`, which yields length-1 substrings of type `string:Char` in order"
+    difficulty: [beginner]
+  - id: char_type
+    text: "Use the built-in subtype `string:Char` for single-character strings, e.g. as the type of `padChar` and of `toCodePointInt`'s parameter"
+    difficulty: [beginner, intermediate]
+  - id: concat_join
+    text: "Combine strings with `string:concat(...strs)` (empty string for no arguments) and `string:'join(separator, ...strs)` (separator placed between the strings)"
+    difficulty: [beginner]
+  - id: substring
+    text: "Extract text with `substring(startIndex, endIndex = str.length())`, which returns the characters with index >= startIndex and < endIndex"
+    difficulty: [beginner]
+  - id: search
+    text: "Search with `indexOf(substr, startIndex = 0)` (first occurrence at or after startIndex) and `lastIndexOf(substr, startIndex = str.length() - substr.length())` (last occurrence at or before startIndex), which return `int?` with nil when not found, and with `includes(substr, startIndex = 0)`"
+    difficulty: [beginner, intermediate]
+  - id: starts_ends
+    text: "Test prefixes and suffixes with `startsWith(substr)` and `endsWith(substr)`"
+    difficulty: [beginner]
+  - id: ascii_case
+    text: "Change case with `toLowerAscii` and `toUpperAscii`, which convert only A-Z/a-z and leave other characters unchanged, and compare case-insensitively with `equalsIgnoreCaseAscii`"
+    difficulty: [beginner]
+  - id: trim
+    text: "Use `trim()` to remove ASCII white space (0x9 to 0xD and 0x20) from both ends of a string"
+    difficulty: [beginner]
+  - id: code_point_compare
+    text: "Compare strings with `codePointCompare(str1, str2)`, which returns a negative, zero or positive int by lexicographic Unicode code point order, and know that this order often differs from culturally expected sort order"
+    difficulty: [intermediate]
+  - id: code_points
+    text: "Convert between strings and code points with `getCodePoint(index)`, `toCodePointInts()`, `toCodePointInt(ch)`, `fromCodePointInts(ints)` and `fromCodePointInt(cp)`, where the `from` functions return an error for an invalid code point (outside 0 to 0x10FFFF or in the surrogate range 0xD800 to 0xDFFF)"
+    difficulty: [intermediate]
+  - id: utf8_bytes
+    text: "Encode a string to UTF-8 with `toBytes()` returning `byte[]` and decode with `string:fromBytes(bytes)`, which returns `string|error`"
+    difficulty: [beginner, intermediate]
+  - id: padding
+    text: "Pad strings to a length with `padStart(len, padChar = \" \")` and `padEnd(len, padChar = \" \")`, which return `str` unchanged when its length is already >= `len`"
+    difficulty: [beginner]
+  - id: pad_zero
+    text: "Use `padZero(len, zeroChar = \"0\")` to add zeros at the start of a string but after a leading `+` or `-` sign, e.g. for formatting numbers to a fixed width"
+    difficulty: [intermediate]
+  - id: regexp_matching
+    text: "Match strings against `re` regular expressions with `str.matches(re)`, which requires a full match (equivalent to `regexp:isFullMatch(re, str)`), and `str.includesMatch(re, startIndex = 0)`, which accepts a match anywhere (equivalent to `regexp:find(re, str, startIndex) != ()`)"
+    difficulty: [intermediate]
+out_of_scope:
+  - "String literals, escapes, string templates and immutability (concept.strings)"
+  - "Converting other values to strings and parsing numbers (concept.string_conversion, concept.langlib_numeric)"
+  - "Regular expression syntax and the full lang.regexp API (concept.regexp, concept.langlib_regexp)"
+edges:
+  - {to: concept.strings, rel: requires}
+  - {to: concept.langlib, rel: part_of}
+  - {to: concept.langlib_regexp, rel: uses, via: [regexp_matching], target_items: [full_match, find_first]}
+  - {to: concept.langlib_conventions, rel: uses, via: [char_type, length_iteration], target_items: [builtin_subtypes]}
+notes: "The doc comment for `matches` says it is equivalent to `regex:isFullMatch`; the module prefix is spelled `regex` there (a typo for `regexp`). The spec does not say whether `substring` or `getCodePoint` panic on out-of-range indexes, so no such claim is made."

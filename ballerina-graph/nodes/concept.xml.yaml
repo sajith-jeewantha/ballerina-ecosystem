@@ -1,0 +1,73 @@
+schema_version: "0.1"
+id: concept.xml
+type: concept
+title: XML values and XML templates
+summary: The xml sequence type with its element, processing instruction, comment and text items, xml<T> types, xml template expressions, concatenation, mutability and storage identity.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.3", kind: spec, note: "5.3 Sequence values"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#XML", kind: spec, note: "5.3.2 XML"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.2", kind: spec, note: "6.6.2 XML template expression"}
+must_cover:
+  - id: xml_sequence
+    text: 'Explain that an xml value is a sequence of element, processing instruction, comment and text items, that a single item is itself a sequence, and that the empty xml value is distinct from `""` and `()`'
+    difficulty: [beginner, intermediate]
+  - id: builtin_subtypes
+    text: 'Use the built-in subtypes `xml:Element`, `xml:ProcessingInstruction`, `xml:Comment` and `xml:Text`, knowing that `xml:Text` also includes the empty xml value'
+    difficulty: [beginner]
+  - id: xml_type_parameter
+    text: 'Use `xml<T>` for sequences whose items all belong to `T` (e.g. `xml<xml:Element>`), and know that `xml<xml<T>>` equals `xml<T>`, `xml<xml:Text>` equals `xml:Text`, and `xml<never>` is just the empty value'
+    difficulty: [intermediate]
+  - id: text_merging
+    text: 'Explain that consecutive text items are merged when an xml value is constructed, so an xml value never contains two adjacent text items'
+    difficulty: [intermediate]
+  - id: element_structure
+    text: 'Describe an element as a name string, an attributes map of type `map<string>` and children of type `xml`'
+    difficulty: [beginner]
+  - id: storage_identity
+    text: 'Explain that element, processing instruction and comment singletons have storage identity while text items and longer sequences do not, and that a sequence compares with `===` item by item'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.29", kind: spec, note: "6.29 Equality expression"}
+  - id: xml_mutability
+    text: 'Explain that `xml:Text` is inherently immutable, elements, processing instructions and comments are selectively immutable, a multi-item sequence is read-only only if all its items are, and a read-only element has read-only attributes and children'
+    difficulty: [advanced]
+  - id: fixed_constituents
+    text: 'Explain that mutable items of an xml value can be mutated but the number and identity of its constituents, and the identity of an element attributes map, are fixed at construction'
+    difficulty: [advanced]
+  - id: xml_template
+    text: 'Construct xml with templates such as `xml `<book id="${id}">${title}</book>``, which are parsed as XML content with interpolations allowed only in character data and attribute values (not namespace attributes)'
+    difficulty: [beginner, intermediate]
+  - id: template_interpolation_types
+    text: 'Explain that attribute interpolations must be non-nil simple types (expected type `string`), content interpolations may be `xml` or a non-nil simple type converted to a string, and each evaluation makes a new copy with interpolations evaluated in order'
+    difficulty: [intermediate, advanced]
+  - id: const_xml_template
+    text: 'Explain that an xml template inside a constant expression constructs a read-only xml value'
+    difficulty: [advanced]
+  - id: xml_concatenation
+    text: 'Concatenate xml with `x1 + x2` (no copying of constituents), and with strings, where a non-empty string acts as a text item and an empty string yields the xml operand unchanged'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.24", kind: spec, note: "6.24 Additive expression"}
+  - id: xml_iteration
+    text: 'Iterate over the items of an `xml<T>` value with `foreach`, each iteration value being a singleton of type `T`'
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+  - id: xml_langlib
+    text: 'Use `lang.xml` functions such as `elements`, `children`, `getName`, `getAttributes`, `getChildren`, `data`, `createElement` and `fromString` through method-call syntax'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.xml", kind: spec, note: "11.3.16 lang.xml module"}
+out_of_scope:
+  - "Namespaces and expanded names (concept.xml_namespaces)"
+  - "Attribute access and navigation expressions (concept.xml_navigation)"
+  - "Indexing x[i] (concept.field_member_access)"
+  - "Per-function lang.xml semantics (concept.langlib_xml)"
+edges:
+  - {to: concept.strings, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [xml_langlib], target_items: [lang_xml]}
+  - {to: concept.langlib_xml, rel: uses, via: [xml_langlib]}
+  - {to: concept.mutability_readonly, rel: uses, via: [xml_mutability, const_xml_template]}
+notes: "6.6.2 says the contextually expected type for content interpolations is xml, but a non-xml simple-typed value is still accepted and converted to a string (not an error)."

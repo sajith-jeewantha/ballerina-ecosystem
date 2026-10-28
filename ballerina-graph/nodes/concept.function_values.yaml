@@ -1,0 +1,66 @@
+schema_version: "0.1"
+id: concept.function_values
+type: concept
+title: Function types, function values and anonymous functions
+summary: Functions as first-class values described by function type descriptors, created with anonymous function expressions and called dynamically.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.18", kind: spec, note: "6.18 Anonymous function expression"}
+must_cover:
+  - id: function_type_desc
+    text: "Write function type descriptors such as `function (int, string) returns boolean` and store, pass and return function values like any other value"
+    difficulty: [beginner]
+  - id: any_function
+    text: "Use the bare `function` type, to which every function value belongs, and `isolated function`, to which exactly the isolated function values belong"
+    difficulty: [intermediate]
+  - id: function_subtyping
+    text: "Explain that function types are covariant in their return type and contravariant in their parameter list type, and that parameter names and default values do not affect a function's shape or typing"
+    difficulty: [advanced]
+  - id: isolated_qual
+    text: "Explain that a function type with an `isolated` qualifier admits only function values whose isolated bit is set, while a type without it ignores the isolated bit"
+    difficulty: [intermediate]
+  - id: transactional_qual
+    text: "Explain that a function value with the transactional bit set can only be called in a transactional scope, so a function type without `transactional` is a subtype of the same type with `transactional`, the opposite direction to `isolated`"
+    difficulty: [advanced]
+  - id: explicit_anon
+    text: "Write explicit anonymous functions such as `function (int x) returns int { return x + 1; }` or `function (int x) returns int => x + 1`"
+    difficulty: [beginner]
+  - id: infer_anon
+    text: "Write inferred anonymous functions such as `x => x * 2` or `(a, b) => a + b` in contexts that expect a function type, where the parameter types and whether the function is `isolated` are inferred from the expected type"
+    difficulty: [beginner, intermediate]
+  - id: infer_anon_typing
+    text: "Explain that an inferred anonymous function's return type is the static type of its body expression, which gets the expected function type's return type as its contextually expected type, and that it is inferred `transactional` if the body calls transactional functions"
+    difficulty: [advanced]
+  - id: closures
+    text: "Explain that an anonymous function captures outer local variables by reference: the closure refers to the same storage as the original variable, not a copy"
+    difficulty: [intermediate]
+  - id: call_function_values
+    text: "Call a function value held in a variable or parameter with ordinary call syntax `f(1)`, and call an object field of function type with method-call syntax `obj.handler(1)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: bound_method
+    text: "Obtain a method as a function value with field access `obj.method` (without calling it), producing a function that calls the method with `self` bound to `obj`, whose isolated bit is set only if both the object and the method are isolated"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.10", kind: spec, note: "6.10 Field access expression"}
+  - id: dynamic_call
+    text: "Call a function dynamically with `function:call(func, ...args)` from lang.function, which returns `any|error` and panics if the arguments are not of the types the function requires"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.function", kind: spec, note: "11.3.6 lang.function module"}
+  - id: defaults_in_type
+    text: "Explain that the closures computing default parameter values are part of a function's type descriptor, created when it is resolved and called by the caller, and that with an `isolated` function type a default expression must meet the isolated-function requirements"
+    difficulty: [advanced]
+out_of_scope:
+  - "Function definitions and argument passing (concept.functions)"
+  - "Isolation rules for captured variables in isolated functions (concept.isolation)"
+  - "Transactional scopes (concept.transactions)"
+edges:
+  - {to: concept.functions, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [dynamic_call], target_items: [lang_function]}
+  - {to: concept.isolation, rel: uses, via: [isolated_qual, defaults_in_type]}
+  - {to: concept.transactions, rel: uses, via: [transactional_qual, infer_anon_typing]}
+  - {to: concept.objects, rel: uses, via: [call_function_values, bound_method], target_items: [method_call]}

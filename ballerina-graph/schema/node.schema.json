@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "to": {
+          "description": "Target node id.",
+          "pattern": "^(concept|lib|tool|topic)(\\.[a-z0-9_]+)+$",
+          "title": "To",
+          "type": "string"
+        },
+        "rel": {
+          "enum": [
+            "requires",
+            "implements",
+            "uses",
+            "part_of",
+            "counterpart_of",
+            "alternative_to",
+            "related"
+          ],
+          "title": "Rel",
+          "type": "string"
+        },
+        "via": {
+          "description": "Item ids on the source node.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Via",
+          "type": "array"
+        },
+        "target_items": {
+          "description": "Item ids on the target node.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Items",
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "to",
+        "rel"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "Item": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Unique within the node.",
+          "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "description": "What must be covered, written as a concrete capability.",
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "difficulty": {
+          "items": {
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ],
+            "type": "string"
+          },
+          "title": "Difficulty",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "replaced_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Item id in the same node that supersedes this one.",
+          "title": "Replaced By"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "description": "Link to the spec section, Ballerina by Example page, Central docs, etc.",
+          "title": "Url",
+          "type": "string"
+        },
+        "kind": {
+          "default": "other",
+          "enum": [
+            "spec",
+            "bbe",
+            "central",
+            "docs",
+            "github",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "Source",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "description": "Schema version the file was written against.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^(concept|lib|tool|topic)(\\.[a-z0-9_]+)+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "concept",
+        "library",
+        "tool",
+        "topic"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "summary": {
+      "minLength": 1,
+      "title": "Summary",
+      "type": "string"
+    },
+    "priority": {
+      "default": "important",
+      "enum": [
+        "core",
+        "important",
+        "long_tail"
+      ],
+      "title": "Priority",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "enum": [
+        "draft",
+        "in_review",
+        "approved",
+        "deprecated"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "modules": {
+      "description": "Ballerina modules, e.g. ballerina/http.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "must_cover": {
+      "items": {
+        "$ref": "#/$defs/Item"
+      },
+      "minItems": 1,
+      "title": "Must Cover",
+      "type": "array"
+    },
+    "out_of_scope": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Out Of Scope",
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/Edge"
+      },
+      "title": "Edges",
+      "type": "array"
+    },
+    "replaced_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Replaced By"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "For reviewers; never sent to the generator.",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "type",
+    "title",
+    "summary",
+    "must_cover"
+  ],
+  "title": "Ballerina Knowledge Graph node",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ballerina-graph/node.schema.v0.1.json"
+}

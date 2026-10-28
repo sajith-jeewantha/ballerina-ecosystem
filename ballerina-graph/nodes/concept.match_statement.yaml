@@ -1,0 +1,65 @@
+schema_version: "0.1"
+id: concept.match_statement
+type: concept
+title: Match statement and match patterns
+summary: Selecting a block by matching a value against constant, wildcard, binding, list, mapping and error patterns, with guards, narrowing and exhaustiveness.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#match_statement", kind: spec, note: "7.20 Match statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.1", kind: spec, note: "7.20.1 Match patterns"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.2", kind: spec, note: "7.20.2 Match clause reachability and narrowing"}
+must_cover:
+  - id: match_basic
+    text: "Write `match target { pattern => { ... } }`, where the target may be an expression or an action, clauses are tried in order and only the first clause whose pattern matches (and whose guard is true) runs"
+    difficulty: [beginner]
+  - id: const_patterns
+    text: "Match constant patterns such as `0`, `\"GET\"`, `true`, `()` and references to named constants, which match when DeepEquals (the `==` relation) holds and bind no variables"
+    difficulty: [beginner]
+  - id: alternatives
+    text: "Combine patterns with `|` in one clause, as in `1|2|3 => { ... }`, knowing every alternative must bind the same set of variables"
+    difficulty: [beginner, intermediate]
+  - id: wildcard
+    text: "Use `_` as a catch-all clause, knowing the wildcard match pattern matches any value except an error"
+    difficulty: [beginner, intermediate]
+  - id: var_binding
+    text: "Capture parts of the value with `var x`, `var [a, b]` or `var {name}`, distinguishing identifiers under `var` (new variables) from bare identifiers (constant references), and keeping patterns linear (no variable bound twice)"
+    difficulty: [intermediate]
+  - id: list_patterns
+    text: "Use list match patterns such as `[1, var x]` and `[var first, ...var rest]` to match on list length and members"
+    difficulty: [intermediate]
+  - id: mapping_patterns
+    text: "Use mapping match patterns such as `{kind: \"circle\", radius: var r}` (optionally with `...var rest`), which match when every listed field matches, regardless of other fields"
+    difficulty: [intermediate]
+  - id: error_patterns
+    text: "Use error match patterns such as `error(var msg)`, `error(var msg, var cause)` and `error MyError(var msg, code = var c)` to match an error's message, cause, detail fields and error type"
+    difficulty: [intermediate, advanced]
+  - id: guards
+    text: "Add a match guard with `pattern if cond => { ... }`, where `cond` is boolean, sees the pattern's variables, and a false guard moves on to the next clause"
+    difficulty: [intermediate]
+  - id: guard_call_restriction
+    text: "Know a match guard may contain a function or method call only if the match target's static type is readonly, or the callee is isolated and every argument (and the receiver object) has a readonly static type"
+    difficulty: [advanced]
+  - id: looks_like_matching
+    text: "Explain that a value matches a pattern when it looks like the pattern's type, so a mutable value can match without belonging to that type, while an error match pattern with a type reference requires the error to belong to the referenced error type"
+    difficulty: [advanced]
+  - id: clause_narrowing
+    text: "Rely on narrowing: when the match target is a variable, its type within a clause's guard and block is narrowed to the target type read-only-intersected with the clause's pattern type minus the patterns of preceding unguarded clauses"
+    difficulty: [advanced]
+  - id: unreachable_clause
+    text: "Know that a clause whose patterns cannot match, given the target's static type and the preceding unguarded clauses, has unreachable statements and is therefore a compile-time error"
+    difficulty: [advanced]
+  - id: exhaustiveness
+    text: "Explain exhaustiveness: a match is exhaustive when the target's static type is covered by the patterns of unguarded clauses (a clause without a guard or with a singleton `true` guard), and an exhaustive match completes normally only if one of its blocks can"
+    difficulty: [advanced]
+out_of_scope:
+  - "Binding pattern grammar in general (concept.binding_patterns)"
+  - "Narrowing by if/while conditions (concept.type_narrowing)"
+  - "on fail clauses on match statements (concept.error_handling)"
+edges:
+  - {to: concept.binding_patterns, rel: requires}
+  - {to: concept.constants_enums, rel: requires}
+  - {to: concept.control_flow, rel: requires}
+  - {to: concept.comparison_equality, rel: uses, via: [const_patterns]}
+  - {to: concept.type_narrowing, rel: uses, via: [clause_narrowing]}
+  - {to: concept.errors, rel: uses, via: [error_patterns]}

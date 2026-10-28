@@ -1,0 +1,45 @@
+schema_version: "0.1"
+id: concept.external_functions
+type: concept
+title: External function bodies and handle values
+summary: Functions whose implementation lives outside the Ballerina module, and the handle type that refers to externally managed storage.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.4", kind: spec, note: "7.3.4 Functions with external bodies"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.6", kind: spec, note: "5.5.6 Handles"}
+must_cover:
+  - id: external_body
+    text: "Declare a function whose implementation is not provided in the Ballerina source module with an external body, e.g. `function now() returns int = external;`, optionally with annotations before `external`"
+    difficulty: [intermediate]
+  - id: dependently_typed_external
+    text: "Explain that a function whose signature is dependently typed (its return type references a `typedesc` parameter) must have an external function body"
+    difficulty: [advanced]
+  - id: handle_type
+    text: "Use the `handle` type for references to storage managed outside the Ballerina program, knowing a new handle value can only be created by a function with an external body"
+    difficulty: [intermediate]
+  - id: handle_semantics
+    text: "Explain that handle values are inherently immutable and that a value belongs to `handle` exactly when its basic type is handle"
+    difficulty: [intermediate]
+  - id: isolated_external
+    text: "Explain that an `isolated` function with an external body must, in its external implementation, access only mutable state reachable from its parameters and behave correctly when called concurrently on multiple strands"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#isolated_functions", kind: spec, note: "7.3.5 Isolated functions"}
+  - id: external_yield
+    text: "Explain that a function with an external body may yield its strand, and should do so only when it makes a blocking system call or calls a Ballerina function that yields"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.2", kind: spec, note: "7.2 Threads and strands"}
+  - id: external_annotations
+    text: "Annotate an external function body using an annotation declared with the source-only `external` attachment point (`on source external`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.1", kind: spec, note: "9.1 Annotations"}
+out_of_scope:
+  - "Platform-specific interop mechanisms (e.g. Java interop), which the spec does not define"
+edges:
+  - {to: concept.functions, rel: requires}
+  - {to: concept.annotations, rel: uses, via: [external_annotations], target_items: [attach_points, source_only]}
+  - {to: concept.isolation, rel: uses, via: [isolated_external]}
+  - {to: concept.strands_workers, rel: uses, via: [external_yield]}

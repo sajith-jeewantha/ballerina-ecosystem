@@ -1,0 +1,60 @@
+schema_version: "0.1"
+id: concept.typedesc
+type: concept
+title: "Type descriptor values: typedesc and typeof"
+summary: Runtime type descriptor values of type `typedesc<T>`, obtained from type names and `typeof`, and used to drive dependently-typed functions.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.5", kind: spec, note: "5.5.5 Type descriptors"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.21", kind: spec, note: "6.21 Typeof expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.9", kind: spec, note: "6.9 Variable reference expression"}
+must_cover:
+  - id: typedesc_type
+    text: Use `typedesc<T>` for immutable values representing resolved type descriptors, where a typedesc belongs to `typedesc<T>` iff the type it describes is a subtype of T (so typedesc is covariant), and plain `typedesc` contains all of them
+    difficulty: [intermediate]
+  - id: type_name_as_value
+    text: Obtain a typedesc value by referencing a type or class name in an expression, e.g. `typedesc<Person> td = Person;`
+    difficulty: [intermediate]
+  - id: resolved_type_descriptors
+    text: Explain that a type descriptor may carry value-construction information (such as default values) and annotations that are resolved at runtime, which a typedesc value represents
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.4", kind: spec, note: "5.1.4 Type descriptors"}
+  - id: typeof_expr
+    text: Use `typeof expr` to get a typedesc for the runtime type of a value, whose static type is `typedesc<T>` for an expression of static type T
+    difficulty: [intermediate]
+  - id: typeof_simple_values
+    text: Explain that `typeof` on a simple value yields a singleton type of that value, with no annotations, and a new typedesc value on each evaluation
+    difficulty: [advanced]
+  - id: typeof_reference_values
+    text: Explain that `typeof` on a reference value returns the type descriptor used to construct it (the inherent type for containers, a singleton type for immutable containers, the class for objects), identical for repeated evaluations, including any annotations on that descriptor
+    difficulty: [advanced]
+  - id: dependent_typing
+    text: Call dependently-typed functions whose return type refers to a `typedesc` parameter, such as `value:cloneWithType(v, Person)` returning `Person|error`
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions (dependently-typed signatures)"}
+  - id: inferred_typedesc_default
+    text: Rely on an inferred typedesc default `typedesc<anydata> t = <>`, where the caller infers the argument from the contextually expected type, e.g. `Person p = check v.cloneWithType();`
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression (<> default)"}
+  - id: type_ids_function
+    text: Use `typedesc:typeIds(t, primaryOnly)` to get the readonly array of `typedesc:TypeId` records (module id and local id) induced by a typedesc, or nil if the type is not definite
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.typedesc", kind: spec, note: "11.3.15 lang.typedesc"}
+  - id: typedesc_immutable
+    text: Explain that typedesc values are inherently immutable and therefore always belong to `readonly`
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.5", kind: spec, note: "5.6.5 Readonly type"}
+out_of_scope:
+  - "Annotation access `t.@a` (concept.annotations)"
+  - "Distinct types and type-id semantics (concept.type_ids_distinct)"
+  - "Declaring parameters and defaults in general (concept.functions)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [type_ids_function, dependent_typing], target_items: [lang_typedesc, lang_value]}
+notes: "6.21 ends with 'For an error, this is the same as the type descriptor used in the functional-constructor-expr' — a stale term for error-constructor-expr."

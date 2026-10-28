@@ -1,0 +1,114 @@
+schema_version: "0.1"
+id: concept.langlib
+type: concept
+title: Lang library overview
+summary: The `ballerina/lang.*` modules defined by the specification, one per basic type plus `lang.value`, `lang.transaction` and `lang.runtime`, that provide the fundamental operations on language values.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11 Lang library"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library_modules", kind: spec, note: "11.3 Lang library modules"}
+must_cover:
+  - id: lang_array
+    text: "Use `lang.array` (basic type list) functions `length`, `iterator`, `enumerate`, `map`, `forEach`, `filter`, `reduce`, `some`, `every`, `slice`, `remove`, `removeAll`, `setLength`, `indexOf`, `lastIndexOf`, `reverse`, `sort` (with `SortDirection` and `OrderedType`), `pop`, `push`, `shift`, `unshift`, `toBase64`/`fromBase64`, `toBase16`/`fromBase16` and `toStream`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.array", kind: spec, note: "11.3.1 lang.array module"}
+  - id: lang_boolean
+    text: "Use `lang.boolean` functions `boolean:fromString` (accepts `true`/`false` in any letter case and `1`/`0`, otherwise returns an error), `boolean:some` (false when given no arguments) and `boolean:every` (true when given no arguments)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.boolean", kind: spec, note: "11.3.2 lang.boolean module"}
+  - id: lang_decimal
+    text: "Use `lang.decimal` (basic type decimal) functions `sum`, `max`, `min`, `avg`, `abs`, `round`, `quantize`, `floor`, `ceiling` and `fromString` on decimal values"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.decimal", kind: spec, note: "11.3.3 lang.decimal module"}
+  - id: lang_error
+    text: "Use `lang.error` (basic type error) functions `message`, `cause`, `detail` (returns an immutable detail record), `stackTrace`, `toString` and `toBalString`, and the types it defines: `Cloneable`, `Detail`, `StackFrame`, the distinct error types `NoMessage` and `Retriable`, and the class `DefaultRetryManager`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error module"}
+  - id: lang_float
+    text: "Use `lang.float` (basic type float) constants `PI`, `E`, `NaN` and `Infinity` and its functions for classification (`isFinite`, `isInfinite`, `isNaN`), aggregation (`sum`, `max`, `min`, `avg`), rounding (`abs`, `round`, `floor`, `ceiling`), maths (`sqrt`, `cbrt`, `pow`, `log`, `log10`, `exp`, trigonometric and hyperbolic functions), parsing and formatting (`fromString`, `toHexString`, `fromHexString`, `toFixedString`, `toExpString`) and bit conversion (`toBitsInt`, `fromBitsInt`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.float", kind: spec, note: "11.3.5 lang.float module"}
+  - id: lang_function
+    text: "Use `function:call(func, ...args)` from `lang.function` (basic type function) to call a function value dynamically, knowing that it panics if the arguments are not of the types `func` requires"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.function", kind: spec, note: "11.3.6 lang.function module"}
+  - id: lang_future
+    text: "Use `future:cancel(f)` from `lang.future` (basic type future) to set the cancellation flag of the strand behind a future, which then terminates abnormally the next time it yields"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.future", kind: spec, note: "11.3.7 lang.future module"}
+  - id: lang_int
+    text: "Use `lang.int` (basic type int) built-in subtypes `Signed8`, `Signed16`, `Signed32`, `Unsigned8`, `Unsigned16`, `Unsigned32`, its range constants (`MAX_VALUE`, `MIN_VALUE`, `SIGNED32_MAX_VALUE` and so on), and its functions `abs`, `sum`, `max`, `min`, `avg`, `fromString`, `toHexString`, `fromHexString` and `range`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int module"}
+  - id: lang_map
+    text: "Use `lang.map` (basic type mapping) functions `length`, `iterator`, `get` (panics if the key is missing), `entries`, `map`, `forEach`, `filter`, `reduce`, `remove` (panics if the key is missing), `removeIfHasKey`, `removeAll`, `hasKey`, `keys` and `toArray`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.map", kind: spec, note: "11.3.9 lang.map module"}
+  - id: lang_object
+    text: "Use the distinct object types defined by `lang.object` (basic type object): `object:Iterable`, whose `iterator()` method makes an object iterable, and `object:RawTemplate`, with fields `strings` (`readonly & string[]`) and `insertions` (`(any|error)[]`), the type of raw template values"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+  - id: lang_regexp
+    text: "Use the preview `lang.regexp` module for the `re` tagged data type: the `RegExp` type, `Span` and `Groups`, matching functions `find`, `findGroups`, `findAll`, `findAllGroups`, `matchAt`, `matchGroupsAt`, `isFullMatch` and `fullMatchGroups`, replacement with `replace`/`replaceAll` taking a `Replacement` (a string or `ReplacerFunction`), `split` and `fromString`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec, note: "11.3.11 lang.regexp module (preview)"}
+  - id: lang_stream
+    text: "Use `lang.stream` (basic type stream) functions `iterator`, `next`, `close`, `map`, `forEach`, `filter` and `reduce` on `stream<T,C>` values, where `forEach` returns the stream's completion value and `reduce` returns the combined result or the stream's error"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.stream", kind: spec, note: "11.3.12 lang.stream module"}
+  - id: lang_string
+    text: "Use `lang.string` (basic type string) and its built-in subtype `string:Char` with functions for length and iteration, concatenation and joining, substrings and code points, searching, ASCII case handling, trimming and padding, UTF-8 and code-point conversion, and regular-expression matching (`matches`, `includesMatch`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.string", kind: spec, note: "11.3.13 lang.string module"}
+  - id: lang_table
+    text: "Use `lang.table` (basic type table) functions `length`, `iterator`, `get` (panics if the key is missing), `put` (replaces a member with the same key, keeping its position), `add` (panics on a duplicate key), `map` (result is `key<never>`), `forEach`, `filter` (keeps the same keys), `reduce`, `remove`, `removeIfHasKey`, `removeAll`, `hasKey`, `keys`, `toArray` and `nextKey` (maximum used int key + 1, or 0)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.table", kind: spec, note: "11.3.14 lang.table module"}
+  - id: lang_typedesc
+    text: "Use `typedesc:typeIds(t, primaryOnly)` from `lang.typedesc` (basic type typedesc) to get the type-ids induced by a typedesc as `readonly & TypeId[]` (each with a `ModuleId` and a `localId` of type `string|int`), or nil if `t` is not definite"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.typedesc", kind: spec, note: "11.3.15 lang.typedesc module"}
+  - id: lang_xml
+    text: "Use `lang.xml` (basic type xml) built-in subtypes `Element`, `ProcessingInstruction`, `Comment` and `Text`, the namespace constants (`XML_NAMESPACE_URI`, `XMLNS_NAMESPACE_URI`, `space`, `lang`, `base`), and its functions for access, construction, selection, transformation and parsing (`fromString`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.xml", kind: spec, note: "11.3.16 lang.xml module"}
+  - id: lang_transaction
+    text: "Use `lang.transaction`, which does not correspond to a basic type, inside transactional code: `info()`, `getInfo(xid)`, `setRollbackOnly`, `getRollbackOnly`, `setData`/`getData`, and `onCommit`/`onRollback` with `CommitHandler`/`RollbackHandler`, plus the types `Info`, `Timestamp` and `transaction:Error` (the commit action's error type), knowing that the `transactional` functions can be called only in a transactional scope"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+  - id: lang_runtime
+    text: "Use `lang.runtime`, which does not correspond to a basic type: `runtime:sleep(seconds)` (decimal seconds; makes the current strand yield), `registerListener`/`deregisterListener` with `DynamicListener`, `getStackTrace` returning `StackFrame[]`, and `onGracefulStop` with a `StopHandler`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.runtime", kind: spec, note: "11.3.18 lang.runtime module"}
+  - id: lang_value
+    text: "Use `lang.value`, whose functions work on values of more than one basic type: `clone`, `cloneReadOnly`, `cloneWithType`, `ensureType`, `toString`, `toBalString`, `fromBalString`, `toJson`, `toJsonString`, `fromJsonString`, `fromJsonFloatString`, `fromJsonDecimalString`, `fromJsonWithType`, `fromJsonStringWithType`, `mergeJson`, `count`, `first` and `last`, and the types `Cloneable`, `JsonFloat` and `JsonDecimal`"
+    difficulty: [beginner, intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value module"}
+out_of_scope:
+  - "The Ballerina standard library (ballerina/http, ballerina/io, ...), which the spec explicitly does not specify"
+  - "Generic typing annotations, built-in subtypes and method-call dispatch rules (concept.langlib_conventions)"
+  - "Detailed function semantics for array, string, int/float/decimal, xml and regexp (concept.langlib_array, concept.langlib_string, concept.langlib_numeric, concept.langlib_xml, concept.langlib_regexp)"
+  - "Detailed map, table, stream, error, value, transaction and runtime semantics, which are covered by the topic nodes that use them (maps, tables, streams, errors, value_cloning, json_anydata, string_conversion, transactions, services_listeners)"
+edges:
+  - {to: concept.langlib_conventions, rel: uses, via: [lang_array, lang_int, lang_string, lang_xml, lang_regexp, lang_value], target_items: [type_params, builtin_subtypes]}
+notes: "lang.regexp is marked (preview) in 2024R1. Modules in the `ballerina` organization whose names start with `lang.` are reserved for the lang library. In lang.transaction, the types `Error` and `Info` are written without `public` in the spec text even though the commit action's type is `transaction:Error?`; treat them as part of the module's API. The lang.table iterator doc comment mentions an `entries` function that lang.table does not define."

@@ -1,0 +1,52 @@
+schema_version: "0.1"
+id: concept.resource_methods
+type: concept
+title: Resource methods and resource paths
+summary: Resource methods of client and service objects, identified by a method name and a resource path of names, path parameters and rest parameters.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.5", kind: spec, note: "5.5.3.5 Resources"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#resources_defn", kind: spec, note: "6.8.1.4 Resources"}
+must_cover:
+  - id: resource_decl
+    text: "Declare resource methods such as `resource function get users/[string id]() returns User|error`, allowed only in client or service objects, where a resource method is identified by its method name together with its resource path"
+    difficulty: [beginner, intermediate]
+  - id: path_segments
+    text: "Write resource paths from segment names, path parameters `[T name]`, an optional final rest parameter `[T... name]`, or `.` for the empty path"
+    difficulty: [beginner, intermediate]
+  - id: path_as_tuple
+    text: "Explain that path segments may be any `anydata` value (most commonly strings) and that a resource path maps to a tuple type: segment names to singleton strings, path parameters to their types, a rest parameter to a rest descriptor, and `.` to `[]`"
+    difficulty: [advanced]
+  - id: get_convention
+    text: "Use the method name `get` for a resource method that just fetches the resource, knowing that for service objects the listener decides which method names are supported but should always support `get`"
+    difficulty: [beginner]
+  - id: duplicate_error
+    text: "Know it is a compile error for an object to declare two resource methods with the same method name whose paths map to the same tuple type"
+    difficulty: [intermediate]
+  - id: divergence_rule
+    text: "Apply the divergence rule: if two resource methods with overlapping applicable method names diverge at some path position, it is a compile error unless at least one of them has a segment name (singleton string) at that position"
+    difficulty: [advanced]
+  - id: segment_name_priority
+    text: "Explain that segment names take priority over path parameters: a path parameter's type is narrowed to exclude the singleton strings that diverging resource methods declare at the same position"
+    difficulty: [advanced]
+  - id: param_binding
+    text: "Use path parameters in the method body: a segment parameter is bound to the path value at its position and a rest parameter to a list of all values from its position onwards"
+    difficulty: [intermediate]
+  - id: resource_access_operation
+    text: "Explain the resource access operation: given a method name, a list of path values and an argument list, it looks up the matching resource method, binds the path parameters and invokes the function"
+    difficulty: [intermediate]
+  - id: delegation
+    text: "Explain resource delegation: a `get` resource whose return type includes a service object type delegates longer paths to the returned service, so that return type may only allow service objects and errors, its path must not end with a rest parameter, and no other resource path may have it as a prefix"
+    difficulty: [advanced]
+  - id: return_restrictions
+    text: "Know that a resource method's return type must not allow function values or client object types"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Calling client resources with resource access actions (concept.client_objects)"
+  - "Service declarations and listeners (concept.services_listeners)"
+edges:
+  - {to: concept.client_objects, rel: requires}
+  - {to: concept.services_listeners, rel: uses, via: [get_convention, delegation], target_items: [service_objects]}
+  - {to: concept.arrays_tuples, rel: uses, via: [path_as_tuple]}
+notes: "The applicable-method-name rule (only `get` at non-final positions; `get` plus m at a rest position) is only used to define divergence and is folded into divergence_rule."

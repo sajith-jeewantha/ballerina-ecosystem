@@ -1,0 +1,75 @@
+schema_version: "0.1"
+id: concept.tables
+type: concept
+title: Tables
+summary: Ordered collections of mapping values accessed by a key derived from read-only fields, described by table types with key constraints and built with table constructors and lang.table functions.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#tables", kind: spec, note: "5.4.3 Tables"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.3", kind: spec, note: "6.7.3 Table constructor"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.table", kind: spec, note: "11.3.14 lang.table module"}
+must_cover:
+  - id: table_type
+    text: 'Declare table types `table<R>`, whose row type must be a subtype of `map<any|error>`, and explain that a table keeps rows in order but gives no access by position'
+    difficulty: [beginner]
+  - id: key_specifier
+    text: 'Declare keyed tables with `table<Employee> key(id)`, where each key field must be a required, `readonly` field of the row type with a subtype of `anydata`'
+    difficulty: [beginner, intermediate]
+  - id: multi_field_keys
+    text: 'Use multi-field keys `key(first, last)`, whose key value is a tuple of the field values, and look rows up with `t[k1, k2]` (equivalent to `t[[k1, k2]]`)'
+    difficulty: [intermediate]
+  - id: key_type_constraint
+    text: 'Use `table<R> key<K>` to constrain key values to type `K`, and know that a keyless table satisfies `key<never>`'
+    difficulty: [advanced]
+  - id: key_uniqueness
+    text: 'Explain that key values must be unique, compared with DeepEquals, that this is enforced when the table is constructed and on every mutation, and that key field values must be acyclic plain data'
+    difficulty: [intermediate]
+  - id: keyless_tables
+    text: 'Create keyless tables (empty key sequence) whose rows are not identified by a key'
+    difficulty: [beginner]
+  - id: table_constructor
+    text: 'Construct tables with `table key(email) [{email: "a@x", name: "A"}, ...]`, where every row must give each key field as a constant expression and duplicate keys are a compile-time error'
+    difficulty: [beginner, intermediate]
+  - id: constructor_typing
+    text: 'Explain that the key sequence comes from the constructor key-specifier or the expected type (both must agree if present), and that without an expected type the row type is the smallest record supertype of the rows, with an empty row list then being an error'
+    difficulty: [advanced]
+  - id: member_access
+    text: 'Look up a row with `t[k]`, which returns `R?` and yields `()` when no row has key `k`'
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+  - id: no_lvalue
+    text: 'Explain that an assignment target cannot refer to a table member, so rows are added or replaced with `add` and `put`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+  - id: add_put
+    text: 'Use `t.add(row)`, which panics if a row with the same key exists, versus `t.put(row)`, which replaces the row with the same key in the same position and panics if the row is inconsistent with the inherent type'
+    difficulty: [intermediate]
+  - id: get_remove
+    text: 'Use `t.get(k)` and `t.remove(k)` (both panic when no row has key `k`), `t.removeIfHasKey(k)`, `t.hasKey(k)`, `t.keys()` and `t.removeAll()`'
+    difficulty: [intermediate]
+  - id: table_functional
+    text: 'Use `length`, `toArray`, `forEach`, `reduce`, `filter` (keeps the key type) and `map` (returns a `table<...> key<never>`) on tables'
+    difficulty: [intermediate]
+  - id: next_key
+    text: 'Use `t.nextKey()` on a `key<int>` table to get the maximum used key plus one, or 0 when no key is used'
+    difficulty: [intermediate]
+  - id: table_iteration
+    text: 'Iterate over table rows in order with `foreach`, with value type the row type and completion type nil'
+    difficulty: [beginner]
+  - id: query_to_table
+    text: 'Build tables from query expressions with `table key(id) from var r in rows select r`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.10", kind: spec, note: "6.35.10 Select clause"}
+out_of_scope:
+  - "On conflict handling when a query constructs a keyed table (concept.query_joins_grouping)"
+  - "Join clause optimisation using tables (implementation detail)"
+edges:
+  - {to: concept.records, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [add_put, get_remove, table_functional, next_key], target_items: [lang_table]}
+  - {to: concept.query_expressions, rel: uses, via: [query_to_table], target_items: [result_kinds]}
+  - {to: concept.comparison_equality, rel: uses, via: [key_uniqueness]}
+notes: "lang.table nextKey doc contains an unresolved 'XXX should it be 0, if the maximum used key value is < 0?' remark in the 2024R1 spec."

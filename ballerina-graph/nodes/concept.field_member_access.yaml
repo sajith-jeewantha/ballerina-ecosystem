@@ -1,0 +1,62 @@
+schema_version: "0.1"
+id: concept.field_member_access
+type: concept
+title: Field, optional field and member access
+summary: The `x.f`, `x?.f` and `x[k]` expressions for reading object fields, mapping members, list, string and xml constituents, including their static types, nil results and panics.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.10", kind: spec, note: "6.10 Field access expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.11", kind: spec, note: "6.11 Optional field access expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+must_cover:
+  - id: record_field_access
+    text: 'Read a record field with `r.name`, and explain that for a non-lax type the field must be a required key of a mapping type, giving static type the field type'
+    difficulty: [beginner]
+  - id: optional_field_as_optional_access
+    text: 'Explain that `r.f` on a non-lax record where `f` is an optional field whose type excludes nil is treated as `r?.f` and so can evaluate to `()`'
+    difficulty: [intermediate, advanced]
+  - id: optional_field_access
+    text: 'Use `x?.f` to read a possibly absent field, returning `()` when `x` is `()` or has no field `f`, with static type including `()` in those cases'
+    difficulty: [beginner, intermediate]
+  - id: optional_access_requirements
+    text: 'Explain that for a non-lax type, `x?.f` requires the static type to be a subtype of `()` or mapping and the type descriptor to declare `f` as an individual field (in at least one union member)'
+    difficulty: [advanced]
+  - id: object_field_access
+    text: 'Access object fields with `obj.f`, and explain that `obj.m` naming a method yields a new function value with `self` bound to `obj`, which is isolated only if both the object and the method are isolated'
+    difficulty: [intermediate, advanced]
+  - id: lax_field_access
+    text: 'Explain that on lax types such as `json`, `j.a` and `j?.a` have static type including `error`, returning an error when the value is not a mapping or (for `.`) the key is missing, and passing an error operand through unchanged'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lax_static_typing", kind: spec, note: "6.2.1 Lax static typing"}
+  - id: key_expression_types
+    text: 'Explain the key type rules for `c[k]`: `int` for lists, strings and xml, the key type `K` for `table<R> key<K>`, and `string` for mappings (where the container may also be `()`)'
+    difficulty: [intermediate]
+  - id: list_string_access
+    text: 'Index lists and strings with `c[i]`, knowing that `i < 0` or `i >= length` panics and that indexing a string gives a `string:Char`'
+    difficulty: [beginner]
+  - id: xml_member_access
+    text: 'Index xml values with `x[i]`, which panics for a negative index but returns the empty xml value when `i` is beyond the length, with static type `M|E` for `xml<M>`'
+    difficulty: [intermediate]
+  - id: mapping_member_access
+    text: 'Read mapping members with `m["key"]`, which returns `()` when the key is absent or `m` is `()`, so the static type is `T?` for a map or an optional record field'
+    difficulty: [beginner]
+  - id: multi_key_only_tables
+    text: 'Explain that the multi-key form `c[k1, k2]` is allowed only when the container is a table'
+    difficulty: [intermediate]
+  - id: evaluation_order
+    text: 'Explain that a member access evaluates the container expression before the key expression'
+    difficulty: [intermediate]
+out_of_scope:
+  - "XML attribute access with `.` and `?.` on xml values (concept.xml_navigation)"
+  - "Table key lookup details (concept.tables)"
+  - "Assignment through field and member access (concept.assignment)"
+  - "Method calls (concept.objects)"
+edges:
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.maps, rel: requires}
+  - {to: concept.records, rel: uses, via: [record_field_access, optional_field_as_optional_access], target_items: [optional_fields]}
+  - {to: concept.json_anydata, rel: uses, via: [lax_field_access]}
+  - {to: concept.xml, rel: uses, via: [xml_member_access]}
+notes: "6.10 says a field-access-expr on an xml static type is interpreted as an xml-required-attribute-access-expr; that case lives in concept.xml_navigation."

@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: concept.errors
+type: concept
+title: Error values, error types and the error constructor
+summary: The error basic type (message, cause, detail and stack trace), error<T> and distinct error types, the error constructor, and the lang.error functions for inspecting errors.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.1", kind: spec, note: "5.5.1 Errors"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.17", kind: spec, note: "6.17 Error constructor"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error module"}
+must_cover:
+  - id: error_value_parts
+    text: "Explain the four parts of an error value: a message string, an optional cause (another error or nil), an immutable detail mapping, and a stack trace, which is not part of the error's shape"
+    difficulty: [beginner, intermediate]
+  - id: error_basic_type
+    text: "Explain that errors form a separate, inherently immutable basic type excluded from `any`, so fallible functions return `T|error` and `any|error` covers every value"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.3", kind: spec, note: "5.6.3 Any type"}
+  - id: error_any_structure
+    text: "Know that a list or mapping containing error members still belongs to `any`, because only values whose basic type is error are excluded"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.3", kind: spec, note: "5.6.3 Any type"}
+  - id: error_constructor
+    text: "Construct errors with `error(\"message\")`, `error(\"message\", cause)` and detail fields as named arguments, as in `error(\"not found\", code = 404)`"
+    difficulty: [beginner]
+  - id: error_detail_types
+    text: "Use `error<T>`, where T is a detail record type (a subtype of `map<value:Cloneable>`, see `error:Detail`), to constrain the detail, and define named error types such as `type NotFound error<record {| int code; |}>;`"
+    difficulty: [intermediate]
+  - id: typed_error_construction
+    text: "Construct a named error type with `error NotFound(\"msg\", code = 1)` or from a contextually expected error type, where named arguments must be fields of the detail record and defaults are filled in from it"
+    difficulty: [intermediate]
+  - id: detail_immutable
+    text: "Know that named-argument values must be subtypes of `value:Cloneable` and that the detail mapping is built immutable by applying ImmutableClone, so `e.detail()` returns a `readonly` value"
+    difficulty: [intermediate, advanced]
+  - id: distinct_errors
+    text: "Define distinct error types such as `type IoError distinct error;` and intersections such as `IoError & TimeoutError`, so that error values carry type-ids, and know the error constructor's expected type must be definite"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#distinct_types", kind: spec, note: "5.6.6 Distinct types"}
+  - id: stack_trace
+    text: "Know that an error's stack trace captures the execution stack where the error constructor was evaluated, and read it with `e.stackTrace()` as an array of `error:StackFrame`"
+    difficulty: [intermediate]
+  - id: error_langlib
+    text: "Inspect errors with the lang.error functions `e.message()`, `e.cause()`, `e.detail()`, `e.toString()` and `e.toBalString()`"
+    difficulty: [beginner]
+  - id: builtin_errors
+    text: "Recognize the built-in distinct error types `error:NoMessage` (a receive action whose message was never sent) and `error:Retriable` (errors that `error:DefaultRetryManager` will retry)"
+    difficulty: [intermediate]
+out_of_scope:
+  - "check, checkpanic, trap, fail, on fail and panic (concept.error_handling)"
+  - "Error binding and match patterns (concept.binding_patterns, concept.match_statement)"
+  - "Type-ids and distinct types in general (concept.type_ids_distinct)"
+  - "ToString formatting of errors (concept.string_conversion)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [error_langlib, stack_trace, builtin_errors], target_items: [lang_error]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [distinct_errors]}
+  - {to: concept.value_cloning, rel: uses, via: [detail_immutable]}

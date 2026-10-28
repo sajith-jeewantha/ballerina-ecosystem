@@ -1,0 +1,65 @@
+schema_version: "0.1"
+id: concept.futures_wait
+type: concept
+title: start, futures and wait actions
+summary: Running calls asynchronously with start, future types, waiting for one, several or the first of many strands, and cancelling futures.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.4", kind: spec, note: "5.5.4 Futures"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.6", kind: spec, note: "7.6 Start action"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7", kind: spec, note: "7.7 Wait action"}
+must_cover:
+  - id: start_action
+    text: "Use `start f(args)` (or a method call, remote method call or resource access) to run a call on a new strand and immediately get a `future<T>`, with the arguments evaluated on the current strand"
+    difficulty: [beginner, intermediate]
+  - id: future_types
+    text: "Explain future types: `future<T>` refers to a strand that will return a T, and `future` without a type parameter covers every future value"
+    difficulty: [beginner]
+  - id: isolated_start
+    text: "Know that a start whose call is isolated (an isolated callee with isolated argument expressions, the receiver object counting as an argument) is allowed in isolated functions and may run on a separate thread"
+    difficulty: [advanced]
+  - id: single_wait
+    text: "Use `wait f` to wait for a strand to terminate and get its termination value"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.1", kind: spec, note: "7.7.1 Single wait action"}
+  - id: wait_eventual_type
+    text: "Explain wait result types: waiting on a named worker's name has eventual type T and cannot fail, while waiting on any other `future<T>` gives `T|error`, because only one wait on a strand succeeds and the others fail with an error"
+    difficulty: [advanced]
+  - id: wait_panic
+    text: "Know that if the awaited strand terminated abnormally (panicked), the wait itself completes with a panic carrying that error"
+    difficulty: [intermediate]
+  - id: multiple_wait
+    text: "Use `wait {a: f1, b: f2}` (or `wait {w1, w2}` with named workers) to wait for several futures and get a record whose fields hold each result"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.2", kind: spec, note: "7.7.2 Multiple wait action"}
+  - id: alternate_wait
+    text: "Use `wait f1 | f2` to get the first non-error result, or the error from the last strand to finish if all finish with errors"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.3", kind: spec, note: "7.7.3 Alternate wait action"}
+  - id: no_wait_default_worker
+    text: "Know that only named workers and started strands can be waited for; a function's default worker cannot be"
+    difficulty: [intermediate]
+  - id: future_cancel
+    text: "Request cancellation with `f.cancel()` from lang.future, which sets a flag that the strand checks whenever it yields, terminating it abnormally"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.future", kind: spec, note: "11.3.7 lang.future module"}
+  - id: runtime_sleep
+    text: "Pause the current strand with `runtime:sleep(seconds)` (a decimal number of seconds), which yields; `runtime` is not a predeclared prefix, so `import ballerina/lang.runtime;` is required"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.runtime", kind: spec, note: "11.3.18 lang.runtime module"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration (predeclared prefixes)"}
+out_of_scope:
+  - "Named workers and fork (concept.strands_workers)"
+  - "Starting transactional functions (concept.transactions)"
+  - "start inside lock statements (concept.lock_statement)"
+edges:
+  - {to: concept.strands_workers, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [future_cancel, runtime_sleep], target_items: [lang_future, lang_runtime]}
+  - {to: concept.isolation, rel: uses, via: [isolated_start], target_items: [start_in_isolated]}
+  - {to: concept.worker_messages, rel: related}

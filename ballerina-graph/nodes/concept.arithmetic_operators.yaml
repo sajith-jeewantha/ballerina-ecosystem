@@ -1,0 +1,70 @@
+schema_version: "0.1"
+id: concept.arithmetic_operators
+type: concept
+title: Arithmetic, shift and bitwise operators
+summary: Unary, multiplicative, additive, shift and binary bitwise operators, their per-type semantics including overflow panics, and nil lifting.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.22.1", kind: spec, note: "6.22.1 Unary numeric expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.23", kind: spec, note: "6.23 Multiplicative expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.24", kind: spec, note: "6.24 Additive expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.25", kind: spec, note: "6.25 Shift expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.30", kind: spec, note: "6.30 Binary bitwise expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#nil_lifting", kind: spec, note: "6.2.5 Nil lifting"}
+must_cover:
+  - id: unary_operators
+    text: Use unary `+`, `-` (negation) and `~` (bitwise complement, int only), knowing int negation panics on overflow for `int:MIN_VALUE` and float/decimal negation is the IEEE negate operation, not subtraction from zero
+    difficulty: [beginner, intermediate]
+  - id: int_arithmetic_overflow
+    text: Explain that int `+`, `-` and `*` panic on overflow instead of wrapping around
+    difficulty: [beginner, intermediate]
+  - id: int_division
+    text: Explain that int `/` truncates toward zero and panics on division by zero and on `int:MIN_VALUE / -1`
+    difficulty: [intermediate]
+  - id: int_remainder
+    text: Explain that int `%` is consistent with truncating division so `(x/y)*y + (x%y) == x`, panics when the divisor is zero, and returns 0 for `int:MIN_VALUE % -1`
+    difficulty: [intermediate, advanced]
+  - id: floating_arithmetic
+    text: Explain that float `+`, `-`, `*` and `/` perform the IEEE 754-2008 operations with the same destination format and never panic, and that decimal arithmetic likewise uses the IEEE decimal operations with roundTiesToEven
+    difficulty: [intermediate]
+  - id: float_remainder
+    text: 'Explain floating `%` semantics: it is not the IEEE remainder but x - y*n rounded, with n the quotient truncated toward zero and a zero result taking the sign of x; it is NaN when x is NaN or infinite or y is NaN or zero, and it returns x for finite x and infinite y'
+    difficulty: [advanced]
+  - id: mixed_int_operand
+    text: Use int operands with float or decimal operands in multiplicative expressions only when the second operand is int, or the operator is `*` and the first is int; the int is converted to the other operand's type (e.g. `2.5 * 2`, `d / 3`)
+    difficulty: [intermediate]
+  - id: division_by_float_zero_type
+    text: Explain that `x / 0.0` with a singleton float `0.0` divisor has static type `float` rather than a singleton, because `0.0 == -0.0` but `1.0/0.0 != 1.0/-0.0`
+    difficulty: [advanced]
+  - id: additive_operands
+    text: Explain that `+` and `-` require both operands of the same basic type (int, float, decimal, string or xml for `+`), or one xml and one string for `+`, so `int + float` is a compile error
+    difficulty: [beginner, intermediate]
+  - id: string_xml_concat
+    text: Use `+` to concatenate strings, xml values (without copying constituents), or xml with string, where an empty string leaves the xml unchanged and a non-empty string becomes an xml text item
+    difficulty: [intermediate]
+  - id: shift_operators
+    text: Use `<<`, `>>` (sign-propagating) and `>>>` (zero-filling) on ints, knowing only the bottom 6 bits of the shift amount are used (as if masked with `0x3F`)
+    difficulty: [intermediate]
+  - id: shift_result_types
+    text: Explain that `>>` and `>>>` applied to a left operand of type `int:Unsigned8`, `int:Unsigned16` or `int:Unsigned32` produce that smallest unsigned type, otherwise `int`
+    difficulty: [advanced]
+  - id: bitwise_operators
+    text: Use `&`, `^` and `|` on ints, knowing `&` yields `int:UnsignedN` if either operand is an unsigned subtype while `^` and `|` need both operands unsigned to do so
+    difficulty: [intermediate, advanced]
+  - id: nil_lifting
+    text: Apply nil lifting so arithmetic, shift and bitwise operators accept optional operands (e.g. `int? a; a + 1`), returning nil if any operand is nil and giving a result of type `T?`
+    difficulty: [intermediate]
+  - id: operand_expected_type
+    text: Explain that the contextually expected type of an arithmetic expression is passed to its operands restricted to numeric (and for `+`, string and xml) basic types, so `decimal d = 1.5 * 2.0;` types the literals as decimal
+    difficulty: [advanced]
+out_of_scope:
+  - "Comparison and equality operators (concept.comparison_equality)"
+  - "Logical operators (concept.logical_conditional)"
+  - "Compound assignment such as `+=` (concept.assignment)"
+  - "Range expressions (concept.loops)"
+edges:
+  - {to: concept.numeric_types, rel: requires}
+  - {to: concept.expression_typing, rel: requires}
+  - {to: concept.strings, rel: uses, via: [string_xml_concat], target_items: [string_concat]}
+notes: "Possible inconsistency: 5.2.4.2 says decimal operations that would yield NaN, infinity or a subnormal panic, whereas 6.23/6.24 say float and decimal `*`, `/`, `+`, `-` 'never' cause a panic (e.g. decimal division by zero). Items avoid asserting either for decimal division by zero; flag for review. The int negation overflow text reads '-263)' which is -2^63. Spec text for `%` on floats says n is the integer nearest the quotient 'without exceeding it in magnitude' (truncation)."
