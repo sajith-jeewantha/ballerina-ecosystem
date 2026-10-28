@@ -8,6 +8,9 @@ feature missing from the graph is never trained on.
 The current nodes are built from the
 [Ballerina Language Specification 2024R1](https://ballerina.io/spec/lang/2024R1/).
 
+**View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/
+(raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/graph.json))
+
 ## Repository layout
 
 ```
@@ -47,6 +50,10 @@ Run these from `ballerina-graph/`:
 `build/` holds the published graph: `build/graph.json` (the full graph) and
 `build/viewer.html` (the interactive viewer). Re-run `export` and `view` after changing nodes
 so they stay in sync.
+
+Pushing changes under `ballerina-graph/build/` to `main` runs the
+[Publish graph viewer](.github/workflows/pages.yml) workflow, which deploys `build/` to GitHub
+Pages with `viewer.html` as the home page.
 
 ## Node format
 
