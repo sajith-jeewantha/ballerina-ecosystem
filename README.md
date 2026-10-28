@@ -44,7 +44,9 @@ Run these from `ballerina-graph/`:
 | `python -m ballerina_graph export nodes/ --out build/` | Writes `build/graph.json` and regenerates `schema/node.schema.json`. |
 | `python -m ballerina_graph view nodes/` | Writes `build/viewer.html`, a self-contained graph viewer you can open in any browser. |
 
-`build/` is generated output and is not committed.
+`build/` holds the published graph: `build/graph.json` (the full graph) and
+`build/viewer.html` (the interactive viewer). Re-run `export` and `view` after changing nodes
+so they stay in sync.
 
 ## Node format
 
