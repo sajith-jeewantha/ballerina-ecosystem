@@ -1,0 +1,62 @@
+schema_version: "0.1"
+id: concept.query_joins_grouping
+type: concept
+title: Query joins, grouping, aggregation and on conflict
+summary: Inner and outer equijoins, group by with aggregated variables, collect for whole-query aggregation, langlib aggregation calls, and on conflict handling for maps and tables built by queries.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.4", kind: spec, note: "6.35.4 Join clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#aggregated_variables", kind: spec, note: "6.35.7 Aggregated variable bindings"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.8", kind: spec, note: "6.35.8 Group by clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.9", kind: spec, note: "6.35.9 Collect clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.11", kind: spec, note: "6.35.11 On conflict clause"}
+must_cover:
+  - id: join_clause
+    text: 'Join two sources with `join var d in depts on e.deptId equals d.id`, an inner equijoin that compares keys with DeepEquals'
+    difficulty: [intermediate]
+  - id: join_scoping
+    text: 'Explain join scoping: the `in` expression sees neither earlier nor join variables, the left side of `equals` sees only earlier variables and the right side sees only the join variables'
+    difficulty: [advanced]
+  - id: outer_join
+    text: 'Use `outer join var d in depts on ...` for a left outer join, which must use `var`, gives join variables type `T?`, and binds them to `()` when there is no match'
+    difficulty: [intermediate]
+  - id: group_by
+    text: 'Group frames with `group by deptId`, which partitions frames by DeepEquals of the grouping keys and emits one frame per group in the order each group first appears'
+    difficulty: [intermediate]
+  - id: group_by_declaration
+    text: 'Declare grouping keys inline with `group by var k = expr`, which is equivalent to a `let` clause followed by `group by k`'
+    difficulty: [intermediate]
+  - id: aggregated_variables
+    text: 'Explain that after `group by` each non-key variable becomes an aggregated variable of type `[T, T...]`, and after `collect` every variable becomes one of type `T[]`'
+    difficulty: [intermediate, advanced]
+  - id: aggregated_references
+    text: 'Reference an aggregated variable only where a spread is allowed, as a list constructor member (`[price]`, the same as `[...price]`) or a function rest argument (`sum(price)`)'
+    difficulty: [advanced]
+  - id: langlib_aggregation
+    text: 'Aggregate with unqualified calls such as `sum(price)`, `avg(x)`, `max(x)`, `min(x)`, `count(x)`, `first(x)` and `last(x)`, which resolve to the lang module of the member basic type (e.g. `int:sum`) or else `lang.value`, and give `()` for an empty list when the function needs at least one argument'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: collect_clause
+    text: 'Use a query-collect expression `from var o in orders collect sum(o.amount)` to aggregate every frame into one value, where the collect expression gets the query expected type and an early iterator error becomes the result'
+    difficulty: [intermediate]
+  - id: select_after_group
+    text: 'Combine `group by` with `select` to emit one result per group, e.g. `group by cat select {cat, total: sum(price)}`'
+    difficulty: [intermediate]
+  - id: map_table_conflicts
+    text: 'Explain that when a query builds a map or keyed table, a new member with an existing key replaces the old one in the same position unless an `on conflict` clause is given'
+    difficulty: [intermediate]
+  - id: on_conflict
+    text: 'Use `on conflict expr`, allowed only when building a keyed table or a map, whose `error?` result is evaluated on each key clash, with an error becoming the query result and nil letting the replacement go ahead'
+    difficulty: [intermediate]
+out_of_scope:
+  - "Basic query clauses and result kinds (concept.query_expressions)"
+  - "Per-function semantics of int/float/decimal aggregation functions (concept.langlib_numeric)"
+edges:
+  - {to: concept.query_expressions, rel: requires}
+  - {to: concept.query_expressions, rel: part_of}
+  - {to: concept.langlib, rel: uses, via: [langlib_aggregation], target_items: [lang_int, lang_float, lang_decimal, lang_value, lang_boolean]}
+  - {to: concept.tables, rel: uses, via: [map_table_conflicts, on_conflict], target_items: [key_uniqueness]}
+  - {to: concept.comparison_equality, rel: uses, via: [join_clause, group_by]}
+notes: "6.35.4 notes an optional optimisation when the join source is a table keyed by the equals expression; that is an implementation detail and is not covered. 6.35.11 wording 'the earlier new value replaces the earlier conflicting value' is garbled but intends that the new value replaces the old."

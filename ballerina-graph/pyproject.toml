@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ballerina-graph"
+version = "0.1.0"
+description = "Schema, loader and exports for the Ballerina Knowledge Graph"
+requires-python = ">=3.10"
+dependencies = ["pydantic>=2.6", "pyyaml>=6.0"]
+
+[tool.setuptools]
+packages = ["ballerina_graph"]
+
+[tool.setuptools.package-data]
+ballerina_graph = ["viewer_template.html"]

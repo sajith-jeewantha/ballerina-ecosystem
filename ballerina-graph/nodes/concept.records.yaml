@@ -1,0 +1,68 @@
+schema_version: "0.1"
+id: concept.records
+type: concept
+title: Record types
+summary: Record type descriptors that give each named field its own type, with required, optional, defaulted and readonly fields, open or closed shapes, rest descriptors and type inclusion.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.2", kind: spec, note: "5.4.2.2 Record types"}
+must_cover:
+  - id: record_basics
+    text: 'Define record types such as `type Person record { string name; int age; };` whose fields are required, and create values of them with mapping constructors'
+    difficulty: [beginner]
+  - id: optional_fields
+    text: 'Declare optional fields with `T f?;`, meaning the field may be absent but if present its value must belong to `T`'
+    difficulty: [beginner]
+  - id: default_values
+    text: 'Declare fields with default values `int retries = 3;`, and explain the default is a closure evaluated each time a value is constructed without that field and does not affect the type'
+    difficulty: [beginner, intermediate]
+  - id: default_restrictions
+    text: 'Explain that a field default-expression must meet the requirements for an isolated function and that it is a compile-time error for it to contain `check`'
+    difficulty: [advanced]
+  - id: defaults_in_constructor
+    text: 'Explain that a mapping constructor adds default values for missing fields only after all specific and spread fields have been added'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+  - id: open_vs_closed
+    text: 'Distinguish inclusive records `record { ... }`, which also allow extra `anydata` fields (equivalent to `record {| ...; anydata...; |}`), from exclusive records `record {| ... |}`, which allow only the described fields'
+    difficulty: [beginner, intermediate]
+  - id: rest_descriptor
+    text: 'Use a record rest descriptor `record {| string name; int...; |}` to allow extra fields of a given type, and classify a record type as open (inclusive, or exclusive with rest) or closed'
+    difficulty: [intermediate]
+  - id: readonly_fields
+    text: 'Declare `readonly` fields, whose read-only bit must be set and whose type is the intersection of `readonly` and the declared type'
+    difficulty: [intermediate]
+  - id: closed_readonly_record
+    text: 'Explain that a closed record type in which every field is `readonly` is a subtype of `readonly`'
+    difficulty: [advanced]
+  - id: type_inclusion
+    text: 'Include the fields and rest descriptor of another record type with `*OtherRecord;`, and know a record may not directly or indirectly include itself'
+    difficulty: [intermediate]
+  - id: inclusion_overrides
+    text: 'Override an included field with a field of the same name whose type is a subtype, and explain the error when two inclusions bring a same-named field or different rest descriptors that the including type does not override'
+    difficulty: [advanced]
+  - id: constructor_field_must_exist
+    text: 'Explain that in a mapping constructor whose inherent type is a record, a field written with a plain field name (not a string literal) must be declared in the record type'
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+  - id: field_names
+    text: 'Explain that the order of field descriptors is not significant and that quoted identifiers let a field name be any non-empty string'
+    difficulty: [intermediate]
+  - id: readonly_intersection_defaults
+    text: 'Explain that for `R & readonly`, a field default whose result belongs to `Cloneable` gets ImmutableClone applied to it, and otherwise the field has no default'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.8", kind: spec, note: "5.6.8 Intersection types"}
+out_of_scope:
+  - "map<T> types and mapping constructor syntax in general (concept.maps)"
+  - "Accessing record fields (concept.field_member_access)"
+  - "Included record parameters (concept.functions)"
+  - "Field annotations and documentation (concept.annotations, concept.documentation)"
+edges:
+  - {to: concept.maps, rel: requires}
+  - {to: concept.mutability_readonly, rel: uses, via: [readonly_fields, closed_readonly_record, readonly_intersection_defaults]}
+  - {to: concept.isolation, rel: uses, via: [default_restrictions]}
+notes: "Field descriptor grammar: `metadata [readonly] type-descriptor field-name [? | (= default-expression)] ;` — a field cannot be both optional and defaulted."

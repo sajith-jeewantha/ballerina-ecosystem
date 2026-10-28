@@ -1,0 +1,69 @@
+schema_version: "0.1"
+id: concept.modules_imports
+type: concept
+title: Modules, packages and imports
+summary: How Ballerina programs are divided into modules and packages, and how a module part imports and refers to other modules.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#program_structure", kind: spec, note: "3 Program structure"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#module_level", kind: spec, note: "8 Module-level declarations"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration"}
+must_cover:
+  - id: module_parts
+    text: "Explain that a module's source form is an ordered collection of one or more source parts (UTF-8 encoded), each matching `module-part`, where import declarations must come before all other declarations and the remaining top-level declarations may appear in any order"
+    difficulty: [beginner, intermediate]
+  - id: org_module_names
+    text: "Identify a module by an organization name and a module name made of one or more dot-separated parts, both restricted to `RestrictedIdentifier` (an ASCII letter followed by ASCII letters and digits, with each underscore followed by a letter or digit), and know organization names starting with `ballerina` are reserved for the platform"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lexical_structure", kind: spec, note: "4 Lexical structure (RestrictedIdentifier)"}
+  - id: packages_versions
+    text: "Explain that the platform combines modules into a package whose name is the first part of each module name, that binary packages live in repositories organized by organization, package name and SemVer version, and that a package's `Ballerina.toml` controls the versions used for referenced modules"
+    difficulty: [intermediate]
+  - id: exported_modules
+    text: "Explain that a package controls which of its modules are exported, and that a module that is not exported is visible only to modules within the same package"
+    difficulty: [intermediate]
+  - id: separate_compilation
+    text: "Explain that each source module can be compiled separately into a binary module and that compiling it needs only the binary form of the modules it references"
+    difficulty: [advanced]
+  - id: import_syntax
+    text: "Write import declarations such as `import ballerina/http;` and `import myorg/util.strings as str;`, knowing the organization name defaults to the importing module's organization when omitted"
+    difficulty: [beginner]
+  - id: underscore_import
+    text: "Use `import org/mod as _;` to include a module in the program and run its initialization without binding a module prefix"
+    difficulty: [intermediate]
+  - id: unused_prefix_error
+    text: "Explain that it is a compile error for a source part to import a module with a module prefix and then never use that prefix"
+    difficulty: [beginner, intermediate]
+  - id: acyclic_imports
+    text: "Explain that a module must not directly or indirectly import itself: the directed graph of module imports must be acyclic"
+    difficulty: [intermediate]
+  - id: qualified_identifiers
+    text: "Refer to another module's public declarations with a qualified identifier `prefix:name`, with no white space allowed before or after the colon (`NoSpaceColon`), where the prefix must be declared by an import declaration in the same source part"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+  - id: public_visibility
+    text: "Mark module-level declarations `public` so they can be referenced from other modules; without `public` a module-scope identifier can be referenced only within its own module"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+  - id: prefix_symbol_space
+    text: "Explain that module prefixes declared by imports are in the same prefix symbol space as XML namespace prefixes declared by `xmlns`, that this symbol space is distinct from the module's main symbol space, and that it belongs to a source part rather than to the whole module"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+  - id: predeclared_prefixes
+    text: "Use the predeclared prefixes `boolean`, `decimal`, `error`, `float`, `function`, `future`, `int`, `map`, `object`, `stream`, `string`, `table`, `transaction`, `typedesc` and `xml` to refer to the matching `lang.*` module without an import (e.g. `int:MAX_VALUE`, `string:Char`), and know an import that uses one of these prefixes overrides the predeclaration"
+    difficulty: [beginner, intermediate]
+out_of_scope:
+  - "Module initialization order and the module init function (concept.program_execution)"
+  - "Lexical rules for identifiers and quoted identifiers (concept.lexical_structure)"
+  - "XML namespace declarations (concept.xml_namespaces)"
+  - "Package manifest and CLI details, which the spec leaves to the Ballerina platform"
+edges:
+  - {to: concept.lexical_structure, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [predeclared_prefixes], target_items: [lang_int, lang_string, lang_map, lang_xml, lang_error]}
+  - {to: concept.program_execution, rel: related, via: [acyclic_imports], target_items: [module_init_order]}
+notes: "The spec does not state the default module prefix when `as` is omitted; no item claims one. Package layout, Ballerina.toml contents and repositories are platform-defined and only mentioned at the level of detail in section 3."

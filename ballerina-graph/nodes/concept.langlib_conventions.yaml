@@ -1,0 +1,76 @@
+schema_version: "0.1"
+id: concept.langlib_conventions
+type: concept
+title: "Lang library conventions: generic types, built-in subtypes, method-call dispatch"
+summary: How lang library modules express generic typing with annotations, define built-in subtypes, and are reached through predeclared module prefixes and method-call syntax.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_11.1", kind: spec, note: "11.1 Generic types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+must_cover:
+  - id: type_params
+    text: "Explain the `@typeParam` annotation: a lang library type definition marked with it acts as a type parameter, so every use of it within one function declaration (e.g. `Type` in `push(Type[] arr, Type... vals)`) refers to the same type, and its definition is an upper bound"
+    difficulty: [intermediate, advanced]
+  - id: isolated_param
+    text: "Explain the `@isolatedParam` annotation on a function-typed parameter of an isolated langlib function: when the call must be isolated, the argument supplied (e.g. the callback to `map` or `filter`) must also be isolated"
+    difficulty: [advanced]
+  - id: no_user_generics
+    text: "Explain that Ballerina 2024R1 has no user-defined generic types, which is why the lang library expresses generics through annotations"
+    difficulty: [intermediate]
+  - id: builtin_subtypes
+    text: "List the built-in subtypes and their ranges: `int:Signed8` (-128..127), `int:Signed16` (-32,768..32,767), `int:Signed32` (-2,147,483,648..2,147,483,647), `int:Unsigned8` (0..255), `int:Unsigned16` (0..65,535), `int:Unsigned32` (0..4,294,967,295), `string:Char` (length 1), and `xml:Element`, `xml:ProcessingInstruction`, `xml:Comment` and `xml:Text` (empty or a text singleton)"
+    difficulty: [beginner, intermediate]
+  - id: builtin_subtype_reference
+    text: "Reference a built-in subtype `T` of basic type `B` with a qualified type reference `M:T` where `M` refers to `ballerina/lang.B`, and know that `int:Unsigned8` is equivalent to the predefined `byte`"
+    difficulty: [beginner, intermediate]
+  - id: builtin_subtype_annotation
+    text: "Explain that `@builtinSubtype` marks a lang library type definition whose meaning comes from the specification rather than from its type descriptor (e.g. `@builtinSubtype type Signed32 int;`), and that using it outside the lang library is an error"
+    difficulty: [advanced]
+  - id: predeclared_prefixes
+    text: "Use the predeclared module prefixes `boolean`, `decimal`, `error`, `float`, `function`, `future`, `int`, `map`, `object`, `stream`, `string`, `table`, `transaction`, `typedesc` and `xml`, which refer to the corresponding `lang.*` module without an import and without a quoted identifier (e.g. `int:fromString(s)`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration (predeclared-prefix)"}
+  - id: override_predeclared
+    text: "Override a predeclared prefix with an `import` declaration that binds the same prefix to another module, and import modules without a predeclared prefix, such as `ballerina/lang.array`, `ballerina/lang.value`, `ballerina/lang.regexp` and `ballerina/lang.runtime`, explicitly"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration"}
+  - id: method_call_dispatch
+    text: "Explain how `v.f(args)` on a non-object value becomes the lang library call `m:f(v, args)`, where `m` is `lang.B` if the static type of `v` is a subtype of basic type B and `lang.B` defines `f`, and `lang.value` otherwise (e.g. `[1,2].length()` calls `array:length`, `x.toString()` calls `value:toString`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: method_call_constraints
+    text: "Explain that a method call converted to a lang library call must satisfy every constraint of the equivalent function call (a compile error otherwise), and is isolated under the same conditions as that function call"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: aggregated_rest_dispatch
+    text: "Explain that a call `f(x)` where `f` is unqualified and the only argument is an aggregated variable of type `T` (e.g. `sum(price)` after `group by` or in `collect`) resolves `f` in `lang.B` when `T` is a subtype of `B[]` and `lang.B` defines `f`, and in `lang.value` otherwise (e.g. `count`, `first`, `last`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: aggregated_empty_nil
+    text: "Explain that when such a langlib function needs at least one argument but the aggregated list may be empty (e.g. `max(x)` in a `collect` clause), the call returns nil for an empty list and its return type is unioned with nil"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: reserved_lang_modules
+    text: "Explain that modules in the `ballerina` organization whose names start with `lang.` are reserved for the lang library defined by the specification, and that every module except `lang.value`, `lang.transaction` and `lang.runtime` corresponds to a basic type"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11 Lang library"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library_modules", kind: spec, note: "11.3 Lang library modules"}
+out_of_scope:
+  - "Per-module function lists (concept.langlib)"
+  - "General import syntax and module prefixes (concept.modules_imports)"
+  - "Group-by/collect semantics and aggregated variables (concept.query_joins_grouping)"
+  - "Integer range semantics and byte (concept.numeric_types)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: part_of}
+  - {to: concept.modules_imports, rel: uses, via: [predeclared_prefixes, override_predeclared]}
+  - {to: concept.query_joins_grouping, rel: uses, via: [aggregated_rest_dispatch, aggregated_empty_nil]}
+notes: "Spec 11.1 says generic types are planned for a future version. The lang.int doc comments for Signed16 and Signed8 say 'non-negative integers' but then give signed ranges (-2^15..2^15-1, -2^7..2^7-1); the 11.2 table and the ranges are taken as authoritative. Saying that `lang.array`, `lang.value`, `lang.regexp` and `lang.runtime` are not predeclared is derived from the predeclared-prefix list in 8.1, which omits them; the spec does not say this explicitly."

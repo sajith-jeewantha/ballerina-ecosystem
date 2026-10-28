@@ -1,0 +1,64 @@
+schema_version: "0.1"
+id: concept.type_ids_distinct
+type: concept
+title: Distinct types and type-ids
+summary: Distinct object and error types, which give nominal-style typing inside the structural type system through type-ids that values acquire when they are constructed.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.5", kind: spec, note: "5.1.5 Type-ids"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#distinct_types", kind: spec, note: "5.6.6 Distinct types"}
+must_cover:
+  - id: distinct_purpose
+    text: Explain that distinct types provide functionality similar to nominal (branded) types within Ballerina's structural type system, so two structurally identical distinct types are different types
+    difficulty: [intermediate]
+  - id: distinct_error_types
+    text: Declare distinct error types such as `type NotFound distinct error;` and test them with `e is NotFound`, so errors with the same shape but different type-ids can be told apart
+    difficulty: [beginner, intermediate]
+  - id: distinct_object_and_class
+    text: Declare distinct object types with `distinct object { ... }` and distinct classes with `distinct class C { ... }`, knowing `distinct` applies only to object and error types
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.6", kind: spec, note: "8.6 Module class definition"}
+  - id: distinct_semantics
+    text: Explain that `distinct T` requires T to be definite and a subtype of object or error, contains only values of T whose type-ids include this occurrence's type-id, and is always a proper subtype of T
+    difficulty: [advanced]
+  - id: type_id_parts
+    text: Describe a type-id's parts, namely a module id (organization, module name, platform parts), a local id that is the defined type or class name when it is the only `distinct` in that definition or otherwise a compiler-generated integer, and a public flag
+    difficulty: [advanced]
+  - id: type_ids_fixed
+    text: Explain that an object or error value's set of type-ids is fixed when it is constructed, is part of its shape, and is split into primary and secondary type-ids
+    difficulty: [advanced]
+  - id: definite_type_descriptors
+    text: Explain that object and error values must be constructed from a definite type descriptor, which induces their type-ids; `error` and object type descriptors are definite, and an intersection of definite types induces the union of their type-ids
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.8", kind: spec, note: "5.6.8 Intersection types"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.1", kind: spec, note: "5.5.1 Errors"}
+  - id: error_intersection_type_ids
+    text: Use an intersection of distinct error types such as `type E1E2 E1 & E2;` to describe errors that carry the type-ids of both, and construct them with `error E1E2("msg")`
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.17", kind: spec, note: "6.17 Error constructor"}
+  - id: primary_secondary_ids
+    text: Explain that `distinct T` has its own type-id as primary and T's type-ids as secondary, and that a distinct class's included object types contribute secondary type-ids
+    difficulty: [advanced]
+  - id: non_public_type_id
+    text: Explain that it is an error for a type reference or object type inclusion to induce a non-public type-id from another module
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.1", kind: spec, note: "5.6.1 Type reference"}
+  - id: query_type_ids
+    text: Inspect a type's type-ids at runtime with `typedesc:typeIds(td)`, optionally only the primary ones
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.typedesc", kind: spec, note: "11.3.15 lang.typedesc"}
+out_of_scope:
+  - "Error values and the error constructor in general (concept.errors)"
+  - "Classes and object type inclusion in general (concept.classes, concept.objects)"
+edges:
+  - {to: concept.objects, rel: requires}
+  - {to: concept.errors, rel: requires}
+  - {to: concept.typedesc, rel: uses, via: [query_type_ids], target_items: [type_ids_function]}
+  - {to: concept.langlib, rel: uses, via: [query_type_ids], target_items: [lang_typedesc]}
+notes: "5.6.1 says 'A type-reference referring to a type descriptor T is definite if and only if T.' — word missing ('T is definite'). In error_intersection_type_ids, constructing via an intersection type reference is allowed per 6.17 ('it is allowed for E to refer to an intersection-type-descriptor')."

@@ -1,0 +1,63 @@
+schema_version: "0.1"
+id: concept.comparison_equality
+type: concept
+title: Equality, ordering and relational operators
+summary: Deep equality (==), exact equality (===), the DeepEquals operation, ordered types and the Compare operations behind relational operators and sorting.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.29", kind: spec, note: "6.29 Equality expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.27", kind: spec, note: "6.27 Relational expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#DeepEquals", kind: spec, note: "5.8.3 DeepEquals"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#ordering", kind: spec, note: "5.8.6 Ordering"}
+must_cover:
+  - id: deep_equality
+    text: Use `==` and `!=` for deep equality of values, knowing at least one operand must have a static type that is a subtype of `anydata`
+    difficulty: [beginner]
+  - id: exact_equality
+    text: Use `===` and `!==` for exact equality, which compares storage identity for structured and behavioral values and identical values for simple values
+    difficulty: [intermediate]
+  - id: equality_compile_check
+    text: Explain that all four equality operators give a compile error when the intersection of the operands' static types is empty
+    difficulty: [intermediate]
+  - id: deep_equals_semantics
+    text: Explain that DeepEquals compares the primary aspect of shapes, ignoring read-only bits, terminates on cyclic values, is false for values of different basic types, and that `x.clone() == x` always holds for anydata x
+    difficulty: [intermediate, advanced]
+  - id: float_equality
+    text: Explain float equality edge cases, that `==` treats `0.0` and `-0.0` as equal while `===` does not, and both treat NaN as equal to NaN, unlike IEEE comparison
+    difficulty: [intermediate, advanced]
+  - id: decimal_equality
+    text: Explain that `==` on decimals ignores precision while `===` does not, so `1.0d == 1.00d` is true but `1.0d === 1.00d` is false
+    difficulty: [intermediate]
+  - id: sequence_exact_equality
+    text: Explain exact equality for strings and xml, where sequences are exactly equal if they have the same length and corresponding constituents are exactly equal (singletons compare storage identity when they have it)
+    difficulty: [advanced]
+  - id: relational_operators
+    text: Use `<`, `>`, `<=` and `>=`, which require both operands to belong to a common ordered type and have static type boolean
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.27", kind: spec, note: "6.27 Relational expression"}
+  - id: ordered_types
+    text: Identify ordered types, namely nil, boolean (false < true), int, float, decimal, string (by Unicode code point), optional versions `T?` of ordered types, and lists whose member types are ordered
+    difficulty: [intermediate]
+  - id: nan_and_nil_comparison
+    text: Explain that comparing NaN or comparing nil with a non-nil value is unordered, so every relational operator returns false (e.g. `float:NaN < 1.0` and `float:NaN >= 1.0` are both false)
+    difficulty: [advanced]
+  - id: list_ordering
+    text: Explain lexicographic comparison of lists, where `[]` is less than any non-empty list and the first unequal member pair decides
+    difficulty: [intermediate]
+  - id: sort_ordering
+    text: Explain that sorting (array `sort` and query `order by`) uses CompareA/CompareD so that nil and NaN always sort last, with NaN before nil, in both ascending and descending order
+    difficulty: [advanced]
+  - id: decimal_compare_precision
+    text: Explain that ordering comparisons on decimals ignore precision and that `-0.0` and `+0.0` compare equal for floats
+    difficulty: [intermediate]
+out_of_scope:
+  - "Type test `is` (concept.type_cast_test)"
+  - "Narrowing on `==`/`!=` with singletons (concept.type_narrowing)"
+  - "Query order by clause (concept.query_expressions)"
+edges:
+  - {to: concept.numeric_types, rel: requires}
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [sort_ordering], target_items: [lang_array]}
+notes: "6.29 says === on simple types requires 'identical values within the possible of values allowed for T' (garbled phrase). 5.8.6 lists nil, boolean, int, string as 'these three types' though four are named."

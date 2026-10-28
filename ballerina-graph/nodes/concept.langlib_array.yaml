@@ -1,0 +1,73 @@
+schema_version: "0.1"
+id: concept.langlib_array
+type: concept
+title: lang.array functions
+summary: Detailed semantics of the `lang.array` module's functions on list values, including which ones mutate in place, which return new arrays, and which panic.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.array", kind: spec, note: "11.3.1 lang.array module"}
+must_cover:
+  - id: length_iterator
+    text: "Use `arr.length()` to get the number of members and `arr.iterator()` to get an iterator object whose `next()` returns `record {| T value; |}` or nil at the end"
+    difficulty: [beginner]
+  - id: push_pop
+    text: "Mutate an array at its end with `push(...vals)` (appends values) and `pop()` (removes and returns the last member; the array must not be empty)"
+    difficulty: [beginner]
+  - id: shift_unshift
+    text: "Mutate an array at its start with `shift()` (removes and returns the first member; the array must not be empty) and `unshift(...vals)` (adds values at the start, keeping them in the order given)"
+    difficulty: [beginner]
+  - id: remove_members
+    text: "Remove members with `remove(index)` (returns the removed member and panics if there is no member at `index`) and `removeAll()` (panics if any member cannot be removed)"
+    difficulty: [intermediate]
+  - id: set_length
+    text: "Change an array's length in place with `setLength(n)`, knowing that `setLength(arr, 0)` is equivalent to `removeAll(arr)`"
+    difficulty: [intermediate]
+  - id: slice_reverse
+    text: "Use `slice(startIndex, endIndex = arr.length())` to get a new array with the members whose index is >= startIndex and < endIndex, and `reverse()` to get a new array in reverse order without modifying the original"
+    difficulty: [beginner]
+  - id: index_search
+    text: "Search with `indexOf(val, startIndex = 0)` and `lastIndexOf(val, startIndex = arr.length() - 1)`, which compare using `==`, return `int?` (nil when not found) and require an array of anydata members"
+    difficulty: [beginner, intermediate]
+  - id: higher_order
+    text: "Apply functions to members in order with `map` (new array of results), `filter` (new array of members for which the predicate returns true) and `forEach` (for side effects), passing function values or arrow functions such as `arr.map(x => x * 2)`"
+    difficulty: [beginner, intermediate]
+  - id: reduce
+    text: "Combine members with `reduce(func, initial)`, where `func` takes the accumulated value and a member and returns the new accumulated value, e.g. `reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)`"
+    difficulty: [intermediate]
+  - id: some_every
+    text: "Test members with `some(func)`, which stops at the first true result and returns false for an empty array, and `every(func)`, which stops at the first false result and returns true for an empty array"
+    difficulty: [beginner, intermediate]
+  - id: enumerate
+    text: "Use `enumerate()` to get a new array of `[int, T]` index-member pairs, e.g. for `foreach [int, string] [i, s] in names.enumerate()`"
+    difficulty: [beginner]
+  - id: sort
+    text: "Sort with `sort(direction = array:ASCENDING, key = ())`, which returns a new sorted array, takes `array:DESCENDING` for descending order, and needs a `key` function returning an `OrderedType` when the member type is not ordered (e.g. sorting records by a field)"
+    difficulty: [intermediate]
+  - id: sort_semantics
+    text: "Explain that `sort` orders members the same way as the `order by` clause of query expressions, so nil and NaN go at the end in both directions and equal keys keep their original relative order"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ordering", kind: spec, note: "5.8.6 Ordering"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.6", kind: spec, note: "6.35.6 Order by clause"}
+  - id: ordered_type
+    text: "Explain `array:OrderedType` (`()|boolean|int|float|decimal|string|OrderedType[]`) as a necessary but not sufficient condition for a type to be ordered"
+    difficulty: [advanced]
+  - id: base64_base16
+    text: "Convert `byte[]` to and from text with `toBase64`/`fromBase64` and `toBase16`/`fromBase16`, where the `to` functions produce strings without whitespace (Base16 uses lower-case `a..f`) and the `from` functions return `byte[]|error`"
+    difficulty: [intermediate]
+  - id: to_stream
+    text: "Use `toStream()` to get a `stream<T,()>` over an array's members, which uses an iterator over the array and so handles mutation of the array the same way an iterator does"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Array and tuple types, list constructors and indexing (concept.arrays_tuples)"
+  - "The iterator mutation rules themselves (concept.iterability)"
+  - "Stream operations (concept.streams)"
+edges:
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.function_values, rel: requires}
+  - {to: concept.langlib, rel: part_of}
+  - {to: concept.comparison_equality, rel: uses, via: [index_search, sort_semantics, ordered_type]}
+  - {to: concept.streams, rel: uses, via: [to_stream]}
+  - {to: concept.langlib_conventions, rel: uses, via: [higher_order, reduce, sort], target_items: [type_params, isolated_param]}
+notes: "Stable ordering of equal keys comes from 6.35.6, where entries with equal keys keep their input order; `sort` is defined to work like the query sort clause. The spec does not say which inherent types make `removeAll` panic (e.g. fixed-length arrays); the item keeps only the stated rule. The `toStream` doc comment has a garbled sentence ('Theutation of the `arr`') and uses an undeclared type parameter `T`."

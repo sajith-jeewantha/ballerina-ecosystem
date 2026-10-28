@@ -1,0 +1,56 @@
+schema_version: "0.1"
+id: concept.type_narrowing
+type: concept
+title: Conditional variable type narrowing
+summary: How the compiler narrows the static type of a local variable or parameter from boolean conditions (occurrence typing) and from statements that cannot complete normally.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#conditional_variable_type_narrowing", kind: spec, note: "7.12 Conditional variable type narrowing"}
+must_cover:
+  - id: is_narrowing
+    text: Narrow a union-typed local variable or parameter with `if x is T { ... } else { ... }`, where x has type `Tx & T` in the if block and the read-only difference of Tx and T in the else block
+    difficulty: [beginner, intermediate]
+  - id: readonly_difference
+    text: Explain the read-only difference used for the false case, where a mutable part of the type is removed only if it is entirely contained in T, because a mutable value can look like T without belonging to it
+    difficulty: [advanced]
+  - id: equality_narrowing
+    text: Narrow with `x == E` and `x != E` when E has a singleton simple type, e.g. `if x == () { ... }` or `if x != () { ... }` to remove nil
+    difficulty: [beginner, intermediate]
+  - id: compound_conditions
+    text: Combine narrowings with `!`, `&&` and `||`, e.g. `x is int && x > 0` uses the narrowed type in the right operand, and `!(x is int)` swaps the true and false narrowings
+    difficulty: [intermediate]
+  - id: narrowing_regions
+    text: Identify where narrowed types apply, namely the right operand of `&&` (truth) and `||` (falsity), the branches of `? :`, the blocks of `if`/`else`, the body of `while`, the block of a match clause after its guard, and all clauses after a query `where` clause
+    difficulty: [intermediate]
+  - id: completion_narrowing
+    text: Use narrowing from normal completion, e.g. after `if x is error { return x; }` the variable x excludes error for the rest of the block, because a statement that cannot complete normally implies `never`
+    difficulty: [intermediate]
+  - id: if_else_union
+    text: Explain that after `if E B1 else B2` the narrowed type is the union of the types implied by normal completion of B1 and B2, that a missing `else` acts like an empty block, and `else if` is treated as a nested if-else
+    difficulty: [advanced]
+  - id: assignment_invalidates
+    text: Explain that narrowing stops applying where the variable may have been assigned since the condition was evaluated, and that it is a compile error if an assignment inside a `while`, `foreach` or query action body would invalidate a narrowing from outside the loop
+    difficulty: [advanced]
+  - id: narrowing_scope_variables
+    text: Know that conditional narrowing is defined only for local variables and parameters referenced by name in the condition, so to narrow a field value first copy it into a local variable
+    difficulty: [intermediate]
+  - id: wildcard_exhaustiveness
+    text: Use a wildcard destructuring assignment such as `Z _ = v;` in the final else to assert that all union cases were handled, so adding a new member to the union later causes a compile error
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+  - id: match_narrowing
+    text: Recognize that a `match` on a variable narrows it in each clause to the target type read-only-intersected with what the clause's patterns can match after excluding earlier unguarded clauses
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.2", kind: spec, note: "7.20.2 Match clause reachability and narrowing"}
+out_of_scope:
+  - "Match statement syntax and patterns (concept.match_statement)"
+  - "The `is` expression itself (concept.type_cast_test)"
+edges:
+  - {to: concept.type_cast_test, rel: requires}
+  - {to: concept.control_flow, rel: requires}
+  - {to: concept.type_cast_test, rel: uses, via: [is_narrowing], target_items: [is_expr]}
+  - {to: concept.logical_conditional, rel: uses, via: [compound_conditions], target_items: [logical_and_or, logical_not]}
+notes: "7.12 'If E has the form E1 && E2' defines T1 as 'narrowed type implied by the truth of T1' (should read E1); similar letter slips appear in the && rule."

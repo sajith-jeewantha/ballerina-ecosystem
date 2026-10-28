@@ -1,0 +1,53 @@
+schema_version: "0.1"
+id: concept.xml_navigation
+type: concept
+title: XML attribute access and navigation expressions
+summary: Attribute access with `.` and `?.` on xml values, and XPath-like filter and step expressions using xml name patterns.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.12", kind: spec, note: "6.12 XML attribute access expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36", kind: spec, note: "6.36 XML navigation expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.1", kind: spec, note: "6.36.1 XML name pattern"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.2", kind: spec, note: "6.36.2 XML filter expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.3", kind: spec, note: "6.36.3 XML step expression"}
+must_cover:
+  - id: required_attribute_access
+    text: 'Read an attribute with `e.id`, of static type `string|error`, which returns an error when the value is not a singleton element (including when it is empty) or the attribute is missing'
+    difficulty: [beginner, intermediate]
+  - id: optional_attribute_access
+    text: 'Read an attribute with `e?.id`, of static type `string|error|()`, which returns `()` for an empty xml value or a missing attribute and an error when the value is not a singleton element'
+    difficulty: [intermediate]
+  - id: attribute_names
+    text: 'Name attributes with a plain identifier, an xmlns-prefixed name expanded at compile time to `{uri}local`, or a module-qualified string constant such as `xml:lang`'
+    difficulty: [intermediate, advanced]
+  - id: name_patterns
+    text: 'Write xml name patterns `*`, `name`, `ns:name`, `ns:*` and alternatives `a|b`, where an unprefixed name means a name in the in-scope default namespace if one is declared'
+    difficulty: [intermediate]
+  - id: filter_expression
+    text: 'Select element items whose name matches a pattern with `x.<book>`, of static type `xml<xml:Element>`'
+    difficulty: [beginner, intermediate]
+  - id: all_children_step
+    text: 'Use `x/*` to get the children of every element in `x`, equivalent to mapping `xml:getChildren` over `xml:elements(x)`'
+    difficulty: [intermediate]
+  - id: element_children_step
+    text: 'Use `x/<title>` to get the element children matching a name pattern'
+    difficulty: [intermediate]
+  - id: descendants_step
+    text: 'Use `x/**/<title>` to get the matching element descendants, based on `xml:getDescendants`'
+    difficulty: [intermediate]
+  - id: step_extensions
+    text: 'Extend steps with `.<p>`, `[i]` and `.method(args)`, which apply to the result for each element, e.g. `x/<item>[0]`'
+    difficulty: [advanced]
+  - id: parse_preference
+    text: 'Explain that ambiguity with member access and method calls is resolved by including as much as possible in the xml step expression, and that navigation needs an operand whose static type is a subtype of xml'
+    difficulty: [advanced]
+out_of_scope:
+  - "Declaring namespace prefixes (concept.xml_namespaces)"
+  - "lang.xml functions in detail (concept.langlib_xml)"
+edges:
+  - {to: concept.xml, rel: requires}
+  - {to: concept.xml, rel: part_of}
+  - {to: concept.xml_namespaces, rel: uses, via: [attribute_names, name_patterns], target_items: [expanded_names, xmlns_statement]}
+  - {to: concept.langlib, rel: uses, via: [all_children_step, descendants_step], target_items: [lang_xml]}
+notes: "6.12: for the required form, every case where the optional form gives () becomes an error, including an empty xml operand."

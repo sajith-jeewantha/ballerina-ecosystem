@@ -1,0 +1,60 @@
+schema_version: "0.1"
+id: concept.value_cloning
+type: concept
+title: Cloning and type-directed conversion of values
+summary: The Cloneable type, deep copying with `clone` and `cloneReadOnly` (Clone and ImmutableClone), and constructing a value of a specified type with `cloneWithType`.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#Cloning", kind: spec, note: "5.8.2 Cloning"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#Clone", kind: spec, note: "5.8.2.1 Clone"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#ImmutableClone", kind: spec, note: "5.8.2.2 ImmutableClone"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value"}
+must_cover:
+  - id: cloneable_type
+    text: Use the `value:Cloneable` type, defined as `readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>`, as the domain of the cloning operations
+    difficulty: [intermediate]
+  - id: clone_fn
+    text: Use `v.clone()` to make a deep copy of structured and sequence values that keeps the same inherent types and returns immutable values (and immutable subtrees) without copying them
+    difficulty: [beginner, intermediate]
+  - id: clone_graph_structure
+    text: Explain that Clone preserves the graph of references, so shared members stay shared, cycles are reproduced and cloning a cyclic value terminates
+    difficulty: [advanced]
+  - id: clone_readonly_fn
+    text: Use `v.cloneReadOnly()` to get a deep immutable copy of type `T & readonly`, where every newly constructed value has its read-only bit on and already-immutable values are not copied
+    difficulty: [intermediate]
+  - id: immutable_clone
+    text: Explain the ImmutableClone operation, which preserves graph structure including cycles by building the whole graph before making it immutable, and is used implicitly for error detail fields and annotation values
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.17", kind: spec, note: "6.17 Error constructor (detail ImmutableClone)"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.1", kind: spec, note: "9.1 Annotations (ImmutableClone of values)"}
+  - id: clone_equality
+    text: Rely on `x.clone() == x` being true for every anydata value x
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#DeepEquals", kind: spec, note: "5.8.3 DeepEquals"}
+  - id: clone_isolated
+    text: Know that calls to `clone` and `cloneReadOnly` are always isolated expressions, so they can be used to safely transfer values into or out of `lock` statements
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: clone_with_type
+    text: Use `v.cloneWithType(T)` or `T x = check v.cloneWithType();` to construct a value of a specified anydata type by deep copy, where inherent types and read-only bits come from T, for a union the leftmost workable member is used, and missing record fields are filled from defaults
+    difficulty: [intermediate]
+  - id: clone_with_type_differences
+    text: 'Explain how cloneWithType differs from clone: the result is always a tree, so it returns an error on cyclic input, immutable structural values are copied, and numeric values are converted with NumericConvert'
+    difficulty: [advanced]
+  - id: clone_on_send
+    text: Explain that a worker send applies Clone to the message value, so the receiver gets a copy rather than a shared reference
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+out_of_scope:
+  - "JSON-specific conversions toJson / fromJsonWithType (concept.json_anydata)"
+  - "Safe casting with ensureType (concept.type_cast_test)"
+edges:
+  - {to: concept.mutability_readonly, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [clone_fn, clone_readonly_fn, clone_with_type], target_items: [lang_value]}
+  - {to: concept.comparison_equality, rel: uses, via: [clone_equality], target_items: [deep_equals_semantics]}
+  - {to: concept.numeric_types, rel: uses, via: [clone_with_type_differences], target_items: [numeric_convert]}

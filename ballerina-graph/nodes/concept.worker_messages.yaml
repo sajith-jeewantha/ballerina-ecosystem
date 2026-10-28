@@ -1,0 +1,76 @@
+schema_version: "0.1"
+id: concept.worker_messages
+type: concept
+title: Worker message passing
+summary: Sending and receiving Cloneable messages between peer workers with async send, sync send, flush, and single, multiple and alternate receive actions.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8", kind: spec, note: "7.8 Worker message passing"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#sending_messages", kind: spec, note: "7.8.1 Sending messages"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#receiving_messages", kind: spec, note: "7.8.2 Receiving messages"}
+must_cover:
+  - id: message_values
+    text: "Know that a worker message must belong to `value:Cloneable` and that the sent value is copied with the Clone operation"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+  - id: peer_workers
+    text: "Send messages only between peer workers: a function's default worker (referred to as `function`) and its named workers are peers, and the workers of one fork statement are peers of each other"
+    difficulty: [intermediate]
+  - id: async_send
+    text: "Send a message without waiting for it to be received with the async send action `expr -> w;`, which evaluates to `()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+  - id: sync_send
+    text: "Use the sync send action `expr ->> w`, which is equivalent to an async send followed by `flush w` and so may evaluate to the receiver's failure error"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.3", kind: spec, note: "7.8.1.3 Sync send action"}
+  - id: flush_action
+    text: "Use `flush w` (or `flush` alone for every peer) to wait until previously sent messages are received; it evaluates to `()` or to the receiver's error if the receiver terminated with failure, and panics if the receiver panicked"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.2", kind: spec, note: "7.8.1.2 Flush action"}
+  - id: single_receive
+    text: "Receive a message with `T v = <- w;`, whose static type combines the message type, `error:NoMessage` when the matching send might not run, and the sender's failure error type"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.1", kind: spec, note: "7.8.2.1 Single receive action"}
+  - id: multiple_receive
+    text: "Receive from several workers at once with `<- {a: w1, b: w2}` (or `<- {w1, w2}`), producing a record of the received values, or an `error:NoMessage` if any expected message was never sent"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.2", kind: spec, note: "7.8.2.2 Multiple receive action"}
+  - id: alternate_receive
+    text: "Use the alternate receive action `<- w1 | w2` (new in 2024R1) to take the first non-error message from several workers, getting `error:NoMessage` if none of them sent one"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.3", kind: spec, note: "7.8.2.3 Alternate receive action"}
+  - id: sender_failure
+    text: "Know that if the sending worker terminated with failure before sending, the receive evaluates to that error, and if it terminated abnormally (panic) the receive panics"
+    difficulty: [intermediate]
+  - id: compile_time_slots
+    text: "Explain that each send and receive is matched to a queue slot at compile time, in syntactic order, so send and receive actions cannot appear where they could run more than once, such as inside a loop body"
+    difficulty: [advanced]
+  - id: conditional_send
+    text: "Know that a send action may sit in a branch that never runs (2024R1 removed the requirement that every send must be executed), in which case the receiver gets `error:NoMessage`, whereas a receive action may not be placed in such a conditional context"
+    difficulty: [advanced]
+  - id: async_send_failure_rule
+    text: "Know that an async send whose receiver may terminate with failure is a compile-time error unless a sync send or flush is guaranteed to run before the sender terminates successfully"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+  - id: sender_waits_at_end
+    text: "Know that a worker about to terminate normally waits until its outgoing messages have been received (or the receiver has terminated), and terminates abnormally with the receiver's value if the receiver panicked"
+    difficulty: [advanced]
+out_of_scope:
+  - "Creating workers and fork (concept.strands_workers)"
+  - "Waiting for worker results (concept.futures_wait)"
+  - "Restriction on send/receive inside lock (concept.lock_statement)"
+edges:
+  - {to: concept.strands_workers, rel: requires}
+  - {to: concept.value_cloning, rel: uses, via: [message_values]}
+  - {to: concept.langlib, rel: uses, via: [single_receive, multiple_receive, alternate_receive], target_items: [lang_error]}
+notes: "Spec typo in 7.8.1.3: the prose says 'A sync-send-action `E -> R` is equivalent to an async-send-action `E ->> R` followed by a flush', swapping the arrows. The grammar defines async-send-action as `expression -> peer-worker ;` and sync-send-action as `expression ->> peer-worker`; items follow the grammar."

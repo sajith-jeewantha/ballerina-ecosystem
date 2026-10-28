@@ -1,0 +1,63 @@
+schema_version: "0.1"
+id: concept.streams
+type: concept
+title: Streams
+summary: Lazily generated sequences of values with a completion value, described by stream<T,C>, constructed with new from a StreamImplementor or by queries, and processed with lang.stream functions.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.7", kind: spec, note: "5.5.7 Streams"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#StreamImplementor", kind: spec, note: "5.7.3 StreamImplementor"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.stream", kind: spec, note: "11.3.12 lang.stream module"}
+must_cover:
+  - id: stream_types
+    text: 'Declare stream types `stream<T,C>` and `stream<T>` (same as `stream<T,()>`), and explain that a completion type `C` without nil describes an unbounded stream'
+    difficulty: [beginner, intermediate]
+  - id: next_and_close
+    text: 'Explain the two primitive stream operations: `next`, which behaves like Iterator `next`, and `close`, which returns `C?`, is idempotent and runs automatically when generation completes'
+    difficulty: [intermediate]
+  - id: new_stream
+    text: 'Construct streams with `new stream<T,E>(impl)` wrapping a StreamImplementor object, or an empty stream with `new stream<T>()` (or an implicit `new`), whose `next` returns nil'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.2", kind: spec, note: "6.8.2 New expression"}
+  - id: stream_implementor
+    text: 'Implement a StreamImplementor with `public isolated function next() returns record {| T value; |}|C` and optionally `public isolated function close() returns C?`'
+    difficulty: [advanced]
+  - id: implementor_close_rules
+    text: 'Explain that calling `next` after `close` on a StreamImplementor must panic, and that a missing `close` method behaves like one that puts the object in a closed state and returns `()`'
+    difficulty: [advanced]
+  - id: single_pass
+    text: 'Explain that a stream does not keep the values it has produced, so a second iteration over the same stream yields an empty sequence'
+    difficulty: [intermediate]
+  - id: foreach_requires_nil_completion
+    text: 'Explain that `foreach` requires an iterable whose completion type is nil, so a `stream<T, error?>` must be consumed with `next()`, `forEach` or a query instead'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.1", kind: spec, note: "7.21.1 Foreach statement"}
+  - id: stream_langlib
+    text: 'Use `lang.stream` functions `next`, `close`, `iterator`, `map`, `filter`, `forEach` (returns the completion value) and `reduce` (returns the result or the stream error)'
+    difficulty: [intermediate]
+  - id: array_to_stream
+    text: 'Turn an array into a stream with `arr.toStream()`'
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.array", kind: spec, note: "11.3.1 lang.array module"}
+  - id: query_streams
+    text: 'Create streams with query expressions (`stream from ...`, or a query whose expected type or source is a stream), whose clauses run lazily as `next` is called'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.10", kind: spec, note: "6.35.10 Select clause"}
+  - id: not_a_class
+    text: 'Explain that `stream<T,C>` works like a class with `new` even though it is not a class, because Ballerina does not yet support parameterized classes'
+    difficulty: [advanced]
+out_of_scope:
+  - "Query clause semantics (concept.query_expressions)"
+  - "Iterator protocol details (concept.iterability)"
+edges:
+  - {to: concept.iterability, rel: requires}
+  - {to: concept.objects, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [stream_langlib, array_to_stream], target_items: [lang_stream, lang_array]}
+  - {to: concept.query_expressions, rel: uses, via: [query_streams], target_items: [eager_vs_lazy]}
+  - {to: concept.classes, rel: uses, via: [new_stream]}
+notes: "5.5.7 says the stream type 'works like a class' but 6.8.2 class-descriptor explicitly allows stream-type-descriptor in new."

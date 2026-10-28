@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: concept.regexp
+type: concept
+title: Regular expressions (re template, preview)
+summary: The `re` tagged data type for regular expressions (a preview feature in 2024R1), with its template syntax, supported Perl/ECMAScript-subset grammar, flags and semantics.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.5", kind: spec, note: "5.2.5 Tagged data values"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.3", kind: spec, note: "6.6.3 Tagged data template expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#data_tags", kind: spec, note: "10 Data tags"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_10.1", kind: spec, note: "10.1 Regular expressions (preview)"}
+must_cover:
+  - id: tagged_data_values
+    text: 'Explain tagged data values: each data tag has its own basic type whose values are plain data, immutable and without storage identity, and in 2024R1 the only data tag is `re`, backed by `lang.regexp`'
+    difficulty: [intermediate]
+  - id: preview_status
+    text: 'Recognise that regular expressions and `lang.regexp` have preview status in the 2024R1 specification'
+    difficulty: [beginner]
+  - id: re_template
+    text: 'Write regular expressions as `re `[a-z]+\d*``, which are parsed at compile time (a syntax error is a compile-time error) so evaluating them cannot fail'
+    difficulty: [beginner]
+  - id: re_interpolation
+    text: 'Interpolate other regular expressions with `${r}`, which must have type `regexp:RegExp` and behaves as if `(?:r)` were inserted at that point'
+    difficulty: [advanced]
+  - id: regexp_type
+    text: 'Use the type `regexp:RegExp` (also `string:RegExp`), which is part of `anydata` and has filler value `re```'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#anydata", kind: spec, note: "5.6.10 Anydata type"}
+  - id: atoms_and_escapes
+    text: 'Use literal characters, `.`, character classes `[a-z]` and `[^...]`, the escapes `\d \D \s \S \w \W`, `\r \n \t`, `\u{...}`, and backslash-quoted syntax characters such as `\.` and `\(`'
+    difficulty: [beginner, intermediate]
+  - id: quantifiers
+    text: 'Use quantifiers `*`, `+`, `?`, `{n}`, `{n,}` and `{n,m}`, and make them non-greedy with a trailing `?`'
+    difficulty: [beginner]
+  - id: groups_alternation_assertions
+    text: 'Use alternation `a|b`, capturing groups `( )`, non-capturing groups `(?: )` and the assertions `^` and `$`'
+    difficulty: [intermediate]
+  - id: inline_flags
+    text: 'Set flags inside a group with `(?i:...)` or `(?m-s:...)`, using flags `m` (multiline), `s` (dot-all), `i` (ignore case) and `x` (ignore white space outside character sets, with `#` comments), each at most once'
+    difficulty: [intermediate, advanced]
+  - id: unicode_properties
+    text: 'Match Unicode properties with `\p{L}`, `\p{gc=Lu}`, `\p{sc=Latin}` and their negation `\P{...}` (general category `Cs` is not supported)'
+    difficulty: [advanced]
+  - id: semantics
+    text: 'Explain that matching follows ECMAScript 2022 Unicode-mode semantics with Unicode 10, except that `.` matches any character other than 0xA and 0xD and `\s` matches Ballerina white space characters'
+    difficulty: [advanced]
+  - id: regexp_functions
+    text: 'Apply regular expressions with `lang.regexp` functions such as `find`, `isFullMatch` and `replaceAll`, and with `string` functions `matches` and `includesMatch`'
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec, note: "11.3.11 lang.regexp module (preview)"}
+out_of_scope:
+  - "Detailed lang.regexp function semantics (concept.langlib_regexp)"
+  - "Lookahead/lookbehind and backreferences, which the 2024R1 RegExp grammar does not include"
+edges:
+  - {to: concept.strings, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [regexp_functions, regexp_type], target_items: [lang_regexp, lang_string]}
+  - {to: concept.langlib_regexp, rel: uses, via: [regexp_functions]}
+notes: "Grammar: ReAtom `( [? ReFlagsOnOff :] ReDisjunction )` — `(?:...)` is the empty-flags case. 10.1 refers to `fullMatchGroup` but the lang.regexp module defines `fullMatchGroups`."

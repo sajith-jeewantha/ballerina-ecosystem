@@ -1,0 +1,45 @@
+schema_version: "0.1"
+id: concept.raw_templates
+type: concept
+title: Raw template expressions
+summary: Backtick strings with interpolations that, used without a tag, construct `object:RawTemplate` values holding the literal string parts and the interpolated values separately.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6", kind: spec, note: "6.6 Template expressions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.4", kind: spec, note: "6.6.4 Raw template expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.5", kind: spec, note: "5.7.5 RawTemplate"}
+must_cover:
+  - id: backtick_strings
+    text: 'Write backtick strings with `${expr}` interpolations, knowing that every other character, including a `$` not followed by `{`, is literal'
+    difficulty: [beginner]
+  - id: raw_template_expr
+    text: 'Write an untagged template such as `` `SELECT * FROM t WHERE id = ${id}` `` to construct a raw template object instead of a string'
+    difficulty: [beginner, intermediate]
+  - id: rawtemplate_type
+    text: 'Describe `object:RawTemplate`, a distinct object type with fields `public (readonly & string[]) strings` and `public (any|error)[] insertions`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+  - id: strings_and_insertions
+    text: 'Explain that `insertions` holds the interpolated values evaluated in order and `strings` holds the literal text split at the interpolation points, so `strings` has one more member than `insertions`'
+    difficulty: [intermediate]
+  - id: per_expression_class
+    text: 'Explain that each raw template expression has its own class (a subtype of RawTemplate) whose `strings` value is created once, while a new `insertions` list is created on every evaluation'
+    difficulty: [advanced]
+  - id: insertions_typing
+    text: 'Explain that the type of `insertions` comes from the contextually expected type (or the interpolation types), as for a list constructor, and that the fields are read-only if the expected type requires it'
+    difficulty: [advanced]
+  - id: constrained_raw_templates
+    text: 'Use a subtype of `object:RawTemplate` with a narrower `insertions` type as the expected type, so that the compiler checks the types of the interpolated expressions'
+    difficulty: [advanced]
+out_of_scope:
+  - "String templates `string `...`` (concept.strings)"
+  - "XML templates (concept.xml)"
+  - "Regular expression templates `re `...`` (concept.regexp)"
+edges:
+  - {to: concept.strings, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [rawtemplate_type], target_items: [lang_object]}
+  - {to: concept.objects, rel: uses, via: [rawtemplate_type, per_expression_class]}
+  - {to: concept.arrays_tuples, rel: uses, via: [insertions_typing], target_items: [list_constructor_typing]}
+notes: "constrained_raw_templates is a direct consequence of the 6.6.4 rule that the insertions type follows the contextually expected type; the spec gives no example."

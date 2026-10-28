@@ -1,0 +1,77 @@
+schema_version: "0.1"
+id: concept.services_listeners
+type: concept
+title: Listeners and services
+summary: Listener objects that receive network messages and dispatch them to attached service objects, declared with listener and service declarations and managed during the listening phase.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec, note: "8.3 Listeners and services"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.1", kind: spec, note: "8.3.1 Listener declaration"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.2", kind: spec, note: "8.3.2 Service declaration"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.4", kind: spec, note: "5.7.4 Listener"}
+must_cover:
+  - id: listener_type
+    text: "Describe the `Listener<T,A>` object type, with methods `attach(T svc, A attachPoint)`, `detach(T svc)`, `start()`, `gracefulStop()` and `immediateStop()`, each returning `error?`, where `T` is a subtype of `service object {}` and `A` a subtype of `string[]|string|()`"
+    difficulty: [intermediate]
+  - id: stop_semantics
+    text: "Distinguish `gracefulStop` (finish handling messages already started, waiting for strands the listener created) from `immediateStop` (do not complete in-progress handling, cancelling those strands)"
+    difficulty: [intermediate]
+  - id: listener_decl
+    text: "Declare a module listener with `listener MyListener ep = new (8080);`, which behaves like a final module variable that is also registered with the module; an error result or abrupt evaluation of its expression makes module initialization fail"
+    difficulty: [beginner, intermediate]
+  - id: listener_decl_typing
+    text: "Explain that a listener declaration's expression must have a static type equivalent to `L|E`, where `L` is a listener object type and `E` an error subtype (possibly `never`), and that without an explicit type descriptor the variable's type is `L`"
+    difficulty: [advanced]
+  - id: service_decl
+    text: "Declare a service with `service /hello on ep { resource function get greeting() returns string { return \"hi\"; } }`, which constructs a service object and attaches it to each listener in its expression list"
+    difficulty: [beginner]
+  - id: attach_point
+    text: "Explain the attach point passed as the second argument to `attach`: nil when absent, a string for a string literal, and an array of segment strings for an absolute resource path such as `/api/v1`"
+    difficulty: [intermediate]
+  - id: multiple_listeners
+    text: "Attach one service to several listeners with `service on ep1, ep2 { ... }` or to a listener constructed inline, knowing each listener expression is registered as a module listener (registering the same object twice is the same as once) and a failing `attach` makes module initialization fail"
+    difficulty: [intermediate]
+  - id: service_type_inference
+    text: "Explain that the service object's type is the declared type descriptor if present, otherwise the union of the `T` inferred from each listener's `Listener<T,A>` type, and that `isolated service` is equivalent to an isolated object constructor"
+    difficulty: [advanced]
+  - id: service_objects
+    text: "Implement service objects with remote and resource methods that are invoked by a listener object from a library module, knowing Ballerina does not yet provide a way to implement such listeners entirely in Ballerina"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.4", kind: spec, note: "5.5.3.4 Remote methods"}
+  - id: return_semantics
+    text: "Use a service method's return value to tell the listener how to proceed: an error for a failure, a service object to handle the message further, nil when no further handling is needed, or a response value (a stream can model multiple responses)"
+    difficulty: [intermediate]
+  - id: client_param_responses
+    text: "Explain that a listener can pass a client object to a service method so the method sends responses by calling the client's remote methods, avoiding the limits of returning a response value"
+    difficulty: [advanced]
+  - id: listening_phase
+    text: "Explain the listening phase: with no module listeners the program terminates gracefully; otherwise each module listener's `start` is called (an error ends the program unsuccessfully), and the phase continues until the program exits or a graceful or immediate stop request calls `gracefulStop` or `immediateStop` on every registered listener"
+    difficulty: [intermediate]
+  - id: on_graceful_stop
+    text: "Register shutdown handlers with `runtime:onGracefulStop(handler)`, which are called during graceful termination in reverse order of registration"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.runtime", kind: spec, note: "11.3.18 lang.runtime module"}
+  - id: dynamic_listener
+    text: "Register and deregister listeners at runtime with `runtime:registerListener(l)` and `runtime:deregisterListener(l)`, where `l` belongs to `runtime:DynamicListener` (`start`, `gracefulStop`, `immediateStop`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.runtime", kind: spec, note: "11.3.18 lang.runtime module"}
+  - id: isolated_services
+    text: "Explain that a listener may use the isolated bit of a service object and of its remote methods to decide whether concurrent calls are safe, and that the compiler may infer `isolated` for services that are not explicitly declared isolated"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.3", kind: spec, note: "8.3.3 Isolated inference"}
+out_of_scope:
+  - "Isolated inference rules in detail (concept.isolation)"
+  - "Resource method paths (concept.resource_methods)"
+  - "Protocol-specific listeners such as http:Listener, which belong to the standard library"
+edges:
+  - {to: concept.resource_methods, rel: requires}
+  - {to: concept.objects, rel: requires}
+  - {to: concept.program_execution, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [on_graceful_stop, dynamic_listener], target_items: [lang_runtime]}
+  - {to: concept.isolation, rel: uses, via: [isolated_services, service_type_inference]}
+  - {to: concept.streams, rel: uses, via: [return_semantics]}

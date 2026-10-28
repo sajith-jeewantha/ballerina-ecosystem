@@ -1,0 +1,45 @@
+schema_version: "0.1"
+id: concept.documentation
+type: concept
+title: Documentation strings and Ballerina Flavored Markdown
+summary: Documentation strings written as lines starting with # before module-level constructs and methods, whose content is Ballerina Flavored Markdown.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.2", kind: spec, note: "9.2 Documentation"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.3", kind: spec, note: "9.3 Ballerina Flavored Markdown"}
+must_cover:
+  - id: doc_lines
+    text: "Write documentation strings as one or more lines that each start with `#` (optionally preceded by spaces or tabs) placed before module-level constructs and method declarations, knowing a documentation string is recognized only at the start of a line"
+    difficulty: [beginner]
+  - id: doc_content
+    text: "Explain that a single space after `#` is not part of the content, and that the concatenated content is parsed as Ballerina Flavored Markdown, which is GitHub Flavored Markdown with extra conventions"
+    difficulty: [intermediate]
+  - id: doc_purpose
+    text: "Put information useful to users of a module in documentation strings, and information not useful for that purpose in comments"
+    difficulty: [beginner]
+  - id: param_docs
+    text: "Document every parameter of a function or method, and its return value if it is not nil, as Markdown list items `+ name - description` and `+ return - description`"
+    difficulty: [beginner]
+  - id: object_field_docs
+    text: "Document an object with a list of its fields instead of parameters, leaving out private fields"
+    difficulty: [intermediate]
+  - id: backtick_refs
+    text: "Refer to Ballerina names in documentation by putting `type`, `service`, `variable`, `var`, `annotation`, `module`, `function` or `parameter` before a backticked identifier, or by writing a backticked call form such as `x()`, `m:x()`, `T.y()` or `m:T.y()`"
+    difficulty: [intermediate]
+  - id: ref_resolution
+    text: "Explain how documentation references resolve: a `parameter` reference names a parameter of the documented function, an unqualified name must be a public name of the right kind in the module, and a qualified `M:X` requires `M` to be imported and `X` to be public in `M`"
+    difficulty: [advanced]
+  - id: module_md
+    text: "Know that Ballerina Flavored Markdown is also used for a separate per-module documentation file, conventionally called `Module.md`"
+    difficulty: [beginner]
+  - id: deprecated_heading
+    text: "Use a heading with the content `Deprecated` in a documentation string to document that the name it is attached to is deprecated, a platform-defined convention"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Comments (`//`), which are lexical white space (concept.lexical_structure)"
+  - "API documentation generation tools, which are platform features"
+edges:
+  - {to: concept.modules_imports, rel: requires}
+  - {to: concept.functions, rel: uses, via: [param_docs], target_items: [function_defn]}
+  - {to: concept.objects, rel: uses, via: [object_field_docs], target_items: [object_type_desc]}

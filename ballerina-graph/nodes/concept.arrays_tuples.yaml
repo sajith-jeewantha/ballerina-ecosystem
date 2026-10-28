@@ -1,0 +1,79 @@
+schema_version: "0.1"
+id: concept.arrays_tuples
+type: concept
+title: Arrays and tuples
+summary: List values described by array types (one member type, optional fixed length) and tuple types (a type per member, optional rest), built with list constructors.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.1", kind: spec, note: "5.4.1 Lists"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.1.1", kind: spec, note: "5.4.1.1 Array types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.1.2", kind: spec, note: "5.4.1.2 Tuple types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.1", kind: spec, note: "6.7.1 List constructor"}
+must_cover:
+  - id: array_basics
+    text: Declare arrays with `T[]`, build them with list constructors `[a, b, c]`, read members with `arr[i]` and get the length with `arr.length()`
+    difficulty: [beginner]
+  - id: fixed_length
+    text: Declare fixed-length arrays `T[n]` where n is an int literal or a reference to a non-negative int constant, and explain that `T[n]` is a subtype of `T[]`
+    difficulty: [beginner, intermediate]
+  - id: inferred_length
+    text: Use `T[*]` to infer the array length from the initializer, and know it is allowed only in local or module variable declarations with an initializer and in constant declarations
+    difficulty: [intermediate]
+  - id: multidimensional
+    text: Declare and index multidimensional arrays such as `int[3][4]`, where the dimension order in the type matches the index order in `v[i][j]`
+    difficulty: [intermediate]
+  - id: tuple_types
+    text: Define tuple types such as `[int, string]` with a separate type for each member, and know that a tuple with all members the same type and no rest descriptor is equivalent to a fixed-length array
+    difficulty: [beginner, intermediate]
+  - id: tuple_rest
+    text: Use tuple rest descriptors such as `[int, string...]` and `[T...]` to allow a variable number of trailing members, and explain the minimum-length rule they impose
+    difficulty: [intermediate]
+  - id: list_covariance
+    text: Explain that array and tuple types are covariant in their member types, so `S[]` is a subtype of `T[]` when `S` is a subtype of `T`
+    difficulty: [intermediate, advanced]
+  - id: inherent_type_enforcement
+    text: Explain that a list's inherent type is enforced at runtime, so storing a value that does not belong to the member type (e.g. through a `(int|string)[]` view of an `int[]`) panics
+    difficulty: [advanced]
+  - id: list_constructor_spread
+    text: Use spread members `...expr` in list constructors to splice the members of another list, and know the spread expression must have a list static type
+    difficulty: [intermediate]
+  - id: list_constructor_typing
+    text: Explain how a list constructor takes its inherent type from the contextually expected type (including choosing the single matching list type in a union), and infers a tuple type from the members' broad types when there is no expected type
+    difficulty: [intermediate, advanced]
+  - id: filling_members
+    text: Rely on filler values so a list constructor may give only the first k members of a fixed-length array (e.g. `int[5] a = [1, 2];`), and know this is a compile error when the member type has no filler value
+    difficulty: [intermediate]
+  - id: index_out_of_range
+    text: Explain that reading `arr[i]` with `i < 0` or `i >= arr.length()` panics, and guard indexes against the length
+    difficulty: [beginner, intermediate]
+  - id: store_past_end
+    text: Explain that assigning to `arr[k]` with `k` greater than the length fills the gap using filler values, and panics if filling fails, for example on a fixed-length array or a member type with no filler value
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+  - id: list_iteration
+    text: Iterate over the members of an array or tuple in order with `foreach`, where the iteration value type of `T[]` is `T`
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+  - id: byte_array_literals
+    text: Write byte array literals with `base16 `...`` and `base64 `...``, which have static type `byte[N]` (or a readonly singleton type when the expected type is readonly or inside a const-expr)
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.5", kind: spec, note: "6.5 Literals (byte-array-literal)"}
+  - id: array_langlib
+    text: Use `lang.array` functions through method-call syntax, such as `push`, `pop`, `shift`, `unshift`, `slice`, `remove`, `indexOf`, `reverse`, `sort`, `map`, `filter`, `reduce`, `forEach` and `enumerate`
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.array", kind: spec, note: "11.3.1 lang.array module"}
+out_of_scope:
+  - "List binding patterns and destructuring (concept.binding_patterns)"
+  - "List match patterns (concept.match_statement)"
+  - "Detailed per-function semantics of lang.array (concept.langlib_array)"
+  - "The full filler-value table (concept.filler_values)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [array_langlib], target_items: [lang_array]}
+  - {to: concept.filler_values, rel: uses, via: [filling_members, store_past_end]}
+notes: "Spec 5.4.1.1 says `v[i][j]` is valid iff 0 ≤ i ≤ M and 0 ≤ j ≤ N; this reads as an off-by-one in the spec text (should be < M, < N). Items follow the member-access semantics in 6.14 (index must be < length)."

@@ -1,0 +1,51 @@
+schema_version: "0.1"
+id: concept.retry
+type: concept
+title: Retry statement and RetryManager
+summary: Re-executing a failing block with the retry statement, controlled by a RetryManager class such as error:DefaultRetryManager.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.3", kind: spec, note: "7.23.3 Retry statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.6", kind: spec, note: "5.7.6 RetryManager"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error (Retriable, DefaultRetryManager)"}
+must_cover:
+  - id: retry_basic
+    text: "Use `retry { ... }` to re-execute a block that fails through `check` or `fail`, with `error:DefaultRetryManager` deciding whether to retry when no manager type is given"
+    difficulty: [beginner, intermediate]
+  - id: retry_semantics
+    text: "Trace retry execution: create the manager with `new T(A)`, run the block, and on failure with error e call `shouldRetry(e)`, repeating if it returns true and otherwise continuing with the failure"
+    difficulty: [intermediate]
+  - id: default_retry_manager
+    text: "Explain `error:DefaultRetryManager`: its `init(int count = 3)` sets the retry budget, and `shouldRetry` returns true (decrementing the count) only when the error is an `error:Retriable` and the count is still positive"
+    difficulty: [intermediate]
+  - id: retriable_errors
+    text: "Make errors retryable by the default manager by giving them a type that is a subtype of the distinct type `error:Retriable`"
+    difficulty: [intermediate]
+  - id: custom_manager
+    text: "Select a manager class with `retry<MyRetryManager>(args) { ... }`, where the arguments go to the class's `init` and can be omitted when `init` has no required parameters"
+    difficulty: [intermediate]
+  - id: retry_manager_type
+    text: "Implement a RetryManager class with `public function shouldRetry(E e) returns boolean`, where the parameter type E must be a supertype of the block's failure type"
+    difficulty: [intermediate, advanced]
+  - id: retry_manager_contravariance
+    text: "Explain that `RetryManager<E>` is contravariant in E: `RetryManager<E>` is a subtype of `RetryManager<E'>` if and only if E' is a subtype of E"
+    difficulty: [advanced]
+  - id: retry_on_fail
+    text: "Attach an `on fail` clause to a `retry` statement (new in 2024R1) to handle the failure that remains once retrying stops"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_B.1", kind: spec, note: "B.1 Changes 2023R1 to 2024R1"}
+  - id: panics_not_retried
+    text: "Know that retry reacts only to failures (check-fail and `fail`), not to panics, which terminate the worker"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23", kind: spec, note: "7.23 Fail and retry"}
+out_of_scope:
+  - "retry transaction statement (concept.transactions)"
+  - "Defining classes in general (concept.classes)"
+edges:
+  - {to: concept.error_handling, rel: requires}
+  - {to: concept.classes, rel: uses, via: [custom_manager, retry_manager_type]}
+  - {to: concept.langlib, rel: uses, via: [default_retry_manager, retriable_errors], target_items: [lang_error]}
+  - {to: concept.transactions, rel: related}

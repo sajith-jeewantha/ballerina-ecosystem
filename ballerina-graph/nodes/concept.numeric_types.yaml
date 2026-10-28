@@ -1,0 +1,76 @@
+schema_version: "0.1"
+id: concept.numeric_types
+type: concept
+title: "Numeric types: int, float, decimal, byte"
+summary: The int, float and decimal basic types, the byte type and built-in int subtypes, numeric literal syntax and typing, and explicit numeric conversion.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.3", kind: spec, note: "5.2.3 Int"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.4", kind: spec, note: "5.2.4 Floating point types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.4.1", kind: spec, note: "5.2.4.1 Float"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.4.2", kind: spec, note: "5.2.4.2 Decimal"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#byte_type", kind: spec, note: "5.6.12 Byte type"}
+must_cover:
+  - id: int_range
+    text: Use the `int` type for 64-bit two's complement signed integers from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807, available as `int:MIN_VALUE` and `int:MAX_VALUE`
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int constants"}
+  - id: int_literals
+    text: Write int literals in decimal (no leading zeros except `0`) or hexadecimal with a `0x`/`0X` prefix such as `0xFF`
+    difficulty: [beginner]
+  - id: byte_type
+    text: Use `byte` for ints in the range 0 to 255 inclusive, and know it is equivalent to the built-in subtype `int:Unsigned8`
+    difficulty: [beginner]
+  - id: int_builtin_subtypes
+    text: Use the built-in int subtypes `int:Signed8`, `int:Signed16`, `int:Signed32`, `int:Unsigned8`, `int:Unsigned16` and `int:Unsigned32` and their range constants such as `int:SIGNED32_MAX_VALUE` and `int:UNSIGNED16_MAX_VALUE`
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int"}
+  - id: float_semantics
+    text: Use `float` for IEEE 754-2008 64-bit binary floating point, knowing all NaN bit patterns are the same value, +0.0 and -0.0 are distinct values with the same shape, operations round ties to even and no extended precision is used for intermediate results
+    difficulty: [intermediate, advanced]
+  - id: float_literals
+    text: Write floating point literals with a fraction or exponent (`1.5`, `.5`, `2e10`, `1.0E-3`), hexadecimal floating point literals such as `0x1.8p1`, and the `f`/`F` suffix to force float
+    difficulty: [beginner, intermediate]
+  - id: decimal_semantics
+    text: Use `decimal` for IEEE 754-2008 decimal128-subset values with a 34-digit coefficient, knowing it has no NaN, infinities, subnormals or negative zero and that operations which would produce them panic
+    difficulty: [intermediate, advanced]
+  - id: decimal_literals
+    text: Write decimal literals with the `d`/`D` suffix such as `1.20d`, and explain that decimal shape is the mathematical value so `1.0d` and `1.00d` have the same shape despite different precision
+    difficulty: [beginner, intermediate]
+  - id: numeric_literal_typing
+    text: 'Determine the type of a numeric literal: a `f` suffix or hex float literal gives float, a `d` suffix gives decimal, a literal with fraction or exponent may be float or decimal, otherwise int, float or decimal; candidates disjoint from the contextually expected type are dropped and the first of int, float, decimal remaining is chosen (so `decimal d = 1.5;` is a decimal)'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.5", kind: spec, note: "6.5 Literals"}
+  - id: literal_precise_broad
+    text: Explain that a numeric literal's precise type is a singleton type containing its value and its broad type is the containing basic type
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.5", kind: spec, note: "6.5 Literals"}
+  - id: no_implicit_conversion
+    text: Explain that Ballerina never converts implicitly between numeric types, so mixing int and float requires an explicit conversion such as `<float>i`
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.3", kind: spec, note: "6.3 Casting and conversion"}
+  - id: numeric_convert
+    text: 'Convert between numeric types with a type cast, following NumericConvert: int to float or decimal keeps the mathematical value, float and decimal convert to the closest value, and conversion to int rounds and fails (making the cast panic) for NaN or out-of-range values'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.8.4", kind: spec, note: "5.8.4 NumericConvert"}
+  - id: float_constants
+    text: Use the `float:NaN`, `float:Infinity`, `float:PI` and `float:E` constants and test values with `float:isNaN`, `float:isInfinite` and `float:isFinite`
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.float", kind: spec, note: "11.3.5 lang.float"}
+out_of_scope:
+  - "Arithmetic, shift and bitwise operators and overflow behaviour (concept.arithmetic_operators)"
+  - "Numeric comparison and equality, including NaN and -0.0 (concept.comparison_equality)"
+  - "Detailed lang.int/lang.float/lang.decimal functions (concept.langlib_numeric)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [int_range, int_builtin_subtypes, float_constants], target_items: [lang_int, lang_float, lang_decimal]}
+notes: "In 5.8.4 the 'round, error for NaN or out of int range' cell spans both the float and decimal rows (rowspan), so it applies to float-to-int and decimal-to-int. The rounding mode used for conversion to int is not named in 5.8.4."

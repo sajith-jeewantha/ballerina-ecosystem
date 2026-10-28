@@ -1,0 +1,54 @@
+schema_version: "0.1"
+id: concept.expression_typing
+type: concept
+title: Expression evaluation and static typing
+summary: How expressions are evaluated (normal and abrupt completion), operator precedence, and how static types are computed using contextually expected types, precise and broad types, and singleton typing.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#expressions", kind: spec, note: "6 Expressions (precedence table)"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.1", kind: spec, note: "6.1 Expression evaluation"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.2", kind: spec, note: "6.2 Static typing of expressions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.2.2", kind: spec, note: "6.2.2 Contextually expected type"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.2.3", kind: spec, note: "6.2.3 Precise and broad types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#singleton_typing", kind: spec, note: "6.2.4 Singleton typing"}
+must_cover:
+  - id: operator_precedence
+    text: 'Apply expression precedence from highest to lowest: `m:x`, `x.k`, `x.@a`, `f(x)`, `x.f(y)`, `x[y]`, `new T(x)`; then unary `+ - ~ !`, `<T> x`, `typeof`, `check`, `checkpanic`; `* / %`; `+ -`; shifts; ranges `...`/`..<`; relational and `is`/`!is`; equality; `&`; `^`; `|`; `&&`; `||`; `?:`; `? :`; and finally `=>`, `let`, query and `trap`'
+    difficulty: [intermediate]
+  - id: associativity
+    text: Know that binary arithmetic, shift, equality, bitwise and logical operators are left-associative, range and relational operators are non-associative, and `?:`, `? :`, lambdas, `let`, queries and `trap` are right-associative
+    difficulty: [intermediate, advanced]
+  - id: abrupt_completion
+    text: Distinguish the two kinds of abrupt completion, check-fail and panic, both carrying an error value, and know that abrupt completion of a subexpression makes the enclosing expression complete abruptly in the same way unless stated otherwise
+    difficulty: [intermediate]
+  - id: static_type_guarantee
+    text: Explain that if an expression completes normally its value belongs to the expression's compile-time static type, that a (possibly empty) error type is also computed for check-fail, and that no type is computed for panics
+    difficulty: [intermediate]
+  - id: never_static_type
+    text: Explain that it is a compile error for an expression to have static type `never` except where the spec explicitly allows it (such as calls to functions returning `never`)
+    difficulty: [advanced]
+  - id: contextually_expected_type
+    text: Explain the contextually expected type, for example that the declared type of a variable is the expected type of its initializer, and that constructors use it to decide what type of value to build
+    difficulty: [intermediate]
+  - id: applicable_expected_type
+    text: Explain how the applicable contextually expected type is obtained by normalizing the expected type to a union of single-basic-type members and keeping only those of the constructor's basic type, with a compile error if none remain
+    difficulty: [advanced]
+  - id: var_no_expected_type
+    text: Explain that when a variable is declared with `var` there is no contextually expected type for its initializer, which is different from an expected type that allows all values
+    difficulty: [intermediate]
+  - id: precise_and_broad
+    text: Distinguish an expression's precise and broad static types, for example the literal `"X"` has precise type the singleton `"X"` and broad type `string`, and the broad type is used to infer non-final `var` variables and member types of inferred inherent types
+    difficulty: [intermediate, advanced]
+  - id: singleton_typing_rule
+    text: Apply the usual singleton typing rules, so a compound expression whose operands all have singleton types gets a singleton static type computed at compile time (e.g. `1 + 2` has static type `3`)
+    difficulty: [advanced]
+out_of_scope:
+  - "Lax static typing of json (concept.json_anydata)"
+  - "Nil lifting (concept.arithmetic_operators)"
+  - "Isolated expressions (concept.isolation)"
+  - "Actions versus expressions (concept.control_flow)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.numeric_types, rel: related, via: [precise_and_broad], note: "numeric literal typing uses the contextually expected type"}
+notes: "6.2 states that the detailed static typing rules are not yet completely specified in 2024R1; items only cover what is stated."

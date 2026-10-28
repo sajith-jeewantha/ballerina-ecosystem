@@ -1,0 +1,66 @@
+schema_version: "0.1"
+id: concept.maps
+type: concept
+title: Maps and mapping constructors
+summary: Mapping values keyed by strings, described by map<T> types and built with mapping constructor expressions that support shorthand, computed-name, spread and readonly fields.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2", kind: spec, note: "5.4.2 Mappings"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.1", kind: spec, note: "5.4.2.1 Map types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+must_cover:
+  - id: map_type
+    text: 'Declare `map<T>` types, where every field value must belong to `T` and every key is a string, e.g. `map<int> ages = {alice: 30};`'
+    difficulty: [beginner]
+  - id: mapping_constructor_basics
+    text: 'Construct mappings with `{name: value}` fields using either a field name or a string literal key (`{"first name": "Ann"}`), and use the shorthand `{x}` as equivalent to `{x: x}`'
+    difficulty: [beginner]
+  - id: spread_fields
+    text: 'Use spread fields `{...m, extra: 1}` to copy all fields of another mapping, and explain the compile error when a spread could duplicate a specific field or a field of another spread'
+    difficulty: [intermediate]
+  - id: computed_name_fields
+    text: 'Use computed-name fields `[keyExpr]: value`, whose key expression has contextually expected type `string`, and explain that they are applied in order after the rest of the mapping is built and panic if incompatible with the inherent type'
+    difficulty: [intermediate, advanced]
+  - id: inherent_type_from_context
+    text: 'Explain how a mapping constructor takes its inherent type from the contextually expected type, and how in a union the members inconsistent with the specific-field names are discarded so that exactly one mapping type must remain'
+    difficulty: [advanced]
+  - id: inferred_record_type
+    text: 'Explain that with no contextually expected type the constructor infers an exclusive record type with one field per specific field (broad type, or precise type for readonly fields), adds spread types, and adds a rest descriptor for computed-name fields'
+    difficulty: [advanced]
+  - id: readonly_construction
+    text: 'Mark individual fields with `readonly` in a constructor (`{readonly id: 1}`), and know the whole mapping is constructed immutable when the applicable expected type is a subtype of `readonly`, with read-only bits set only after construction completes'
+    difficulty: [intermediate]
+  - id: nil_field_omitted
+    text: 'Explain that when the expected type allows field `x` but not nil for it, a constructor value for `x` may be nil and then no `x` field is added'
+    difficulty: [intermediate, advanced]
+  - id: field_readonly_bit
+    text: 'Explain that each field has its own read-only bit, a read-only field can be neither assigned nor removed, and a read-only mapping makes all its fields read-only'
+    difficulty: [intermediate]
+  - id: runtime_enforcement
+    text: 'Explain that the inherent type of a mapping is enforced at runtime, so writing a field value that does not belong to the declared field type (e.g. through a `map<any>` view of a `map<int>`) panics'
+    difficulty: [advanced]
+  - id: iteration_order
+    text: 'Iterate over a map with `foreach`, and explain that for map-typed values the order is the order fields were added (constructor order, computed-name fields last) while for record-typed values it is implementation-dependent'
+    difficulty: [intermediate]
+  - id: map_lookup_remove
+    text: 'Use `m.get(k)` (panics if the key is missing), `m.hasKey(k)`, `m.remove(k)` (panics if missing), `m.removeIfHasKey(k)` and `m.removeAll()` from `lang.map`'
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.map", kind: spec, note: "11.3.9 lang.map module"}
+  - id: map_functional
+    text: 'Use `lang.map` functions `length`, `keys`, `toArray`, `entries` (returns `map<[string, T]>`), `map`, `filter`, `reduce` and `forEach` on mappings'
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.map", kind: spec, note: "11.3.9 lang.map module"}
+out_of_scope:
+  - "Record type descriptors and default values (concept.records)"
+  - "Member access m[k], field access and optional field access (concept.field_member_access)"
+  - "Lax typing of map<json> (concept.json_anydata)"
+  - "Mapping binding patterns (concept.binding_patterns)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.langlib, rel: uses, via: [map_lookup_remove, map_functional], target_items: [lang_map]}
+  - {to: concept.mutability_readonly, rel: uses, via: [readonly_construction, field_readonly_bit]}
+  - {to: concept.iterability, rel: uses, via: [iteration_order]}
+notes: "Mapping constructor grammar allows `[readonly] variable-name` shorthand as well as `[readonly] field-name: value`."

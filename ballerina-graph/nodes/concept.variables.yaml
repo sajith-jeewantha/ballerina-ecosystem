@@ -1,0 +1,72 @@
+schema_version: "0.1"
+id: concept.variables
+type: concept
+title: Variables, scoping and let expressions
+summary: Declaring local and module-level variables, how var inference, final and definite assignment work, how identifiers are scoped, and let expressions.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.11", kind: spec, note: "7.11 Local variable declaration statements"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.7", kind: spec, note: "8.7 Module variable declaration"}
+must_cover:
+  - id: local_init_decl
+    text: "Declare local variables with an initializer, e.g. `int count = 0;`, whose scope starts immediately after the statement and ends at the end of the enclosing block, with the declared type providing the contextually expected type for the initializer"
+    difficulty: [beginner]
+  - id: var_inference
+    text: "Use `var` to infer a local variable's type from its initializer, knowing the broad type is inferred (e.g. `var s = \"x\";` has type `string`) unless the declaration is `final`, in which case the precise type (here the singleton `\"x\"`) is used"
+    difficulty: [intermediate]
+  - id: final_locals
+    text: "Declare `final` local variables that must not be assigned after the declaration, and explain that `final` is not deep: a final variable can hold a mutable value"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.2", kind: spec, note: "5.1.2 Mutation"}
+  - id: no_init_decl
+    text: "Declare a local variable without an initializer, e.g. `string label;`, and satisfy definite assignment: the compiler must be able to verify it is assigned on every path before each reference; if `final` it may be assigned at most once, and its type must not be `never`"
+    difficulty: [intermediate]
+  - id: block_scope_shadowing
+    text: "Explain block scope: a block-scope declaration may hide a module-scope declaration of the same identifier, but it is a compile error for two block-scope declarations of the same identifier in the same symbol space to have overlapping scopes"
+    difficulty: [intermediate]
+  - id: symbol_spaces
+    text: "Distinguish the main symbol space (variables, constants, types, functions), the prefix symbol space (import and xmlns prefixes) and the annotation-tag symbol space, knowing block scope has no annotation-tag symbol space"
+    difficulty: [advanced]
+  - id: module_var_decl
+    text: "Declare module-level variables such as `int counter = 0;` or `public final string NAME = \"x\";`, whose scope is the whole module, knowing a `public` module variable must not use `var` and a `final` one cannot be assigned after initialization"
+    difficulty: [beginner, intermediate]
+  - id: module_no_init
+    text: "Declare a module variable without an initializer, e.g. `int[] cache;`, which must be initialized in the module's `init` function and definitely assigned at every reference; its type must not be `never`"
+    difficulty: [intermediate]
+  - id: module_var_inference
+    text: "Explain that `var` in a module variable declaration infers the precise type when the declaration is `final` and the broad type otherwise"
+    difficulty: [advanced]
+  - id: isolated_module_var
+    text: "Declare an `isolated` module variable, which must not be `public`, must bind a plain variable name and must have an isolated initializer expression, and know it can be accessed only within a `lock` statement"
+    difficulty: [intermediate, advanced]
+  - id: variable_reference
+    text: "Reference variables, parameters, constants, functions, types and classes by name in expressions, including qualified references such as `mod:name`, knowing a reference to a type or class evaluates to a typedesc value"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.9", kind: spec, note: "6.9 Variable reference expression"}
+  - id: let_expr
+    text: "Use let expressions such as `let int x = f() in x * x` and `let var a = 1, var b = 2 in a + b`, where the bound variables are in scope only in the expression after `in` and multiple declarations are equivalent to nested lets"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.19", kind: spec, note: "6.19 Let expression"}
+  - id: let_semantics
+    text: "Explain that variables bound by a let expression are implicitly final, that `var` in a let-var-decl infers the precise static type of the initializer, and that the typed binding pattern must be guaranteed by static types to match"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.19", kind: spec, note: "6.19 Let expression"}
+out_of_scope:
+  - "Binding patterns used in declarations (concept.binding_patterns)"
+  - "Assignment statements and lvalues (concept.assignment)"
+  - "Configurable module variables (concept.configurable)"
+  - "Constants (concept.constants_enums)"
+  - "The isolation rules behind isolated variables (concept.isolation)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.expression_typing, rel: uses, via: [var_inference, module_var_inference, let_semantics]}
+  - {to: concept.isolation, rel: uses, via: [isolated_module_var]}
+  - {to: concept.binding_patterns, rel: uses, via: [local_init_decl, let_semantics]}
+  - {to: concept.typedesc, rel: uses, via: [variable_reference]}
+notes: "When an isolated-qual could be parsed as part of module-init-var-quals or of a typed-binding-pattern (an isolated object type), the spec chooses the qualifier parse; not made into an item."

@@ -1,0 +1,81 @@
+schema_version: "0.1"
+id: concept.functions
+type: concept
+title: Function definitions, parameters and calls
+summary: Defining functions with required, defaultable, included-record and rest parameters, returning values, and calling them with positional, named and spread arguments.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.4", kind: spec, note: "8.4 Function definition"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.1", kind: spec, note: "7.3.1 Function parameters"}
+must_cover:
+  - id: function_defn
+    text: "Define module-level functions such as `function add(int a, int b) returns int { return a + b; }`, optionally qualified with `public`, `isolated` and/or `transactional`"
+    difficulty: [beginner]
+  - id: return_nil
+    text: "Explain that a function always returns exactly one value: an omitted return type means `returns ()`, and `return;` or falling off the end of the body returns `()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.26", kind: spec, note: "7.26 Return statement"}
+  - id: never_return
+    text: "Declare `returns never` for a function that never returns normally, and know a call to it has static type `never`"
+    difficulty: [intermediate]
+  - id: expr_bodied
+    text: "Write expression-bodied functions such as `function square(int x) returns int => x * x;`, which is short for a body `{ return x * x; }`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.3", kind: spec, note: "7.3.3 Expression-bodied functions"}
+  - id: required_params
+    text: "Declare required parameters `T name` and supply them as positional arguments in declaration order, knowing omitting an argument for a required parameter is a compile error"
+    difficulty: [beginner]
+  - id: params_final
+    text: "Explain that parameters are initialized from the argument list before the body runs and are implicitly final: they can be read but not assigned"
+    difficulty: [beginner]
+  - id: defaultable_params
+    text: "Declare defaultable parameters such as `int retries = 3`, whose default expression may refer to earlier parameters and is evaluated by the caller each time the argument is omitted, in parameter declaration order"
+    difficulty: [beginner, intermediate]
+  - id: rest_param
+    text: "Declare a rest parameter `string... names`, which receives the remaining arguments as a newly created list whose inherent type is `string[]`"
+    difficulty: [beginner, intermediate]
+  - id: named_args
+    text: "Call functions with named arguments after positional ones, e.g. `connect(\"host\", port = 8080)`, knowing every argument name must be distinct and it is an error to supply the same parameter both positionally and by name"
+    difficulty: [beginner, intermediate]
+  - id: spread_args
+    text: "Pass a list's members as positional arguments with a spread rest argument `f(...values)`, or a mapping's fields as named arguments with `f(...options)`, where the spread's static type must make the equivalent arguments valid"
+    difficulty: [intermediate]
+  - id: included_record_params
+    text: "Declare included record parameters such as `*Options opts` so callers can pass the record's fields as named arguments (e.g. `send(msg, timeout = 5)`), with unspecified fields defaulted from the record type, and know field names must be distinct from each other and from parameter names"
+    difficulty: [intermediate, advanced]
+  - id: included_record_conflicts
+    text: "Explain that if an argument is given for an included record parameter itself, its fields cannot also be passed as named arguments, and that a non-optional field without a default must be supplied"
+    difficulty: [advanced]
+  - id: included_record_rest
+    text: "Explain that a named argument can match a rest descriptor of an included record parameter only when that record type declares every other parameter name and included field name as an optional `never` field, has no other individual fields, and no other included record parameter has a rest descriptor"
+    difficulty: [advanced]
+  - id: arg_evaluation
+    text: "Explain that argument expressions are evaluated in the order they occur, with contextually expected types taken from the parameter types, and that the declared type of the referenced function variable, not the runtime function value, is used to build the argument list"
+    difficulty: [intermediate, advanced]
+  - id: call_panic
+    text: "Explain that a function call completes abruptly with a panic if the called function terminates abnormally, and that the call's static type is the function's return type, which may be `never`"
+    difficulty: [intermediate]
+  - id: param_restrictions
+    text: "Know that a required or defaultable parameter's type must not be `never`, and that parameter names may be omitted only in a function type descriptor's signature"
+    difficulty: [advanced]
+  - id: inferred_typedesc_default
+    text: "Explain dependently-typed signatures such as `function convert(json v, typedesc<anydata> t = <>) returns t|error`, where the `<>` default makes the caller infer the typedesc argument from the call's contextually expected type; `<>` is allowed for at most one parameter and only if that parameter is referenced in the return type"
+    difficulty: [advanced]
+out_of_scope:
+  - "Function types, function values and anonymous functions (concept.function_values)"
+  - "External function bodies (concept.external_functions)"
+  - "Named workers in function bodies (concept.strands_workers)"
+  - "Isolated function requirements (concept.isolation)"
+  - "Method calls on objects and langlib method-call dispatch (concept.objects, concept.langlib_conventions)"
+edges:
+  - {to: concept.variables, rel: requires}
+  - {to: concept.records, rel: uses, via: [included_record_params, included_record_conflicts, included_record_rest]}
+  - {to: concept.arrays_tuples, rel: uses, via: [rest_param, spread_args]}
+  - {to: concept.external_functions, rel: uses, via: [inferred_typedesc_default], target_items: [dependently_typed_external]}
+  - {to: concept.typedesc, rel: uses, via: [inferred_typedesc_default]}
+notes: "5.5.2 states dependently-typed functions can be declared and used but Ballerina does not yet provide a mechanism to define them (so in practice they are external/langlib functions such as value:cloneWithType)."

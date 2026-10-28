@@ -1,0 +1,56 @@
+schema_version: "0.1"
+id: concept.lexical_structure
+type: concept
+title: "Lexical structure: identifiers, comments, white space"
+summary: How Ballerina source is decoded and tokenized, including identifier forms, quoted and escaped identifiers, restricted identifiers, comments and white space.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lexical_structure", kind: spec, note: "4 Lexical structure"}
+must_cover:
+  - id: source_decoding
+    text: Explain that a module source part is decoded as UTF-8 (RFC 3629), a leading byte order mark (0xFEFF) is removed, and CR LF and lone CR are normalized to LF before parsing
+    difficulty: [advanced]
+  - id: disallowed_code_points
+    text: List the code points that must not occur in source, namely surrogates, the 66 Unicode noncharacters, C0 controls other than tab, LF, form feed and CR, and C1 controls (0x80 to 0x9F)
+    difficulty: [advanced]
+  - id: unquoted_identifiers
+    text: Write unquoted identifiers that start with an ASCII letter, `_` or a non-ASCII identifier character and continue with those characters or digits
+    difficulty: [beginner]
+  - id: unicode_identifier_chars
+    text: Explain that non-ASCII characters are allowed in identifiers except private-use characters, Pattern_White_Space and Pattern_Syntax characters, following Unicode TR31 immutable identifiers so the allowed set does not change between Unicode versions
+    difficulty: [advanced]
+  - id: quoted_identifiers
+    text: "Use a quoted identifier `'K` (a single quote before the name) to use a reserved keyword K as an identifier, for example a field or variable named `'type`"
+    difficulty: [intermediate]
+  - id: identifier_escapes
+    text: 'Use identifier escapes, a backslash before a non-letter, non-whitespace character (e.g. `first\-name`) or a numeric escape `\u{XXXX}`, so any non-empty string can be an identifier, and know the numeric escape must be a valid non-surrogate code point up to 0x10FFFF'
+    difficulty: [advanced]
+  - id: restricted_identifiers
+    text: Explain that organization and module names must be restricted identifiers made of ASCII letters and digits starting with a letter, with single underscores only between letter/digit runs
+    difficulty: [intermediate]
+  - id: comments
+    text: Write comments with `//`, which run to the end of the line; this is the only comment form defined by the grammar
+    difficulty: [beginner]
+  - id: white_space
+    text: Explain that white space (tab, LF, CR, space) and comments may appear between tokens of lower-case grammar productions, but not inside tokens of upper-case (lexical) productions
+    difficulty: [intermediate]
+  - id: no_space_colon
+    text: Explain the NoSpaceColon rule, that no white space is allowed before or after the colon in a qualified identifier such as `io:println` or an XML qualified name `ns:name`
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 qualified-identifier"}
+  - id: non_reserved_keywords
+    text: Recognize that some keywords are marked NR (not reserved) in the grammar, such as the query clause keywords `where`, `join`, `outer`, `limit`, `order`, `by`, `group`, `collect`, `select` and `conflict`, and so can still be used as identifiers
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#notation", kind: spec, note: "2 Notation (xyz NR)"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35", kind: spec, note: "6.35 query clause productions use NR keywords"}
+out_of_scope:
+  - "String literal escapes (concept.strings)"
+  - "Numeric literal syntax (concept.numeric_types)"
+  - "Documentation strings starting with # (concept.documentation)"
+  - "Import declarations and module prefixes (concept.modules_imports)"
+edges:
+  - {to: concept.modules_imports, rel: related, via: [restricted_identifiers, no_space_colon], note: "org/module names and qualified identifiers"}
+notes: "Spec 4 says C0 controls are '0x0 to 0x1F and 0x1F' (duplicated bound) and allows 0xC (form feed) as white space in the disallowed-list text although WhiteSpaceChar only lists 0x9, 0xA, 0xD, 0x20. The spec has no consolidated list of reserved keywords; NR keywords are inferred from the productions marked NR (where, join, outer, limit, order, by, group, collect, select, conflict). B.2 states clause keywords except `from` and `let` are no longer reserved."

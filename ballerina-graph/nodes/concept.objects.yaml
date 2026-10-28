@@ -1,0 +1,86 @@
+schema_version: "0.1"
+id: concept.objects
+type: concept
+title: Object types and object constructors
+summary: Object values that combine fields and methods, described structurally by object type descriptors and created directly with object constructor expressions.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3", kind: spec, note: "5.5.3 Objects"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.2", kind: spec, note: "5.5.3.2 Fields"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.3", kind: spec, note: "5.5.3.3 Methods"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.6", kind: spec, note: "5.5.3.6 Visibility"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.7", kind: spec, note: "5.5.3.7 Typing"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.8", kind: spec, note: "5.5.3.8 Inclusion and type-ids"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1", kind: spec, note: "6.8.1 Object constructor"}
+must_cover:
+  - id: object_type_desc
+    text: "Describe object types such as `type Shape object { public string name; public function area() returns float; };` listing field descriptors and method declarations"
+    difficulty: [beginner]
+  - id: shared_symbol_space
+    text: "Explain that an object's fields and methods share one symbol space, so a field and a method cannot have the same name, and that there is no method overloading"
+    difficulty: [beginner, intermediate]
+  - id: special_method_names
+    text: "Use `map`, `join` and `start` as method names even though they are normally reserved keywords, and know a method declaration in an object type cannot be named `init`"
+    difficulty: [advanced]
+  - id: object_constructor
+    text: "Create an object directly with an object constructor expression such as `var counter = object { int n = 0; function inc() { self.n += 1; } };`"
+    difficulty: [beginner]
+  - id: self_access
+    text: "Access an object's fields and methods inside method bodies through `self` (they are not implicitly in scope), knowing `self` is implicitly final"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.2", kind: spec, note: "6.8.1.2 Methods"}
+  - id: method_call
+    text: "Call an object's methods with `obj.method(args)`, which builds the argument list as for a function call, knowing method-call syntax cannot invoke a remote method"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: visibility
+    text: "Control member visibility with `public` (visible in all modules), `private` (visible only inside the method bodies of the object constructor or class) and the default module-level visibility"
+    difficulty: [beginner, intermediate]
+  - id: structural_typing
+    text: "Explain that object types are inclusive and structural: an object belongs to a type if it has at least the described fields and methods with matching names, visibility, remote flag and types, so every object belongs to `object {}`"
+    difficulty: [intermediate]
+  - id: module_visibility_subtyping
+    text: "Explain that because visibility regions must match for subtyping, an object type with module-level-visibility members can have subtypes defined only in the same module"
+    difficulty: [advanced]
+  - id: type_inclusion
+    text: "Include another object type's fields and method declarations with `*T;`, overriding an included member only with a subtype, knowing a field cannot override a method (or vice versa) and an object type cannot directly or indirectly include itself"
+    difficulty: [intermediate, advanced]
+  - id: inclusion_conflicts
+    text: "Explain that it is an error for two inclusions to bring in same-named fields, or same-named methods with different signatures, unless the including type overrides them"
+    difficulty: [advanced]
+  - id: inclusion_restrictions
+    text: "Explain that an included type must be an object type, a distinct or intersection object type, or a class with no `private` members and no `readonly` qualifier, and that including a type with an `isolated`, `client` or `service` qualifier requires the including type to have that qualifier too"
+    difficulty: [advanced]
+  - id: readonly_objects
+    text: "Describe read-only objects with `readonly & object { ... }`, since an object type descriptor alone does not constrain the read-only bit, and know a read-only object's field values are read-only and cannot be changed after construction"
+    difficulty: [intermediate]
+  - id: ctor_fields
+    text: "Declare object constructor fields with optional `final` and an initializer, knowing a field without an initializer must be initialized by an `init` method, a `final` field must be assigned exactly once, and an `init` method in an object constructor must have no parameters"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
+  - id: implicit_readonly_ctor
+    text: "Explain that an object constructor builds a read-only object when every field is `final` with a type that is a subtype of `readonly`, or when the applicable contextually expected type (or the referenced type) is a subtype of `readonly`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
+  - id: ctor_type_reference
+    text: "Write `object T { ... }` to include type `T` in an object constructor so the object gets `T`'s type-ids; without a type reference the applicable contextually expected type must be definite and supplies the type-ids"
+    difficulty: [advanced]
+  - id: ctor_own_typedesc
+    text: "Explain that annotations on an object constructor and its members are evaluated each time it is evaluated, so every object it creates has its own type descriptor"
+    difficulty: [advanced]
+out_of_scope:
+  - "Classes, init methods and new (concept.classes)"
+  - "Remote methods and client objects (concept.client_objects); resource methods (concept.resource_methods)"
+  - "Isolated objects and lock requirements on self (concept.isolation, concept.lock_statement)"
+  - "Distinct object types and type-ids (concept.type_ids_distinct)"
+edges:
+  - {to: concept.functions, rel: requires}
+  - {to: concept.mutability_readonly, rel: uses, via: [readonly_objects, implicit_readonly_ctor]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [ctor_type_reference, inclusion_restrictions]}
+  - {to: concept.annotations, rel: uses, via: [ctor_own_typedesc], target_items: [evaluation_time]}
+notes: "5.5.3.7 says a subtype T' needs, for each member f of T, a corresponding member f' 'of T' (the text says 'of T', which reads as a typo for T')."

@@ -1,0 +1,74 @@
+schema_version: "0.1"
+id: concept.binding_patterns
+type: concept
+title: Binding patterns and destructuring
+summary: Capture, wildcard, list, mapping and error binding patterns, typed binding patterns with `var`, and destructuring assignment.
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.1", kind: spec, note: "5.9.1 Binding patterns"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.2", kind: spec, note: "5.9.2 Typed binding patterns"}
+must_cover:
+  - id: capture_and_wildcard
+    text: 'Use a capture binding pattern `x` to bind any value and the wildcard `_`, and know that `_` matches only values whose basic type is not error'
+    difficulty: [beginner]
+  - id: list_binding
+    text: 'Destructure lists with `[a, b]` and `[first, ...rest]`, where the pattern matches when it has no more members than the list and `rest` gets a new list of the remaining members'
+    difficulty: [beginner, intermediate]
+  - id: mapping_binding
+    text: 'Destructure mappings with `{name: n, age}` (the shorthand `age` means `age: age`) and `{id, ...others}`, where `others` gets a new mapping of the unmatched fields'
+    difficulty: [beginner, intermediate]
+  - id: optional_field_binding
+    text: 'Explain that a field binding pattern binds `()` for an absent field only when the field is known at compile time to be optional and unable to hold nil'
+    difficulty: [advanced]
+  - id: error_binding
+    text: 'Destructure errors with `error(msg, cause, code = c, ...rest)` and `error MyError(msg)`, matching the message, the optional cause, named detail fields and the remaining detail fields'
+    difficulty: [intermediate, advanced]
+  - id: distinct_variables
+    text: 'Explain that all variables in one binding pattern must be distinct, so `[x, x]` is not allowed'
+    difficulty: [beginner]
+  - id: typed_binding_var
+    text: 'Write typed binding patterns with an explicit type or `var`, e.g. `var [x, y] = point;`, where `var` infers the type from the initializer'
+    difficulty: [beginner]
+  - id: single_vs_iterative
+    text: 'Distinguish single use of a typed binding pattern (followed by `=`, or after `on fail`) from iterative use (followed by `in`), where `var` infers the iteration value type'
+    difficulty: [intermediate]
+  - id: var_unused_error
+    text: 'Explain the compile error when `var x = expr;` infers a type that may include an error and `x` is never used'
+    difficulty: [intermediate]
+  - id: never_not_allowed
+    text: 'Explain that a typed binding pattern whose type descriptor is `never` is an error'
+    difficulty: [advanced]
+  - id: irrefutable
+    text: 'Explain that a binding pattern in a typed binding pattern must be consistent with the type and irrefutable, so the compiler guarantees the match cannot fail at runtime'
+    difficulty: [intermediate]
+  - id: pattern_types
+    text: 'Derive the type a binding pattern implies: a tuple type for a list pattern, a record type for a mapping pattern, an error type for an error pattern and `any` for `_`'
+    difficulty: [advanced]
+  - id: destructuring_assignment
+    text: 'Assign to existing variables with destructuring assignment such as `[a, b] = [b, a];` or `{x, y} = p;`, where the right side must be a subtype of the type the pattern implies'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+  - id: destructuring_isolated_vars
+    text: 'Explain that a destructuring assignment pattern must not refer to a module variable declared `isolated`'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+  - id: wildcard_exhaustiveness_check
+    text: 'Use a declaration such as `Z _ = v;` in the final else branch to make the compiler check that `v` has been narrowed to `Z`, so adding a new member to the union causes a compile error'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+out_of_scope:
+  - "Match patterns in match statements (concept.match_statement)"
+  - "Local and module variable declarations in general (concept.variables)"
+  - "Binding patterns in query from/join/let clauses (concept.query_expressions)"
+edges:
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.maps, rel: requires}
+  - {to: concept.errors, rel: requires}
+  - {to: concept.records, rel: uses, via: [mapping_binding, optional_field_binding, pattern_types]}
+  - {to: concept.type_narrowing, rel: uses, via: [wildcard_exhaustiveness_check]}
+  - {to: concept.isolation, rel: uses, via: [destructuring_isolated_vars]}
+notes: "Error binding pattern grammar: `error [error-type-reference] ( [message-bp [, cause-bp]] [, named-arg-bp ...] [, ...rest] )`."
