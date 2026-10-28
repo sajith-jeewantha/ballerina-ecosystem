@@ -8,7 +8,7 @@ feature missing from the graph is never trained on.
 The current nodes are built from the
 [Ballerina Language Specification 2024R1](https://ballerina.io/spec/lang/2024R1/).
 
-**View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/
+**View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/viewer.html
 (raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/graph.json))
 
 ## Repository layout
