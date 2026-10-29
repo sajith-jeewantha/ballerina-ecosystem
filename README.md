@@ -19,12 +19,15 @@ Every node cites the pages it was built from in its `sources`.
 **View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/viewer.html
 (raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/graph.json))
 
+![The graph viewer showing all 159 nodes, the filters and the coverage summary](docs/images/ballerina-knowledge-graph.png)
+
 ## Repository layout
 
 ```
 .
 ├── README.md                 # this file
 ├── prompt.md                 # task brief used to build the spec-derived nodes
+├── docs/images/              # images used in this README
 └── ballerina-graph/          # Python package: schema, loader, CLI and node data
     ├── ballerina_graph/      # Pydantic models, loader/validator, export and viewer
     ├── nodes/                # one YAML file per node (<id>.yaml)
