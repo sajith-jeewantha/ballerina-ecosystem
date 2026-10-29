@@ -1,4 +1,4 @@
-"""CLI: python -m ballerina_graph {validate,export,stats} NODES_DIR"""
+"""CLI: python -m ballerina_graph {validate,export,view,stats,serve} NODES_DIR"""
 from __future__ import annotations
 import argparse
 import sys
@@ -36,9 +36,16 @@ def main(argv: list[str] | None = None) -> None:
     vw.add_argument("--out", default="build/viewer.html")
     st = sub.add_parser("stats", help="print counts")
     st.add_argument("nodes_dir")
+    sv = sub.add_parser("serve", help="serve the viewer locally with title editing")
+    sv.add_argument("nodes_dir")
+    sv.add_argument("--port", type=int, default=8000)
     args = ap.parse_args(argv)
 
     g = _load(args.nodes_dir)
+    if args.cmd == "serve":
+        from .server import serve
+        serve(args.nodes_dir, port=args.port)
+        return
     if args.cmd == "validate":
         for w in g.warnings:
             print(f"  warning {w}")

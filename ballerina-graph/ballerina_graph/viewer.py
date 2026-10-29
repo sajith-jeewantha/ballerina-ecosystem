@@ -11,9 +11,12 @@ from .models import SCHEMA_VERSION
 PLACEHOLDER = "/*__GRAPH_DATA__*/"
 
 
-def render_viewer(graph: Graph) -> str:
+def render_viewer(graph: Graph, editable: bool = False) -> str:
+    """editable=True turns on title editing, which needs the local `serve` API."""
     template = resources.files(__package__).joinpath("viewer_template.html").read_text(encoding="utf-8")
     data = {"schema_version": SCHEMA_VERSION, **graph.to_json()}
+    if editable:
+        data["editable"] = True
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     return template.replace(PLACEHOLDER, payload)
 

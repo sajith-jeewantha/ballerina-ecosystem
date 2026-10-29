@@ -97,6 +97,9 @@ aside.filters { border-right: 1px solid var(--line); background: var(--surface);
 .results button { text-align: left; background: none; border: 0; padding: 4px 6px; border-radius: 4px; cursor: pointer; }
 .results button:hover { background: var(--surface-2); }
 .results .sub { display: block; color: var(--ink-3); font-size: 12px; }
+.results .res-head { font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 6px 6px 2px; }
+.results .res-head .n { color: var(--ink-3); font-weight: 400; }
+.results .empty { font-size: 12px; padding: 4px 6px; }
 label.check { display: flex; align-items: center; gap: 8px; padding: 3px 0; cursor: pointer; color: var(--ink); }
 label.check input { accent-color: var(--focus); margin: 0; }
 .swatch { width: 11px; height: 11px; border-radius: 50%; flex: none; }
@@ -113,10 +116,29 @@ main { position: relative; min-width: 0; min-height: 0; }
 .canvas-tools button { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--ink-2); }
 .canvas-tools button:hover { color: var(--ink); }
 .hint { position: absolute; left: 12px; bottom: 12px; color: var(--ink-3); font-size: 12px; max-width: 60%; }
+.canvas-top { position: absolute; right: 12px; top: 12px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: calc(100% - 24px); }
+.canvas-top button, .gap { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; color: var(--ink-2); }
+.canvas-top button { padding: 5px 10px; cursor: pointer; }
+.canvas-top button:hover { color: var(--ink); }
+.gap { display: flex; align-items: center; gap: 6px; padding: 2px 4px 2px 10px; font-size: 13px; }
+.gap button { border: 0; background: none; padding: 3px 8px; line-height: 1; }
+.gap button:hover { background: var(--surface-2); }
+.gap input[type=range] { width: 96px; accent-color: var(--focus); margin: 0; }
+.gap output { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+main:fullscreen { background: var(--bg); }
+main:-webkit-full-screen { background: var(--bg); width: 100%; height: 100%; }
 
 aside.inspector { border-left: 1px solid var(--line); background: var(--surface); overflow-y: auto; padding: 20px; }
 .inspector h2 { font-size: 20px; font-weight: 600; margin: 4px 0 2px; letter-spacing: -0.01em; line-height: 1.3; }
 .inspector .nid { color: var(--ink-2); }
+.title-row { display: flex; align-items: flex-start; gap: 10px; }
+.title-row h2 { flex: 1; min-width: 0; }
+.edit-btn, .title-edit button { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; cursor: pointer; color: var(--ink-2); font-size: 13px; margin-top: 6px; flex: none; }
+.edit-btn:hover, .title-edit button:hover { color: var(--ink); border-color: var(--ink-3); }
+.title-edit { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
+.title-edit input { flex: 1 1 200px; min-width: 0; font-size: 18px; font-weight: 600; padding: 4px 8px; border: 1px solid var(--focus); border-radius: 6px; background: var(--bg); }
+.title-edit button[type=submit] { background: var(--focus); border-color: var(--focus); color: var(--surface); }
+.title-edit .err { flex-basis: 100%; color: var(--c-topic); font-size: 13px; }
 .meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
 .tag { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); }
 .tag.type { color: #fff; border-color: transparent; }
@@ -203,6 +225,17 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   <main>
     <div id="cy" role="img" aria-label="Interactive graph of Ballerina knowledge nodes and their relations"></div>
     <div class="hint">Click a node to inspect it. Click a checklist item to see only the links that concern it.</div>
+    <div class="canvas-top">
+      <div class="gap" role="group" aria-label="Space between nodes">
+        <span>Spacing</span>
+        <button type="button" id="gapDown" aria-label="Less space between nodes">−</button>
+        <input id="gap" type="range" min="0.5" max="3" step="0.1" aria-label="Space between nodes">
+        <button type="button" id="gapUp" aria-label="More space between nodes">+</button>
+        <output id="gapVal" for="gap"></output>
+        <button type="button" id="gapReset">Default</button>
+      </div>
+      <button type="button" id="fullscreen" aria-pressed="false">Full screen</button>
+    </div>
     <div class="canvas-tools">
       <button type="button" id="fit">Fit to screen</button>
       <button type="button" id="clear">Clear selection</button>
@@ -236,12 +269,14 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   // ---- header stats
   var itemCount = DATA.nodes.reduce(function (a, n) { return a + n.must_cover.length; }, 0);
   document.getElementById("stats").textContent =
-    DATA.nodes.length + " nodes, " + itemCount + " checklist items, " + DATA.edges.length + " links, schema v" + DATA.schema_version;
+    DATA.nodes.length + " nodes, " + itemCount + " checklist items, " + DATA.edges.length + " links, schema v" + DATA.schema_version +
+    (DATA.editable ? " · title editing on" : "");
 
   // ---- cytoscape elements
+  function nodeLabel(title) { return title.replace(/\s*\(.*\)$/, ""); }
   var elements = [];
   DATA.nodes.forEach(function (n) {
-    elements.push({ group: "nodes", data: { id: n.id, label: n.title.replace(/\s*\(.*\)$/, ""), type: n.type, priority: n.priority, size: 22 + Math.sqrt(n.must_cover.length) * 9 } });
+    elements.push({ group: "nodes", data: { id: n.id, label: nodeLabel(n.title), type: n.type, priority: n.priority, size: 22 + Math.sqrt(n.must_cover.length) * 9 } });
   });
   DATA.edges.forEach(function (e, i) {
     elements.push({ group: "edges", data: { id: "e" + i, source: e.source, target: e.target, rel: e.rel, idx: i } });
@@ -302,7 +337,40 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
       opts = { name: "cose", animate: false, randomize: true, nodeRepulsion: function () { return 9000; }, idealEdgeLength: function () { return 70; }, gravity: 0.35, numIter: 1500, nodeDimensionsIncludeLabels: true };
     }
     visible.layout(opts).run();
+    var bb = cy.nodes(":visible").boundingBox();
+    spread(gap, { x: (bb.x1 + bb.x2) / 2, y: (bb.y1 + bb.y2) / 2 });
     cy.fit(cy.elements(":visible"), 30);
+  }
+
+  // ---- spacing: scale node positions around a point, so node sizes stay the same and the gaps grow or shrink
+  var DEFAULT_GAP = 1.5, MIN_GAP = 0.5, MAX_GAP = 3;
+  var gap = DEFAULT_GAP;
+  try { var savedGap = parseFloat(localStorage.getItem("bkg-gap")); if (savedGap >= MIN_GAP && savedGap <= MAX_GAP) gap = savedGap; } catch (e) {}
+
+  function spread(factor, center) {
+    if (factor === 1) return;
+    cy.batch(function () {
+      cy.nodes().positions(function (n) {
+        var p = n.position();
+        return { x: center.x + (p.x - center.x) * factor, y: center.y + (p.y - center.y) * factor };
+      });
+    });
+  }
+
+  function showGap() {
+    document.getElementById("gap").value = gap;
+    document.getElementById("gapVal").textContent = gap.toFixed(1) + "×";
+  }
+
+  function setGap(v) {
+    v = Math.round(Math.min(MAX_GAP, Math.max(MIN_GAP, v)) * 10) / 10;
+    if (v !== gap) {
+      var ext = cy.extent();
+      spread(v / gap, { x: (ext.x1 + ext.x2) / 2, y: (ext.y1 + ext.y2) / 2 });
+      gap = v;
+      try { localStorage.setItem("bkg-gap", String(gap)); } catch (e) {}
+    }
+    showGap();
   }
 
   // ---- filters
@@ -411,7 +479,8 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
     var inc = DATA.edges.filter(function (e) { return e.target === n.id; });
     var h = "";
     h += '<code class="nid">' + esc(n.id) + "</code>";
-    h += "<h2>" + esc(n.title) + "</h2>";
+    h += '<div class="title-row"><h2>' + esc(n.title) + "</h2>" +
+      (DATA.editable ? '<button type="button" class="edit-btn" id="editTitle">Edit title</button>' : "") + "</div>";
     h += '<div class="meta"><span class="tag type" style="background:var(--c-' + n.type + ')">' + esc(n.type) + "</span>" +
       '<span class="tag">' + esc(PRIO_LABEL[n.priority]) + "</span>" +
       '<span class="tag">' + esc(n.status.replace("_", " ")) + "</span></div>";
@@ -450,7 +519,49 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
         highlight(selected, activeItem);
       });
     });
+    var editBtn = document.getElementById("editTitle");
+    if (editBtn) editBtn.addEventListener("click", function () { editTitle(n); });
     bindGoto(el);
+  }
+
+  // ---- title editing (only when served by `python -m ballerina_graph serve`, which writes the YAML file)
+  function editTitle(n) {
+    var row = document.querySelector("#inspector .title-row");
+    var form = document.createElement("form");
+    form.className = "title-edit";
+    form.innerHTML = '<input type="text" required aria-label="Node title" value="' + esc(n.title) + '">' +
+      '<button type="submit">Save</button><button type="button" data-cancel>Cancel</button><span class="err" role="alert"></span>';
+    row.replaceWith(form);
+    var input = form.querySelector("input"), err = form.querySelector(".err"), save = form.querySelector("button[type=submit]");
+    input.focus(); input.select();
+    function cancel() { renderNode(byId[n.id]); }
+    form.querySelector("[data-cancel]").addEventListener("click", cancel);
+    input.addEventListener("keydown", function (e) { if (e.key === "Escape") cancel(); });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var title = input.value.trim();
+      if (!title) { err.textContent = "Title cannot be empty."; return; }
+      if (title === n.title) { cancel(); return; }
+      save.disabled = true; err.textContent = "Saving…";
+      fetch("api/nodes/" + encodeURIComponent(n.id) + "/title", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (body) {
+          if (!r.ok) throw new Error(body.error || "Save failed (" + r.status + ")");
+          return body;
+        });
+      }).then(function (body) {
+        byId[n.id].title = body.title;
+        cy.getElementById(n.id).data("label", nodeLabel(body.title));
+        activeItem = null;
+        highlight(selected, null);
+        renderNode(byId[n.id]);
+        doSearch();
+      }).catch(function (ex) {
+        save.disabled = false;
+        err.textContent = ex.message === "Failed to fetch" ? "Could not reach the local server. Is `serve` still running?" : ex.message;
+      });
+    });
   }
 
   function edgeList(list, dir) {
@@ -515,16 +626,27 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   function doSearch() {
     var term = q.value.trim().toLowerCase();
     if (term.length < 2) { results.innerHTML = ""; return; }
-    var hits = [];
+    // Nodes always come first, ranked by how well the title matches; checklist items follow.
+    var nodeHits = [], itemHits = [];
     DATA.nodes.forEach(function (n) {
-      if (n.id.toLowerCase().indexOf(term) >= 0 || n.title.toLowerCase().indexOf(term) >= 0) hits.push({ id: n.id, title: n.title, sub: n.id });
+      var t = n.title.toLowerCase(), at = t.indexOf(term);
+      var rank = t === term ? 0 : at === 0 ? 1 : at > 0 && /\W/.test(t.charAt(at - 1)) ? 2 : at > 0 ? 3 : n.id.toLowerCase().indexOf(term) >= 0 ? 4 : -1;
+      if (rank >= 0) nodeHits.push({ id: n.id, title: n.title, sub: n.id, rank: rank });
       n.must_cover.forEach(function (it) {
-        if (it.id.toLowerCase().indexOf(term) >= 0 || it.text.toLowerCase().indexOf(term) >= 0) hits.push({ id: n.id, item: it.id, title: it.text, sub: n.id + "#" + it.id });
+        if (it.id.toLowerCase().indexOf(term) >= 0 || it.text.toLowerCase().indexOf(term) >= 0) itemHits.push({ id: n.id, item: it.id, title: it.text, sub: n.id + "#" + it.id });
       });
     });
-    results.innerHTML = hits.length ? hits.slice(0, 30).map(function (h) {
+    nodeHits.sort(function (a, b) { return a.rank - b.rank || a.title.localeCompare(b.title); });
+    function hitButton(h) {
       return '<button type="button" data-id="' + esc(h.id) + '" data-item="' + esc(h.item || "") + '">' + esc(h.title) + '<span class="sub mono">' + esc(h.sub) + "</span></button>";
-    }).join("") : '<span class="empty">Nothing matches “' + esc(q.value.trim()) + '”.</span>';
+    }
+    var h = "";
+    if (nodeHits.length) h += '<span class="res-head">Nodes <span class="n">' + nodeHits.length + "</span></span>" + nodeHits.map(hitButton).join("");
+    if (itemHits.length) {
+      h += '<span class="res-head">Checklist items <span class="n">' + itemHits.length + "</span></span>" + itemHits.slice(0, 30).map(hitButton).join("");
+      if (itemHits.length > 30) h += '<span class="empty">' + (itemHits.length - 30) + " more items. Type more to narrow the search.</span>";
+    }
+    results.innerHTML = h || '<span class="empty">Nothing matches “' + esc(q.value.trim()) + '”.</span>';
     results.querySelectorAll("button").forEach(function (b) {
       b.addEventListener("click", function () {
         select(b.dataset.id);
@@ -553,6 +675,31 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyColors);
   window.addEventListener("hashchange", function () { var id = location.hash.slice(1); if (id && id !== selected) select(id); });
   window.addEventListener("resize", function () { cy.resize(); });
+
+  var gapInput = document.getElementById("gap");
+  gapInput.addEventListener("input", function () { setGap(parseFloat(gapInput.value)); });
+  document.getElementById("gapDown").addEventListener("click", function () { setGap(gap - 0.1); });
+  document.getElementById("gapUp").addEventListener("click", function () { setGap(gap + 0.1); });
+  document.getElementById("gapReset").addEventListener("click", function () { setGap(DEFAULT_GAP); });
+  showGap();
+
+  // ---- full screen (the graph canvas only; Esc also exits)
+  var stage = document.querySelector("main"), fsBtn = document.getElementById("fullscreen");
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  if (!(stage.requestFullscreen || stage.webkitRequestFullscreen)) fsBtn.hidden = true;
+  fsBtn.addEventListener("click", function () {
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (stage.requestFullscreen || stage.webkitRequestFullscreen).call(stage);
+  });
+  function onFsChange() {
+    var on = !!fsElement();
+    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
+    fsBtn.setAttribute("aria-pressed", String(on));
+    cy.resize();
+    cy.fit(cy.elements(":visible"), 30);
+  }
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
 
   // ---- start
   buildFilters();

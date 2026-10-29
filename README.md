@@ -17,8 +17,7 @@ The current nodes are built from the
 .
 ├── README.md                 # this file
 ├── prompt.md                 # task brief used to build the spec-derived nodes
-└── ballerina-graph/          # Python package: schema, loader, CLI and node data
-    ├── ballerina_graph/      # Pydantic models, loader/validator, export and viewer
+└── ballerina-graph/          # Python package: schema, loader/validator, export and viewer CLI and node data
     ├── nodes/                # one YAML file per node (<id>.yaml)
     ├── schema/               # node.schema.json for editor validation
     ├── pyproject.toml
@@ -46,10 +45,23 @@ Run these from `ballerina-graph/`:
 | `python -m ballerina_graph stats nodes/` | Prints counts by node type, priority and edge relation. |
 | `python -m ballerina_graph export nodes/ --out build/` | Writes `build/graph.json` and regenerates `schema/node.schema.json`. |
 | `python -m ballerina_graph view nodes/` | Writes `build/viewer.html`, a self-contained graph viewer you can open in any browser. |
+| `python -m ballerina_graph serve nodes/ [--port 8000]` | Serves the viewer at http://127.0.0.1:8000/ with title editing turned on. |
 
 `build/` holds the published graph: `build/graph.json` (the full graph) and
 `build/viewer.html` (the interactive viewer). Re-run `export` and `view` after changing nodes
 so they stay in sync.
+
+### Using the viewer
+
+- **Spacing:** the Spacing control above the graph changes the gap between nodes (`−`/`+` or
+  the slider, 0.5× to 3×). **Default** resets it to 1.5×. Your last setting is remembered in
+  the browser.
+- **Full screen:** **Full screen** shows only the graph across the whole screen. Click
+  **Exit full screen** or press Esc to return.
+- **Editing titles:** run `serve`, open a node and click **Edit title**. Saving rewrites only
+  the `title:` line in that node's YAML file. Enter saves and Esc cancels. Editing is not
+  available on GitHub Pages or in `build/viewer.html`, which have no server to write files.
+  After editing, re-run `view` and `export` to update `build/`.
 
 GitHub Pages serves the `main` branch, so pushing updated `build/` files to `main` updates the
 hosted viewer.

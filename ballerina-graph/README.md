@@ -12,6 +12,7 @@ python -m ballerina_graph validate nodes/          # all validation rules
 python -m ballerina_graph stats nodes/             # counts by type, priority, relation
 python -m ballerina_graph export nodes/ --out build/   # build/graph.json + schema/node.schema.json
 python -m ballerina_graph view nodes/               # build/viewer.html - open in any browser
+python -m ballerina_graph serve nodes/              # local viewer with title editing (writes the YAML files)
 ```
 
 ## For the harness team
