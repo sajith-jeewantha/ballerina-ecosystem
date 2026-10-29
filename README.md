@@ -25,7 +25,8 @@ Every node cites the pages it was built from in its `sources`.
 .
 ├── README.md                 # this file
 ├── prompt.md                 # task brief used to build the spec-derived nodes
-└── ballerina-graph/          # Python package: schema, loader/validator, export and viewer CLI and node data
+└── ballerina-graph/          # Python package: schema, loader, CLI and node data
+    ├── ballerina_graph/      # Pydantic models, loader/validator, export and viewer
     ├── nodes/                # one YAML file per node (<id>.yaml)
     ├── schema/               # node.schema.json for editor validation
     ├── pyproject.toml
@@ -55,10 +56,9 @@ Run these from `ballerina-graph/`:
 | `python -m ballerina_graph view nodes/` | Writes `build/viewer.html`, a self-contained graph viewer you can open in any browser. |
 | `python -m ballerina_graph serve nodes/ [--port 8000]` | Serves the viewer at http://127.0.0.1:8000/ with title editing turned on. |
 
-`build/` holds the published graph: `build/graph.json` (the full graph),
-`build/viewer.html` (the interactive viewer) and `build/graph.png` (an image of the whole graph,
-saved from the viewer's **Download PNG** button). Re-run `export` and `view` after changing
-nodes so they stay in sync, and save a new `graph.png` from the viewer.
+`build/` holds the published graph: `build/graph.json` (the full graph) and
+`build/viewer.html` (the interactive viewer). Re-run `export` and `view` after changing nodes
+so they stay in sync. To get an image of the graph, use the viewer's **Download PNG** button.
 
 ### Using the viewer
 
