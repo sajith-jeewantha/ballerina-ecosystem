@@ -68,9 +68,9 @@ must_cover:
 out_of_scope:
   - "Creating workers and fork (concept.strands_workers)"
   - "Waiting for worker results (concept.futures_wait)"
-  - "Restriction on send/receive inside lock (concept.lock_statement)"
+  - "Restriction on send/receive inside lock (concept.isolation)"
 edges:
   - {to: concept.strands_workers, rel: requires}
   - {to: concept.value_cloning, rel: uses, via: [message_values]}
-  - {to: concept.langlib, rel: uses, via: [single_receive, multiple_receive, alternate_receive], target_items: [lang_error]}
+  - {to: lib.lang.error, rel: uses, via: [single_receive, multiple_receive, alternate_receive]}
 notes: "Spec typo in 7.8.1.3: the prose says 'A sync-send-action `E -> R` is equivalent to an async-send-action `E ->> R` followed by a flush', swapping the arrows. The grammar defines async-send-action as `expression -> peer-worker ;` and sync-send-action as `expression ->> peer-worker`; items follow the grammar."

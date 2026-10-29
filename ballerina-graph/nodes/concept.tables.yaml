@@ -65,11 +65,11 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.10", kind: spec, note: "6.35.10 Select clause"}
 out_of_scope:
-  - "On conflict handling when a query constructs a keyed table (concept.query_joins_grouping)"
+  - "On conflict handling when a query constructs a keyed table (concept.query_expressions)"
   - "Join clause optimisation using tables (implementation detail)"
 edges:
   - {to: concept.records, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [add_put, get_remove, table_functional, next_key], target_items: [lang_table]}
+  - {to: lib.lang.table, rel: uses, via: [add_put, get_remove, table_functional, next_key]}
   - {to: concept.query_expressions, rel: uses, via: [query_to_table], target_items: [result_kinds]}
   - {to: concept.comparison_equality, rel: uses, via: [key_uniqueness]}
 notes: "lang.table nextKey doc contains an unresolved 'XXX should it be 0, if the maximum used key value is < 0?' remark in the 2024R1 spec."

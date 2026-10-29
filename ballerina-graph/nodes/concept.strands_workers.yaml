@@ -54,9 +54,9 @@ must_cover:
 out_of_scope:
   - "start, futures and wait (concept.futures_wait)"
   - "Message passing between workers (concept.worker_messages)"
-  - "on fail on named workers (concept.error_handling)"
+  - "on fail on named workers (concept.errors)"
   - "Isolation rules that allow parallel threads (concept.isolation)"
 edges:
   - {to: concept.functions, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [yielding], target_items: [lang_runtime]}
+  - {to: lib.lang.runtime, rel: uses, via: [yielding]}
   - {to: concept.worker_messages, rel: related}

@@ -66,9 +66,9 @@ must_cover:
 out_of_scope:
   - "Loops, break and continue (concept.loops)"
   - "Match statement (concept.match_statement)"
-  - "fail, on fail, panic and trap semantics (concept.error_handling)"
+  - "fail, on fail, panic and trap semantics (concept.errors)"
   - "Local variable declarations and scoping (concept.variables)"
-  - "Type narrowing in if/else (concept.type_narrowing)"
+  - "Type narrowing in if/else (concept.type_cast_test)"
   - "Assignment statements (concept.assignment)"
 edges:
   - {to: concept.variables, rel: requires}

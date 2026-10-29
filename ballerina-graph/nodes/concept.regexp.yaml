@@ -52,10 +52,10 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec, note: "11.3.11 lang.regexp module (preview)"}
 out_of_scope:
-  - "Detailed lang.regexp function semantics (concept.langlib_regexp)"
+  - "Detailed lang.regexp function semantics (lib.lang.regexp)"
   - "Lookahead/lookbehind and backreferences, which the 2024R1 RegExp grammar does not include"
 edges:
   - {to: concept.strings, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [regexp_functions, regexp_type], target_items: [lang_regexp, lang_string]}
-  - {to: concept.langlib_regexp, rel: uses, via: [regexp_functions]}
+  - {to: lib.lang.regexp, rel: uses, via: [regexp_functions, regexp_type]}
+  - {to: lib.lang.string, rel: uses, via: [regexp_functions, regexp_type]}
 notes: "Grammar: ReAtom `( [? ReFlagsOnOff :] ReDisjunction )` — `(?:...)` is the empty-flags case. 10.1 refers to `fullMatchGroup` but the lang.regexp module defines `fullMatchGroups`."

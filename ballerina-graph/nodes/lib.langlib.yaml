@@ -1,0 +1,159 @@
+schema_version: "0.1"
+id: lib.langlib
+type: library
+title: langlib
+summary: The lang library is the set of `ballerina/lang.*` modules defined by the specification, which provide the basic operations on language values through predeclared module prefixes and method-call syntax. This node covers the conventions shared by all modules and the small modules (boolean, function, future, object, typedesc, transaction) that have no node of their own.
+priority: core
+status: draft
+modules:
+  - ballerina/lang.array
+  - ballerina/lang.boolean
+  - ballerina/lang.decimal
+  - ballerina/lang.error
+  - ballerina/lang.float
+  - ballerina/lang.function
+  - ballerina/lang.future
+  - ballerina/lang.int
+  - ballerina/lang.map
+  - ballerina/lang.object
+  - ballerina/lang.regexp
+  - ballerina/lang.stream
+  - ballerina/lang.string
+  - ballerina/lang.table
+  - ballerina/lang.typedesc
+  - ballerina/lang.xml
+  - ballerina/lang.transaction
+  - ballerina/lang.runtime
+  - ballerina/lang.value
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11 Lang library"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_11.1", kind: spec, note: "11.1 Generic types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library_modules", kind: spec, note: "11.3 Lang library modules"}
+must_cover:
+  - id: reserved_lang_modules
+    text: "Explain that modules in the `ballerina` organization whose names start with `lang.` are reserved for the lang library defined by the specification, and that every module except `lang.value`, `lang.transaction` and `lang.runtime` corresponds to a basic type"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11 Lang library"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library_modules", kind: spec, note: "11.3 Lang library modules"}
+  - id: predeclared_prefixes
+    text: "Use the predeclared module prefixes `boolean`, `decimal`, `error`, `float`, `function`, `future`, `int`, `map`, `object`, `stream`, `string`, `table`, `transaction`, `typedesc` and `xml`, which refer to the corresponding `lang.*` module without an import and without a quoted identifier (e.g. `int:fromString(s)`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration (predeclared-prefix)"}
+  - id: override_predeclared
+    text: "Override a predeclared prefix with an `import` declaration that binds the same prefix to another module, and import modules without a predeclared prefix, such as `ballerina/lang.array`, `ballerina/lang.value`, `ballerina/lang.regexp` and `ballerina/lang.runtime`, explicitly (e.g. `import ballerina/lang.runtime;` before calling `runtime:sleep(1)`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration"}
+  - id: method_call_dispatch
+    text: "Explain how `v.f(args)` on a non-object value becomes the lang library call `m:f(v, args)`, where `m` is `lang.B` if the static type of `v` is a subtype of basic type B and `lang.B` defines `f`, and `lang.value` otherwise (e.g. `[1,2].length()` calls `array:length`, `x.toString()` calls `value:toString`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: method_call_constraints
+    text: "Explain that a method call converted to a lang library call must satisfy every constraint of the equivalent function call (a compile error otherwise), and is isolated under the same conditions as that function call"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+  - id: type_params
+    text: "Explain the `@typeParam` annotation: a lang library type definition marked with it acts as a type parameter, so every use of it within one function declaration (e.g. `Type` in `push(Type[] arr, Type... vals)`) refers to the same type, and its definition is an upper bound; the lang library uses this annotation because Ballerina 2024R1 has no user-defined generic types"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_11.1", kind: spec, note: "11.1 Generic types"}
+  - id: isolated_param
+    text: "Explain the `@isolatedParam` annotation on a function-typed parameter of an isolated langlib function: when the call must be isolated, the argument supplied (e.g. the callback to `map` or `filter`) must also be isolated"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_11.1", kind: spec, note: "11.1 Generic types"}
+  - id: builtin_subtypes
+    text: "List the built-in subtypes and their ranges: `int:Signed8` (-128..127), `int:Signed16` (-32,768..32,767), `int:Signed32` (-2,147,483,648..2,147,483,647), `int:Unsigned8` (0..255), `int:Unsigned16` (0..65,535), `int:Unsigned32` (0..4,294,967,295), `string:Char` (length 1), and `xml:Element`, `xml:ProcessingInstruction`, `xml:Comment` and `xml:Text` (empty or a text singleton)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+  - id: builtin_subtype_reference
+    text: "Reference a built-in subtype `T` of basic type `B` with a qualified type reference `M:T` where `M` refers to `ballerina/lang.B`, and know that `int:Unsigned8` is equivalent to the predefined `byte`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+  - id: builtin_subtype_annotation
+    text: "Explain that `@builtinSubtype` marks a lang library type definition whose meaning comes from the specification rather than from its type descriptor (e.g. `@builtinSubtype type Signed32 int;`), and that using it outside the lang library is an error"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+  - id: aggregated_rest_dispatch
+    text: "Explain that a call `f(x)` where `f` is unqualified and the only argument is an aggregated variable of type `T` (e.g. `sum(price)` after `group by` or in `collect`) resolves `f` in `lang.B` when `T` is a subtype of `B[]` and `lang.B` defines `f`, and in `lang.value` otherwise (e.g. `count`, `first`, `last`); when the function needs at least one argument but the list may be empty (e.g. `max(x)` in a `collect` clause), the call returns nil for an empty list and its return type is unioned with nil"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: lang_boolean
+    text: "Use `lang.boolean` functions `boolean:fromString(s)` (accepts `true`/`false` in any letter case and `1`/`0`, otherwise returns an error; the inverse of `value:toString` on a boolean), `boolean:some(...bs)` (false when given no arguments) and `boolean:every(...bs)` (true when given no arguments)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.boolean", kind: spec, note: "11.3.2 lang.boolean module"}
+  - id: lang_function
+    text: "Use `function:call(func, ...args)` from `lang.function` (basic type function) to call a function value dynamically with `any|error` arguments, getting an `any|error` result, knowing that it panics if the arguments are not of the types `func` requires"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.function", kind: spec, note: "11.3.6 lang.function module"}
+  - id: lang_future
+    text: "Use `future:cancel(f)` (or `f.cancel()`) from `lang.future` (basic type future) to set the cancellation flag of the strand behind a future, which then terminates abnormally the next time it yields"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.future", kind: spec, note: "11.3.7 lang.future module"}
+  - id: object_iterable
+    text: "Make a class iterable by including `*object:Iterable;` (the distinct object type from `lang.object`) and defining an `iterator()` method whose result has `next() returns record {| T value; |}|error?`, so its objects can be used in `foreach` and query `from` clauses"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.2", kind: spec, note: "5.7.2 Iterable"}
+  - id: object_raw_template
+    text: "Use `object:RawTemplate`, the distinct object type of raw template values, with fields `strings` (`readonly & string[]`, the literal parts split at the interpolations, one longer than `insertions`) and `insertions` (`(any|error)[]`, the evaluated interpolations)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.5", kind: spec, note: "5.7.5 RawTemplate"}
+  - id: lang_typedesc
+    text: "Use `typedesc:typeIds(t, primaryOnly = false)` from `lang.typedesc` (basic type typedesc) to get the type-ids induced by a typedesc as `readonly & TypeId[]` (each with a `ModuleId` of `organization`, `name` and `platformParts` and a `localId` of type `string|int`, where an int is compiler-generated), or nil if `t` is not definite"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.typedesc", kind: spec, note: "11.3.15 lang.typedesc module"}
+  - id: transaction_info
+    text: "Use `transaction:info()` (a `transactional` function, callable only in a transactional scope) and `transaction:getInfo(xid)` to read a transaction's `transaction:Info` record (`xid`, `retryNumber`, `prevAttempt`, `startTime` as a `transaction:Timestamp` with `toMillisecondsInt()` and `toString()`), and know that `lang.transaction` does not correspond to a basic type and that `transaction:Error` is the commit action's error type"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+  - id: transaction_rollback_data
+    text: "Call `transaction:setRollbackOnly(e)` to make the transaction manager decide to roll back, `transaction:getRollbackOnly()` to test whether a rollback is already known, and `transaction:setData(data)`/`getData()` to attach `readonly` data to the current transaction branch"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+  - id: transaction_handlers
+    text: "Register `transaction:onCommit(handler)` with a `CommitHandler` (`isolated function(Info info)`) and `transaction:onRollback(handler)` with a `RollbackHandler` (`isolated function(Info info, error? cause, boolean willRetry)`) to run code when the global transaction commits or rolls back"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+out_of_scope:
+  - "The Ballerina standard library (ballerina/http, ballerina/io, ...), which the spec explicitly does not specify"
+  - "Detailed functions of the larger modules (lib.lang.array, lib.lang.string, lib.lang.int, lib.lang.float, lib.lang.decimal, lib.lang.map, lib.lang.table, lib.lang.value, lib.lang.error, lib.lang.xml, lib.lang.regexp, lib.lang.stream, lib.lang.runtime)"
+  - "General import syntax and module prefixes (concept.modules_imports)"
+  - "Group-by/collect semantics and aggregated variables (concept.query_expressions)"
+  - "Transaction and retry-transaction statements (concept.transactions)"
+edges:
+  - {to: concept.basic_types, rel: requires}
+  - {to: concept.modules_imports, rel: uses, via: [predeclared_prefixes, override_predeclared, builtin_subtype_reference]}
+  - {to: concept.functions, rel: uses, via: [method_call_dispatch, method_call_constraints]}
+  - {to: concept.numeric_types, rel: uses, via: [builtin_subtypes, builtin_subtype_reference]}
+  - {to: concept.query_expressions, rel: uses, via: [aggregated_rest_dispatch]}
+  - {to: concept.isolation, rel: uses, via: [isolated_param, method_call_constraints]}
+  - {to: concept.comparison_equality, rel: uses, via: [lang_boolean]}
+  - {to: concept.function_values, rel: uses, via: [lang_function]}
+  - {to: concept.futures_wait, rel: uses, via: [lang_future]}
+  - {to: concept.objects, rel: uses, via: [object_iterable, object_raw_template]}
+  - {to: concept.loops, rel: uses, via: [object_iterable]}
+  - {to: concept.strings, rel: uses, via: [object_raw_template]}
+  - {to: concept.typedesc, rel: uses, via: [lang_typedesc]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [lang_typedesc]}
+  - {to: concept.transactions, rel: uses, via: [transaction_info, transaction_rollback_data, transaction_handlers]}
+notes: "Content merged from the removed concept.langlib and concept.langlib_conventions nodes (see langlib_map.json). Spec 11.1 says generic types are planned for a future version. The lang.int doc comments for Signed16 and Signed8 say 'non-negative integers' but then give signed ranges; the 11.2 table is taken as authoritative. Saying that `lang.array`, `lang.value`, `lang.regexp` and `lang.runtime` are not predeclared is derived from the predeclared-prefix list in 8.1, which omits them; the spec does not say this explicitly. In lang.transaction, the types `Error` and `Info` are written without `public` in the spec text even though the commit action's type is `transaction:Error?`; treat them as part of the module's API. `f.cancel()` method form follows from the method-call rule in 6.16."

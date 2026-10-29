@@ -60,7 +60,7 @@ out_of_scope:
   - "Transactional scopes (concept.transactions)"
 edges:
   - {to: concept.functions, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [dynamic_call], target_items: [lang_function]}
+  - {to: lib.langlib, rel: uses, via: [dynamic_call]}
   - {to: concept.isolation, rel: uses, via: [isolated_qual, defaults_in_type]}
   - {to: concept.transactions, rel: uses, via: [transactional_qual, infer_anon_typing]}
   - {to: concept.objects, rel: uses, via: [call_function_values, bound_method], target_items: [method_call]}

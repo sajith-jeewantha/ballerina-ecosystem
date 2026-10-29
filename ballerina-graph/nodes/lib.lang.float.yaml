@@ -1,0 +1,52 @@
+schema_version: "0.1"
+id: lib.lang.float
+type: library
+title: ballerina/lang.float
+summary: The `lang.float` module (basic type float) provides IEEE constants and functions for classification, aggregation, rounding, maths, parsing, hexadecimal and fixed/scientific formatting, and bit-level conversion of float values.
+priority: important
+status: draft
+modules: [ballerina/lang.float]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.float", kind: spec, note: "11.3.5 lang.float module"}
+must_cover:
+  - id: constants
+    text: "Use the `lang.float` constants `float:PI`, `float:E`, `float:NaN` (`0.0/0.0`) and `float:Infinity` (`1.0/0.0`)"
+    difficulty: [beginner]
+  - id: classify
+    text: "Classify floats with `isNaN`, `isFinite` and `isInfinite`, exactly one of which is true for any float value"
+    difficulty: [beginner, intermediate]
+  - id: aggregates
+    text: "Use `float:sum`, `float:max`, `float:min` and `float:avg`, which take zero or more arguments: `sum` of no arguments is +0.0, `max` is -∞, `min` is +∞ and `avg` is NaN, and `sum`, `max` and `min` return NaN if any argument is NaN"
+    difficulty: [intermediate]
+  - id: rounding
+    text: "Round with `x.round(fractionDigits = 0)`, which rounds to the nearest multiple of 10^-fractionDigits with ties to even (e.g. `2.5.round()` is 2.0; with 0 digits it matches IEEE roundToIntegralTiesToEven) and returns NaN, ±0 and ±∞ unchanged, and use `floor`, `ceiling` and `abs`"
+    difficulty: [beginner, intermediate]
+  - id: round_vs_cast
+    text: "Explain that converting with `<int>x` is the same as `<int>x.round(0)` for both float and decimal, so the conversion rounds half to even rather than truncating"
+    difficulty: [intermediate]
+  - id: math
+    text: "Use the float maths functions that correspond to IEEE operations: `sqrt`, `cbrt`, `pow(x, y)`, `log`, `log10`, `exp`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2(y, x)`, `sinh`, `cosh` and `tanh` (results in radians where relevant)"
+    difficulty: [beginner, intermediate]
+  - id: from_string
+    text: "Parse floats with `float:fromString(s)`, which accepts DecimalFloatingPointNumber syntax with an optional sign, also `NaN` and `Infinity` with an optional sign, but no `f`/`d` suffix, returns `float|error`, and is the inverse of `value:toString` on a float"
+    difficulty: [intermediate]
+  - id: hex_string
+    text: "Use `float:toHexString` (HexFloatingPointLiteral form with `0x` for finite values, a `-` sign when negative, and `Infinity`, `-Infinity` and `NaN` for the special values) and `float:fromHexString` (optional sign, `NaN` and `Infinity` allowed; returns `float|error`)"
+    difficulty: [advanced]
+  - id: bits
+    text: "Use `toBitsInt` and `float:fromBitsInt` to convert between a float and its IEEE 64-bit binary representation as an int, knowing that every NaN bit pattern maps to the single float NaN value"
+    difficulty: [advanced]
+  - id: fixed_exp_string
+    text: "Format floats with `toFixedString(fractionDigits)` (no exponent) and `toExpString(fractionDigits)` (one digit before the point and a lower-case `e` exponent with a sign and at least two digits), where `()` means the minimum digits needed, 0 means no decimal point, rounding is ties-to-even, NaN and infinities format as `value:toString` does, and a negative fractionDigits panics"
+    difficulty: [intermediate, advanced]
+out_of_scope:
+  - "Float type, literals and NumericConvert (concept.numeric_types)"
+  - "Arithmetic operators and float equality (concept.arithmetic_operators, concept.comparison_equality)"
+  - "value:toString formatting of numbers (lib.lang.value)"
+  - "Decimal rounding and quantize (lib.lang.decimal)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: concept.numeric_types, rel: uses, via: [constants, classify, aggregates, rounding, round_vs_cast, math, bits]}
+  - {to: concept.type_cast_test, rel: uses, via: [round_vs_cast]}
+  - {to: concept.value_cloning, rel: uses, via: [from_string, fixed_exp_string]}
+notes: "Content moved from the removed concept.langlib_numeric node (float items; the shared rounding, round_vs_cast and number_from_string items were split between lib.lang.float and lib.lang.decimal). Float `ceiling`'s return doc says 'decimal value' (a copy-paste error). The `2.5.round()` example is derived from the stated ties-to-even rule, not quoted from the spec. The spec does not say what `round` does with a negative fractionDigits."

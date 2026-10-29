@@ -60,10 +60,14 @@ must_cover:
 out_of_scope:
   - "Module initialization order and the module init function (concept.program_execution)"
   - "Lexical rules for identifiers and quoted identifiers (concept.lexical_structure)"
-  - "XML namespace declarations (concept.xml_namespaces)"
+  - "XML namespace declarations (concept.xml)"
   - "Package manifest and CLI details, which the spec leaves to the Ballerina platform"
 edges:
   - {to: concept.lexical_structure, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [predeclared_prefixes], target_items: [lang_int, lang_string, lang_map, lang_xml, lang_error]}
+  - {to: lib.lang.int, rel: uses, via: [predeclared_prefixes]}
+  - {to: lib.lang.string, rel: uses, via: [predeclared_prefixes]}
+  - {to: lib.lang.map, rel: uses, via: [predeclared_prefixes]}
+  - {to: lib.lang.xml, rel: uses, via: [predeclared_prefixes]}
+  - {to: lib.lang.error, rel: uses, via: [predeclared_prefixes]}
   - {to: concept.program_execution, rel: related, via: [acyclic_imports], target_items: [module_init_order]}
 notes: "The spec does not state the default module prefix when `as` is omitted; no item claims one. Package layout, Ballerina.toml contents and repositories are platform-defined and only mentioned at the level of detail in section 3."

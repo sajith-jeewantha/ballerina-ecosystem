@@ -72,6 +72,6 @@ edges:
   - {to: concept.resource_methods, rel: requires}
   - {to: concept.objects, rel: requires}
   - {to: concept.program_execution, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [on_graceful_stop, dynamic_listener], target_items: [lang_runtime]}
+  - {to: lib.lang.runtime, rel: uses, via: [on_graceful_stop, dynamic_listener]}
   - {to: concept.isolation, rel: uses, via: [isolated_services, service_type_inference]}
   - {to: concept.streams, rel: uses, via: [return_semantics]}

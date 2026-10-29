@@ -69,6 +69,6 @@ edges:
   - {to: concept.maps, rel: requires}
   - {to: concept.errors, rel: requires}
   - {to: concept.records, rel: uses, via: [mapping_binding, optional_field_binding, pattern_types]}
-  - {to: concept.type_narrowing, rel: uses, via: [wildcard_exhaustiveness_check]}
+  - {to: concept.type_cast_test, rel: uses, via: [wildcard_exhaustiveness_check]}
   - {to: concept.isolation, rel: uses, via: [destructuring_isolated_vars]}
 notes: "Error binding pattern grammar: `error [error-type-reference] ( [message-bp [, cause-bp]] [, named-arg-bp ...] [, ...rest] )`."

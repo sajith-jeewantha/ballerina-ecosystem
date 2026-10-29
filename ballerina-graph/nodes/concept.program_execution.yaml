@@ -39,7 +39,7 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec, note: "8.3 Listeners and services"}
 out_of_scope:
-  - "Configurable variables and the configuration check (concept.configurable)"
+  - "Configurable variables and the configuration check (concept.variables)"
   - "Listener lifecycle in the listening phase (concept.services_listeners)"
   - "Module variables that must be initialized in init (concept.variables)"
   - "Command-line argument syntax and `main` conventions, which are platform-defined"

@@ -1,0 +1,50 @@
+schema_version: "0.1"
+id: lib.lang.int
+type: library
+title: ballerina/lang.int
+summary: The `lang.int` module (basic type int) provides the sized integer subtypes, range constants, and functions for aggregation, parsing, hexadecimal formatting and stepped integer ranges.
+priority: core
+status: draft
+modules: [ballerina/lang.int]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int module"}
+must_cover:
+  - id: subtypes
+    text: "Use the `lang.int` built-in subtypes `int:Signed8`, `int:Signed16`, `int:Signed32`, `int:Unsigned8`, `int:Unsigned16` and `int:Unsigned32` as variable, field and parameter types to restrict ints to a sized range, e.g. `int:Signed32 code = 404;`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+  - id: constants
+    text: "Use the `lang.int` constants `int:MAX_VALUE` (9223372036854775807), `int:MIN_VALUE` (defined as `-9223372036854775807 - 1` because the literal 9223372036854775808 would overflow) and the subtype bounds `SIGNED32_MAX_VALUE`, `SIGNED32_MIN_VALUE`, `SIGNED16_*`, `SIGNED8_*` and `UNSIGNED32/16/8_MAX_VALUE`"
+    difficulty: [beginner, intermediate]
+  - id: aggregates
+    text: "Use `int:abs(n)` (or `n.abs()`), `int:sum(...ns)` (0 for no arguments), `int:max(n, ...ns)` and `int:min(n, ...ns)`, which need at least one argument"
+    difficulty: [beginner]
+  - id: avg
+    text: "Use `int:avg(n, ...ns)`, which computes the average with the decimal type, returns `decimal` (not int) and panics if the sum overflows decimal"
+    difficulty: [intermediate]
+  - id: parse_format
+    text: "Parse and format ints with `int:fromString(s)` (decimal digits with an optional leading `+` or `-`; returns an error otherwise; the inverse of `value:toString` on an int), `toHexString()` (lower-case, no `0x` prefix, `-` prefix for negatives) and `int:fromHexString(s)` (upper- or lower-case digits, optional sign, no `0x`/`0X` prefix allowed)"
+    difficulty: [beginner, intermediate]
+  - id: range
+    text: "Use `int:range(start, end, step)` to get an `object:Iterable` over `start + step*i` that is increasing and < end when step > 0, decreasing and > end when step < 0, and panics when step is 0, e.g. `foreach int i in int:range(10, 0, -2)`"
+    difficulty: [intermediate]
+  - id: aggregation_query
+    text: "Aggregate int fields in a query with unqualified calls such as `sum(qty)`, `max(qty)` and `avg(qty)` on an aggregated variable after `group by` or in a `collect` clause, which resolve to `int:sum`, `int:max` and `int:avg`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.9", kind: spec, note: "6.35.9 Collect clause"}
+out_of_scope:
+  - "Int type, literals, ranges, byte and NumericConvert (concept.numeric_types)"
+  - "Arithmetic operators and overflow (concept.arithmetic_operators)"
+  - "value:toString formatting of numbers (lib.lang.value)"
+  - "Built-in subtype conventions and empty-list aggregation rules (lib.langlib)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [subtypes, aggregation_query], target_items: [builtin_subtypes, builtin_subtype_reference, aggregated_rest_dispatch]}
+  - {to: concept.numeric_types, rel: uses, via: [subtypes, constants, aggregates, avg, parse_format]}
+  - {to: concept.value_cloning, rel: uses, via: [parse_format]}
+  - {to: concept.loops, rel: uses, via: [range]}
+  - {to: concept.query_expressions, rel: uses, via: [aggregation_query]}
+notes: "Content moved from the removed concept.langlib_numeric node (int items) and the lang_int item of concept.langlib. Spec doc-comment issues: lang.int Signed16/Signed8 comments say 'non-negative' but give signed ranges; `int:max` and `int:avg` return docs mention `x`/`xs` and 'minimum value' (copy-paste errors). The `foreach ... int:range(10, 0, -2)` example is derived from the stated range rules; the aggregation_query item is derived from 6.15 and the B.2 change note that `int:avg` etc. were added for aggregation."

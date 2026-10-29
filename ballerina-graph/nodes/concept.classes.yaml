@@ -63,12 +63,12 @@ must_cover:
 out_of_scope:
   - "Object type descriptors and object constructors (concept.objects)"
   - "Constructing streams with new (concept.streams)"
-  - "Detailed isolated-object rules for self and lock (concept.isolation, concept.lock_statement)"
+  - "Detailed isolated-object rules for self and lock (concept.isolation)"
 edges:
   - {to: concept.objects, rel: requires}
   - {to: concept.objects, rel: implements, via: [class_defn], target_items: [object_type_desc]}
   - {to: concept.type_ids_distinct, rel: uses, via: [distinct_class]}
   - {to: concept.isolation, rel: uses, via: [isolated_class]}
   - {to: concept.mutability_readonly, rel: uses, via: [readonly_class]}
-  - {to: concept.error_handling, rel: uses, via: [init_error, field_initializer_check]}
+  - {to: concept.errors, rel: uses, via: [init_error, field_initializer_check]}
 notes: "6.8.1.5 says it is a compile error for init to 'access a field at a point where it is potentially initialized'; this is a typo for 'potentially uninitialized'. 6.8.2 says 'An explicit-type-expr specifying a class-descriptor T has static type T' (should be explicit-new-expr)."

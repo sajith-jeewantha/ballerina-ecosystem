@@ -65,7 +65,7 @@ out_of_scope:
 edges:
   - {to: concept.maps, rel: requires}
   - {to: concept.arrays_tuples, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [to_json, to_json_string, from_json_string, json_float_decimal, from_json_with_type, merge_json], target_items: [lang_value]}
+  - {to: lib.lang.value, rel: uses, via: [to_json, to_json_string, from_json_string, json_float_decimal, from_json_with_type, merge_json]}
   - {to: concept.value_cloning, rel: uses, via: [from_json_with_type], target_items: [clone_with_type]}
   - {to: concept.type_cast_test, rel: uses, via: [lax_check], target_items: [ensure_type]}
 notes: "5.6.10 says plain data includes tagged data values; since `re` is the only data tag in 2024R1 all tagged data values belong to regexp:RegExp."

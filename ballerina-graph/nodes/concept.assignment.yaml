@@ -56,6 +56,6 @@ edges:
   - {to: concept.variables, rel: requires}
   - {to: concept.filler_values, rel: uses, via: [filling_read]}
   - {to: concept.arithmetic_operators, rel: uses, via: [compound_assignment]}
-  - {to: concept.lock_statement, rel: uses, via: [isolated_variable_lvalue]}
+  - {to: concept.isolation, rel: uses, via: [isolated_variable_lvalue]}
   - {to: concept.mutability_readonly, rel: uses, via: [runtime_store_checks, impermissible_remove]}
 notes: "7.14.1 member-access-lvexpr evaluation says 'evaluate expression ... then evaluate lvexpr' (key before container), whereas 6.14 member-access-expr evaluates container first; the lvalue text also says 'member of c' where it means v (typo)."

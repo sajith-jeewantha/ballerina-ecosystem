@@ -70,10 +70,10 @@ must_cover:
 out_of_scope:
   - "List binding patterns and destructuring (concept.binding_patterns)"
   - "List match patterns (concept.match_statement)"
-  - "Detailed per-function semantics of lang.array (concept.langlib_array)"
+  - "Detailed per-function semantics of lang.array (lib.lang.array)"
   - "The full filler-value table (concept.filler_values)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [array_langlib], target_items: [lang_array]}
+  - {to: lib.lang.array, rel: uses, via: [array_langlib]}
   - {to: concept.filler_values, rel: uses, via: [filling_members, store_past_end]}
 notes: "Spec 5.4.1.1 says `v[i][j]` is valid iff 0 ≤ i ≤ M and 0 ≤ j ≤ N; this reads as an off-by-one in the spec text (should be < M, < N). Items follow the member-access semantics in 6.14 (index must be < length)."
