@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.string_conversion
 type: concept
-title: Converting values to and from strings
+title: String conversion
 summary: The ToString operation in its expression, informal and direct styles, the `toString`, `toBalString` and `fromBalString` functions, and numeric and boolean parsing and formatting functions.
 priority: important
 status: draft

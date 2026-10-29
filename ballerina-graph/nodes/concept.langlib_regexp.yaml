@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_regexp
 type: concept
-title: lang.regexp functions
+title: lang.regexp
 summary: The preview `lang.regexp` module's types and functions for finding, matching, replacing and splitting with `re` regular expressions.
 priority: important
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.assignment
 type: concept
-title: Assignment, compound assignment and lvalues
+title: Assignment
 summary: Assignment and compound assignment statements, with the lvalue model that defines how stores, removals, reads and filling-reads work on variables, object fields and structure members.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.loops
 type: concept
-title: "Loops: foreach, while, break, continue and ranges"
+title: Loops
 summary: Iteration with foreach over any iterable value, while loops, break and continue, and integer range expressions.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.type_narrowing
 type: concept
-title: Conditional variable type narrowing
+title: Type narrowing
 summary: How the compiler narrows the static type of a local variable or parameter from boolean conditions (occurrence typing) and from statements that cannot complete normally.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.arithmetic_operators
 type: concept
-title: Arithmetic, shift and bitwise operators
+title: Arithmetic operators
 summary: Unary, multiplicative, additive, shift and binary bitwise operators, their per-type semantics including overflow panics, and nil lifting.
 priority: core
 status: draft

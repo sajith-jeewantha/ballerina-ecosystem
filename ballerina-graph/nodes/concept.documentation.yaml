@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.documentation
 type: concept
-title: Documentation strings and Ballerina Flavored Markdown
+title: Documentation
 summary: Documentation strings written as lines starting with # before module-level constructs and methods, whose content is Ballerina Flavored Markdown.
 priority: long_tail
 status: draft

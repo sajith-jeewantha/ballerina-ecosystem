@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.numeric_types
 type: concept
-title: "Numeric types: int, float, decimal, byte"
+title: Numeric types
 summary: The int, float and decimal basic types, the byte type and built-in int subtypes, numeric literal syntax and typing, and explicit numeric conversion.
 priority: core
 status: draft

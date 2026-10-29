@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.json_anydata
 type: concept
-title: anydata, json and lax static typing
+title: JSON and anydata
 summary: The anydata type of plain data, the json type with lax static typing for field access and check, and the lang.value functions for converting between json, JSON text and user-defined types.
 priority: core
 status: draft

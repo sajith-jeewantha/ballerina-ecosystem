@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.program_execution
 type: concept
-title: Module initialization and program execution
+title: Program execution
 summary: How a Ballerina program made of a root module and its imports runs through an initialization phase and a listening phase, including the module init function.
 priority: important
 status: draft

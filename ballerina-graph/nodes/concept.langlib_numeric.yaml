@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_numeric
 type: concept
-title: lang.int, lang.float and lang.decimal functions
+title: lang.int/float/decimal
 summary: Constants and functions of the numeric lang library modules for aggregation, rounding, maths, parsing, formatting and bit-level conversion of int, float and decimal values.
 priority: important
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.value_cloning
 type: concept
-title: Cloning and type-directed conversion of values
+title: Value cloning
 summary: The Cloneable type, deep copying with `clone` and `cloneReadOnly` (Clone and ImmutableClone), and constructing a value of a specified type with `cloneWithType`.
 priority: important
 status: draft

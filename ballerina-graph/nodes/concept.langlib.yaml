@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib
 type: concept
-title: Lang library overview
+title: Lang library
 summary: The `ballerina/lang.*` modules defined by the specification, one per basic type plus `lang.value`, `lang.transaction` and `lang.runtime`, that provide the fundamental operations on language values.
 priority: core
 status: draft

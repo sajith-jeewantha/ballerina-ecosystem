@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.function_values
 type: concept
-title: Function types, function values and anonymous functions
+title: Function values
 summary: Functions as first-class values described by function type descriptors, created with anonymous function expressions and called dynamically.
 priority: core
 status: draft

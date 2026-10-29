@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.xml_namespaces
 type: concept
-title: XML namespaces and xmlns declarations
+title: XML namespaces
 summary: How XML element and attribute names are represented as expanded names, how namespace attributes are kept and synthesized, and how xmlns declarations bind prefixes at block and module level.
 priority: important
 status: draft

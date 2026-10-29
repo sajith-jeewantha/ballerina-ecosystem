@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.lexical_structure
 type: concept
-title: "Lexical structure: identifiers, comments, white space"
+title: Lexical structure
 summary: How Ballerina source is decoded and tokenized, including identifier forms, quoted and escaped identifiers, restricted identifiers, comments and white space.
 priority: long_tail
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_conventions
 type: concept
-title: "Lang library conventions: generic types, built-in subtypes, method-call dispatch"
+title: Langlib conventions
 summary: How lang library modules express generic typing with annotations, define built-in subtypes, and are reached through predeclared module prefixes and method-call syntax.
 priority: long_tail
 status: draft

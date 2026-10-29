@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.records
 type: concept
-title: Record types
+title: Records
 summary: Record type descriptors that give each named field its own type, with required, optional, defaulted and readonly fields, open or closed shapes, rest descriptors and type inclusion.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.isolation
 type: concept
-title: "Isolation: isolated functions, objects, variables and expressions"
+title: Isolation
 summary: The isolation model that guarantees data-race freedom through isolated functions, isolated objects and classes, isolated module variables, isolated expressions and compiler-inferred isolation.
 priority: important
 status: draft

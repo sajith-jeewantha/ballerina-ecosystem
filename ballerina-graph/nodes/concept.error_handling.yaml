@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.error_handling
 type: concept
-title: "Error handling: check, checkpanic, trap, fail, on fail and panic"
+title: Error handling
 summary: Propagating, handling and converting errors with check and checkpanic, fail and on fail clauses, panic and trap, and how failure differs from panic.
 priority: core
 status: draft

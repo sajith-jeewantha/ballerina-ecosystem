@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.lock_statement
 type: concept
-title: Lock statement
+title: Lock
 summary: The lock statement, which runs a block as if not interleaved with other locks, and the restrictions that apply when it guards isolated variables or isolated object state.
 priority: important
 status: draft

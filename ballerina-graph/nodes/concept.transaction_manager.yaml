@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.transaction_manager
 type: concept
-title: Transaction manager operations and global transactions
+title: Transaction manager
 summary: The abstract transaction manager behind Ballerina transactions, covering global transactions and branches, the per-strand transaction stack, and the Begin, Commit (two-phase commit) and Rollback operations.
 priority: long_tail
 status: draft

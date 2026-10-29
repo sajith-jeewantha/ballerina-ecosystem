@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.errors
 type: concept
-title: Error values, error types and the error constructor
+title: Errors
 summary: The error basic type (message, cause, detail and stack trace), error<T> and distinct error types, the error constructor, and the lang.error functions for inspecting errors.
 priority: core
 status: draft

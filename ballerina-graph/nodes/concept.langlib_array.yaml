@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_array
 type: concept
-title: lang.array functions
+title: lang.array
 summary: Detailed semantics of the `lang.array` module's functions on list values, including which ones mutate in place, which return new arrays, and which panic.
 priority: core
 status: draft

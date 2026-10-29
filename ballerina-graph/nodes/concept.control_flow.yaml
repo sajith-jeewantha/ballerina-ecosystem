@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.control_flow
 type: concept
-title: Statements, blocks and conditional control flow
+title: Control flow
 summary: How statements and statement blocks execute and complete, including if/else, do, return, call, action and checking statements, and the distinction between actions and expressions.
 priority: core
 status: draft
