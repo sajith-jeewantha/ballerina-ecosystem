@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_xml
 type: concept
-title: lang.xml functions
+title: lang.xml
 summary: The `lang.xml` module's constants, built-in subtypes and functions for accessing, constructing, selecting, transforming and parsing xml values.
 priority: important
 status: draft

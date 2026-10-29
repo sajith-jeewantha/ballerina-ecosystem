@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.resource_methods
 type: concept
-title: Resource methods and resource paths
+title: Resource methods
 summary: Resource methods of client and service objects, identified by a method name and a resource path of names, path parameters and rest parameters.
 priority: important
 status: draft

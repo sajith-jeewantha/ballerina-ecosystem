@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.query_joins_grouping
 type: concept
-title: Query joins, grouping, aggregation and on conflict
+title: Joins and grouping
 summary: Inner and outer equijoins, group by with aggregated variables, collect for whole-query aggregation, langlib aggregation calls, and on conflict handling for maps and tables built by queries.
 priority: important
 status: draft

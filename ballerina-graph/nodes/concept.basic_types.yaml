@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.basic_types
 type: concept
-title: Basic types, values and the type system
+title: Basic types
 summary: How Ballerina partitions values into basic types, describes them with structural type descriptors and semantic subtyping, and the simple nil and boolean types.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.typedesc
 type: concept
-title: "Type descriptor values: typedesc and typeof"
+title: Typedesc
 summary: Runtime type descriptor values of type `typedesc<T>`, obtained from type names and `typeof`, and used to drive dependently-typed functions.
 priority: important
 status: draft

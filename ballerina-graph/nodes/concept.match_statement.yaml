@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.match_statement
 type: concept
-title: Match statement and match patterns
+title: Match
 summary: Selecting a block by matching a value against constant, wildcard, binding, list, mapping and error patterns, with guards, narrowing and exhaustiveness.
 priority: core
 status: draft

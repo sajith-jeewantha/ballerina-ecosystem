@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.constants_enums
 type: concept
-title: Constants, constant expressions and enums
+title: Constants and enums
 summary: Compile-time constants declared with const, the constant expressions that initialize them, and enum declarations as unions of string constants.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.union_intersection_types
 type: concept
-title: Union, optional, singleton, any, never and intersection types
+title: Unions and intersections
 summary: Type descriptors that describe subsets of the existing values, such as unions, optional types, singleton types, any, never and intersections.
 priority: core
 status: draft

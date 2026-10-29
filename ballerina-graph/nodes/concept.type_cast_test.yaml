@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.type_cast_test
 type: concept
-title: Type casts, type tests and conversion
+title: Type casts and tests
 summary: The distinction between casting and conversion, the `<T>` type cast expression with numeric conversion, the `is`/`!is` type test, and the error-returning `ensureType`.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.external_functions
 type: concept
-title: External function bodies and handle values
+title: External functions
 summary: Functions whose implementation lives outside the Ballerina module, and the handle type that refers to externally managed storage.
 priority: long_tail
 status: draft

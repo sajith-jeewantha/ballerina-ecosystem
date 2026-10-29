@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.query_expressions
 type: concept
-title: Query expressions and query actions
+title: Query expressions
 summary: Language-integrated, SQL-like queries built from from, where, let, limit, order by and select clauses that produce lists, maps, tables, strings, xml or streams, plus query actions with a do clause.
 priority: core
 status: draft

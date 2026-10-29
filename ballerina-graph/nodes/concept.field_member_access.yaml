@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.field_member_access
 type: concept
-title: Field, optional field and member access
+title: Member access
 summary: The `x.f`, `x?.f` and `x[k]` expressions for reading object fields, mapping members, list, string and xml constituents, including their static types, nil results and panics.
 priority: core
 status: draft

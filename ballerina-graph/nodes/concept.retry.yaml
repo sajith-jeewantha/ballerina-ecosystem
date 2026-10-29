@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.retry
 type: concept
-title: Retry statement and RetryManager
+title: Retry
 summary: Re-executing a failing block with the retry statement, controlled by a RetryManager class such as error:DefaultRetryManager.
 priority: important
 status: draft

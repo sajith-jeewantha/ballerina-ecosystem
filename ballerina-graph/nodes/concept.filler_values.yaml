@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.filler_values
 type: concept
-title: Filler values and FillMember
+title: Filler values
 summary: The FillMember abstract operation and the filler value defined for each type descriptor, which let lists and mappings be filled in automatically.
 priority: long_tail
 status: draft

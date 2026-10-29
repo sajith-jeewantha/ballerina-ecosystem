@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.raw_templates
 type: concept
-title: Raw template expressions
+title: Raw templates
 summary: Backtick strings with interpolations that, used without a tag, construct `object:RawTemplate` values holding the literal string parts and the interpolated values separately.
 priority: important
 status: draft

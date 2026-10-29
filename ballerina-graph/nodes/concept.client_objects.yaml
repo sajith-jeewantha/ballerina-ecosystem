@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.client_objects
 type: concept
-title: Client objects, remote methods and resource access actions
+title: Client objects
 summary: Network interaction objects for outbound calls, their remote methods and resources, and the remote method call and resource access actions used to invoke them.
 priority: important
 status: draft

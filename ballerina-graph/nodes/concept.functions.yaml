@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.functions
 type: concept
-title: Function definitions, parameters and calls
+title: Functions
 summary: Defining functions with required, defaultable, included-record and rest parameters, returning values, and calling them with positional, named and spread arguments.
 priority: core
 status: draft

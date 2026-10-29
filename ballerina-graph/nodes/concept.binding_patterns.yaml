@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.binding_patterns
 type: concept
-title: Binding patterns and destructuring
+title: Binding patterns
 summary: Capture, wildcard, list, mapping and error binding patterns, typed binding patterns with `var`, and destructuring assignment.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.modules_imports
 type: concept
-title: Modules, packages and imports
+title: Modules
 summary: How Ballerina programs are divided into modules and packages, and how a module part imports and refers to other modules.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.comparison_equality
 type: concept
-title: Equality, ordering and relational operators
+title: Comparison
 summary: Deep equality (==), exact equality (===), the DeepEquals operation, ordered types and the Compare operations behind relational operators and sorting.
 priority: core
 status: draft

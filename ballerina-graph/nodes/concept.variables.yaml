@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.variables
 type: concept
-title: Variables, scoping and let expressions
+title: Variables
 summary: Declaring local and module-level variables, how var inference, final and definite assignment work, how identifiers are scoped, and let expressions.
 priority: core
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.strings
 type: concept
-title: Strings and string templates
+title: Strings
 summary: The immutable string sequence type of Unicode scalar values, string literals and escapes, indexing, iteration, concatenation and string template expressions.
 priority: core
 status: draft

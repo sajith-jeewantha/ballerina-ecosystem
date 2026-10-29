@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.xml_navigation
 type: concept
-title: XML attribute access and navigation expressions
+title: XML navigation
 summary: Attribute access with `.` and `?.` on xml values, and XPath-like filter and step expressions using xml name patterns.
 priority: important
 status: draft

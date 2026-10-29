@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.regexp
 type: concept
-title: Regular expressions (re template, preview)
+title: Regular expressions
 summary: The `re` tagged data type for regular expressions (a preview feature in 2024R1), with its template syntax, supported Perl/ECMAScript-subset grammar, flags and semantics.
 priority: important
 status: draft

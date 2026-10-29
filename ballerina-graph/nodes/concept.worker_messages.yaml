@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.worker_messages
 type: concept
-title: Worker message passing
+title: Worker messages
 summary: Sending and receiving Cloneable messages between peer workers with async send, sync send, flush, and single, multiple and alternate receive actions.
 priority: important
 status: draft

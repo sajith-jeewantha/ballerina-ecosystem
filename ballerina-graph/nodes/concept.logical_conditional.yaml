@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.logical_conditional
 type: concept
-title: Logical and conditional expressions
+title: Logical expressions
 summary: The boolean operators `!`, `&&` and `||` with short-circuit evaluation, the ternary conditional `? :` and the nil-conditional (Elvis) operator `?:`.
 priority: core
 status: draft

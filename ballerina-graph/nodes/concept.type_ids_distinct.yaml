@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.type_ids_distinct
 type: concept
-title: Distinct types and type-ids
+title: Distinct types
 summary: Distinct object and error types, which give nominal-style typing inside the structural type system through type-ids that values acquire when they are constructed.
 priority: important
 status: draft

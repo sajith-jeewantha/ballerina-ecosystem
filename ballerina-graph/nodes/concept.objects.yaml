@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.objects
 type: concept
-title: Object types and object constructors
+title: Objects
 summary: Object values that combine fields and methods, described structurally by object type descriptors and created directly with object constructor expressions.
 priority: core
 status: draft

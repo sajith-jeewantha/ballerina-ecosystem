@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.classes
 type: concept
-title: Classes, init methods and new
+title: Classes
 summary: Module-level class definitions that describe an object type and how to construct it, the init method rules and the new expression.
 priority: core
 status: draft

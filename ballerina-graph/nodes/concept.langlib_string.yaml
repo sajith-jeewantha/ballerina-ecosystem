@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.langlib_string
 type: concept
-title: lang.string functions
+title: lang.string
 summary: Detailed semantics of the `lang.string` module's functions for measuring, slicing, searching, comparing, case-converting, padding, encoding and regex-matching strings.
 priority: core
 status: draft

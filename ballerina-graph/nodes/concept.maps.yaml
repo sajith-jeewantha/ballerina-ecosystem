@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.maps
 type: concept
-title: Maps and mapping constructors
+title: Maps
 summary: Mapping values keyed by strings, described by map<T> types and built with mapping constructor expressions that support shorthand, computed-name, spread and readonly fields.
 priority: core
 status: draft

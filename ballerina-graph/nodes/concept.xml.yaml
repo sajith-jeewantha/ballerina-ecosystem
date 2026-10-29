@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.xml
 type: concept
-title: XML values and XML templates
+title: XML
 summary: The xml sequence type with its element, processing instruction, comment and text items, xml<T> types, xml template expressions, concatenation, mutability and storage identity.
 priority: important
 status: draft

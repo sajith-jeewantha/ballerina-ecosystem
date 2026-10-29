@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.strands_workers
 type: concept
-title: Strands, named workers and fork
+title: Workers
 summary: Ballerina's concurrency model of threads and cooperatively scheduled strands, the default and named workers of a function, and the fork statement.
 priority: important
 status: draft

@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.services_listeners
 type: concept
-title: Listeners and services
+title: Services and listeners
 summary: Listener objects that receive network messages and dispatch them to attached service objects, declared with listener and service declarations and managed during the listening phase.
 priority: important
 status: draft

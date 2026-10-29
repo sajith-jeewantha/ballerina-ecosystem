@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.expression_typing
 type: concept
-title: Expression evaluation and static typing
+title: Expressions
 summary: How expressions are evaluated (normal and abrupt completion), operator precedence, and how static types are computed using contextually expected types, precise and broad types, and singleton typing.
 priority: important
 status: draft

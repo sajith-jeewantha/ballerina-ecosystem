@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.futures_wait
 type: concept
-title: start, futures and wait actions
+title: Futures and wait
 summary: Running calls asynchronously with start, future types, waiting for one, several or the first of many strands, and cancelling futures.
 priority: important
 status: draft

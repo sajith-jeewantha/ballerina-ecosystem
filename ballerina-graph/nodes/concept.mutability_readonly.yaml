@@ -1,7 +1,7 @@
 schema_version: "0.1"
 id: concept.mutability_readonly
 type: concept
-title: Mutation, immutability and the readonly type
+title: Immutability
 summary: How values and variables can be mutated, the deep read-only bit, inherent types of structured values, and describing and constructing immutable values with `readonly`.
 priority: important
 status: draft
