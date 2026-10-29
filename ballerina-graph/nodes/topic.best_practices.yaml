@@ -1,0 +1,123 @@
+schema_version: "0.1"
+id: topic.best_practices
+type: topic
+title: Best practices
+summary: "Writing idiomatic, maintainable Ballerina following the official style guide (formatting, naming, documentation), the language's error-handling and concurrency idioms, configurability, logging conventions and the rules enforced by the `bal scan` static analyzer."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs, note: "Style guide - coding conventions (incl. logging conventions)"}
+  - {url: "https://ballerina.io/learn/style-guide/top-level-definitions/", kind: docs}
+  - {url: "https://ballerina.io/learn/style-guide/annotations-documentation-and-comments/", kind: docs}
+  - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "bal scan rules"}
+must_cover:
+  - id: layout_and_spacing
+    text: "Format code per the style guide - four-space indentation, lines of at most 120 characters, a single space between keywords, types and identifiers, the opening brace on the same line, and no spaces inside `map<string>`, `string[]`, `string|int` or `string?`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs}
+      - {url: "https://ballerina.io/learn/style-guide/operators-keywords-and-types/", kind: docs}
+  - id: line_breaking
+    text: "Break long lines before an operator (e.g. `&& i == 1` on the next line) and after a separator such as a comma in a parameter list, indenting continuation lines by four spaces, and optionally moving `returns ...` to its own line"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs}
+      - {url: "https://ballerina.io/learn/style-guide/top-level-definitions/", kind: docs}
+  - id: constant_naming
+    text: "Name constants in SCREAMING_SNAKE_CASE (`const MIN_AGE = 20;`), omit the type descriptor when the value alone determines it (`const TAX_RATE = 0.15d;`), and add one for readability on compound expressions (`const byte COMPLEX_VALUE = (50 * 2 + 100) % 256;`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/top-level-definitions/", kind: docs}
+  - id: imports_and_top_level
+    text: "Write imports as `import ballerina/http;` sorted alphabetically by organization and then module name, keep top-level definitions unindented, and keep the listener inline with the service declaration (`service / on new http:Listener(9090) {`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/top-level-definitions/", kind: docs}
+  - id: statement_style
+    text: "Write `if valid { ... } else if active { ... }` without parentheses around the condition and with `else` on the closing-brace line, and lay out `match` clauses one per line with a single space around `=>`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/statements/", kind: docs}
+  - id: literal_layout
+    text: "Format record and map literals as `{name: \"john\", age: 20}` on one line or with one block-indented field per line, keep tuples on one line, and split long array literals one member per line"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/expressions/", kind: docs}
+  - id: class_layout
+    text: "Lay out a class with each field, type inclusion and method on its own line and the `init` method before all other methods, and give each record field (including the rest field) its own line"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/top-level-definitions/", kind: docs}
+  - id: doc_comments
+    text: "Document public constructs with Markdown doc comments - `# Description.`, an empty `#` line, then `# + param - Description` and `# + return - Description` - and document records with a comment above the type and above each field"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/annotations-documentation-and-comments/", kind: docs}
+  - id: prefer_check
+    text: "Propagate errors with `check` from functions declared `returns error?` (or handle them with `if result is error`) instead of `checkpanic`, which terminates the program with a panic"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:1 Avoid checkpanic"}
+  - id: explicit_ignore
+    text: "Ignore a non-error return value explicitly with `_ = getX();`, and know that `_` cannot discard a value whose type includes `error`, so errors must be handled or propagated"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ignoring-return-values-and-errors/", kind: bbe}
+  - id: isolated_by_default
+    text: "Mark public functions, methods, classes and objects `isolated` so they can be called concurrently, keeping mutable module state in `isolated` variables accessed only inside `lock` blocks"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:3-6"}
+      - {url: "https://ballerina.io/learn/by-example/isolated-variables/", kind: bbe}
+  - id: configurable_values
+    text: "Use `configurable` module variables for environment-specific values and secrets (`configurable string dbHost = \"localhost\";`, `configurable string password = ?;`) instead of hard-coded literals or constants"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/configurable-variables/", kind: bbe}
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:13, ballerina:14"}
+  - id: typed_payloads
+    text: "Model payloads with record types (closed `record {| ... |}` when the fields are exactly known) rather than working with raw `json`, for type safety, validation and tooling support"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/transforming-message-formats/", kind: docs}
+  - id: expression_oriented
+    text: "Use expression-bodied functions `function inc(int x) returns int => x + 1;`, `let` expressions and conditional expressions where a function or branch just computes a value"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/expression-oriented-style/", kind: bbe}
+  - id: logging_conventions
+    text: "Use the `log` module rather than `io:println` for diagnostics (reserving `io:println` for CLI help or usage output), choosing `ERROR`, `WARN`, `INFO` or `DEBUG` by severity and never logging passwords, tokens or personal data"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs, note: "Logging conventions"}
+  - id: remove_dead_code
+    text: "Remove unused function parameters and unused private class fields, and avoid self-assignments and conditions that always evaluate to `true` or `false`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:2, 7-11"}
+  - id: static_analysis
+    text: "Check code against these rules with `bal scan`, selecting rules with `--include-rules=\"ballerina:1\"` / `--exclude-rules` and listing them with `--list-rules`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-tool/", kind: docs}
+out_of_scope:
+  - "Security-specific rules and practices (topic.security)"
+  - "Log configuration and structured logging (topic.observability)"
+  - "Formatter customization via Format.toml (tool.bal)"
+edges:
+  - {to: concept.errors, rel: uses, via: [prefer_check, explicit_ignore]}
+  - {to: concept.isolation, rel: uses, via: [isolated_by_default]}
+  - {to: concept.constants_enums, rel: uses, via: [constant_naming]}
+  - {to: concept.modules_imports, rel: uses, via: [imports_and_top_level]}
+  - {to: concept.control_flow, rel: uses, via: [statement_style]}
+  - {to: concept.match_statement, rel: uses, via: [statement_style]}
+  - {to: concept.classes, rel: uses, via: [class_layout]}
+  - {to: concept.records, rel: uses, via: [class_layout, typed_payloads, literal_layout]}
+  - {to: concept.documentation, rel: uses, via: [doc_comments]}
+  - {to: concept.functions, rel: uses, via: [expression_oriented]}
+  - {to: concept.variables, rel: uses, via: [configurable_values]}
+  - {to: lib.log, rel: uses, via: [logging_conventions]}
+  - {to: tool.bal_scan, rel: uses, via: [prefer_check, isolated_by_default, remove_dead_code, static_analysis]}
+  - {to: tool.config_toml, rel: uses, via: [configurable_values]}
+  - {to: topic.security, rel: related}
+notes: "The style guide is mostly formatting rules that the Ballerina formatter applies; idiom items come from the scan rules and BBEs. No separate official 'Ballerina idioms' page was found."

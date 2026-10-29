@@ -61,5 +61,5 @@ out_of_scope:
   - "Strings and XML (concept.strings, concept.xml)"
 edges:
   - {to: concept.lexical_structure, rel: related, note: "type names and literals are built from lexical tokens"}
-  - {to: concept.langlib, rel: related, note: "each basic type has a corresponding lang library module"}
+  - {to: lib.langlib, rel: related, note: "each basic type has a corresponding lang library module"}
 notes: "The 5.1.4 table lists `distinct` with an empty value-set description; items do not attempt to define it beyond 5.6.6."

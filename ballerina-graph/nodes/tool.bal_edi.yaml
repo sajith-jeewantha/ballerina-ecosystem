@@ -1,0 +1,77 @@
+schema_version: '0.1'
+id: tool.bal_edi
+type: tool
+title: bal edi
+summary: The `bal edi` CLI tool converts EDIFACT, X12 and ESL schemas to the Ballerina EDI schema format and generates records, `fromEdiString`/`toEdiString` parser functions and whole EDI packages (with a REST connector) that run on `ballerina/edi`.
+priority: long_tail
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/edi-tool/', kind: docs, note: EDI tool}
+- {url: 'https://github.com/ballerina-platform/edi-tools', kind: github, note: edi-tools README}
+must_cover:
+- id: install_tool
+  text: Install the tool from Ballerina Central with `bal tool pull edi`
+  difficulty: [beginner]
+- id: prebuilt_packages
+  text: Read UN/EDIFACT D03A messages without the tool through the prebuilt `ballerinax/edifact.d03a.*` packages, e.g. `import ballerinax/edifact.d03a.supplychain.mORDERS;` and `mORDERS:interchangeFromEdiString(ediText)`, and generate your own module only for partner variants, X12, other EDIFACT versions or proprietary formats
+  difficulty: [beginner, intermediate]
+- id: convert_edifact
+  text: Convert an EDIFACT specification with `bal edi convertEdifactSchema -v d03a -t ORDERS -i d03a.zip -o resources`, which writes `resources/ORDERS.json` (omit `-t` to convert every message type)
+  difficulty: [intermediate]
+- id: convert_x12
+  text: Convert a licensed X12 schema with `bal edi convertX12Schema -i input/850.xsd -o resources/850-schema.json`, adding `-H` for headers (envelope) mode, `-c` for a collection of schemas, or `-d <file>` for separate segment details
+  difficulty: [intermediate]
+- id: convert_esl
+  text: Convert an ESL schema with `bal edi convertESL -b segment_definitions.yaml -i esl_schema.esl -o resources/schema.json`
+  difficulty: [intermediate]
+- id: handwritten_schema
+  text: 'Write a Ballerina EDI schema by hand for a proprietary format: a JSON object with `name`, `delimiters` (`segment`, `field`, `component`, `repetition`) and `segments`, each with `code`, `tag`, `minOccurances`/`maxOccurances` (`-1` for unbounded) and `fields` (`tag`, optional `dataType` such as `int`)'
+  difficulty: [intermediate]
+- id: customize_schema
+  text: Adapt a converted schema to a trading partner by editing delimiters, occurrence counts, field data types, `ignoreSegments` or the `fields` list of a segment, keep the schema under version control and regenerate after each edit
+  difficulty: [advanced]
+- id: codegen
+  text: Generate records and parser functions with `bal edi codegen -i resources/schema.json -o orders.bal` inside a package, giving record types such as `SimpleOrder` and `Header_Type`; generate each schema into its own module in larger projects
+  difficulty: [beginner, intermediate]
+- id: read_edi
+  text: Parse EDI text into the generated record with `SimpleOrder order = check fromEdiString(ediText);` and read its fields like any record
+  difficulty: [beginner]
+- id: write_edi
+  text: Serialize a generated record back to EDI text with `string ediText = check toEdiString(order);`
+  difficulty: [beginner]
+- id: envelope_functions
+  text: Work with envelope-aware schemas through the generated `<Name>Interchange`, `<Name>FunctionalGroup` (X12) and `<Name>Transaction` records and the `headersFromEdiString`, `interchangeFromEdiString` and `interchangeToEdiString` functions, checking each transaction's `body` (typed `<Name>|error`) so one bad transaction does not fail the whole parse; this needs `ballerina/edi` 1.6.0 or later
+  difficulty: [advanced]
+- id: libgen
+  text: Generate a package for a set of schemas with `bal edi libgen -p citymart/porder -i CityMart/schemas -o CityMart/lib`, which puts each schema in its own module (e.g. `m850`), then `bal pack` and `bal push` it and import modules such as `citymart/porder.m850`
+  difficulty: [intermediate]
+- id: libgen_facade
+  text: Dispatch by EDI name through the generated package's default module, e.g. `porder:fromEdiString(text, porder:EDI_850)`, `porder:headersFromEdiString(...)` (returns `anydata`) and `porder:interchangeFromEdiString(...)` (returns `any`), narrowing results with `ensureType()`
+  difficulty: [advanced]
+- id: libgen_rest_service
+  text: Build and run a generated EDI package as a REST service with `bal build` and `bal run`, which exposes an EDI-to-JSON endpoint under `edis` (e.g. `/porderParser/edis/850`) and a JSON-to-EDI endpoint under `objects` for each schema
+  difficulty: [intermediate]
+out_of_scope: [The `ballerina/edi` library API and schema semantics (lib.edi)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: tool.bal_tool
+  rel: uses
+  via: [install_tool]
+- to: lib.edi
+  rel: uses
+  via: [codegen, read_edi, write_edi, envelope_functions, handwritten_schema]
+- to: concept.records
+  rel: uses
+  via: [codegen, read_edi, write_edi]
+- to: concept.errors
+  rel: uses
+  via: [envelope_functions]
+- to: lib.lang.value
+  rel: uses
+  via: [libgen_facade]
+- to: tool.central
+  rel: uses
+  via: [libgen, prebuilt_packages]
+- to: concept.modules_imports
+  rel: uses
+  via: [libgen, prebuilt_packages]

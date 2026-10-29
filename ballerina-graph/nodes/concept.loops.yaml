@@ -2,7 +2,7 @@ schema_version: "0.1"
 id: concept.loops
 type: concept
 title: Loops
-summary: Iteration with foreach over any iterable value, while loops, break and continue, and integer range expressions.
+summary: Iteration with foreach over any iterable value, while loops, break and continue, and integer range expressions, together with the iteration protocol behind them, namely iterable basic types, the Iterator and Iterable object types and the rules for mutating a structure while iterating it.
 priority: core
 status: draft
 sources:
@@ -10,6 +10,10 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.1", kind: spec, note: "7.21.1 Foreach statement"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.2", kind: spec, note: "7.21.2 While statement"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.26", kind: spec, note: "6.26 Range expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_object_types", kind: spec, note: "5.7 Built-in object types"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.1", kind: spec, note: "5.7.1 Iterator"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.2", kind: spec, note: "5.7.2 Iterable"}
 must_cover:
   - id: foreach_basic
     text: "Iterate with `foreach T x in expr { ... }` or `foreach var x in expr { ... }` over any iterable value (list, mapping, table, string, xml, stream or Iterable object), with `var` inferring the iteration value type"
@@ -53,17 +57,50 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int range"}
   - id: mutation_during_iteration
-    text: "Explain that mutating a list or mapping while iterating it makes the iterator's `next()` panic, except for removing a member already returned or changing the value at an existing key (in which case the new value is returned)"
+    text: "Explain that mutating a list or mapping (or any structure) after its iterator was created makes the iterator's `next()` panic, except for removing a member already returned or changing the value at an existing key (in which case the new, current value is returned)"
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.1", kind: spec, note: "5.7.1 Iterator"}
+  - id: iterable_basic_types
+    text: 'Name the iterable basic types and their iteration sequences: string (length-1 substrings of type `string:Char`), xml (singleton items), lists and tables (members in order), mappings (members) and streams (items)'
+    difficulty: [beginner, intermediate]
+  - id: value_and_completion_types
+    text: 'Explain the value type and completion type of an iterable type, with completion type `()` for all iterable types except `stream<T,C>`, whose completion type is `C`'
+    difficulty: [intermediate]
+  - id: iterator_type
+    text: 'Describe the Iterator object type `object { public function next() returns record {| T value; |}|C; }` and explain why `next` wraps each value in a record'
+    difficulty: [intermediate]
+  - id: next_semantics
+    text: 'Explain that `next()` returns an error if iteration hit an error, `()` once the end is reached, and otherwise advances and returns `{value: v}`, starting from the beginning position'
+    difficulty: [intermediate]
+  - id: iterator_functions
+    text: 'Obtain iterators explicitly with the langlib `iterator()` functions such as `arr.iterator()`, `m.iterator()`, `s.iterator()`, `x.iterator()`, `t.iterator()` and `stm.iterator()`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.array", kind: spec, note: "11.3.1 lang.array iterator"}
+  - id: iterable_objects
+    text: 'Make an object iterable by including the distinct type `object:Iterable` and defining an `iterator()` method that returns an Iterator, so it can be used in `foreach` and query `from` clauses'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+  - id: builtin_object_kinds
+    text: 'Distinguish built-in object types that are purely structural (such as Iterator) from distinct types named in a lang library module (such as `object:Iterable` and `object:RawTemplate`)'
+    difficulty: [advanced]
 out_of_scope:
-  - "The Iterator/Iterable protocol in general (concept.iterability)"
   - "Query expressions as an alternative to loops (concept.query_expressions)"
-  - "on fail clauses attached to loops (concept.error_handling)"
-  - "Type narrowing by while conditions (concept.type_narrowing)"
+  - "on fail clauses attached to loops (concept.errors)"
+  - "Type narrowing by while conditions (concept.type_cast_test)"
+  - "Stream next/close and StreamImplementor (concept.streams)"
+  - "Query from clauses (concept.query_expressions)"
 edges:
   - {to: concept.control_flow, rel: requires}
-  - {to: concept.iterability, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [int_range_step], target_items: [lang_int]}
+  - {to: lib.lang.int, rel: uses, via: [int_range_step, iterator_functions, iterable_objects]}
+  - {to: lib.langlib, rel: uses, via: [int_range_step, iterator_functions, iterable_objects]}
+  - {to: lib.lang.array, rel: uses, via: [int_range_step, iterator_functions, iterable_objects]}
+  - {to: lib.lang.map, rel: uses, via: [int_range_step, iterator_functions, iterable_objects]}
+  - {to: lib.lang.string, rel: uses, via: [int_range_step, iterator_functions, iterable_objects]}
   - {to: concept.streams, rel: uses, via: [foreach_completion_type]}
+  - {to: concept.arrays_tuples, rel: requires}
+  - {to: concept.maps, rel: requires}
+  - {to: concept.objects, rel: uses, via: [iterable_objects]}
+notes: "5.1.6 lists the xml value type as `T` for `xml<T>`; the lang.object Iterable type's next returns `record {| any|error value; |}|error?`."

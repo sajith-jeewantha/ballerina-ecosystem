@@ -1,12 +1,20 @@
 # Ballerina Ecosystem Knowledge Graph
 
-A knowledge graph of the Ballerina language that drives supervised fine-tuning (SFT) dataset
-generation. Each node lists what the training data must cover (`must_cover` items), and typed
-edges link related nodes. Every `must_cover` item becomes one or more training samples, so a
-feature missing from the graph is never trained on.
+A knowledge graph of the Ballerina language and its ecosystem that drives supervised
+fine-tuning (SFT) dataset generation. Each node lists what the training data must cover
+(`must_cover` items), and typed edges link related nodes. Every `must_cover` item becomes one or
+more training samples, so a feature missing from the graph is never trained on.
 
-The current nodes are built from the
-[Ballerina Language Specification 2024R1](https://ballerina.io/spec/lang/2024R1/).
+The nodes are built from:
+- the [Ballerina Language Specification 2024R1](https://ballerina.io/spec/lang/2024R1/)
+  (language concepts and the lang library)
+- the module READMEs and API sources in the
+  [ballerina-platform](https://github.com/orgs/ballerina-platform/repositories) GitHub org
+- [Ballerina by Example](https://ballerina.io/learn/by-example/)
+- [Ballerina Central](https://central.ballerina.io/ballerina-library)
+- the [Learn](https://ballerina.io/learn/) docs (tools, packages, guides)
+
+Every node cites the pages it was built from in its `sources`.
 
 **View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/viewer.html
 (raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/graph.json))
@@ -17,7 +25,8 @@ The current nodes are built from the
 .
 ├── README.md                 # this file
 ├── prompt.md                 # task brief used to build the spec-derived nodes
-└── ballerina-graph/          # Python package: schema, loader/validator, export and viewer CLI and node data
+└── ballerina-graph/          # Python package: schema, loader, CLI and node data
+    ├── ballerina_graph/      # Pydantic models, loader/validator, export and viewer
     ├── nodes/                # one YAML file per node (<id>.yaml)
     ├── schema/               # node.schema.json for editor validation
     ├── pyproject.toml
@@ -49,13 +58,15 @@ Run these from `ballerina-graph/`:
 
 `build/` holds the published graph: `build/graph.json` (the full graph) and
 `build/viewer.html` (the interactive viewer). Re-run `export` and `view` after changing nodes
-so they stay in sync.
+so they stay in sync. To get an image of the graph, use the viewer's **Download PNG** button.
 
 ### Using the viewer
 
 - **Spacing:** the Spacing control above the graph changes the gap between nodes (`−`/`+` or
-  the slider, 0.5× to 3×). **Default** resets it to 1.5×. Your last setting is remembered in
+  the slider, 0.5× to 3×). **Default** resets it to 2.0×. Your last setting is remembered in
   the browser.
+- **Download PNG:** saves the whole graph (every node that passes the current filters, not just
+  the part on screen) as `ballerina-graph.png`, at a size where labels stay readable.
 - **Full screen:** **Full screen** shows only the graph across the whole screen. Click
   **Exit full screen** or press Esc to return.
 - **Editing titles:** run `serve`, open a node and click **Edit title**. Saving rewrites only
@@ -118,12 +129,21 @@ All nodes are `status: draft` and await domain-expert review.
 
 | | Count |
 |---|---|
-| Nodes | 69 (all `concept`) |
-| `must_cover` items | 849 |
-| Edges | 266 (requires 96, uses 144, related 14, part_of 10, counterpart_of 1, implements 1) |
-| Priority | core 32, important 31, long_tail 6 |
+| Nodes | 159: 50 concept, 79 library, 20 tool, 10 topic |
+| `must_cover` items | 2,054 |
+| Edges | 1,088 (uses 912, requires 109, related 37, part_of 13, implements 11, alternative_to 4, counterpart_of 2) |
+| Priority | core 43, important 76, long_tail 40 |
 
-`validate` reports `OK: 69 nodes, 849 items, 266 edges, 0 warning(s)`.
+`validate` reports `OK: 159 nodes, 2054 items, 1088 edges, 0 warning(s)`.
 
-The nodes cover spec chapters 2 to 11. Library, tool and topic nodes are not yet included,
-because the spec does not define the standard library or tooling.
+What the nodes cover:
+
+| Type | Nodes | Scope |
+|---|---|---|
+| `concept` | 50 | Language features from spec 2024R1 chapters 2 to 10 (types, expressions, statements, concurrency, XML, queries, transactions...) |
+| `library` | 79 | The lang library (`langlib` and 13 `ballerina/lang.*` modules); the `ballerina/*` standard library (HTTP, GraphQL, gRPC, WebSocket, SQL, persist, IO, data.*, auth, JWT, OAuth2, crypto, log, test, observe, AI, MCP...); key `ballerinax/*` connectors (MySQL, PostgreSQL, MSSQL, Oracle, JDBC, MongoDB, Redis, Kafka, RabbitMQ, NATS, JMS, IBM MQ, Azure Service Bus, AI model providers, Pinecone) |
+| `tool` | 20 | `bal` and its subcommands, packages, `Ballerina.toml`, `Dependencies.toml`, `Config.toml`, Ballerina Central, testing, code generators (OpenAPI, GraphQL, gRPC, AsyncAPI, persist, bindgen, WSDL, EDI), Code to Cloud, GraalVM, VS Code |
+| `topic` | 10 | Cross-cutting guides: REST APIs, best practices, data mapping, integration patterns, AI agents, security, observability, connectors, event-driven, resiliency |
+
+Library titles are the package names you import (`ballerina/http`, `ballerinax/mysql`).
+SaaS connectors (Salesforce, GitHub, Slack...) are not included yet.

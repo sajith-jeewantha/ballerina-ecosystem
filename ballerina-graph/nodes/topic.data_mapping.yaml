@@ -1,0 +1,117 @@
+schema_version: "0.1"
+id: topic.data_mapping
+type: topic
+title: Data mapping
+summary: "Transforming messages between formats and schemas in Ballerina - modelling payloads as records, writing expression-bodied mapping functions (as produced by the VS Code data mapper), reshaping collections with query expressions, and converting JSON, XML and CSV to and from typed values."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/integration-tutorials/transforming-message-formats/", kind: docs, note: "Transforming message formats (data mapper)"}
+  - {url: "https://ballerina.io/learn/enterprise-integration-patterns/message-translator/", kind: docs}
+  - {url: "https://ballerina.io/learn/work-with-data-using-queries-in-ballerina/", kind: docs}
+  - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+must_cover:
+  - id: records_from_samples
+    text: "Model source and target payloads as record types generated from sample JSON or XML (the VS Code \"JSON as Record\" / \"XML as Record\" tools), then tighten them, e.g. closed records `record {| ... |}` and fixed-length arrays such as `int[3] ssn`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/transforming-message-formats/", kind: docs}
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/message-translator/", kind: docs}
+  - id: transform_function
+    text: "Write a mapping as an expression-bodied function, e.g. `isolated function transform(HealthcareReservation r) returns HospitalReservation => let var ssn = r.ssn in {patient: {name: r.firstName + \" \" + r.lastName, ssn: string `${ssn[0]}-${ssn[1]}-${ssn[2]}`, ...}, ...};`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/transforming-message-formats/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/expression-oriented-style/", kind: bbe}
+  - id: visual_data_mapper
+    text: "Build a transform function visually with the VS Code data mapper by connecting input record fields to output record fields, and explain that it generates an ordinary expression-bodied Ballerina function"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/transforming-message-formats/", kind: docs}
+  - id: map_nested_arrays
+    text: "Map nested arrays with a query expression inside a mapping constructor, e.g. `invoices: from var o in salesData.opportunities select {id: o.id, amount: o.amount, invoiceDate: o.closeDate}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/message-translator/", kind: docs}
+  - id: destructure_in_query
+    text: "Rename or project fields with a mapping binding pattern in a query, e.g. `from var {carType, price, resultLink, vendor} in response.result select {carType, price, resultLink, vendor}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/scatter-gather/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/destructure-records-using-query/", kind: bbe}
+  - id: xml_to_records_query
+    text: "Convert repeated XML elements into records with a query over XML navigation, e.g. `from xml item in response/<Response>/<Car> select {carType: (item/<CarType>).data(), price: (item/<Price>).data()}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/scatter-gather/", kind: docs}
+  - id: aggregate_group_by
+    text: "Aggregate data with `group by` and aggregate functions, e.g. `from var {itemName, quantity} in orders group by itemName select {itemName, quantity: sum(quantity)}`, and reduce a whole collection with `collect sum(totPrice)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/aggregation/", kind: bbe}
+  - id: join_sort_limit
+    text: "Combine and rank data sets with `join string country in countries on entry.country equals country`, `order by entry.deaths descending` and `limit n`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-data-using-queries-in-ballerina/", kind: docs}
+  - id: json_to_record
+    text: "Convert JSON to a record type with `jsondata:parseAsType(jsonValue)`, `jsondata:parseString(str)`, `jsondata:parseBytes(bytes)` or `jsondata:parseStream(byteStream)`, with the target type inferred from the left-hand side"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+  - id: json_projection
+    text: "Project only the needed fields by converting JSON into a closed record (extra fields are dropped), and tune behaviour with `jsondata:Options` such as `allowDataProjection` and `enableConstraintValidation`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record-with-projection/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata", kind: github, note: "json_api.bal Options"}
+  - id: json_key_names
+    text: "Map JSON keys that differ from field names with `@jsondata:Name {value: \"...\"}` on a record field, and produce JSON with `jsondata:toJson(value)` or `value.toJson()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/main/ballerina/json_api.bal", kind: github, note: "Name annotation, toJson"}
+  - id: clone_with_type
+    text: "Convert an in-memory `json` value to a user-defined type with `j.cloneWithType(Coord)` (or with the type inferred), and narrow a single value with `value:ensureType`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Convert to a user-defined type - cloneWithType"}
+  - id: xml_to_record
+    text: "Convert XML to records with `xmldata:parseAsType(xmlValue)` (or `parseString`), using `@xmldata:Namespace {prefix, uri}` for namespaces and `@xmldata:Attribute` for attributes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record-conversion/", kind: bbe}
+  - id: xml_json_conversion
+    text: "Convert XML to JSON by parsing it into a record with `xmldata:parseAsType` and calling `toJson()`, and go the other way with `xmldata:toXml(recordValue)` or `xmldata:fromJson(jsonValue)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-json-conversion/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/main/ballerina/xml_api.bal", kind: github, note: "toXml, fromJson"}
+  - id: csv_to_records
+    text: "Parse CSV text into typed records with `csv:parseString(csvString)` into `Book[]`, projecting columns by targeting a closed record such as `BookMinimal`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-record-array/", kind: bbe}
+  - id: csv_files
+    text: "Read and write CSV files as typed records with `io:fileReadCsv`, `io:fileWriteCsv`, `io:fileWriteCsvFromStream` and `io:fileReadCsvAsStream`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-csv-datamapping/", kind: bbe}
+out_of_scope:
+  - "Query expression semantics in general (concept.query_expressions)"
+  - "Full data.jsondata, data.xmldata and data.csv APIs (lib.data.jsondata, lib.data.xmldata, lib.data.csv)"
+  - "XSLT and EDI transformations (lib.xslt, lib.edi)"
+edges:
+  - {to: concept.query_expressions, rel: uses, via: [map_nested_arrays, destructure_in_query, xml_to_records_query, aggregate_group_by, join_sort_limit]}
+  - {to: concept.records, rel: uses, via: [records_from_samples, transform_function, json_projection]}
+  - {to: concept.functions, rel: uses, via: [transform_function]}
+  - {to: concept.binding_patterns, rel: uses, via: [destructure_in_query]}
+  - {to: concept.xml, rel: uses, via: [xml_to_records_query]}
+  - {to: concept.value_cloning, rel: uses, via: [clone_with_type]}
+  - {to: concept.json_anydata, rel: uses, via: [clone_with_type, json_to_record]}
+  - {to: lib.data.jsondata, rel: uses, via: [json_to_record, json_projection, json_key_names]}
+  - {to: lib.data.xmldata, rel: uses, via: [xml_to_record, xml_json_conversion]}
+  - {to: lib.data.csv, rel: uses, via: [csv_to_records]}
+  - {to: lib.io, rel: uses, via: [csv_files]}
+  - {to: tool.vscode, rel: uses, via: [records_from_samples, visual_data_mapper]}
+  - {to: topic.integration_patterns, rel: related}
+notes: "The data mapper itself is a VS Code feature; items describe the code it generates as shown in the tutorial. `@jsondata:Name` is confirmed from json_api.bal (`NameConfig {value}`), not from a BBE."

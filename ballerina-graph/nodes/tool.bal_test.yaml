@@ -1,0 +1,92 @@
+schema_version: "0.1"
+id: tool.bal_test
+type: tool
+title: bal test
+summary: "`bal test` compiles a package (or a single file or a workspace) and runs its test functions. Options select tests and groups, rerun failures, produce HTML, JSON and coverage reports, and run tests in parallel. Test-only configuration comes from `tests/Config.toml` or `-C` arguments."
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/test-ballerina-code/execute-tests/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/code-coverage-and-reporting/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/execute-tests-in-parallel/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/configure-tests/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-test.help", kind: github, note: "bal test help text"}
+must_cover:
+  - id: run_all
+    text: "Run every test of the current package with `bal test`, which runs the `@test:Config` functions in each module's `tests/` directory and prints passing, failing and skipped counts per module"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/test-a-simple-function/", kind: docs}
+  - id: single_file_tests
+    text: "Test a standalone file with `bal test main_test.bal`, knowing individual `.bal` files that belong to a package cannot be tested on their own"
+    difficulty: [beginner]
+  - id: select_tests
+    text: "Run selected test functions with `--tests testA,testB`, only from the default module with `--tests PackageName:testName*`, or all tests of a module with `--tests PackageName.ModuleName:*`"
+    difficulty: [intermediate]
+  - id: groups
+    text: "Run tests by group: list them with `--list-groups`, include them with `--groups g1,g2` and exclude them with `--disable-groups g2`, for tests tagged with `@test:Config {groups: [\"g1\"]}`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/define-test-groups/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/testerina-group-tests/", kind: bbe}
+  - id: data_cases
+    text: "Run chosen cases of a data-driven test by appending `#` and the case key, e.g. `bal test --tests fruitsDataProviderTest#\"banana\"` for a map data set or `--tests stringDataProviderTest#1` for an array data set, with `*` wildcards"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/define-data-driven-tests/", kind: docs}
+  - id: rerun_failed
+    text: "Rerun only the tests that failed in the previous run with `bal test --rerun-failed`"
+    difficulty: [beginner]
+  - id: test_report
+    text: "Generate an HTML test report (plus JSON results) with `bal test --test-report`, showing passed, failed and skipped tests per package and module, and write it elsewhere with `--test-report-dir=<dir>`"
+    difficulty: [beginner]
+  - id: code_coverage
+    text: "Measure line coverage with `bal test --test-report --code-coverage`, which reports package, module and file coverage of source files (test files are excluded)"
+    difficulty: [intermediate]
+  - id: coverage_formats
+    text: "Produce a JaCoCo XML coverage report for CI tools with `--code-coverage --coverage-format=xml`, and fail the run when coverage is too low with `--min-coverage=80`"
+    difficulty: [intermediate]
+  - id: coverage_excludes
+    text: "Leave files or directories out of coverage with `--excludes`, using paths and globs such as `./generated`, `./modules/**`, `./modules/*/util.bal` or `./*.bal`"
+    difficulty: [intermediate]
+  - id: parallel
+    text: "Run tests concurrently with `bal test --parallel`, making tests eligible by keeping test, data-provider and setup/teardown functions `isolated` and data-provider parameter types `readonly`, and keep a test sequential with `@test:Config {serialExecution: true}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/execute-tests-in-parallel/", kind: docs}
+  - id: test_config_toml
+    text: "Give tests their own configuration in `tests/Config.toml` (e.g. `hostName = \"http://localhost:9091/foo\"` and `port = 9091`) or with `bal test -Cval1=add -Cval2=10`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/test-services-and-clients/", kind: docs}
+  - id: test_only_dependencies
+    text: "Declare Java libraries needed only by tests with `scope = \"testOnly\"` on a `[[platform.<platform>.dependency]]` entry so they are not packed into the executable"
+    difficulty: [intermediate]
+  - id: build_options_tests
+    text: "Control testing during builds from `Ballerina.toml` `[build-options]` with `skipTests = true`, `testReport = true` and `codeCoverage = true`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "Build options"}
+  - id: debug_tests
+    text: "Debug tests remotely by starting them with `bal test --debug <port>` and attaching a debugger"
+    difficulty: [intermediate]
+  - id: graalvm_tests
+    text: "Run tests as a GraalVM native image with `bal test --graalvm` (experimental), passing extra native-image options with `--graalvm-build-options`"
+    difficulty: [advanced]
+  - id: docker_tests
+    text: "Run tests inside a Docker container with `bal test --cloud=docker`, copying test resources in with `[[container.copy.files]]` entries in `Cloud.toml`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Writing tests with `@test:Config`, assertions, setup/teardown annotations, data providers and mocking (lib.test)"
+  - "Where tests and test resources live in a package (tool.packages)"
+  - "Production configuration with Config.toml (tool.config_toml)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: lib.test, rel: uses, via: [run_all, groups, data_cases, parallel]}
+  - {to: tool.config_toml, rel: uses, via: [test_config_toml], target_items: [config_toml_basics, cli_args]}
+  - {to: tool.ballerina_toml, rel: uses, via: [test_only_dependencies, build_options_tests], target_items: [platform_scope, build_options]}
+  - {to: tool.packages, rel: uses, via: [run_all], target_items: [module_tests]}
+  - {to: concept.isolation, rel: uses, via: [parallel]}
+  - {to: tool.graalvm, rel: uses, via: [graalvm_tests]}
+  - {to: tool.code_to_cloud, rel: uses, via: [docker_tests]}
+notes: "The execute-tests page says `--code-coverage` alone only writes JSON results; the coverage section of the HTML report needs `--test-report --code-coverage`. Parallel and GraalVM test execution are marked experimental."

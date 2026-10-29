@@ -1,0 +1,119 @@
+schema_version: "0.1"
+id: lib.kafka
+type: library
+title: ballerinax/kafka
+summary: "Apache Kafka connector: a `kafka:Producer` client to publish records, a `kafka:Consumer` client to poll them with data binding into Ballerina types, and a `kafka:Listener` that dispatches polled records to `onConsumerRecord` remote methods, with SSL/SASL security and manual offset control."
+priority: important
+status: draft
+modules: [ballerinax/kafka]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/kafka/latest", kind: central, note: "ballerinax/kafka 4.6.7 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/docs/spec/spec.md", kind: github, note: "Kafka library specification"}
+  - {url: "https://ballerina.io/learn/by-example/kafka-service-consume-message/", kind: bbe}
+must_cover:
+  - id: producer_init
+    text: "Create a `kafka:Producer` with `check new (kafka:DEFAULT_URL, config)` (bootstrap servers as a `string` or `string[]`) and a `kafka:ProducerConfiguration` that sets fields such as `clientId`, `acks: kafka:ACKS_ALL` and `retryCount`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/README.md", kind: github, note: "Kafka producer"}
+  - id: produce_send
+    text: "Publish a record with `producer->send({topic: \"order-topic\", key: ..., value: newOrder})`, where `value` can be any `anydata` such as a record received in an HTTP resource, and use `sendWithMetadata` to get a `kafka:RecordMetadata` (offset, partition, timestamp)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-producer-produce-message/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/producer.bal", kind: github, note: "send, sendWithMetadata"}
+  - id: producer_lifecycle
+    text: "Flush buffered records with `producer->'flush()`, look up partitions with `producer->getTopicPartitions(topic)`, and release the client with `producer->close()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/docs/spec/spec.md", kind: github, note: "3.3 Producer functions"}
+  - id: consumer_init
+    text: "Create a `kafka:Consumer` with a `kafka:ConsumerConfiguration` giving `groupId`, `topics`, `offsetReset` (`kafka:OFFSET_RESET_EARLIEST`/`LATEST`/`NONE`) and `autoCommit`, or subscribe later with `subscribe`, `subscribeWithPattern` and `unsubscribe`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/README.md", kind: github, note: "Kafka consumer"}
+  - id: poll_payload
+    text: "Poll with `consumer->pollPayload(timeout)` and bind the record values straight to a typed array, e.g. `Order[] orders = check orderConsumer->pollPayload(15);`, when the Kafka metadata is not needed"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-payload-data-binding/", kind: bbe}
+  - id: poll_consumer_record
+    text: "Define a subtype of `kafka:AnydataConsumerRecord` such as `record {| *kafka:AnydataConsumerRecord; Order value; |}` and call `consumer->poll(timeout)` to get typed values together with `key`, `offset`, `timestamp` and `headers`; use `kafka:BytesConsumerRecord` for raw `byte[]` values"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-consumer-record-data-binding/", kind: bbe}
+  - id: listener_service
+    text: "Declare `listener kafka:Listener orderListener = new (kafka:DEFAULT_URL, {groupId, topics})` and a `service on orderListener` whose `remote function onConsumerRecord(Order[] orders)` receives each polled batch, bound either to payload types or to `kafka:AnydataConsumerRecord` subtypes"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-consume-message/", kind: bbe}
+  - id: listener_dynamic_attach
+    text: "Create a `kafka:Service` value with a `service object { remote function onConsumerRecord(...) }` expression and manage it with `listener.attach`, `'start`, `gracefulStop`/`immediateStop`, registering a programmatically started listener with `runtime:registerListener`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/docs/spec/spec.md", kind: github, note: "4.3.2 Usage, 5.2.2 Using Listener"}
+  - id: manual_commit
+    text: "Turn off auto commit with `autoCommit: false` and commit offsets yourself, using a `kafka:Caller` parameter in `onConsumerRecord(kafka:Caller caller, ...)` with `caller->'commit()` or `caller->commitOffset(offsets)`, or `consumer->'commit()` on a polling consumer"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/README.md", kind: github, note: "Listener: manual commit"}
+  - id: on_error_seek
+    text: "Set `autoSeekOnValidationFailure: false` and add `remote function onError(kafka:Error 'error, kafka:Caller caller)` that checks for `kafka:PayloadBindingError` or `kafka:PayloadValidationError` and skips the bad record with `caller->seek({partition: 'error.detail().partition, offset: 'error.detail().offset + 1})`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-error-handling/", kind: bbe}
+  - id: constraint_validation
+    text: "Add `ballerina/constraint` annotations such as `@constraint:String {maxLength: 30, minLength: 1}` to the bound record so consumers and listeners validate each payload (controlled by the `validation` configuration, on by default)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-constraint-validation/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-constraint-validation/", kind: bbe}
+  - id: partitions_offsets
+    text: "Work with partitions and offsets using `kafka:TopicPartition` and `kafka:PartitionOffset` with consumer methods `assign`, `getAssignment`, `seek`, `seekToBeginning`, `seekToEnd`, `getCommittedOffset`, `getPositionOffset`, `pause` and `resume`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/consumer.bal", kind: github, note: "Consumer remote methods"}
+  - id: consumer_groups
+    text: "Scale consumption by running several consumers with the same `groupId` so topic partitions are shared among them, or assign a partition manually with `consumer->assign([topicPartition])`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/README.md", kind: github, note: "Concurrency"}
+  - id: ssl
+    text: "Encrypt connections by setting `secureSocket: {cert: \"./path/public.crt\", protocol: {name: kafka:SSL}}` (or a `crypto:TrustStore` plus an optional `key`) together with `securityProtocol: kafka:PROTOCOL_SSL` on producers, consumers and listeners"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-producer-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-ssl/", kind: bbe}
+  - id: sasl
+    text: "Authenticate with SASL by setting `auth: {mechanism: kafka:AUTH_SASL_PLAIN, username, password}` (or `kafka:AUTH_SASL_SCRAM_SHA_256`/`512`) and `securityProtocol: kafka:PROTOCOL_SASL_PLAINTEXT` or `kafka:PROTOCOL_SASL_SSL`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-sasl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/kafka-producer-sasl/", kind: bbe}
+  - id: avro_schema_registry
+    text: "Serialize values as Avro through a schema registry by setting `valueSerializerType: kafka:SER_AVRO`, `valueSchema` and `schemaRegistryConfig` on the producer, and `valueDeserializerType: kafka:DES_AVRO` with `schemaRegistryUrl` on the consumer or listener"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/tree/master/examples/banking-transaction-system", kind: github, note: "Confluent Schema Registry example"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/kafka_records.bal", kind: github, note: "ProducerConfiguration, ConsumerConfiguration"}
+  - id: delivery_tuning
+    text: "Tune delivery with `kafka:ProducerConfiguration` fields such as `compressionType` (`kafka:COMPRESSION_GZIP`...), `enableIdempotence`, `batchSize`, `linger` and `transactionalId`, and consumer fields such as `isolationLevel: kafka:ISOLATION_COMMITTED`, `maxPollRecords` and `pollingInterval`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka/blob/master/ballerina/kafka_records.bal", kind: github, note: "ProducerConfiguration, ConsumerConfiguration"}
+out_of_scope:
+  - "General listener and service declaration semantics (concept.services_listeners)"
+  - "Declaring constraint annotations and calling `constraint:validate` directly (lib.constraint)"
+  - "Exposing the HTTP API that produces Kafka records (lib.http)"
+  - "Event-driven architecture patterns built on Kafka (topic.event_driven)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [producer_init, produce_send, consumer_init, poll_payload]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, listener_dynamic_attach]}
+  - {to: concept.records, rel: uses, via: [poll_consumer_record, poll_payload, listener_service]}
+  - {to: concept.typedesc, rel: uses, via: [poll_payload, poll_consumer_record], note: "poll/pollPayload infer the target type from the expected type"}
+  - {to: concept.errors, rel: uses, via: [on_error_seek]}
+  - {to: lib.constraint, rel: uses, via: [constraint_validation]}
+  - {to: lib.crypto, rel: uses, via: [ssl]}
+  - {to: lib.rabbitmq, rel: alternative_to, note: "Both are message brokers with producer/consumer clients and listener services"}
+notes: "Verified against module-ballerinax-kafka master (4.6.7, same as latest on Central). The README mentions Kafka transactions but documents no API beyond the `transactionalId`/`transactionTimeout`/`isolationLevel` configuration fields, so no transaction-block item is included. The `@kafka:Payload` parameter annotation exists in source but is not documented in README/spec/BBEs and is omitted."

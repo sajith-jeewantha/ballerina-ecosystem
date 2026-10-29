@@ -1,0 +1,81 @@
+schema_version: "0.1"
+id: lib.asb
+type: library
+title: ballerinax/asb
+summary: "Azure Service Bus connector: an `asb:AdminClient` to manage queues, topics, subscriptions and rules, `asb:MessageSender` and `asb:MessageReceiver` clients to send, receive and settle messages, and an `asb:Listener` for event-driven consumption."
+priority: long_tail
+status: draft
+modules: [ballerinax/asb]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/asb/latest", kind: central, note: "ballerinax/asb 3.10.x package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/tree/main/ballerina", kind: github, note: "Public API source (sender.bal, receiver.bal, caller.bal, admin.bal, types.bal)"}
+must_cover:
+  - id: admin_client
+    text: "Create an `asb:AdminClient` from a connection string (`check new (connectionString)`) and manage entities with `createQueue`, `createTopic`, `createSubscription`, `createRule`, `getQueue`, `listQueues`, `updateQueue`, `deleteQueue`, `queueExists` and `topicExists`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/admin.bal", kind: github, note: "AdminClient remote methods"}
+  - id: sender_init
+    text: "Create an `asb:MessageSender` with an `asb:ASBServiceSenderConfig` giving `connectionString`, `entityType: asb:QUEUE` (or `asb:TOPIC`) and `topicOrQueueName`, reading the connection string from a `configurable`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "Initialize a Message Sender client"}
+  - id: send_message
+    text: "Send an `asb:Message` with `sender->send({body: ..., contentType: asb:TEXT, timeToLive: 60, applicationProperties: {properties: {a: \"v\"}}})`, or just a payload with `sender->sendPayload(value)`, and close the client with `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "Send a message"}
+  - id: batch_schedule
+    text: "Send several messages at once with `sender->sendBatch({messages: [...]})` (an `asb:MessageBatch`), schedule a message for later with `sender->schedule(message, scheduledEnqueueTime)` (a `time:Civil`) and cancel it with `cancel(sequenceNumber)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/sender.bal", kind: github, note: "sendBatch, schedule, cancel"}
+  - id: receiver_init
+    text: "Create an `asb:MessageReceiver` with an `asb:ASBServiceReceiverConfig` giving `connectionString`, `entityConfig` (`{queueName}` or `{topicName, subscriptionName}`) and `receiveMode` (`asb:PEEK_LOCK` by default, or `asb:RECEIVE_AND_DELETE`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "Initialize a Message Receiver client"}
+  - id: receive_message
+    text: "Receive with `receiver->receive(serverWaitTime)`, which returns `asb:Message|asb:Error?` (nil when no message arrives), bind the body directly with `receivePayload`, or fetch up to N messages with `receiveBatch(maxMessageCount)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/receiver.bal", kind: github, note: "receive, receivePayload, receiveBatch"}
+  - id: settle_messages
+    text: "Settle peek-locked messages on the receiver with `complete(message)`, `abandon(message)`, `deadLetter(message)` or `defer(message)`, read deferred ones with `receiveDeferred(sequenceNumber)`, and extend the lock with `renewLock(message)`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/receiver.bal", kind: github, note: "complete, abandon, deadLetter, defer, receiveDeferred, renewLock"}
+  - id: listener_service
+    text: "Consume events with `listener asb:Listener asbListener = check new (connectionString = ..., entityConfig = {queueName: \"myQueue\"})` and `service asb:Service on asbListener` implementing `isolated remote function onMessage(asb:Message message) returns error?`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "Receive messages using asb:Service"}
+  - id: listener_settings
+    text: "Tune the listener with `asb:ListenerConfiguration` fields `autoComplete` (default `true`), `prefetchCount` and `maxConcurrency`, plus the receiver fields `receiveMode`, `maxAutoLockRenewDuration` and `amqpRetryOptions`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/types.bal", kind: github, note: "ListenerConfiguration, ASBServiceReceiverConfig"}
+  - id: caller_settle
+    text: "Settle messages manually in a service by setting `autoComplete: false`, adding an `asb:Caller caller` parameter to `onMessage`, and calling `caller->complete()`, `caller->abandon()`, `caller->deadLetter(deadLetterReason = ...)` or `caller->defer()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/caller.bal", kind: github, note: "Caller: complete, abandon, deadLetter, defer"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/service_types.bal", kind: github, note: "onMessage(asb:Message, asb:Caller)"}
+  - id: on_error
+    text: "Handle receive failures in the service with `isolated remote function onError(asb:MessageRetrievalError 'error) returns error?`, and distinguish `asb:AdminActionError` from other `asb:Error` values in admin calls"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/README.md", kind: github, note: "onError"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-asb/blob/main/ballerina/errors.bal", kind: github}
+out_of_scope:
+  - "General listener and service declaration semantics (concept.services_listeners)"
+  - "Civil time values used for scheduling (lib.time)"
+  - "Creating the Service Bus namespace and access policies in the Azure portal"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [admin_client, sender_init, send_message, receiver_init, receive_message]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, caller_settle, on_error]}
+  - {to: concept.records, rel: uses, via: [send_message, sender_init, receiver_init]}
+  - {to: concept.errors, rel: uses, via: [on_error, receive_message]}
+  - {to: lib.time, rel: uses, via: [batch_schedule]}
+notes: "Verified against module-ballerinax-asb main (Ballerina.toml 3.10.1; Central latest 3.10.2). The README examples use unqualified `ASBServiceSenderConfig`, `QUEUE` and `PEEK_LOCK`; items use the `asb:` prefix. There are no BBEs for Azure Service Bus."

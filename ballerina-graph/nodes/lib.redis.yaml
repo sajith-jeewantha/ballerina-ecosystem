@@ -1,0 +1,63 @@
+schema_version: "0.1"
+id: lib.redis
+type: library
+title: ballerinax/redis
+summary: "The Redis connector: a `redis:Client` for standalone or cluster Redis servers with remote methods for strings, counters, lists, sets, sorted sets, hashes and key management, usable as a database or cache."
+priority: important
+status: draft
+modules: [ballerinax/redis]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/redis/latest", kind: central, note: "ballerinax/redis 3.5.0 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-redis/blob/master/ballerina/README.md", kind: github, note: "Module README (quickstart, examples)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-redis/blob/master/ballerina/client.bal", kind: github, note: "Client remote method signatures"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-redis/blob/master/ballerina/types.bal", kind: github, note: "ConnectionConfig, ConnectionParams, Options, SecureSocket"}
+must_cover:
+  - id: client_init
+    text: "Create a `redis:Client` with `check new (connection = {host: \"localhost\", port: 6379})` or a URI such as `connection = \"redis://localhost:6379\"`, optionally giving `username`, `password` and `options: {database, clientName, connectionTimeout}` in `redis:ConnectionParams`"
+    difficulty: [beginner]
+  - id: pooling_cluster_tls
+    text: "Enable `connectionPooling: true` or `isClusterConnection: true` in `redis:ConnectionConfig`, and configure TLS with `secureSocket: {cert, key, verifyMode: redis:FULL, startTls}`"
+    difficulty: [intermediate, advanced]
+  - id: string_commands
+    text: "Store and read string values with `redis->set(\"key\", \"value\")`, `redis->get(\"key\")` (which returns `string?`, nil when the key is missing), `setNx`, `mSet` with a map and `mGet`"
+    difficulty: [beginner]
+  - id: expiring_keys
+    text: "Cache values with a time-to-live using `redis->setEx(key, value, seconds)`, `expire(key, seconds)`, `ttl(key)` and `persist(key)`"
+    difficulty: [beginner, intermediate]
+  - id: counters
+    text: "Maintain counters atomically with `incr`, `incrBy`, `decr`, `decrBy` and `incrByFloat` (e.g. for rate limiting)"
+    difficulty: [beginner]
+  - id: list_commands
+    text: "Use Redis lists with `lPush(key, values)`, `rPush`, `lPop`, `rPop`, `lRange(key, 0, -1)`, `lLen` and the blocking `bLPop(timeout, keys)`"
+    difficulty: [intermediate]
+  - id: set_commands
+    text: "Use Redis sets with `sAdd(key, members)`, `sMembers`, `sIsMember`, `sRem`, `sInter` and `sUnion`"
+    difficulty: [intermediate]
+  - id: sorted_set_commands
+    text: "Use sorted sets with `zAdd(key, {\"alice\": 10.0})` (a member-to-score map), `zRange`, `zRangeByScore`, `zScore`, `zRank` and `zIncrBy`, e.g. for leaderboards"
+    difficulty: [intermediate]
+  - id: hash_commands
+    text: "Store objects as hashes with `hSet(key, field, value)`, `hMSet(key, map)`, `hGet`, `hGetAll` (returns `map<any>`), `hDel`, `hExists` and `hIncrBy`"
+    difficulty: [intermediate]
+  - id: key_commands
+    text: "Manage keys with `del([keys])`, `exists([keys])`, `keys(pattern)`, `rename` and `redisType`, and check connectivity with `ping()`"
+    difficulty: [beginner]
+  - id: errors_and_close
+    text: "Handle `redis:Error` returned by every operation and close the connection with `check redis.close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-redis/blob/master/ballerina/errors.bal", kind: github, note: "redis:Error"}
+  - id: caching_sessions
+    text: "Implement cache-aside lookups, user session storage and API rate limiting on top of the Redis client"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-redis/tree/master/examples", kind: github, note: "cache-management, session-management, rate-limiting examples"}
+out_of_scope:
+  - "In-process caching (lib.cache)"
+  - "Redis as a persist data store via ballerinax/persist.redis (lib.persist)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_init, string_commands, errors_and_close]}
+  - {to: concept.maps, rel: uses, via: [hash_commands, sorted_set_commands, string_commands]}
+  - {to: concept.errors, rel: uses, via: [errors_and_close]}
+  - {to: lib.crypto, rel: uses, via: [pooling_cluster_tls]}
+notes: "Verified against module-ballerinax-redis master (3.5.0). The README shows `string value = check redis->get(\"key\");`, but `get` returns `string|Error?`; the item states the nilable result. `set` returns `string|Error` (the server reply)."

@@ -1,0 +1,57 @@
+schema_version: "0.1"
+id: lib.lang.table
+type: library
+title: ballerina/lang.table
+summary: The `lang.table` module (basic type table) provides functions to add, replace, look up and remove table members by key, iterate over members, and map, filter and reduce tables.
+priority: important
+status: draft
+modules: [ballerina/lang.table]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.table", kind: spec, note: "11.3.14 lang.table module"}
+must_cover:
+  - id: length_iteration
+    text: "Use `t.length()` for the number of members and iterate over a table's members (not its keys) with `foreach` or `t.iterator()`"
+    difficulty: [beginner]
+  - id: add
+    text: "Add a row with `t.add(val)`, which appends it as the last member and panics if `val` has the same key as an existing member or is inconsistent with the table's inherent type"
+    difficulty: [beginner, intermediate]
+  - id: put
+    text: "Insert or replace a row with `t.put(val)`, which replaces a member with the same key value while keeping its position (otherwise appends) and panics if `val` is inconsistent with the table's inherent type"
+    difficulty: [beginner, intermediate]
+  - id: get
+    text: "Look up a row by key with `t.get(k)` on a keyed table `table<R> key<K>`, which returns the member and panics if there is no member with key `k`"
+    difficulty: [beginner, intermediate]
+  - id: has_key
+    text: "Test whether a keyed table has a member with key `k` with `t.hasKey(k)`"
+    difficulty: [beginner]
+  - id: remove
+    text: "Remove rows by key with `t.remove(k)` (returns the removed member; panics if there is none) or `t.removeIfHasKey(k)` (returns `R?`, nil when the key is absent)"
+    difficulty: [intermediate]
+  - id: remove_all
+    text: "Clear a table with `t.removeAll()`, which panics if any member cannot be removed"
+    difficulty: [intermediate]
+  - id: keys_to_array
+    text: "Use `t.keys()` to get a new `K[]` of all key values of a keyed table and `t.toArray()` to get an array of all rows"
+    difficulty: [beginner, intermediate]
+  - id: map
+    text: "Transform rows with `t.map(func)`, where `func` maps each row to another mapping and the result is a new keyless table `table<R1> key<never>`"
+    difficulty: [intermediate]
+  - id: filter
+    text: "Select rows with `t.filter(func)`, which returns a new table with the same key specifier (`table<R> key<K>`) holding the rows for which the predicate returns true"
+    difficulty: [intermediate]
+  - id: for_each_reduce
+    text: "Use `t.forEach(func)` to process each row for side effects and `t.reduce(func, initial)` to combine rows into one value, e.g. summing a salary field"
+    difficulty: [intermediate]
+  - id: next_key
+    text: "Use `t.nextKey()` on a table with an int key (`table<R> key<int>`) to get the next available key, the maximum used key + 1 or 0 if no key is used, for auto-increment style ids"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Table types, key specifiers, table constructors and member access (concept.tables)"
+  - "Query expressions that produce tables (concept.query_expressions)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [map, filter, for_each_reduce], target_items: [type_params, isolated_param]}
+  - {to: concept.tables, rel: uses, via: [length_iteration, add, put, get, has_key, remove, remove_all, keys_to_array, map, filter, for_each_reduce, next_key]}
+  - {to: concept.loops, rel: uses, via: [length_iteration]}
+  - {to: concept.function_values, rel: uses, via: [map, filter, for_each_reduce]}
+notes: "Expands the lang_table item of the removed concept.langlib node. The lang.table iterator doc comment mentions an `entries` function that lang.table does not define, so it is not covered. The `nextKey` doc comment has an open question ('XXX should it be 0, if the maximum used key value is < 0?'), so the negative-key case is left out."

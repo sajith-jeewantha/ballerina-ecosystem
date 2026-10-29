@@ -1,0 +1,93 @@
+schema_version: "0.1"
+id: lib.ftp
+type: library
+title: ballerina/ftp
+summary: The FTP library reads, writes and manages files on FTP, SFTP and FTPS servers with `ftp:Client`, and reacts to new or deleted files with a polling `ftp:Listener` whose services bind file content to typed handler parameters.
+priority: important
+status: draft
+modules: [ballerina/ftp]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central, note: "ballerina/ftp 2.22.x"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ftp/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ftp/blob/master/docs/spec/spec.md", kind: github, note: "FTP library specification"}
+  - {url: "https://ballerina.io/learn/by-example/ftp-client-read-file/", kind: bbe}
+must_cover:
+  - id: client_init
+    text: "Create an `ftp:Client` with `check new ({protocol: ftp:FTP, host, port, auth: {credentials: {username, password}}})`, where `protocol` defaults to FTP"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-write-file/", kind: bbe}
+  - id: typed_writes
+    text: "Write files with the typed methods `putText`, `putJson` (json or a record), `putXml`, `putCsv` (`string[][]` or a record array, writing a header row), `putBytes`, and `putBytesAsStream`/`putCsvAsStream` for large data, passing `ftp:APPEND` instead of the default `OVERWRITE` to append"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-write-file/", kind: bbe}
+  - id: typed_reads
+    text: "Read files with `getText`, `getJson`, `getXml`, `getCsv` and `getBytes`, binding JSON/XML/CSV to the expected type (e.g. `User u = check ftpClient->getJson(path)`, `Person[] rows = check ftpClient->getCsv(path)`), and stream large files with `getBytesAsStream`/`getCsvAsStream`, closing the stream"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-read-file/", kind: bbe}
+  - id: file_management
+    text: "Manage remote files and directories with `list` (returning `ftp:FileInfo[]`), `mkdir`, `rmdir` (recursive), `delete`, `rename`/`move`, `copy`, `exists`, `size` and `isDirectory`"
+    difficulty: [beginner]
+  - id: sftp_auth
+    text: "Connect over SFTP with `protocol: ftp:SFTP`, port 22 and `auth` holding `credentials` and/or `privateKey: {path, password}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sftp-client-read-file/", kind: bbe}
+  - id: ftps
+    text: "Connect over FTPS with `protocol: ftp:FTPS` and `auth.secureSocket` holding `key`/`cert` keystores, `mode: ftp:EXPLICIT` (port 21) or `ftp:IMPLICIT` (port 990) and `dataChannelProtection: ftp:PRIVATE`"
+    difficulty: [advanced]
+  - id: listener_service
+    text: "Watch a remote directory with `listener ftp:Listener` (connection fields plus `pollingInterval`) and a service annotated `@ftp:ServiceConfig {path: \"/home/in\", fileNamePattern: \"(.*).txt\"}`, so several services on one listener can watch different directories"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/sftp-service-receive-file/", kind: bbe}
+  - id: content_handlers
+    text: "Process new files with content handlers that receive bound content first, then optional `ftp:FileInfo` and `ftp:Caller`: `onFileText(string)`, `onFileJson(json|record)`, `onFileXml(xml|record)`, `onFileCsv(string[][]|record[]|stream)` and `onFile(byte[]|stream<byte[], error?>)`, routed by file extension"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe}
+  - id: handler_routing
+    text: "Override extension-based routing with `@ftp:FunctionConfig {fileNamePattern: ...}` on a handler, and react to removed files with `remote function onFileDelete(string deletedFile)`"
+    difficulty: [advanced]
+  - id: post_processing
+    text: "Move or delete files after handling with `@ftp:FunctionConfig {afterProcess: {moveTo: \"/home/processed\"}, afterError: {moveTo: \"/home/failed\"}}` or `ftp:DELETE`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe}
+  - id: caller
+    text: "Use the `ftp:Caller` handler parameter to act on the server while processing a file, e.g. `caller->putText(fileInfo.pathDecoded, receipt, ftp:APPEND)` or `caller->move(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-caller/", kind: bbe}
+  - id: binding_errors
+    text: "Handle content binding failures in `remote function onError(ftp:Error err, ftp:Caller caller)`, checking for `ftp:ContentBindingError` and reading `err.detail().filePath`, and use `csvFailSafe: {contentType: ftp:RAW_AND_METADATA}` to skip malformed CSV rows"
+    difficulty: [advanced]
+  - id: file_filters
+    text: "Filter picked-up files in `@ftp:ServiceConfig` with `fileAgeFilter: {minAge, maxAge}` to skip files still being written and `fileDependencyConditions` (`targetPattern`, `requiredFiles`, `matchingMode`) to wait for companion files"
+    difficulty: [advanced]
+  - id: error_types
+    text: "Handle the `ftp:Error` hierarchy, checking specific types such as `ftp:FileNotFoundError`, `ftp:FileAlreadyExistsError`, `ftp:ConnectionError`, `ftp:ServiceUnavailableError` and `ftp:CircuitBreakerOpenError` before the general type"
+    difficulty: [intermediate]
+  - id: resiliency
+    text: "Add client resiliency with `retryConfig: {count, interval, backOffFactor, maxWaitInterval}` for whole-file reads (failing with `ftp:AllRetryAttemptsFailedError`) and `circuitBreaker: {failureThreshold, resetTime, rollingWindow, failureCategories}`"
+    difficulty: [advanced]
+  - id: coordination
+    text: "Run several listener instances against one directory without duplicate processing using `coordination: {memberId, coordinationGroup, databaseConfig, livenessCheckInterval, heartbeatFrequency}`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Local file system operations (lib.file, lib.io)"
+  - "SMB file shares (ballerina/smb is not in this graph)"
+  - "General CSV and XML data binding outside file transfer (lib.data.csv, lib.data.xmldata)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_init, typed_reads, typed_writes]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, content_handlers]}
+  - {to: concept.annotations, rel: uses, via: [listener_service, post_processing, handler_routing, file_filters]}
+  - {to: concept.records, rel: uses, via: [typed_reads, content_handlers]}
+  - {to: concept.streams, rel: uses, via: [typed_reads, typed_writes, content_handlers]}
+  - {to: concept.errors, rel: uses, via: [error_types, binding_errors]}
+  - {to: lib.io, rel: uses, via: [typed_writes]}
+  - {to: lib.task, rel: uses, via: [coordination]}
+notes: "Per the 2.22 spec, untyped `get`, `put` and `append`, the `onFileChange`/`ftp:WatchEvent` handler, `onFileDeleted`, and listener-level `path`/`fileNamePattern` are deprecated, so they are not items. The README still shows `put` with `compressionType=ZIP` and listener-level `path`; these were omitted as deprecated."

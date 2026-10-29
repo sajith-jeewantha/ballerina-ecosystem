@@ -1,0 +1,88 @@
+schema_version: "0.1"
+id: lib.auth
+type: library
+title: ballerina/auth
+summary: "The `auth` module provides Basic Auth (RFC 7617) providers: listener providers that authenticate credentials against a Config.toml file user store or an LDAP user store, and a client provider that generates Basic Auth tokens. Protocol connectors such as HTTP, GraphQL, gRPC and WebSocket build their Basic Auth support on it."
+priority: important
+status: draft
+modules: [ballerina/auth]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/auth/latest", kind: central, note: "ballerina/auth 2.14.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-file-user-store/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-ldap-user-store/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-basic-authentication/", kind: bbe}
+must_cover:
+  - id: file_user_store_config
+    text: "Define the users of the file user store in `Config.toml` as `[[ballerina.auth.users]]` tables with `username`, `password` and `scopes` keys, repeating the table for each user"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/README.md", kind: github}
+  - id: file_user_store_provider
+    text: "Create an `auth:ListenerFileUserStoreBasicAuthProvider` with `new` and call `authenticate(credential)` with the Base64-encoded `username:password` value to get an `auth:UserDetails` record (`username` and optional `scopes`) or an `auth:Error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/listener_file_user_store_basic_auth_provider.bal", kind: github}
+  - id: ldap_user_store_config
+    text: "Describe an LDAP user store with `auth:LdapUserStoreConfig`, setting `domainName`, `connectionUrl`, `connectionName`, `connectionPassword`, the user search fields (`userSearchBase`, `userEntryObjectClass`, `userNameAttribute`, `userNameSearchFilter`, `userNameListFilter`) and the group fields (`groupSearchBase`, `groupEntryObjectClass`, `groupNameAttribute`, `groupNameSearchFilter`, `groupNameListFilter`, `membershipAttribute`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/listener_ldap_user_store_basic_auth_provider.bal", kind: github}
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-ldap-user-store/", kind: bbe}
+  - id: ldap_provider
+    text: "Authenticate credentials against LDAP with `auth:ListenerLdapUserStoreBasicAuthProvider`, created from an `auth:LdapUserStoreConfig`, whose `authenticate(credential)` returns `auth:UserDetails` with the user's LDAP groups as `scopes`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/listener_ldap_user_store_basic_auth_provider.bal", kind: github}
+  - id: ldap_tuning
+    text: "Tune the LDAP connection with `userRolesCacheEnabled`, `connectionPoolingEnabled`, `connectionTimeout` and `readTimeout` (seconds), and secure it with `secureSocket` (`auth:SecureSocket` whose `cert` is a `crypto:TrustStore` or a certificate file path)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/listener_ldap_user_store_basic_auth_provider.bal", kind: github}
+  - id: client_basic_auth_provider
+    text: "Generate a Basic Auth token for outbound calls with `auth:ClientBasicAuthProvider`, initialised with an `auth:CredentialsConfig` (`username`, `password`), and its `generateToken()` method, which returns the Base64-encoded credential or an `auth:Error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/client_basic_auth_provider.bal", kind: github}
+  - id: extract_credentials
+    text: "Decode a received Basic Auth credential into a `[username, password]` tuple with `auth:extractUsernameAndPassword(credential)`, which returns an `auth:Error` for an invalid value"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/auth_utils.bal", kind: github}
+  - id: custom_listener_provider
+    text: "Write a custom user store by implementing the `auth:ListenerBasicAuthProvider` object type, i.e. an `isolated function authenticate(string credential) returns auth:UserDetails|auth:Error` method"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/listener_basic_auth_provider.bal", kind: github}
+  - id: service_basic_auth
+    text: "Secure a service with Basic Auth by adding a `fileUserStoreConfig: {}` or `ldapUserStoreConfig` entry, with `scopes` for authorization, to the connector's service `auth` configuration (e.g. `@http:ServiceConfig {auth: [...]}`), knowing that failed authentication gives 401 and failed authorization 403"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-file-user-store/", kind: bbe}
+  - id: client_basic_auth
+    text: "Call a Basic Auth-protected endpoint by setting `auth: {username, password}` in a connector client's configuration (e.g. `http:Client`), which adds the `Authorization: Basic <token>` header to each request"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-basic-authentication/", kind: bbe}
+  - id: auth_errors
+    text: "Handle the distinct `auth:Error` returned by the provider methods, for example for an empty credential or a failed LDAP lookup, with `check` or an `is auth:Error` test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-auth/blob/master/ballerina/auth_errors.bal", kind: github}
+out_of_scope:
+  - "JWT issuing, validation and JWT auth providers (lib.jwt)"
+  - "OAuth2 grant types and token introspection (lib.oauth2)"
+  - "Full HTTP service/client auth configuration, auth handlers and resource-level overrides (lib.http)"
+  - "Providing configurable values and the Config.toml format in general (tool.config_toml)"
+  - "End-to-end security patterns such as TLS and mTLS setup (topic.security)"
+edges:
+  - {to: concept.records, rel: uses, via: [ldap_user_store_config, client_basic_auth_provider, file_user_store_provider]}
+  - {to: concept.classes, rel: uses, via: [file_user_store_provider, ldap_provider, client_basic_auth_provider]}
+  - {to: concept.objects, rel: uses, via: [custom_listener_provider]}
+  - {to: concept.errors, rel: uses, via: [auth_errors, extract_credentials]}
+  - {to: concept.arrays_tuples, rel: uses, via: [extract_credentials]}
+  - {to: lib.crypto, rel: uses, via: [ldap_tuning], target_items: [keystore_truststore]}
+  - {to: tool.config_toml, rel: uses, via: [file_user_store_config]}
+  - {to: lib.jwt, rel: related, note: "Parallel listener/client auth providers for JWT"}
+  - {to: lib.oauth2, rel: related, note: "Parallel listener/client auth providers for OAuth2"}
+  - {to: lib.http, rel: related, note: "HTTP services and clients consume these providers through their auth configs"}

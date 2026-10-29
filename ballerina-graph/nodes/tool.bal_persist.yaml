@@ -1,0 +1,78 @@
+schema_version: '0.1'
+id: tool.bal_persist
+type: tool
+title: bal persist
+summary: The `bal persist` CLI tool sets up bal persist in a package and generates the type-safe client, derived types, configurables and SQL scripts from a data model in the `persist` directory, either at every `bal build` or once with `bal persist generate`; it can also build the model from an existing database and generate migration scripts.
+priority: important
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/persist-cli-tool/', kind: docs, note: bal persist CLI tool}
+- {url: 'https://ballerina.io/learn/bal-persist-overview/', kind: docs, note: Bal persist overview}
+- {url: 'https://ballerina.io/learn/persist-client-api/', kind: docs, note: Type-safe client API}
+must_cover:
+- id: model_file
+  text: Define the data model in one `.bal` file in the `persist` directory (default `model.bal`) with `import ballerina/persist as _;` and at least one entity record type whose `readonly` field(s) form the primary key
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/persist-cli-tool/', kind: docs}
+  - {url: 'https://ballerina.io/learn/bal-persist-overview/', kind: docs}
+- id: persist_add
+  text: Set up build-integrated generation with `bal persist add --datastore mysql --module store --test-datastore h2`, which creates `persist/model.bal` and adds a `[[tool.persist]]` table (`id`, `targetModule`, `options.datastore`, `options.testDatastore`, `filePath`) to `Ballerina.toml`; it runs only once per project
+  difficulty: [beginner]
+- id: datastores
+  text: Choose `--datastore` from `inmemory` (the `add` default), `mysql`, `mssql`, `postgresql`, `h2`, `googlesheets` and `redis`, and `--test-datastore` as `inmemory` (non-SQL) or `h2` (SQL)
+  difficulty: [beginner]
+- id: build_generation
+  text: Run `bal build` after `bal persist add` to generate `persist_client.bal`, `persist_types.bal`, `persist_db_config.bal`, `script.sql` and, with a test datastore, `persist_test_client.bal` and (for `h2`) `persist_test_init.bal` under `generated/<module>/`, and to create or update `Config.toml`
+  difficulty: [beginner, intermediate]
+- id: db_configurables
+  text: Supply the configurables generated in `persist_db_config.bal` (for MySQL `host`, `port`, `user`, `password`, `database`) through `Config.toml`, and run the generated `script.sql` to create the tables
+  difficulty: [beginner]
+- id: persist_init
+  text: Set up one-time generation with `bal persist init`, which only creates the `persist` directory and a `model.bal` with `import ballerina/persist as _;`
+  difficulty: [beginner]
+- id: persist_generate
+  text: Generate the client once with `bal persist generate --datastore mysql --module store --test-datastore h2` (`--datastore` is required), which writes the files into `modules/store/` (or the root module without `--module`)
+  difficulty: [beginner, intermediate]
+- id: persist_pull
+  text: Create `persist/model.bal` from an existing MySQL, MSSQL or PostgreSQL database with `bal persist pull --datastore mysql --host localhost --port 3306 --user root --database db` (the password is prompted for; unsupported column types are commented out with `[Unsupported[DATA_TYPE]]`), then run `bal persist generate`
+  difficulty: [intermediate]
+- id: persist_migrate
+  text: Generate migration scripts for model changes with `bal persist migrate <label>` (experimental, MySQL only), which creates `persist/migrations/<timestamp>_<label>/` with `model.bal` and `script.sql`; the datastore cannot be changed once migrations exist
+  difficulty: [advanced]
+- id: use_generated_client
+  text: 'Use the generated client, which is always named `Client`: `Client sClient = check new ();` reads its connection from `Config.toml`, and the derived types such as `EmployeeInsert` and `EmployeeUpdate` go to its resource methods (e.g. `sClient->/employees.post([employee])`)'
+  difficulty: [beginner, intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/persist-client-api/', kind: docs}
+  - {url: 'https://ballerina.io/learn/bal-persist-overview/', kind: docs}
+- id: connection_pool_config
+  text: Tune the generated SQL client's connection pool in `Config.toml` under `[ballerina.sql]` (`maxOpenConnections`, `maxConnectionLifeTime`, `minIdleConnections`) rather than editing `persist_client.bal`, which is overwritten when the code is regenerated
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/persist-client-api/', kind: docs}
+out_of_scope: ['Entity relations, data model annotations and the full CRUD/query client API (lib.persist)', 'Ballerina.toml and Config.toml syntax in general (tool.ballerina_toml, tool.config_toml)']
+edges:
+- {to: tool.bal, rel: requires}
+- to: lib.persist
+  rel: uses
+  via: [model_file, build_generation, persist_generate, use_generated_client]
+- to: tool.ballerina_toml
+  rel: uses
+  via: [persist_add]
+- to: tool.config_toml
+  rel: uses
+  via: [db_configurables, connection_pool_config]
+- to: lib.sql
+  rel: uses
+  via: [connection_pool_config]
+- to: concept.records
+  rel: uses
+  via: [model_file]
+- to: concept.resource_methods
+  rel: uses
+  via: [use_generated_client]
+- to: concept.client_objects
+  rel: uses
+  via: [use_generated_client]
+notes: The docs list `bal tool update persist`. Running `bal persist generate` twice fails if the client's native dependency in Ballerina.toml differs from the current version; remove it and regenerate.

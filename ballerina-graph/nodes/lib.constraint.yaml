@@ -1,0 +1,84 @@
+schema_version: "0.1"
+id: lib.constraint
+type: library
+title: ballerina/constraint
+summary: The `constraint` module provides annotations that attach validation rules to `int`, `float`, `decimal`, `string`, array and date types and record fields, and the `constraint:validate` function that checks a value against them.
+priority: important
+status: draft
+modules: [ballerina/constraint]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/constraint/latest", kind: central, note: "ballerina/constraint 1.7.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-constraint/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-constraint/blob/master/docs/spec/spec.md", kind: github, note: "Constraint library specification"}
+  - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+must_cover:
+  - id: constraint_annotations_types
+    text: "Attach a constraint to a type definition, e.g. `@constraint:Int {minValue: 18} type Age int;`, and reuse the constrained type in record fields"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+  - id: constraint_annotations_fields
+    text: "Attach constraint annotations directly to record fields, e.g. `@constraint:String {minLength: 5, maxLength: 10} string name;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+  - id: int_constraints
+    text: "Constrain `int` values with `@constraint:Int` using `minValue`, `maxValue`, `minValueExclusive`, `maxValueExclusive` and `maxDigits`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-constraint/blob/master/ballerina/constraint.bal", kind: github, note: "IntConstraints"}
+  - id: float_number_constraints
+    text: "Constrain `float` values with `@constraint:Float` and any of `int`, `float` or `decimal` with `@constraint:Number` (constraint values typed `decimal`), using min/max (inclusive and exclusive), `maxIntegerDigits` and `maxFractionDigits`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-constraint/blob/master/ballerina/constraint.bal", kind: github, note: "FloatConstraints, NumberConstraints"}
+  - id: string_length
+    text: "Constrain string length with `@constraint:String` using `length`, or `minLength`/`maxLength` (`length` cannot be combined with them)"
+    difficulty: [beginner]
+  - id: string_pattern
+    text: "Require a string to fully match a regular expression with the `pattern` field of `@constraint:String`, given as a `string:RegExp` `re` template (for example the student-id pattern `[0-9]{6}[A-Z|a-z]` or an `Email` type pattern)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+  - id: array_constraints
+    text: "Constrain array sizes with `@constraint:Array` using `length`, `minLength` and `maxLength`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+  - id: date_constraints
+    text: "Validate dates with `@constraint:Date` on `time:Date` or a record with `year`, `month` and `day` (checked against Gregorian calendar rules), adding `option: constraint:PAST`, `PAST_OR_PRESENT`, `FUTURE` or `FUTURE_OR_PRESENT`"
+    difficulty: [intermediate]
+  - id: validate_function
+    text: "Validate a value explicitly with `constraint:validate(value)`, which returns the validated value typed as the expected type or a `constraint:Error`, e.g. `student = check constraint:validate(student);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/constraint-validations/", kind: bbe}
+  - id: validate_with_conversion
+    text: "Validate while converting by assigning `constraint:validate` to a different expected type (or passing its `typedesc`), in which case the value is first cloned to that type and then validated"
+    difficulty: [intermediate, advanced]
+  - id: custom_messages
+    text: "Give custom error messages per constraint with the record form `{value: 10, message: \"Name should be less than 10 characters\"}`, and an overall `message` on `@constraint:Date`"
+    difficulty: [intermediate]
+  - id: constraint_errors
+    text: "Handle `constraint:Error` and its subtypes `constraint:ValidationError` and `constraint:TypeConversionError`, reporting the failure with `error.message()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-constraint/blob/master/ballerina/constraint_errors.bal", kind: github}
+  - id: automatic_validation
+    text: "Know that constraint annotations are also enforced automatically by library data binding, such as HTTP payload binding and the `data.jsondata`, `data.xmldata`, `data.csv` and `data.yaml` parse functions, unless disabled"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-payload-constraint-validation/", kind: bbe}
+out_of_scope:
+  - "Annotation syntax in general (concept.annotations)"
+  - "Regular expression syntax (concept.regexp)"
+  - "HTTP and messaging payload validation configuration (lib.http, lib.kafka, lib.rabbitmq)"
+edges:
+  - {to: concept.annotations, rel: uses, via: [constraint_annotations_types, constraint_annotations_fields]}
+  - {to: concept.records, rel: uses, via: [constraint_annotations_fields]}
+  - {to: concept.regexp, rel: uses, via: [string_pattern]}
+  - {to: concept.typedesc, rel: uses, via: [validate_with_conversion]}
+  - {to: concept.value_cloning, rel: uses, via: [validate_with_conversion]}
+  - {to: concept.errors, rel: uses, via: [constraint_errors]}
+  - {to: lib.time, rel: uses, via: [date_constraints]}
+notes: "Verified against module-ballerina-constraint master 1.7.2 (= latest tag). The README table lists `maxIntegerDigits`/`maxFractionDigits` for `@constraint:Int`, but `IntConstraints` in constraint.bal only has `maxDigits` (and `FloatConstraints` has no `maxDigits`); items follow the source."

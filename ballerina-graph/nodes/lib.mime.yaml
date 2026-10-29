@@ -1,0 +1,64 @@
+schema_version: "0.1"
+id: lib.mime
+type: library
+title: ballerina/mime
+summary: The MIME library models message entities (headers plus body) with `mime:Entity`, and is used to build and parse multipart bodies, set and read typed content, handle large files as streams and work with media types.
+priority: important
+status: draft
+modules: [ballerina/mime]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/mime/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mime/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mime/blob/master/docs/spec/spec.md", kind: github, note: "MIME library specification"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mime/blob/master/ballerina/natives.bal", kind: github, note: "Entity, MediaType and ContentDisposition API"}
+must_cover:
+  - id: entity_content
+    text: "Create a `mime:Entity` with `new` and set its body with `setJson()`, `setXml()`, `setText()`, `setByteArray()` or `setBody()`, then read it back with `getJson()`, `getXml()`, `getText()` and `getByteArray()`, handling `mime:ParserError`"
+    difficulty: [beginner]
+  - id: entity_headers
+    text: "Manipulate entity headers with `setHeader()`, `addHeader()`, `getHeader()`, `getHeaders()`, `hasHeader()`, `removeHeader()` and `getHeaderNames()`, and set metadata with `setContentType()`, `getContentType()`, `setContentId()` and `setContentLength()`, handling `mime:HeaderNotFoundError`"
+    difficulty: [beginner, intermediate]
+  - id: media_types
+    text: "Use the media type constants such as `mime:APPLICATION_JSON`, `mime:APPLICATION_XML`, `mime:TEXT_PLAIN`, `mime:APPLICATION_PDF`, `mime:IMAGE_JPEG` and `mime:MULTIPART_FORM_DATA`, and parse a Content-Type string with `mime:getMediaType()` to compare `getBaseType()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-response-with-multiparts/", kind: bbe}
+  - id: content_disposition
+    text: "Describe body parts with `mime:ContentDisposition` (setting `name`, `fileName` and `disposition` such as `\"form-data\"` or `\"attachment\"`) and attach it with `entity.setContentDisposition()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-with-multiparts/", kind: bbe}
+  - id: multipart_encode
+    text: "Build multipart bodies by creating child `mime:Entity` parts and calling `setBodyParts(parts, contentType = mime:MULTIPART_FORM_DATA)` (or `MULTIPART_MIXED`, `MULTIPART_ALTERNATIVE`, `MULTIPART_RELATED`, `MULTIPART_PARALLEL`), including nested multipart parts, and attach them to an `http:Request`/`http:Response`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-with-multiparts/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-response-with-multiparts/", kind: bbe}
+  - id: multipart_decode
+    text: "Decode multipart messages with `getBodyParts()`, iterate the returned `mime:Entity[]`, dispatch on each part's base media type, and recurse into parts whose content type starts with `multipart/`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-with-multiparts/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-response-with-multiparts/", kind: bbe}
+  - id: large_files
+    text: "Handle large content without loading it into memory by setting a file as the body with `setFileAsEntityBody(path, contentType)` and reading the body as `stream<byte[], io:Error?>` with `getByteStream()`, closing the stream when done"
+    difficulty: [intermediate]
+  - id: base64
+    text: "Encode and decode content with `mime:base64Encode()`, `mime:base64Decode()`, `mime:base64EncodeBlob()` and `mime:base64DecodeBlob()`, handling `mime:EncodeError` and `mime:DecodeError`"
+    difficulty: [beginner]
+  - id: email_attachments
+    text: "Build an email attachment as a `mime:Entity` with a content disposition, content ID and `setFileAsEntityBody(path, mime:IMAGE_JPEG)` and pass it in the `attachments` field of an `email:Message`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-email/blob/master/ballerina/README.md", kind: github}
+out_of_scope:
+  - "HTTP request/response APIs that wrap entities (lib.http)"
+  - "Sending email (lib.email)"
+  - "General byte-stream and file I/O (lib.io)"
+edges:
+  - {to: concept.objects, rel: uses, via: [entity_content, entity_headers]}
+  - {to: concept.errors, rel: uses, via: [entity_content, entity_headers, base64]}
+  - {to: concept.streams, rel: uses, via: [large_files]}
+  - {to: concept.json_anydata, rel: uses, via: [entity_content]}
+  - {to: lib.io, rel: uses, via: [large_files]}
+notes: "API names confirmed against ballerina/mime master natives.bal. The `@untainted`/`@tainted` annotations still present in the source are not relevant to user code."

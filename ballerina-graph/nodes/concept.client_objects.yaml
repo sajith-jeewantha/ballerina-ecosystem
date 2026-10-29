@@ -57,5 +57,5 @@ edges:
   - {to: concept.objects, rel: requires}
   - {to: concept.resource_methods, rel: uses, via: [resource_access_action, computed_and_rest_segments, resource_access_typing], target_items: [path_segments, resource_access_operation]}
   - {to: concept.services_listeners, rel: counterpart_of, via: [client_vs_service], target_items: [service_objects]}
-  - {to: concept.error_handling, rel: uses, via: [actions_not_in_expressions]}
+  - {to: concept.errors, rel: uses, via: [actions_not_in_expressions]}
 notes: "5.5.3.1 says 'A object-network-qual is not allowed in conjunction with public', but object-type-quals has no public; the intended restriction is unclear, so no item states it."

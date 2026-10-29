@@ -1,0 +1,40 @@
+schema_version: "0.1"
+id: lib.lang.decimal
+type: library
+title: ballerina/lang.decimal
+summary: The `lang.decimal` module (basic type decimal) provides functions for aggregating, rounding, quantizing and parsing decimal values.
+priority: important
+status: draft
+modules: [ballerina/lang.decimal]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.decimal", kind: spec, note: "11.3.3 lang.decimal module"}
+must_cover:
+  - id: aggregates
+    text: "Use `decimal:sum(...xs)` (0 for no arguments) and `decimal:max(x, ...xs)`, `decimal:min(x, ...xs)` and `decimal:avg(x, ...xs)`, which require at least one argument"
+    difficulty: [beginner, intermediate]
+  - id: abs_floor_ceiling
+    text: "Use `d.abs()` (IEEE abs), `d.floor()` (largest integral decimal not greater than `d`) and `d.ceiling()` (smallest integral decimal not less than `d`)"
+    difficulty: [beginner]
+  - id: round
+    text: "Round with `d.round(fractionDigits = 0)`, which returns the decimal with exponent `-fractionDigits` closest to `d` and picks the one whose final digit is even on a tie, e.g. `amount.round(2)` for two digits after the decimal point"
+    difficulty: [beginner, intermediate]
+  - id: to_int
+    text: "Convert a decimal to int with `<int>d`, which is the same as `<int>d.round(0)` and so rounds half to even rather than truncating"
+    difficulty: [intermediate]
+  - id: quantize
+    text: "Use `decimal:quantize(x, y)` (the IEEE quantize operation) to get a value equal to `x` (apart from rounding) with the exponent of `y`, e.g. to fix a decimal to two fraction digits, and contrast `decimal:round` with fractionDigits 0 with IEEE roundToIntegralTiesToEven, which keeps a positive exponent"
+    difficulty: [advanced]
+  - id: from_string
+    text: "Parse decimals with `decimal:fromString(s)`, which accepts DecimalFloatingPointNumber syntax with an optional leading sign but no `d`/`f` suffix and no NaN or Infinity, returns `decimal|error`, and is the inverse of `value:toString` on a decimal"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Decimal type, literals and NumericConvert (concept.numeric_types)"
+  - "Arithmetic operators and overflow (concept.arithmetic_operators)"
+  - "Float maths and formatting (lib.lang.float)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: concept.numeric_types, rel: uses, via: [aggregates, abs_floor_ceiling, round, quantize, from_string]}
+  - {to: concept.type_cast_test, rel: uses, via: [to_int]}
+  - {to: concept.value_cloning, rel: uses, via: [from_string]}
+  - {to: lib.lang.float, rel: related, note: "float and decimal share the round/floor/ceiling/abs/sum/max/min/avg function names with different empty-argument and NaN rules"}
+notes: "Content moved from the removed concept.langlib_numeric node (decimal_aggregates, decimal_quantize, and the decimal halves of rounding, round_vs_cast and number_from_string) and the lang_decimal item of concept.langlib. `amount.round(2)` is an illustrative example derived from the doc comment."

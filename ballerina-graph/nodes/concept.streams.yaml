@@ -53,11 +53,12 @@ must_cover:
     difficulty: [advanced]
 out_of_scope:
   - "Query clause semantics (concept.query_expressions)"
-  - "Iterator protocol details (concept.iterability)"
+  - "Iterator protocol details (concept.loops)"
 edges:
-  - {to: concept.iterability, rel: requires}
+  - {to: concept.loops, rel: requires}
   - {to: concept.objects, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [stream_langlib, array_to_stream], target_items: [lang_stream, lang_array]}
+  - {to: lib.lang.stream, rel: uses, via: [stream_langlib, array_to_stream]}
+  - {to: lib.lang.array, rel: uses, via: [stream_langlib, array_to_stream]}
   - {to: concept.query_expressions, rel: uses, via: [query_streams], target_items: [eager_vs_lazy]}
   - {to: concept.classes, rel: uses, via: [new_stream]}
 notes: "5.5.7 says the stream type 'works like a class' but 6.8.2 class-descriptor explicitly allows stream-type-descriptor in new."

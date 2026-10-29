@@ -45,7 +45,7 @@ out_of_scope:
   - "retry transaction statement (concept.transactions)"
   - "Defining classes in general (concept.classes)"
 edges:
-  - {to: concept.error_handling, rel: requires}
+  - {to: concept.errors, rel: requires}
   - {to: concept.classes, rel: uses, via: [custom_manager, retry_manager_type]}
-  - {to: concept.langlib, rel: uses, via: [default_retry_manager, retriable_errors], target_items: [lang_error]}
+  - {to: lib.lang.error, rel: uses, via: [default_retry_manager, retriable_errors]}
   - {to: concept.transactions, rel: related}

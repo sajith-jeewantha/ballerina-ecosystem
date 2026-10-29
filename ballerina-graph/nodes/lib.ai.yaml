@@ -1,0 +1,143 @@
+schema_version: "0.1"
+id: lib.ai
+type: library
+title: ballerina/ai
+summary: "Provider-neutral APIs for LLM applications: direct calls through `ai:ModelProvider` (`chat`, typed `generate`, natural expressions), tool-using `ai:Agent`s with memory and MCP toolkits, and retrieval-augmented generation with `ai:VectorKnowledgeBase`, embedding providers and vector stores."
+priority: important
+status: draft
+modules: [ballerina/ai]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/ai/latest", kind: central, note: "ballerina/ai 1.16.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "Module README: direct LLM calls, agents, RAG"}
+  - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/rag-with-in-memory-vector-store/", kind: bbe}
+  - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs}
+must_cover:
+  - id: model_provider_init
+    text: "Declare an LLM as the provider-neutral `ai:ModelProvider` type, e.g. `final ai:ModelProvider model = check new openai:ModelProvider(apiKey, modelType = openai:GPT_4O);`, so the provider can be swapped without changing calling code"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "1.1 Initializing a Model Provider"}
+  - id: default_providers
+    text: "Use the WSO2-hosted defaults `ai:getDefaultModelProvider()` and `ai:getDefaultEmbeddingProvider()`, whose configuration is written to `Config.toml` by the VS Code command `Configure default WSO2 Model Provider`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+  - id: generate_text
+    text: "Call `model->generate(...)` with a backtick raw template (an `ai:Prompt`) such as Tell me a joke about `${subject}`!, whose insertions are filled from in-scope values, and receive the answer as a `string`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+  - id: generate_typed
+    text: "Bind `generate` output to a Ballerina type through the expected type (e.g. `JokeResponse r = check model->generate(...)`, arrays, or a nilable type for 'no answer'); the JSON schema sent to the LLM is derived from the type, including its `#` documentation"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-multimodal-input/", kind: bbe}
+  - id: chat_single
+    text: "Make a stateless call with `model->chat(userMessage)`, where `ai:ChatUserMessage userMessage = {role: ai:USER, content: ...}`, and read the optional `content` of the returned `ai:ChatAssistantMessage`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "1.2 Multi-turn Conversation with chat"}
+  - id: chat_history
+    text: "Hold a conversation in an `ai:ChatMessage[]`, passing the whole array to `model->chat(messages)` and pushing each `ai:ChatAssistantMessage` and follow-up user message so the model sees the history"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-history/", kind: bbe}
+  - id: multimodal_input
+    text: "Send images to the model by interpolating an `ai:ImageDocument` (`content` is a URL or `byte[]`) into a `generate` prompt; the provider builds the multimodal request"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-multimodal-input/", kind: bbe}
+  - id: natural_expressions
+    text: "Call an LLM with a natural expression `natural (model) { ... ${count} ... }` whose expected type (e.g. `Attraction[]|error`) drives the schema and response binding; this is experimental, needs Swan Lake Update 13+ and `bal run --experimental`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs}
+  - id: agent_tool
+    text: "Expose a function to agents with `@ai:AgentTool` on an `isolated function` whose parameters are `anydata` and whose return type is a subtype of `anydata|http:Response|stream<anydata, error>|error`, documenting it with `#` comments, e.g. wrapping a connector call such as a Gmail or Calendar client"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "2.4.1 Defining a Tool, constraints"}
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-external-endpoint-integration/", kind: bbe}
+  - id: toolkit
+    text: "Group stateful tools in an `isolated class` that includes `*ai:BaseToolKit`, marks its methods with `@ai:AgentTool`, and implements `getTools()` returning `ai:getToolConfigs([self.addTask, self.listTasks])`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-tool-kit/", kind: bbe}
+  - id: agent_create
+    text: "Create an `ai:Agent` with `check new (systemPrompt = {role: ..., instructions: ...}, model = model, tools = [sum, mult, new TaskManagerToolkit()])` (or the equivalent `ai:AgentConfiguration` record), optionally setting `maxIter` and `verbose`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/agent.bal", kind: github, note: "AgentConfiguration"}
+  - id: agent_run
+    text: "Run an agent with `string response = check agent.run(userInput)`, passing `sessionId = \"...\"` to keep separate conversation memory per user"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "2.7 Invoke the Agent"}
+  - id: agent_memory
+    text: "Configure agent memory with `new ai:ShortTermMemory(check new ai:InMemoryShortTermMemoryStore(15))` passed as `memory`, or set `memory = ()` for a stateless agent; agents get a default in-memory memory when it is omitted"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "2.5 Define the Memory"}
+  - id: mcp_toolkit
+    text: "Give an agent the tools of a remote MCP server with `ai:McpToolKit` (`check new (\"http://localhost:9090/mcp\")`, optionally limited to `[\"getCurrentWeather\"]`) in its `tools` array"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-mcp-integration/", kind: bbe}
+  - id: chat_service
+    text: "Expose an agent as a chat API with `service /tasks on new ai:Listener(8080)` and `resource function post chat(@http:Payload ai:ChatReqMessage request) returns ai:ChatRespMessage|error` that calls `agent.run(request.message, request.sessionId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/chat-agents/", kind: bbe}
+  - id: vector_knowledge_base
+    text: "Build an `ai:KnowledgeBase` as `new ai:VectorKnowledgeBase(vectorStore, embeddingProvider)` from an `ai:VectorStore` (e.g. `check new ai:InMemoryVectorStore()` or an external store) and an `ai:EmbeddingProvider`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-with-in-memory-vector-store/", kind: bbe}
+  - id: ingest_documents
+    text: "Load files with `ai:DataLoader loader = check new ai:TextDataLoader(\"./leave_policy.md\")` and `loader.load()` (an `ai:Document|ai:Document[]`), then call `knowledgeBase.ingest(documents)`, which chunks and embeds them"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+  - id: chunking
+    text: "Control chunking yourself with `ai:Chunker` implementations such as `new ai:GenericRecursiveChunker(maxChunkSize, maxOverlapSize, ai:SENTENCE)`, `ai:MarkdownChunker` or `ai:HtmlChunker` (or the `chunker` argument of `ai:VectorKnowledgeBase`, `ai:AUTO`/`ai:DISABLE`), and ingest the resulting `ai:Chunk[]`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/chunkers.bal", kind: github, note: "Chunker, GenericRecursiveChunker, MarkdownChunker, HtmlChunker"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/rag.bal", kind: github, note: "VectorKnowledgeBase init(..., chunker = AUTO)"}
+  - id: retrieve_augment
+    text: "Answer questions with RAG by calling `knowledgeBase.retrieve(query, 10)` to get `ai:QueryMatch[]` (`chunk`, `similarityScore`), then either `ai:augmentUserQuery(context, query)` and `model->chat(...)`, or interpolate the chunks into a `generate` prompt"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+  - id: metadata_filters
+    text: "Filter retrieval and deletion by chunk metadata with `ai:MetadataFilters {filters: [{key: ..., operator: ai:EQUAL, value: ...}], condition: ai:AND}` passed to `retrieve(query, topK, filters)` or `knowledgeBase.deleteByFilter(filters)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/rag-types.bal", kind: github, note: "MetadataFilter, MetadataFilters"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/rag.bal", kind: github, note: "KnowledgeBase.retrieve, deleteByFilter"}
+out_of_scope:
+  - "Provider-specific initialization and model names (lib.ai.openai, lib.ai.anthropic, lib.ai.azure, lib.ai.ollama)"
+  - "External vector store configuration (lib.ai.pinecone)"
+  - "Writing MCP servers and low-level MCP clients (lib.mcp)"
+  - "Agent architecture and prompt design guidance (topic.ai_agents)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_single, generate_text]}
+  - {to: concept.typedesc, rel: uses, via: [generate_typed], note: "generate infers its typedesc from the expected type"}
+  - {to: concept.records, rel: uses, via: [generate_typed, chat_single, agent_create]}
+  - {to: concept.documentation, rel: uses, via: [generate_typed, agent_tool], note: "Doc comments feed JSON schema and tool descriptions"}
+  - {to: concept.annotations, rel: uses, via: [agent_tool, toolkit]}
+  - {to: concept.isolation, rel: uses, via: [agent_tool, toolkit]}
+  - {to: concept.functions, rel: uses, via: [agent_tool]}
+  - {to: concept.function_values, rel: uses, via: [toolkit, agent_create], note: "Tools are passed as function pointers"}
+  - {to: concept.classes, rel: uses, via: [toolkit]}
+  - {to: concept.services_listeners, rel: uses, via: [chat_service]}
+  - {to: concept.query_expressions, rel: uses, via: [retrieve_augment]}
+  - {to: lib.http, rel: uses, via: [chat_service, agent_tool]}
+  - {to: lib.mcp, rel: uses, via: [mcp_toolkit], target_items: [basic_service]}
+  - {to: tool.config_toml, rel: uses, via: [default_providers]}
+notes: "Verified against module-ballerina-ai main (1.16.1, same as latest on Central). The README spells the toolkit type `ai:BaseToolkit`; the actual type (and the BBE) is `ai:BaseToolKit`. Public APIs present in source but not documented in README/BBEs were left out: human-in-the-loop approvals (`requiresApproval`, `ai:Resume`), `ai:Context`, `ai:HttpServiceToolKit`, `ai:ChatClient`, `toolLoadingStrategy`, model-assisted memory overflow and typed `run` results/`ai:Trace`."

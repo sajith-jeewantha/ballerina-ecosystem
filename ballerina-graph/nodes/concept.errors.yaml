@@ -2,25 +2,26 @@ schema_version: "0.1"
 id: concept.errors
 type: concept
 title: Errors
-summary: The error basic type (message, cause, detail and stack trace), error<T> and distinct error types, the error constructor, and the lang.error functions for inspecting errors.
+summary: The error basic type (message, cause, detail and stack trace), error<T> and distinct error types, the error constructor and the lang.error functions, plus propagating and handling errors with check and checkpanic, fail and on fail clauses, panic and trap, and how failure differs from panic.
 priority: core
 status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.1", kind: spec, note: "5.5.1 Errors"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.17", kind: spec, note: "6.17 Error constructor"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error module"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.33", kind: spec, note: "6.33 Checking expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.34", kind: spec, note: "6.34 Trap expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23", kind: spec, note: "7.23 Fail and retry"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.1", kind: spec, note: "7.23.1 Fail statement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.2", kind: spec, note: "7.23.2 On fail clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.25", kind: spec, note: "7.25 Panic statement"}
 must_cover:
   - id: error_value_parts
     text: "Explain the four parts of an error value: a message string, an optional cause (another error or nil), an immutable detail mapping, and a stack trace, which is not part of the error's shape"
     difficulty: [beginner, intermediate]
   - id: error_basic_type
-    text: "Explain that errors form a separate, inherently immutable basic type excluded from `any`, so fallible functions return `T|error` and `any|error` covers every value"
-    difficulty: [beginner]
-    sources:
-      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.3", kind: spec, note: "5.6.3 Any type"}
-  - id: error_any_structure
-    text: "Know that a list or mapping containing error members still belongs to `any`, because only values whose basic type is error are excluded"
-    difficulty: [intermediate]
+    text: "Explain that errors form a separate, inherently immutable basic type excluded from `any`, so fallible functions return `T|error` and `any|error` covers every value, while a list or mapping containing error members still belongs to `any` because only values whose basic type is error are excluded"
+    difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.3", kind: spec, note: "5.6.3 Any type"}
   - id: error_constructor
@@ -30,32 +31,82 @@ must_cover:
     text: "Use `error<T>`, where T is a detail record type (a subtype of `map<value:Cloneable>`, see `error:Detail`), to constrain the detail, and define named error types such as `type NotFound error<record {| int code; |}>;`"
     difficulty: [intermediate]
   - id: typed_error_construction
-    text: "Construct a named error type with `error NotFound(\"msg\", code = 1)` or from a contextually expected error type, where named arguments must be fields of the detail record and defaults are filled in from it"
-    difficulty: [intermediate]
-  - id: detail_immutable
-    text: "Know that named-argument values must be subtypes of `value:Cloneable` and that the detail mapping is built immutable by applying ImmutableClone, so `e.detail()` returns a `readonly` value"
+    text: "Construct a named error type with `error NotFound(\"msg\", code = 1)` or from a contextually expected error type, where named arguments must be fields of the detail record and defaults are filled in from it, knowing that named-argument values must be subtypes of `value:Cloneable` and that the detail mapping is built immutable by applying ImmutableClone, so `e.detail()` returns a `readonly` value"
     difficulty: [intermediate, advanced]
   - id: distinct_errors
     text: "Define distinct error types such as `type IoError distinct error;` and intersections such as `IoError & TimeoutError`, so that error values carry type-ids, and know the error constructor's expected type must be definite"
     difficulty: [intermediate, advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#distinct_types", kind: spec, note: "5.6.6 Distinct types"}
-  - id: stack_trace
-    text: "Know that an error's stack trace captures the execution stack where the error constructor was evaluated, and read it with `e.stackTrace()` as an array of `error:StackFrame`"
-    difficulty: [intermediate]
   - id: error_langlib
-    text: "Inspect errors with the lang.error functions `e.message()`, `e.cause()`, `e.detail()`, `e.toString()` and `e.toBalString()`"
-    difficulty: [beginner]
+    text: "Inspect errors with the lang.error functions `e.message()`, `e.cause()`, `e.detail()`, `e.toString()` and `e.toBalString()`, and read the stack trace, which captures the execution stack where the error constructor was evaluated, with `e.stackTrace()` as an array of `error:StackFrame`"
+    difficulty: [beginner, intermediate]
   - id: builtin_errors
     text: "Recognize the built-in distinct error types `error:NoMessage` (a receive action whose message was never sent) and `error:Retriable` (errors that `error:DefaultRetryManager` will retry)"
     difficulty: [intermediate]
+  - id: check_expr
+    text: "Use `check expr` to propagate errors: if `expr` evaluates to an error the evaluation completes with a check-fail carrying that error, otherwise the result has the static type T obtained by removing the error part E from `T|E`; use `checkpanic expr` to turn an unexpected error into a panic, removing the error part from the static type in the same way"
+    difficulty: [beginner, intermediate]
+  - id: no_cast_away_error
+    text: "Know that a type cast such as `<int>f()` cannot cast away an error (a compile-time error when the operand may be an error and the target type excludes error), so use `check` or `checkpanic` instead"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
+  - id: failure_vs_panic
+    text: "Distinguish failure (from `check` or `fail`, whose error types are known at compile time and which transfers control to the nearest failure-handling statement) from panic (abnormal termination of the worker, whose error type is not known at compile time), knowing that evaluating an expression can complete abruptly with a check-fail or a panic, each carrying an error value, and that an enclosing expression then completes abruptly in the same way unless stated otherwise"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.1", kind: spec, note: "6.1 Expression evaluation"}
+  - id: unhandled_failure
+    text: "Know that a failure with no enclosing failure-handling statement (on fail, retry, transaction, retry transaction) terminates the current worker normally with the error as its return value, so `check` in a function needs an error type in its return type"
+    difficulty: [beginner, intermediate]
+  - id: fail_stmt
+    text: "Use `fail expr;`, where `expr` is a subtype of error, to fail explicitly to the nearest failure handler or to return the error from the worker"
+    difficulty: [beginner, intermediate]
+  - id: on_fail_clause
+    text: "Attach `on fail error e { ... }` (or `on fail var e`, or no binding) to a `do`, `while`, `foreach`, `match`, `lock`, `retry`, `transaction` or `retry transaction` statement to handle failures from `check` and `fail` inside it, or to a named worker declaration, as in `worker w { ... } on fail error e { ... }`, which is equivalent to wrapping the worker body in `do { ... } on fail` (on fail for retry and transaction statements and for workers is new in 2024R1)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.2", kind: spec, note: "7.3.2 Workers"}
+  - id: on_fail_typing
+    text: "Know that the on fail binding must be guaranteed to match the union of error types from the enclosed check expressions and fail statements, that `var` infers this type, and that `on fail var e` with `e` never used is a compile-time error"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.2", kind: spec, note: "5.9.2 Typed binding patterns"}
+  - id: nested_failure_handlers
+    text: "Know that when the statement carrying `on fail` is itself a failure-handling statement (retry or transaction), only that statement's own failure reaches the clause, while failures inside it are first handled by that statement"
+    difficulty: [advanced]
+  - id: panic_stmt
+    text: "Use `panic expr;` with an error-typed expression to terminate the current worker abnormally with that error as its termination value"
+    difficulty: [beginner]
+  - id: trap_expr
+    text: "Use `trap expr` to stop a panic and obtain its error value, giving static type `T|error` (T may be `never`)"
+    difficulty: [intermediate]
+  - id: panic_sources
+    text: "Recognize runtime panics the spec defines: int overflow and division by zero, out-of-range list or string index, failed type casts, impermissible stores into structured values, `checkpanic` on an error, and langlib functions documented to panic"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.23", kind: spec, note: "6.23 Multiplicative expression"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.1", kind: spec, note: "7.14.1 Lvalues"}
+  - id: check_lax_json
+    text: "Know that `check` on a lax json expression whose contextually expected type is a simple type, as in `int n = check j.count;`, is treated as `check value:ensureType(...)`, so a type mismatch becomes a check-fail instead of a compile error"
+    difficulty: [advanced]
 out_of_scope:
-  - "check, checkpanic, trap, fail, on fail and panic (concept.error_handling)"
   - "Error binding and match patterns (concept.binding_patterns, concept.match_statement)"
   - "Type-ids and distinct types in general (concept.type_ids_distinct)"
-  - "ToString formatting of errors (concept.string_conversion)"
+  - "ToString formatting of errors (concept.value_cloning)"
+  - "Retry statement and RetryManager (concept.retry)"
+  - "Rollback on failure in transactions (concept.transactions)"
+  - "Lax typing of json in general (concept.json_anydata)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [error_langlib, stack_trace, builtin_errors], target_items: [lang_error]}
+  - {to: lib.lang.error, rel: uses, via: [error_langlib, builtin_errors, check_lax_json]}
+  - {to: lib.lang.value, rel: uses, via: [error_langlib, builtin_errors, check_lax_json]}
   - {to: concept.type_ids_distinct, rel: uses, via: [distinct_errors]}
-  - {to: concept.value_cloning, rel: uses, via: [detail_immutable]}
+  - {to: concept.value_cloning, rel: uses, via: [typed_error_construction]}
+  - {to: concept.control_flow, rel: requires}
+  - {to: concept.retry, rel: related}
+  - {to: concept.json_anydata, rel: uses, via: [check_lax_json]}
+notes: "7.23 says a failure without a handler 'terminates the current worker normally' with the error as return value; the item about needing an error in the return type is a consequence of the typing rules, not a separate sentence of the spec."

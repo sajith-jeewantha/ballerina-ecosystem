@@ -60,5 +60,5 @@ edges:
   - {to: concept.objects, rel: requires}
   - {to: concept.errors, rel: requires}
   - {to: concept.typedesc, rel: uses, via: [query_type_ids], target_items: [type_ids_function]}
-  - {to: concept.langlib, rel: uses, via: [query_type_ids], target_items: [lang_typedesc]}
+  - {to: lib.langlib, rel: uses, via: [query_type_ids]}
 notes: "5.6.1 says 'A type-reference referring to a type descriptor T is definite if and only if T.' — word missing ('T is definite'). In error_intersection_type_ids, constructing via an intersection type reference is allowed per 6.17 ('it is allowed for E to refer to an intersection-type-descriptor')."

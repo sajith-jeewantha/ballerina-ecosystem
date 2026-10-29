@@ -1,0 +1,88 @@
+schema_version: "0.1"
+id: tool.bal_scan
+type: tool
+title: bal scan
+summary: "`bal scan` is an experimental static code analysis tool, installed with `bal tool pull scan`. It reports code smells, bugs and vulnerabilities in a package, workspace or file using core and library rules, can produce JSON, SARIF and HTML reports, and can send results to SonarQube."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/scan-tool/", kind: docs}
+  - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "Rule catalogue with noncompliant/compliant examples"}
+must_cover:
+  - id: install
+    text: "Install the scan tool with `bal tool pull scan` and check it with `bal tool list`"
+    difficulty: [beginner]
+  - id: run_scan
+    text: "Analyze the current package with `bal scan`, a given package with `bal scan mypackage`, a standalone file with `bal scan myfile.bal` or a workspace in dependency order, with results printed and saved as JSON under `target/scan`"
+    difficulty: [beginner]
+  - id: reports
+    text: "Generate an HTML report with `bal scan --scan-report` (written to `target/report`), choose the report format with `--format=sarif` (default `json`) and the output directory with `--target-dir=<path>`"
+    difficulty: [beginner]
+  - id: list_rules
+    text: "List the rules that apply to a project with `bal scan --list-rules`, reading rule IDs such as `ballerina:1` or `ballerina/io:2`, rule kinds (`CODE_SMELL`, `BUG`, `VULNERABILITY`) and severities (`BLOCKER`, `HIGH`, `MEDIUM`, `LOW`, `INFO`)"
+    difficulty: [beginner]
+  - id: include_exclude
+    text: "Limit analysis with `--include-rules=\"ballerina:1, ballerina/io:2\"` or skip rules with `--exclude-rules=\"ballerina:1\"`"
+    difficulty: [intermediate]
+  - id: scan_toml
+    text: "Configure the scan in `Scan.toml` at the package root (or via `[scan]` `configPath` in `Ballerina.toml`) with `[rule]` `include`/`exclude` lists and `[[platform]]` entries, knowing a rule set cannot both include and exclude rules"
+    difficulty: [intermediate]
+  - id: sonarqube
+    text: "Report results to SonarQube with a `[[platform]]` entry (`name = \"sonarqube\"`, `path` to the platform plugin JAR, `sonarProjectPropertiesPath`), the `SONAR_TOKEN` environment variable and `bal scan` or `bal scan --platforms=\"sonarqube\"`"
+    difficulty: [advanced]
+  - id: fix_checkpanic
+    text: "Fix rule `ballerina:1` (Avoid checkpanic) by replacing `checkpanic` with `check` and returning the error to the caller instead of panicking"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:1"}
+  - id: fix_unused
+    text: "Fix rules `ballerina:2` (unused function parameter) and `ballerina:11` (unused class private fields) by removing or using the unused parameter or private field"
+    difficulty: [beginner]
+  - id: fix_non_isolated
+    text: "Fix rules `ballerina:3` to `ballerina:6` by marking public functions, public methods, public classes and public object types as `isolated`"
+    difficulty: [intermediate]
+  - id: fix_constant_logic
+    text: "Fix rules `ballerina:7` to `ballerina:10`: conditions that always evaluate to `true`, `false` or the same value, and variables assigned to themselves"
+    difficulty: [beginner]
+  - id: fix_range
+    text: "Fix rule `ballerina:12` (invalid range expression) by making the range go in the intended direction, e.g. `foreach int i in 0...9` instead of `9...0`"
+    difficulty: [beginner]
+  - id: fix_secrets
+    text: "Fix rules `ballerina:13` (hard-coded secrets) and `ballerina:14` (non-configurable secrets) by reading passwords, API keys, tokens and credential URLs from `configurable string password = ?;` instead of literals or ordinary variables"
+    difficulty: [intermediate]
+  - id: http_rules
+    text: "Fix HTTP rules `ballerina/http:1` by using an explicit accessor such as `resource function delete` instead of `resource function default` for state-changing resources, and `ballerina/http:2` by replacing `allowOrigins: [\"*\"]` in `@http:ResourceConfig` CORS settings with trusted origins"
+    difficulty: [intermediate]
+  - id: logging_rules
+    text: "Fix rules `ballerina/io:2` and `ballerina/log:1` by not printing or logging configurable variables that hold secrets, and `ballerina/log:2` by not writing log files to world-writable directories"
+    difficulty: [intermediate]
+  - id: crypto_rules
+    text: "Fix crypto rules: `ballerina/crypto:1` by using `crypto:encryptAesGcm` instead of `crypto:encryptAesEcb`/`crypto:encryptAesCbc` and `crypto:encryptRsaEcb` with an OAEP padding such as `crypto:OAEPwithMD5andMGF1` instead of the default `crypto:PKCS1`, `ballerina/crypto:2` by giving `crypto:hashBcrypt` a high work factor (e.g. 14, not 4) and `crypto:hashArgon2` enough memory and iterations, and `ballerina/crypto:3` by not hard-coding initialization vectors"
+    difficulty: [advanced]
+  - id: jwt_rules
+    text: "Fix JWT rules `ballerina/jwt:1` to `ballerina/jwt:7`: no weak or `jwt:NONE` algorithms, always set `signatureConfig`, check `issuer` and `audience` in `jwt:validate`, keep `expTime` and `clockSkew` small, keep TLS validation on the JWKS client, and do not trust `jwt:decode` without validation"
+    difficulty: [advanced]
+  - id: os_file_rules
+    text: "Fix injection rules `ballerina/os:1` to `ballerina/os:4`, `ballerina/file:1`, `ballerina/file:2` and `ballerina/io:1` by passing `os:exec` arguments as separate list items rather than through `/bin/sh -c`, using absolute executable paths instead of PATH lookup, sanitizing user input used in command arguments and environment variables, validating user-supplied file paths, and not using publicly writable directories for file operations"
+    difficulty: [advanced]
+out_of_scope:
+  - "Installing and managing tools in general (tool.bal_tool)"
+  - "Compiler-enforced guarantees that make some rules unnecessary (concept.isolation, concept.errors)"
+  - "Secure API usage of each library beyond the scan rules (lib.crypto, lib.jwt, lib.http)"
+edges:
+  - {to: tool.bal_tool, rel: uses, via: [install], target_items: [pull, list]}
+  - {to: tool.ballerina_toml, rel: uses, via: [scan_toml], target_items: [format_scan_config]}
+  - {to: tool.config_toml, rel: uses, via: [fix_secrets], target_items: [secrets]}
+  - {to: concept.errors, rel: uses, via: [fix_checkpanic]}
+  - {to: concept.isolation, rel: uses, via: [fix_non_isolated]}
+  - {to: concept.loops, rel: uses, via: [fix_range]}
+  - {to: concept.variables, rel: uses, via: [fix_secrets]}
+  - {to: lib.http, rel: uses, via: [http_rules]}
+  - {to: lib.log, rel: uses, via: [logging_rules]}
+  - {to: lib.crypto, rel: uses, via: [crypto_rules]}
+  - {to: lib.jwt, rel: uses, via: [jwt_rules]}
+  - {to: lib.os, rel: uses, via: [os_file_rules]}
+  - {to: lib.file, rel: uses, via: [os_file_rules]}
+  - {to: topic.security, rel: uses, via: [fix_secrets, crypto_rules, jwt_rules, os_file_rules]}
+  - {to: tool.bal, rel: requires}
+notes: "Rule IDs and the rule list follow the current scan-rules page, which also lists `ballerina/http:3`, `ballerina/http:4` (SSRF and open redirect) and `ballerina/email:1` to `ballerina/email:4` (TLS) not itemized here. The doc says `sonarqube` is currently the only platform plugin. The crypto_rules and jwt_rules items summarise several rules each; exact parameter names should be checked against the scan-rules page when generating samples."

@@ -1,0 +1,57 @@
+schema_version: "0.1"
+id: lib.toml
+type: library
+title: ballerina/toml
+summary: The `toml` module parses TOML strings and files into `map<json>` and writes a `map<json>` back as TOML lines or a TOML file, using a linear-time LL(1) parser.
+priority: long_tail
+status: draft
+modules: [ballerina/toml]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/toml/latest", kind: central, note: "ballerina/toml 0.8.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-toml/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-toml/blob/master/ballerina/toml.bal", kind: github, note: "Public API with doc comments"}
+must_cover:
+  - id: read_string
+    text: "Parse TOML text into a `map<json>` with `toml:readString(tomlString)`"
+    difficulty: [beginner]
+  - id: read_file
+    text: "Parse a TOML file into a `map<json>` with `toml:readFile(\"config.toml\")`"
+    difficulty: [beginner]
+  - id: navigate_result
+    text: "Read values from the parsed `map<json>`, where a TOML table such as `[database]` becomes a nested map, and convert it to a record with `cloneWithType`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "cloneWithType"}
+  - id: read_config
+    text: "Control date-time parsing with the included `toml:ReadConfig` parameter, e.g. `toml:readFile(path, parseOffsetDateTime = false)`; by default offset date-times are converted to `time:Utc`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-toml/blob/master/ballerina/types.bal", kind: github, note: "ReadConfig.parseOffsetDateTime = true"}
+  - id: write_string
+    text: "Serialize a `map<json>` to TOML with `toml:writeString(structure)`, which returns the TOML content as a `string[]` of lines"
+    difficulty: [beginner, intermediate]
+  - id: write_file
+    text: "Write a `map<json>` to a TOML file with `toml:writeFile(path, structure)`"
+    difficulty: [beginner]
+  - id: write_config
+    text: "Format TOML output through the included `toml:WriteConfig` parameter, setting `indentationPolicy` (default 2) and `allowDottedKeys` (default `true`, using dotted keys instead of standard tables where applicable)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-toml/blob/master/ballerina/types.bal", kind: github, note: "WriteConfig"}
+  - id: toml_errors
+    text: "Handle `toml:Error`, the union of `toml:ParsingError`, `toml:WritingError` and `toml:FileError` (which wraps `io:Error` or `file:Error`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-toml/blob/master/ballerina/errors.bal", kind: github}
+out_of_scope:
+  - "Ballerina.toml and Config.toml project files (tool.ballerina_toml, tool.config_toml)"
+  - "YAML handling (lib.data.yaml)"
+edges:
+  - {to: concept.json_anydata, rel: uses, via: [read_string, read_file, write_string]}
+  - {to: concept.value_cloning, rel: uses, via: [navigate_result]}
+  - {to: concept.maps, rel: uses, via: [navigate_result]}
+  - {to: concept.functions, rel: uses, via: [read_config, write_config], note: "included record parameters passed as named arguments"}
+  - {to: concept.errors, rel: uses, via: [toml_errors]}
+  - {to: concept.union_intersection_types, rel: uses, via: [toml_errors]}
+  - {to: lib.time, rel: uses, via: [read_config]}
+notes: "Verified against module-ballerina-toml master 0.8.2 (= latest tag). There is no BBE for this module and the README is a two-line overview, so items rely on the public API source (toml.bal, types.bal, errors.bal). The module does not bind directly to record types; conversion to records goes through cloneWithType."

@@ -76,7 +76,7 @@ must_cover:
 out_of_scope:
   - "Classes, init methods and new (concept.classes)"
   - "Remote methods and client objects (concept.client_objects); resource methods (concept.resource_methods)"
-  - "Isolated objects and lock requirements on self (concept.isolation, concept.lock_statement)"
+  - "Isolated objects and lock requirements on self (concept.isolation)"
   - "Distinct object types and type-ids (concept.type_ids_distinct)"
 edges:
   - {to: concept.functions, rel: requires}

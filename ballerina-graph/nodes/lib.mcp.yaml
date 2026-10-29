@@ -1,0 +1,116 @@
+schema_version: "0.1"
+id: lib.mcp
+type: library
+title: ballerina/mcp
+summary: "Model Context Protocol support over the Streamable HTTP transport: MCP servers written as services whose remote methods become tools (or advanced services with `onListTools`/`onCallTool`), and an `mcp:StreamableHttpClient` that discovers and calls tools on MCP servers."
+priority: important
+status: draft
+modules: [ballerina/mcp]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/mcp/latest", kind: central, note: "ballerina/mcp 1.4.0 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Module README: server and client"}
+  - {url: "https://ballerina.io/learn/by-example/mcp-service/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/mcp-service-advanced/", kind: bbe}
+must_cover:
+  - id: listener
+    text: "Create the server endpoint with `listener mcp:StreamableHttpListener mcpListener = check new (9090);` (a port or an existing `http:Listener`), replacing the deprecated `mcp:Listener` used in older code"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the MCP Listener"}
+  - id: basic_service
+    text: "Write an MCP server as `service mcp:StreamableHttpService /mcp on mcpListener` whose `remote function`s become tools, with tool descriptions and input schemas generated from the method signatures and `#` documentation"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Step 3: Create the MCP Service"}
+      - {url: "https://ballerina.io/learn/by-example/mcp-service/", kind: bbe}
+  - id: tool_annotation
+    text: "Override a tool's description with the optional `@mcp:Tool {description: \"...\"}` annotation on the remote method; without it the documentation string is used"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Constraints for defining MCP tools"}
+  - id: tool_constraints
+    text: "Respect the tool rules: parameters must be subtypes of `anydata` (except runtime-injected `mcp:Session` and `mcp:Meta?`) and the return type a subtype of `anydata|error`, e.g. `remote function getCurrentWeather(string city) returns Weather|error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Constraints for defining MCP tools"}
+  - id: service_config
+    text: "Configure the server with `@mcp:StreamableHttpServiceConfig {info: {name: \"MCP Weather Server\", version: \"1.0.0\"}, sessionMode: mcp:AUTO, httpConfig: {cors: {...}}, options: {instructions: \"...\"}}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Advanced Configuration Example"}
+  - id: session_modes
+    text: "Choose a session mode: `mcp:STATEFUL` (transport-managed session IDs the client must keep), `mcp:STATELESS` (independent requests) or `mcp:AUTO` (default, decided by the client's initialization)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Session Management Modes"}
+  - id: session_state
+    text: "Keep per-client state in a stateful service by declaring `mcp:Session session` as the first tool parameter and using `session.set(key, value)`, `session.get(key)`, `session.getWithType(key)`, `session.hasKey(key)` and `session.getSessionId()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/session.bal", kind: github, note: "Session API"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/tree/main/examples/servers/mcp-shopping-server", kind: github, note: "STATEFUL shopping cart example"}
+  - id: request_meta
+    text: "Read client-supplied request metadata by adding a nilable `mcp:Meta? meta` parameter to a tool and reading keys with member access such as `meta[\"requestId\"]`; it is excluded from the tool's input schema"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Request Metadata Example"}
+  - id: http_request_binding
+    text: "Bind HTTP request information in `mcp:StreamableHttpService` tools with `@http:Header` parameters, an `http:Headers` parameter or an `http:Request` parameter (header parameters are excluded from the input schema)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Constraints for defining MCP tools, item 6"}
+  - id: advanced_service
+    text: "Control tool listing and dispatch with `service mcp:StreamableHttpAdvancedService` implementing exactly `remote isolated function onListTools() returns mcp:ListToolsResult|mcp:ServerError` (tool `name`, `description`, JSON `inputSchema`) and `onCallTool(mcp:CallToolParams params)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Step 4: Advanced Service Implementation"}
+  - id: advanced_call_tool
+    text: "In `onCallTool(mcp:CallToolParams params, mcp:Session? session)`, dispatch on `params.name`, bind `params.arguments.cloneWithType()` to a record, return `mcp:CallToolResult` such as `{content: [{'type: \"text\", text: result.toJsonString()}]}`, and return `error mcp:ServerError(...)` for unknown tools"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mcp-service-advanced/", kind: bbe}
+  - id: transport_agnostic_services
+    text: "Use the transport-agnostic `mcp:Service` and `mcp:AdvancedService` types when tools need no HTTP request information; they are still supported, but `mcp:StreamableHttpService`/`mcp:StreamableHttpAdvancedService` are preferred"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Note on mcp:Service and mcp:AdvancedService"}
+  - id: client_init
+    text: "Create an MCP client with `final mcp:StreamableHttpClient mcpClient = check new (\"http://localhost:3000/mcp\")`, optionally passing `mcp:StreamableHttpClientTransportConfig` fields such as `timeout` and `followRedirects`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "MCP Client Implementation"}
+  - id: client_initialize
+    text: "Start the MCP session with `mcpClient->initialize({name: \"My MCP Client\", version: \"1.0.0\"})`, optionally passing client capabilities such as `{roots: {listChanged: true}}` and custom headers"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Step 3 and Step 5"}
+  - id: client_list_tools
+    text: "Discover tools with `mcp:ListToolsResult toolsResult = check mcpClient->listTools();` and iterate the `mcp:ToolDefinition` values (`name`, optional `description`, `inputSchema`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Initialize Connection and Discover Tools"}
+  - id: client_call_tool
+    text: "Invoke a tool with `mcpClient->callTool({name: \"getCurrentWeather\", arguments: {city: \"London\"}}, headers)` returning `mcp:CallToolResult`, and release the connection with `mcpClient->close()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke Tools"}
+  - id: client_errors
+    text: "Handle client failures through `mcp:ClientError` and its subtypes such as `mcp:ClientInitializationError`, `mcp:ListToolsError`, `mcp:ToolCallError` and `mcp:StreamableHttpTransportError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-mcp/blob/main/ballerina/error.bal", kind: github}
+out_of_scope:
+  - "Using MCP tools from an AI agent via `ai:McpToolKit` (lib.ai)"
+  - "HTTP service configuration such as CORS in general (lib.http)"
+  - "Designing agent tool sets (topic.ai_agents)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [listener, basic_service, advanced_service]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, client_list_tools, client_call_tool]}
+  - {to: concept.annotations, rel: uses, via: [tool_annotation, service_config]}
+  - {to: concept.documentation, rel: uses, via: [basic_service], note: "Doc comments become tool descriptions"}
+  - {to: concept.records, rel: uses, via: [advanced_call_tool, client_call_tool]}
+  - {to: concept.json_anydata, rel: uses, via: [tool_constraints, advanced_call_tool]}
+  - {to: concept.value_cloning, rel: uses, via: [advanced_call_tool], note: "cloneWithType on params.arguments"}
+  - {to: concept.errors, rel: uses, via: [client_errors, advanced_call_tool]}
+  - {to: lib.http, rel: uses, via: [http_request_binding, service_config, listener]}
+notes: "Verified against module-ballerina-mcp main (1.4.0, same as latest on Central). The published BBEs still declare `listener mcp:Listener` and `mcp:Service`/`mcp:AdvancedService`; `mcp:Listener` and the `httpConfig`/`sessionMode` fields of `@mcp:ServiceConfig` are deprecated in favour of `mcp:StreamableHttpListener` and `@mcp:StreamableHttpServiceConfig`. Server-side resources/prompts are not documented in the README and were not included."

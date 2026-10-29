@@ -1,0 +1,106 @@
+schema_version: "0.1"
+id: topic.observability
+type: topic
+title: Observability
+summary: "Observing Ballerina services through the three pillars of metrics, tracing and logging - enabling observability at build time, exporting to Prometheus, Jaeger or OpenTelemetry, adding custom spans and metrics, and writing structured, configurable logs."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/overview-of-ballerina-observability/", kind: docs, note: "Overview of Ballerina observability"}
+  - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/prometheus/", kind: docs}
+  - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/jaeger/", kind: docs}
+  - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/opentelemetry/", kind: docs}
+  - {url: "https://ballerina.io/learn/by-example/tracing/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-observe", kind: github, note: "observe module README"}
+must_cover:
+  - id: enable_observability
+    text: "Include observability in the executable with `observabilityIncluded = true` under `[build-options]` in `Ballerina.toml` or with `bal run --observability-included`, and explain that services and client connectors are observable by default once it is enabled"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/overview-of-ballerina-observability/", kind: docs}
+  - id: observe_runtime_config
+    text: "Turn on metrics and tracing at runtime in `Config.toml` with `[ballerina.observe]` keys `metricsEnabled`, `metricsReporter`, `tracingEnabled` and `tracingProvider`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/overview-of-ballerina-observability/", kind: docs}
+  - id: prometheus_metrics
+    text: "Publish metrics to Prometheus by adding `import ballerinax/prometheus as _;`, setting `metricsReporter = \"prometheus\"` and `[ballerinax.prometheus]` `port = 9797` / `host`, and pointing a Prometheus scrape target (visualised in Grafana) at the `/metrics` endpoint"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/prometheus/", kind: docs}
+  - id: jaeger_tracing
+    text: "Send traces to Jaeger by adding `import ballerinax/jaeger as _;`, setting `tracingProvider = \"jaeger\"` and `[ballerinax.jaeger]` options such as `agentHostname`, `agentPort = 4317`, `samplerType` and `samplerParam`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/jaeger/", kind: docs}
+  - id: otel_export
+    text: "Export traces and metrics over OTLP by setting `tracingProvider = \"otel\"` and `metricsReporter = \"otel\"` with `[ballerina.otel]` `tracesEndpoint`, `metricsEndpoint` and `metricsServiceName`, and add resource attributes under `[ballerina.otel.tracesResourceAttributes]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/supported-observability-tools-and-platforms/opentelemetry/", kind: docs}
+  - id: custom_spans
+    text: "Trace a block of business logic with `observe:startSpan(\"name\")`, start an independent trace with `observe:startRootSpan(...)`, nest spans by passing a parent span id, and close each with `observe:finishSpan(spanId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/tracing/", kind: bbe}
+  - id: span_tags
+    text: "Attach business context to the current or a given span with `observe:addTagToSpan(\"key\", \"value\")`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-observe", kind: github, note: "README: Add tags to span"}
+  - id: counter_metric
+    text: "Count business events with an `observe:Counter` created with a name, `desc` and `tags`, registered with `register()` and updated with `increment()` / `increment(10)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/counter-metrics/", kind: bbe}
+  - id: gauge_metric
+    text: "Track values that go up and down with an `observe:Gauge` using `increment`, `decrement` and `setValue`, and configure summary statistics with `observe:StatisticConfig {timeWindow, percentiles, buckets}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/gauge-metrics/", kind: bbe}
+  - id: service_display_name
+    text: "Name a service in metrics and traces with `@display {label: \"Shopping Service\"}`, and explain the common tags such as `src.resource.path`, `src.resource.accessor` and `entrypoint.service.name` attached to observations"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/overview-of-ballerina-observability/", kind: docs}
+  - id: structured_logging
+    text: "Write structured logs with key-value context such as `log:printInfo(\"Processing order\", orderId = 845315, amount = 99.99)`, passing records as values and choosing `printDebug`, `printInfo`, `printWarn` or `printError` by severity"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-with-context/", kind: bbe}
+      - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs, note: "Logging conventions"}
+  - id: error_logging
+    text: "Log failures with the error value and extra context, e.g. `log:printError(\"Reservation request failed\", err, operation = \"reserve\")`, including errors that carry a cause and detail fields"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-logging/", kind: bbe}
+  - id: efficient_log_messages
+    text: "Build log messages with raw templates (`` log:printInfo(`Started with delay ${delay}`) ``) instead of string concatenation, and pass a function as a key value (`duration = getDuration`) so it is evaluated only if the level is enabled"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/style-guide/coding-conventions/", kind: docs, note: "Logging conventions"}
+  - id: log_configuration
+    text: "Configure logging in `Config.toml` with `[ballerina.log]` `level` and `format = \"json\"`, per-module levels under `[[ballerina.log.modules]]`, file `destinations` with `rotation`, and root context under `[ballerina.log.keyValues]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-configuration/", kind: bbe}
+  - id: http_access_logs
+    text: "Enable HTTP access logs with `[ballerina.http.accessLogConfig]` `console = true` (plus `format`, `attributes` and a rotated `file`), and HTTP trace logs with `[ballerina.http.traceLogAdvancedConfig]` or `-Cballerina.http.traceLogConsole=true`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-access-logs/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-trace-logs/", kind: bbe}
+out_of_scope:
+  - "Full log module API such as custom and child loggers (lib.log)"
+  - "Masking sensitive fields in logs (topic.security)"
+  - "Vendor-specific platforms such as New Relic, Datadog and Elastic Stack setup"
+edges:
+  - {to: lib.observe, rel: uses, via: [enable_observability, observe_runtime_config, custom_spans, span_tags, counter_metric, gauge_metric]}
+  - {to: lib.log, rel: uses, via: [structured_logging, error_logging, efficient_log_messages, log_configuration]}
+  - {to: lib.http, rel: uses, via: [http_access_logs]}
+  - {to: tool.ballerina_toml, rel: uses, via: [enable_observability]}
+  - {to: tool.config_toml, rel: uses, via: [observe_runtime_config, prometheus_metrics, jaeger_tracing, otel_export, log_configuration, http_access_logs]}
+  - {to: tool.bal, rel: uses, via: [enable_observability]}
+  - {to: concept.annotations, rel: uses, via: [service_display_name]}
+  - {to: concept.errors, rel: uses, via: [error_logging]}
+notes: "The Prometheus extension is `ballerinax/prometheus` and Jaeger `ballerinax/jaeger` (imported with `as _`); the OpenTelemetry page says the otel extension is bundled and needs no import. Grafana is covered only as a dashboard over Prometheus."

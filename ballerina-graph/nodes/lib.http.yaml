@@ -1,0 +1,188 @@
+schema_version: "0.1"
+id: lib.http
+type: library
+title: ballerina/http
+summary: The HTTP/1.1 and HTTP/2 library that exposes REST services through `http:Listener` and resource methods and calls remote endpoints through `http:Client`, with data binding, interceptors, security and resiliency built in.
+priority: core
+status: draft
+modules: [ballerina/http]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/http/latest", kind: central, note: "ballerina/http 2.18.x API docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/spec/http/", kind: docs, note: "Ballerina HTTP library specification"}
+  - {url: "https://ballerina.io/learn/by-example/http-basic-rest-service/", kind: bbe, note: "REST service BBE series"}
+must_cover:
+  - id: service_declaration
+    text: "Declare an HTTP service with `service /base on new http:Listener(9090)` (or a module-level `listener http:Listener`), write `resource function get|post|put|patch|delete` methods with hierarchical resource paths, use `.` for the service root, and catch all methods and paths with `resource function 'default [string... paths]`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-and-resource-paths/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-default-resource/", kind: bbe}
+  - id: path_query_header_params
+    text: "Bind request data to resource parameters: path parameters such as `albums/[string title]`, query parameters as plain typed parameters (`string artist`, `int id = 10`, nilable `string?` for optional, arrays for repeated values, `@http:Query` for structured types), and headers with `@http:Header string accept`, `@http:Header {name: \"x-api-version\"}`, a header record, or an `http:Headers` parameter"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-path-param/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-query-parameter/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-header-param/", kind: bbe}
+  - id: payload_binding
+    text: "Bind the request body to a typed parameter: a single record, array, `map<json>`, table or `xml` parameter of a POST/PUT/PATCH/DELETE resource is the payload by default, `@http:Payload` marks other types (e.g. `string`), mismatches return 400, and `@constraint` annotations on the record are validated automatically"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-data-binding/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-payload-constraint-validation/", kind: bbe}
+  - id: return_values
+    text: "Return `anydata` (records, arrays, `json`, `xml`, `string`, `byte[]`) from resource methods and rely on automatic serialization and Content-Type inference, the default status codes (201 for POST, 200 otherwise, 202 when returning nil), `returns error?`, and `@http:Payload {mediaType: \"...\"}` on the return type to override the media type"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-send-response/", kind: bbe}
+  - id: status_code_responses
+    text: "Return specific status codes with status code response types and constants such as `http:NotFound`/`http:NOT_FOUND`, `http:Conflict`, `http:Created`, `http:Accepted`, `http:BadRequest`, `http:TemporaryRedirect`, and define custom subtypes like `record {| *http:Created; Album body; |}` with `body`, `headers` and `mediaType` fields in union return types such as `Album|http:NotFound`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-send-different-status-codes/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-send-different-status-codes-with-payload/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-send-header/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-redirects/", kind: bbe}
+  - id: request_response_caller
+    text: "Work with the low-level message objects: take an `http:Request` parameter and read it with `getJsonPayload()`, `getTextPayload()`, `getHeader()`, `getQueryParamValue()`, `getMatrixParams()`; build an `http:Response` with `setPayload()`, `setHeader()` and `statusCode`; and respond explicitly through an `http:Caller` with `caller->respond(...)` (including `100-continue` handling)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-response/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-caller/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-matrix-param/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-100-continue/", kind: bbe}
+  - id: client_calls
+    text: "Call HTTP endpoints with `http:Client` created by `check new (\"localhost:9090\")`, using resource-access syntax `albumClient->/albums`, `->/albums/[id]`, `->/albums.post(payload)`, query parameters as named arguments `->/albums(artist = \"x\")` and a header map argument, or the remote methods `get(\"/path\")`, `post(\"/path\", payload)`, `put`, `patch`, `delete`, `execute` and `forward(\"/path\", req)` for passthrough proxies"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-send-request-receive-response/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-path-parameter/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-query-parameter/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-header-parameter/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-passthrough/", kind: bbe}
+  - id: client_data_binding
+    text: "Bind client responses directly to the expected type (`Album[] albums = check albumClient->/albums;`, `json|xml`, nilable types for empty bodies, `targetType = json` with `var`), take the whole `http:Response` when headers or status are needed, use `http:StatusCodeClient` to bind to status code records, and handle `http:PayloadValidationError` when `@constraint` checks fail"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-data-binding/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-payload-constraint-validation/", kind: bbe}
+  - id: client_errors
+    text: "Handle client failures as `http:ClientError`, distinguishing 4xx/5xx responses (`http:ClientRequestError`, `http:RemoteServerError`, both `http:ApplicationResponseError`) whose `detail()` carries `statusCode`, `headers` and `body`, from connection-level and resiliency errors"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/http_errors.bal", kind: github, note: "Error type hierarchy"}
+  - id: service_error_handling
+    text: "Explain the default error handling (an `error` returned or `check`ed in a resource becomes a 500 response, and listener errors such as binding or dispatching failures map to 400/404/405/415 or 401/403) and override it with `do`/`on fail` or an error interceptor (`*http:ResponseErrorInterceptor` with `remote function interceptResponseError(error err)`, or `*http:RequestErrorInterceptor`) that returns a consistent error payload"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-default-error-handling/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-error-handling/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-interceptor-error-handling/", kind: bbe}
+  - id: interceptors
+    text: "Write request and response interceptors as service classes including `*http:RequestInterceptor` (a `resource function 'default [string... path](http:RequestContext ctx, ...)` returning `ctx.next()`) and `*http:ResponseInterceptor` (`remote function interceptResponse(http:RequestContext ctx, http:Response res)`), engage them from `service http:InterceptableService` via `createInterceptors()`, and share data with `ctx.set()`/`ctx.get()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-interceptor/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-response-interceptor/", kind: bbe}
+  - id: cors_media_types
+    text: "Configure services and resources with `@http:ServiceConfig` and `@http:ResourceConfig`: CORS via `cors: {allowOrigins, allowCredentials, allowHeaders, exposeHeaders, maxAge}`, and content negotiation via `consumes` and `produces` media type lists"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-cors/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-restrict-by-media-type/", kind: bbe}
+  - id: listener_auth
+    text: "Secure services declaratively with `@http:ServiceConfig {auth: [...]}` (or per resource with `@http:ResourceConfig`) using `fileUserStoreConfig` or `ldapUserStoreConfig` for Basic auth, `jwtValidatorConfig` (issuer, audience, `signatureConfig`, `scopeKey`) for JWT, or `oauth2IntrospectionConfig` for OAuth2, together with required `scopes`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-file-user-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-ldap-user-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-jwt-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-oauth2/", kind: bbe}
+  - id: client_auth
+    text: "Authenticate outbound requests with the client `auth` field: Basic (`username`, `password`), bearer `token`, self-signed JWT (`issuer`, `audience`, `signatureConfig`), and OAuth2 client credentials, password (`refreshConfig: oauth2:INFER_REFRESH_CONFIG`), refresh token and JWT bearer grants via `tokenUrl`/`refreshUrl`, `clientId`, `clientSecret` and `scopes`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-basic-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-bearer-token-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-self-signed-jwt-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-client-credentials-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-password-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-refresh-token-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-jwt-bearer-grant-type/", kind: bbe}
+  - id: ssl_tls
+    text: "Enable HTTPS with `secureSocket`: on the listener `key: {certFile, keyFile}` and for mutual TLS `mutualSsl: {verifyClient: http:REQUIRE, cert}`; on the client `cert` to trust the server and `key` to present a client certificate"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-mutual-ssl/", kind: bbe}
+  - id: client_resiliency
+    text: "Make clients resilient with `timeout`, `retryConfig {interval, count, backOffFactor, maxWaitInterval}`, `circuitBreaker {rollingWindow, failureThreshold, resetTime, statusCodes}`, `http:LoadBalanceClient` with round-robin `targets`, and `http:FailoverClient` with `targets`, `failoverCodes` and `interval`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-timeout/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-retry/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-circuit-breaker/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-load-balancer/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-failover/", kind: bbe}
+  - id: caching_compression
+    text: "Add response caching with `returns @http:Cache {maxAge: 15} Album|http:NotFound` (setting Cache-Control, ETag and Last-Modified) and a caching client via the `cache` config (e.g. `isShared: true`), and control compression with `compression: {enable: http:COMPRESSION_ALWAYS, contentTypes}` in `@http:ServiceConfig` or the client configuration"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-cache-response/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-caching-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-compression/", kind: bbe}
+  - id: cookies_redirects
+    text: "Manage cookies and redirects: create `http:Cookie` values and add them with `response.addCookie()`, read them with `request.getCookies()`, enable client cookie handling with `cookieConfig: {enabled: true}`, and follow 3xx responses with `followRedirects: {enabled: true, maxCount: 5}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-cookies-service/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-cookies-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-redirects/", kind: bbe}
+  - id: multipart_files
+    text: "Send and receive files and multipart messages: upload with `request.setFileAsPayload(path, contentType = mime:APPLICATION_PDF)`, stream large bodies with `request.getByteStream()`, build multipart bodies with `mime:Entity` parts and `setBodyParts(parts, contentType = mime:MULTIPART_FORM_DATA)`, and decode them with `getBodyParts()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-file-upload/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-file-upload/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-request-with-multiparts/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-response-with-multiparts/", kind: bbe}
+  - id: sse_and_protocols
+    text: "Stream server-sent events by returning `stream<http:SseEvent, error?>` from a resource and consuming it on the client as `stream<http:SseEvent, error?>`; choose protocol behaviour knowing HTTP/2 is the default, with `httpVersion = http:HTTP_1_1` to downgrade, `http2Settings: {http2PriorKnowledge: true}`, chunking via `chunking: http:CHUNKING_ALWAYS` or `http1Settings`, and HTTP/2 server push with `http:PushPromise`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-sse-service/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-sse-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-2-to-1-1-downgrade-service/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-2-prior-knowledge-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-service-chunking/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-2-0-server-push/", kind: bbe}
+out_of_scope:
+  - "General resource method syntax and service/listener semantics of the language (concept.resource_methods, concept.services_listeners)"
+  - "Designing REST APIs end to end (topic.rest_api)"
+  - "Generating services and clients from OpenAPI (tool.bal_openapi)"
+  - "MIME entity API details beyond HTTP multipart usage (lib.mime)"
+  - "JWT and OAuth2 token handling outside HTTP configuration (lib.jwt, lib.oauth2)"
+  - "Constraint annotation definitions (lib.constraint)"
+  - "HTTP trace and access log Config.toml settings (topic.observability)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.resource_methods, rel: uses, via: [service_declaration, path_query_header_params, client_calls]}
+  - {to: concept.client_objects, rel: uses, via: [client_calls, client_resiliency]}
+  - {to: concept.records, rel: uses, via: [payload_binding, status_code_responses, client_data_binding]}
+  - {to: concept.errors, rel: uses, via: [client_errors, service_error_handling]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [client_errors]}
+  - {to: concept.annotations, rel: uses, via: [path_query_header_params, cors_media_types, listener_auth, caching_compression]}
+  - {to: concept.json_anydata, rel: uses, via: [payload_binding, return_values, client_data_binding]}
+  - {to: concept.typedesc, rel: uses, via: [client_data_binding]}
+  - {to: concept.classes, rel: uses, via: [interceptors, service_error_handling]}
+  - {to: concept.streams, rel: uses, via: [sse_and_protocols, multipart_files]}
+  - {to: lib.mime, rel: uses, via: [multipart_files], target_items: [multipart_encode, multipart_decode]}
+  - {to: lib.auth, rel: uses, via: [listener_auth]}
+  - {to: lib.jwt, rel: uses, via: [listener_auth, client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [listener_auth, client_auth]}
+  - {to: lib.crypto, rel: uses, via: [ssl_tls]}
+  - {to: lib.constraint, rel: uses, via: [payload_binding, client_data_binding]}
+notes: "Item texts follow ballerina/http 2.18.1 (master == latest tag at research time). HTTP trace/access logs (`ballerina.http.traceLogAdvancedConfig`, `ballerina.http.accessLogConfig` in Config.toml), proxy config, service contract types (`*http:ServiceContract`), `laxDataBinding`, imperative auth handlers and OpenAPI introspection resources are documented but were not given their own item because of the 20-item cap."

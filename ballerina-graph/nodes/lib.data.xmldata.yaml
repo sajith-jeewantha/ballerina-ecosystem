@@ -1,0 +1,110 @@
+schema_version: "0.1"
+id: lib.data.xmldata
+type: library
+title: ballerina/data.xmldata
+summary: The `data.xmldata` module converts XML given as an `xml` value, string, byte array or byte-block stream into typed records with projection, maps names, attributes and namespaces through annotations, and converts records and JSON back to XML, with XSD validation and XPath queries.
+priority: important
+status: draft
+modules: [ballerina/data.xmldata]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/data.xmldata/latest", kind: central, note: "ballerina/data.xmldata 1.7.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/master/ballerina/README.md", kind: github, note: "Module README: XML to record canonical representation"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/master/ballerina/xml_api.bal", kind: github, note: "Public API with doc comments"}
+must_cover:
+  - id: parse_as_type
+    text: "Convert an `xml` value to a record with `xmldata:parseAsType`, letting the target record type be inferred, e.g. `Book book = check xmldata:parseAsType(xmlValue);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record/", kind: bbe}
+  - id: parse_string
+    text: "Parse XML text into a record with `xmldata:parseString`, for example content read from a file or received as a string payload"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record/", kind: bbe}
+  - id: parse_bytes_stream
+    text: "Parse XML from a `byte[]` with `xmldata:parseBytes` or from a `stream<byte[], error?>` with `xmldata:parseStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record/", kind: bbe}
+  - id: element_mapping
+    text: "Model child elements as record fields named after the element's local name, using nested or inline record types for elements with children and delimited identifiers such as `title\\-name` for names that are not valid identifiers"
+    difficulty: [beginner, intermediate]
+  - id: text_content_types
+    text: "Type element text content as `string`, `int`, `float`, `decimal` or `boolean` fields, and know that untyped numeric text becomes `decimal` and other text `string`"
+    difficulty: [intermediate]
+  - id: repeated_elements
+    text: "Map repeated sibling elements such as multiple `<author>` elements to an array field like `string[] author` or `Item[] items`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record-conversion/", kind: bbe}
+  - id: attributes
+    text: "Map XML attributes to record fields, and mark a field with `@xmldata:Attribute` to make it an attribute (attributes otherwise lose to a same-named child element)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-json-conversion/", kind: bbe}
+  - id: content_field
+    text: "Capture the text of an element that also has attributes in a `string` field named `#content` (written `\\#content`), or rename it with the `textFieldName` option"
+    difficulty: [intermediate, advanced]
+  - id: name_annotation
+    text: "Map an element or type name that differs from the Ballerina name with `@xmldata:Name {value: \"title-name\"}` on a record field or type"
+    difficulty: [intermediate]
+  - id: namespaces
+    text: "Bind XML namespaces with `@xmldata:Namespace {prefix: \"bk\", uri: \"http://example.com/book\"}` on record types and fields, knowing that field names use local names and namespace prefixes are not part of them"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record-conversion/", kind: bbe}
+  - id: projection
+    text: "Use a closed record to convert only the needed elements and attributes (others are dropped), versus an open record which keeps unmapped elements as extra fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record-with-projection/", kind: bbe}
+  - id: source_options
+    text: "Tune parsing with `xmldata:SourceOptions`: `allowDataProjection: false` to reject unexpected content, `attributePrefix`, `textFieldName`, `useSemanticEquality`, and `enableConstraintValidation` (on by default) to validate `@constraint` annotations"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/master/ballerina/xml_api.bal", kind: github, note: "type SourceOptions"}
+  - id: to_xml
+    text: "Convert a record or map to XML with `xmldata:toXml(value)`, using `@xmldata:Name`, `@xmldata:Namespace` and `@xmldata:Attribute` on the record type to control element names, namespaces and attributes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-from-record-conversion/", kind: bbe}
+  - id: from_json
+    text: "Convert a `json` value to XML with `xmldata:fromJson`, where keys prefixed with `@` become attributes, and adjust `attributePrefix`, `arrayEntryTag` (default `item`) and `rootTag` through `xmldata:JsonOptions`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-from-json-conversion/", kind: bbe}
+  - id: xml_to_json
+    text: "Convert XML to JSON by parsing it into a record with `xmldata:parseAsType` and then calling `toJson()` on the record"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-json-conversion/", kind: bbe}
+  - id: xsd_validate
+    text: "Validate an XML document against an XML schema with `xmldata:validate(xmlValue, \"schema.xsd\")` or against a record type that models the XSD, which can use `@xmldata:Element`, `@xmldata:Sequence`, `@xmldata:Choice` (with `minOccurs`/`maxOccurs`) and `@xmldata:SequenceOrder`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/master/ballerina/xml_api.bal", kind: github, note: "validate(xml, string|typedesc<record {}>) returns Error?"}
+  - id: xpath_transform
+    text: "Query XML with XPath using `xmldata:transform(xmlValue, query)`, where the query is a backtick XPath template and the result is projected to the expected type (`string`, `int`, `float`, `decimal`, `boolean`, `xml` or nil)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.xmldata/blob/master/ballerina/xpath_api.bal", kind: github}
+  - id: xmldata_errors
+    text: "Handle `xmldata:Error` returned for malformed XML, type mismatches or failed validation, using `check` or an `is xmldata:Error` test"
+    difficulty: [beginner, intermediate]
+out_of_scope:
+  - "The `xml` type, XML literals, navigation and mutation (concept.xml, lib.lang.xml)"
+  - "XSLT transformations (lib.xslt)"
+  - "Defining constraint annotations (lib.constraint)"
+edges:
+  - {to: concept.xml, rel: uses, via: [parse_as_type, to_xml, from_json, xpath_transform]}
+  - {to: concept.records, rel: uses, via: [parse_as_type, element_mapping, repeated_elements, projection]}
+  - {to: concept.annotations, rel: uses, via: [attributes, name_annotation, namespaces, xsd_validate]}
+  - {to: concept.json_anydata, rel: uses, via: [from_json, xml_to_json]}
+  - {to: concept.typedesc, rel: uses, via: [parse_as_type, xpath_transform]}
+  - {to: concept.streams, rel: uses, via: [parse_bytes_stream]}
+  - {to: concept.errors, rel: uses, via: [xmldata_errors]}
+  - {to: concept.lexical_structure, rel: uses, via: [element_mapping, content_field], note: "quoted/escaped identifiers"}
+  - {to: lib.constraint, rel: uses, via: [source_options], target_items: [constraint_annotations_fields, validate_function]}
+  - {to: lib.lang.xml, rel: related}
+  - {to: lib.xslt, rel: related}
+notes: "Verified against module-ballerina-data.xmldata master 1.7.1 (= latest tag). The README covers parse functions, name/attribute/namespace mapping and projection; `toXml`, `fromJson`, `validate`, `transform` (XPath) and the XSD annotations are taken from the public API source plus the xml-from-record/xml-from-json BBEs. The `@xmldata:Any` annotation is not covered."

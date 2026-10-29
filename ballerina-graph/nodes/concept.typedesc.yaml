@@ -56,5 +56,6 @@ out_of_scope:
   - "Declaring parameters and defaults in general (concept.functions)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [type_ids_function, dependent_typing], target_items: [lang_typedesc, lang_value]}
+  - {to: lib.langlib, rel: uses, via: [type_ids_function, dependent_typing]}
+  - {to: lib.lang.value, rel: uses, via: [type_ids_function, dependent_typing]}
 notes: "6.21 ends with 'For an error, this is the same as the type descriptor used in the functional-constructor-expr' — a stale term for error-constructor-expr."

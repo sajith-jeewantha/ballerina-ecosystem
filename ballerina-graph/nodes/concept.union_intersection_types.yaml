@@ -54,7 +54,7 @@ out_of_scope:
   - "The readonly type and read-only bit (concept.mutability_readonly)"
   - "anydata and json (concept.json_anydata)"
   - "distinct types (concept.type_ids_distinct)"
-  - "Narrowing union-typed variables (concept.type_narrowing)"
+  - "Narrowing union-typed variables (concept.type_cast_test)"
 edges:
   - {to: concept.basic_types, rel: requires}
   - {to: concept.type_ids_distinct, rel: uses, via: [definite_unions], target_items: [definite_type_descriptors]}

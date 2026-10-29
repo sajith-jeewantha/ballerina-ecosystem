@@ -2,7 +2,7 @@ schema_version: "0.1"
 id: concept.isolation
 type: concept
 title: Isolation
-summary: The isolation model that guarantees data-race freedom through isolated functions, isolated objects and classes, isolated module variables, isolated expressions and compiler-inferred isolation.
+summary: The isolation model that guarantees data-race freedom through isolated functions, isolated objects and classes, isolated module variables, isolated expressions and compiler-inferred isolation, together with the lock statement and the restrictions that apply when it guards isolated variables or isolated object state.
 priority: important
 status: draft
 sources:
@@ -10,6 +10,7 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#isolated_expressions", kind: spec, note: "6.2.6 Isolated expressions"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#isolated_functions", kind: spec, note: "7.3.5 Isolated functions"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.3", kind: spec, note: "8.3.3 Isolated inference"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lock_statement", kind: spec, note: "7.22 Lock statement"}
 must_cover:
   - id: isolated_roots
     text: "Explain the isolation guarantee: isolated objects and isolated variables are isolated roots whose freely reachable mutable state is accessed only under a lock statement, so there are no data races on it"
@@ -30,7 +31,7 @@ must_cover:
     text: "Know that an isolated function may contain a `start` only when the started call is isolated"
     difficulty: [advanced]
   - id: isolated_module_variables
-    text: "Declare `isolated` module variables, which must not be public, must bind a plain variable name and must have an isolated initializer, and access them only inside `lock`"
+    text: "Declare `isolated` module variables, which must not be public, must bind a plain variable name and must have an isolated initializer, and access them only inside a `lock` statement"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.7", kind: spec, note: "8.7 Module variable declaration"}
@@ -40,7 +41,7 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
   - id: isolated_objects
-    text: "Define isolated objects with `isolated class C { ... }` or `isolated object { ... }`, where every field initializer must be isolated, fields that are not isolated (final with readonly or isolated-object type) must be `private`, and `self` must be used inside a `lock` except in `self.f` where `f` is an isolated field"
+    text: "Define isolated objects with `isolated class C { ... }` or `isolated object { ... }`, where every field initializer must be isolated, fields that are not isolated (final with readonly or isolated-object type) must be `private`, and in the methods `self` must be used inside a `lock` (e.g. `lock { self.count += 1; }`) except in `self.f` where `f` is an isolated field"
     difficulty: [intermediate, advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.1", kind: spec, note: "6.8.1.1 Fields"}
@@ -68,14 +69,32 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.3.3", kind: spec, note: "8.3.3 Isolated inference"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.2", kind: spec, note: "7.3.2 Workers"}
+  - id: lock_basic
+    text: "Use `lock { ... }` so that the block's effect on program state is as if it were not interleaved with any lock statement executing on another strand, which behaves like acquiring one program-wide recursive mutex around the block, while implementations may infer finer-grained locking with the same effect"
+    difficulty: [beginner, intermediate]
+  - id: lock_forbidden_constructs
+    text: "Know that `start` and named worker declarations are compile-time errors lexically inside a lock, that starting a strand while a lock is held panics, and that a lock statement may not contain a sync send action (`->>`) or a receive action (`<-`), a restriction added in 2024R1"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_B.1", kind: spec, note: "B.1 Changes 2023R1 to 2024R1"}
+  - id: one_restricted_variable
+    text: "Know that a lock statement may use at most one restricted variable (an isolated module variable or `self` of an isolated object), and that inside a lock using a restricted variable only functions and methods with isolated types may be called"
+    difficulty: [advanced]
+  - id: transfer_out
+    text: "Apply the transfer-out rules: a `return` inside the lock must return an isolated expression, and an assignment to a variable defined outside must have a plain variable name on the left and an isolated expression on the right (assigning the restricted variable itself is exempt)"
+    difficulty: [advanced]
+  - id: transfer_in
+    text: "Apply the transfer-in rule: a reference to a variable or parameter defined outside the lock must occur within an isolated expression (for example `x.clone()` or a readonly value), and in a non-isolated object `self` is treated like a parameter"
+    difficulty: [advanced]
 out_of_scope:
-  - "Lock statement rules (concept.lock_statement)"
   - "Readonly and immutability (concept.mutability_readonly)"
-  - "@isolatedParam on langlib functions (concept.langlib_conventions)"
+  - "@isolatedParam on langlib functions (lib.langlib)"
+  - "on fail on lock statements (concept.errors)"
 edges:
   - {to: concept.functions, rel: requires}
   - {to: concept.mutability_readonly, rel: requires}
   - {to: concept.objects, rel: requires}
-  - {to: concept.lock_statement, rel: uses, via: [isolated_module_variables, isolated_objects], target_items: [isolated_var_access, self_in_isolated_object]}
   - {to: concept.services_listeners, rel: uses, via: [isolated_inference, concurrency_benefit]}
   - {to: concept.strands_workers, rel: related}
+  - {to: concept.strands_workers, rel: requires}
+  - {to: concept.worker_messages, rel: uses, via: [lock_forbidden_constructs]}

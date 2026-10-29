@@ -1,0 +1,59 @@
+schema_version: "0.1"
+id: lib.lang.error
+type: library
+title: ballerina/lang.error
+summary: The `lang.error` module (basic type error) provides functions to read an error's message, cause, detail record and stack trace and to convert errors to strings, plus the `NoMessage` and `Retriable` error types and the `DefaultRetryManager` used by retry statements.
+priority: important
+status: draft
+modules: [ballerina/lang.error]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error module"}
+must_cover:
+  - id: message
+    text: "Get an error's message string with `e.message()`, e.g. when logging or returning a failure description"
+    difficulty: [beginner]
+  - id: cause
+    text: "Get the error that caused an error with `e.cause()`, which returns `error?`, and walk a chain of causes"
+    difficulty: [beginner, intermediate]
+  - id: detail
+    text: "Get an error's detail record with `e.detail()`, which returns an immutable value typed `readonly & D` for an `error<D>`, and read its fields, e.g. `e.detail().code` for `error<record {| int code; |}>`"
+    difficulty: [intermediate]
+  - id: detail_type
+    text: "Explain that every error detail record must belong to `error:Detail` (`record {| error:Cloneable...; |}`), where `error:Cloneable` is `readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>`"
+    difficulty: [intermediate, advanced]
+  - id: stack_trace
+    text: "Use `e.stackTrace()` to get the error's stack trace as `error:StackFrame[]`, whose first member is the top of the call stack, and call `toString()` on each frame (a single line without newlines)"
+    difficulty: [intermediate]
+  - id: to_string
+    text: "Convert an error to a string with `e.toString()` (direct style) or `e.toBalString()` (expression style, in Ballerina syntax), both defined by the ToString abstract operation"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ToString", kind: spec, note: "5.8.5 ToString"}
+  - id: no_message
+    text: "Handle `error:NoMessage`, the distinct error type a receive action (e.g. `int|error:NoMessage v = <- w1;`) evaluates to when no message has been sent to it, so it appears in the receive action's static type"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.1", kind: spec, note: "7.8.2.1 Single receive action"}
+  - id: retriable
+    text: "Define errors as retryable by making them belong to the distinct type `error:Retriable` (e.g. `type ConnectionError distinct error:Retriable;`), so that the default retry manager retries them"
+    difficulty: [intermediate, advanced]
+  - id: default_retry_manager
+    text: "Use `error:DefaultRetryManager`, the retry manager a `retry` statement uses when no type parameter is given: `init(int count = 3)` sets the retry budget and `shouldRetry(e)` returns true (and decrements the count) only while `e is error:Retriable` and the count is above 0, e.g. `retry<error:DefaultRetryManager>(5) { ... }`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.3", kind: spec, note: "7.23.3 Retry statement"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.6", kind: spec, note: "5.7.6 RetryManager"}
+out_of_scope:
+  - "Error types, error constructors, check, fail, panic and on fail (concept.errors)"
+  - "The retry statement and custom RetryManager classes (concept.retry)"
+  - "Worker message passing (concept.worker_messages)"
+  - "The current call stack via runtime:getStackTrace (lib.lang.runtime)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: concept.errors, rel: uses, via: [message, cause, detail, detail_type, stack_trace, to_string, retriable]}
+  - {to: concept.value_cloning, rel: uses, via: [to_string, detail_type]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [no_message, retriable]}
+  - {to: concept.worker_messages, rel: uses, via: [no_message]}
+  - {to: concept.retry, rel: uses, via: [retriable, default_retry_manager]}
+  - {to: lib.lang.runtime, rel: related, note: "lang.error and lang.runtime both define a StackFrame type (duplicated to avoid a dependency)"}
+notes: "Expands the lang_error item of the removed concept.langlib node. The `type ConnectionError distinct error:Retriable;` and `retry<error:DefaultRetryManager>(5)` examples are illustrative; the spec says the retry statement's type parameter defaults to `DefaultRetryManager` (7.23.3) and that the retry statement creates the manager with `new T(A)`. The detail field-access example assumes a closed detail record type."

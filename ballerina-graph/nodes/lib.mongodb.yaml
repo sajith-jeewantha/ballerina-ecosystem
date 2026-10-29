@@ -1,0 +1,70 @@
+schema_version: "0.1"
+id: lib.mongodb
+type: library
+title: ballerinax/mongodb
+summary: "The MongoDB connector: a `mongodb:Client` connected by connection parameters or a connection string, with `mongodb:Database` and `mongodb:Collection` clients for document CRUD, typed queries returning streams, aggregation pipelines and index management."
+priority: important
+status: draft
+modules: [ballerinax/mongodb]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/mongodb/latest", kind: central, note: "ballerinax/mongodb 5.2.4 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mongodb/blob/master/ballerina/README.md", kind: github, note: "Module README (quickstart)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mongodb/blob/master/ballerina/collection.bal", kind: github, note: "Collection remote methods"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mongodb/blob/master/ballerina/types.bal", kind: github, note: "ConnectionConfig, credentials, options, Update, result types"}
+must_cover:
+  - id: client_params
+    text: "Create a `mongodb:Client` from connection parameters, e.g. `check new ({connection: {serverAddress: {host: \"localhost\", port: 27017}, auth: <mongodb:ScramSha256AuthCredential>{username, password, database: \"admin\"}}})`"
+    difficulty: [beginner]
+  - id: client_connection_string
+    text: "Create a `mongodb:Client` from a connection string (e.g. one copied from MongoDB Atlas) with `check new ({connection: \"mongodb+srv://...\"})`"
+    difficulty: [beginner]
+  - id: auth_and_options
+    text: "Choose an authentication record (`mongodb:BasicAuthCredential`, `mongodb:ScramSha1AuthCredential`, `mongodb:ScramSha256AuthCredential`, `mongodb:X509Credential`, `mongodb:GssApiCredential`) and set connection `options` such as `sslEnabled`, `secureSocket`, `replicaSet`, `readConcern`, `writeConcern`, `readPreference` and `maxPoolSize`"
+    difficulty: [intermediate, advanced]
+  - id: databases_collections
+    text: "Navigate and manage data with `mongoDb->getDatabase(\"movies\")`, `db->getCollection(\"movies\")`, `listDatabaseNames()`, `listCollectionNames()`, `createCollection(name)` and `drop()`"
+    difficulty: [beginner]
+  - id: insert_documents
+    text: "Insert Ballerina records as documents with `collection->insertOne(movie)` and `collection->insertMany(movies)`"
+    difficulty: [beginner]
+  - id: find_documents
+    text: "Query documents with `collection->find({year: 2010})`, binding results to `stream<Movie, error?>` through the inferred `targetType`, passing `mongodb:FindOptions` (`sort`, `'limit`, `skip`, `batchSize`), and closing the stream when done"
+    difficulty: [beginner, intermediate]
+  - id: find_one
+    text: "Fetch a single document with `collection->findOne(filter)`, which returns the typed record or `()` when nothing matches"
+    difficulty: [beginner]
+  - id: projection
+    text: "Limit returned fields either implicitly through a target record type with a subset of fields or explicitly with a `projection` map such as `{title: 1, year: 1}`"
+    difficulty: [intermediate]
+  - id: update_documents
+    text: "Update documents with `collection->updateOne(filter, {set: {...}, inc: {...}})` or `updateMany`, using `mongodb:Update` operators and `{upsert: true}` in `mongodb:UpdateOptions`, and read `matchedCount`, `modifiedCount` and `upsertedId` from `mongodb:UpdateResult`"
+    difficulty: [intermediate]
+  - id: delete_documents
+    text: "Delete documents with `collection->deleteOne(filter)` or `deleteMany(filter)` and read `deletedCount` from `mongodb:DeleteResult`"
+    difficulty: [beginner]
+  - id: count_distinct
+    text: "Count matching documents with `collection->countDocuments(filter)` and get distinct field values as a stream with `collection->'distinct(\"genre\")`"
+    difficulty: [intermediate]
+  - id: aggregate
+    text: "Run aggregation pipelines with `collection->aggregate([{\"$match\": {...}}, {\"$group\": {...}}], ResultType)`, which returns a `stream` of the target type"
+    difficulty: [advanced]
+  - id: indexes
+    text: "Manage indexes with `collection->createIndex({title: 1}, {unique: true})`, `listIndexes()`, `dropIndex(name)` and `dropIndexes()`"
+    difficulty: [intermediate]
+  - id: errors_and_close
+    text: "Handle `mongodb:Error` (a union of `mongodb:DatabaseError` with detail `mongoDBExceptionType`, `mongodb:ApplicationError` and `error`) and close the client with the remote call `check mongoDb->close()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-mongodb/blob/master/ballerina/errors.bal", kind: github, note: "Error types"}
+out_of_scope:
+  - "Relational database access (lib.sql)"
+  - "General connector usage patterns (topic.connectors)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [databases_collections, insert_documents, find_documents, errors_and_close]}
+  - {to: concept.records, rel: uses, via: [insert_documents, projection, update_documents]}
+  - {to: concept.json_anydata, rel: uses, via: [find_documents, update_documents, aggregate], note: "Filters, updates and pipelines are map<json>"}
+  - {to: concept.streams, rel: uses, via: [find_documents, aggregate, count_distinct]}
+  - {to: concept.typedesc, rel: uses, via: [find_documents, aggregate]}
+  - {to: concept.errors, rel: uses, via: [errors_and_close]}
+  - {to: lib.crypto, rel: uses, via: [auth_and_options]}
+notes: "Verified against module-ballerinax-mongodb master (5.2.4). The README quickstart calls `collection->insert(movie)`, but the Collection API defines `insertOne`/`insertMany`; items use the source names."

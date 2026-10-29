@@ -1,0 +1,47 @@
+schema_version: "0.1"
+id: lib.ai.ollama
+type: library
+title: ballerinax/ai.ollama
+summary: "Ollama implementation of `ai:ModelProvider`: `ollama:ModelProvider` runs `ballerina/ai` chat, typed generation and agents against open-source models served by a local Ollama server."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.ollama]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.ollama/latest", kind: central, note: "ballerinax/ai.ollama 1.2.x package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/provider.bal", kind: github, note: "ModelProvider"}
+must_cover:
+  - id: model_provider_init
+    text: "Create a model for a locally pulled Ollama model by name with `final ai:ModelProvider ollamaModel = check new ollama:ModelProvider(\"llama3\");`, with the Ollama server already running"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+  - id: service_url
+    text: "Point the provider at a non-default Ollama server with the `serviceUrl` argument (the default is `http://localhost:11434`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/provider.bal", kind: github, note: "DEFAULT_OLLAMA_SERVICE_URL"}
+  - id: model_parameters
+    text: "Set Ollama sampling options as named arguments from the included `ollama:OllamaModelParameters` record, such as `temperature`, `topK`, `topP`, `numCtx`, `numPredict`, `repeatPenalty` and `seed`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/types.bal", kind: github, note: "OllamaModelParameters"}
+  - id: connection_config
+    text: "Pass HTTP client settings from `ollama:ConnectionConfig` as named arguments, such as `timeout` and `retryConfig`, for slow local inference"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+  - id: chat_and_generate
+    text: "Use the provider through the `ai:ModelProvider` API, e.g. `check ollamaModel->chat(chatMessages, tools = [])` or a typed `generate`, and as the `model` of an `ai:Agent`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+out_of_scope:
+  - "Chat, generate, agents and RAG APIs themselves (lib.ai)"
+  - "Installing Ollama and pulling models"
+edges:
+  - {to: lib.ai, rel: implements, via: [model_provider_init, chat_and_generate], target_items: [model_provider_init, chat_history, generate_typed, agent_create]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_and_generate]}
+  - {to: concept.records, rel: uses, via: [model_parameters], note: "Included record parameter supplies named arguments"}
+  - {to: lib.http, rel: uses, via: [connection_config]}
+notes: "Verified against module-ballerinax-ai.ollama main (1.2.6-dev; Central latest 1.2.5, same init signature). The model is a plain string, not an enum; \"llama3\" is an example name from the README's list of supported models."

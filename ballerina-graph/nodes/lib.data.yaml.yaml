@@ -1,0 +1,78 @@
+schema_version: "0.1"
+id: lib.data.yaml
+type: library
+title: ballerina/data.yaml
+summary: The `data.yaml` module parses YAML given as a string, byte array or byte-block stream into typed `anydata` values such as records with projection, and serializes Ballerina values to YAML strings with configurable formatting.
+priority: long_tail
+status: draft
+modules: [ballerina/data.yaml]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/data.yaml/latest", kind: central, note: "ballerina/data.yaml 1.0.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.yaml/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.yaml/blob/master/ballerina/yaml_api.bal", kind: github, note: "Public API with Options and WriteConfig"}
+must_cover:
+  - id: parse_string
+    text: "Parse YAML text, e.g. a config file read with `io:fileReadString`, into a record with `yaml:parseString`, letting the target type be inferred: `ServerConfig config = check yaml:parseString(content);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/yaml-to-anydata/", kind: bbe}
+  - id: parse_bytes_stream
+    text: "Parse YAML from a `byte[]` with `yaml:parseBytes` or from a `stream<byte[], error?>` with `yaml:parseStream`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/yaml-to-anydata/", kind: bbe}
+  - id: parse_untyped
+    text: "Parse YAML into a generic value such as `json` or `map<json>` when there is no record type for it"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.yaml/blob/master/ballerina/yaml_api.bal", kind: github, note: "json value = yaml:parseString(\"name: Ballerina\")"}
+  - id: nested_records
+    text: "Map nested YAML mappings and sequences to nested record types and array fields, e.g. a `database` mapping to a `DatabaseConfig` field"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/yaml-to-anydata-with-projection/", kind: bbe}
+  - id: projection
+    text: "Project YAML onto closed records to drop unwanted keys (e.g. a `password`) and onto fixed-length arrays such as `int[2]` to keep only the first members of a sequence"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/yaml-to-anydata-with-projection/", kind: bbe}
+  - id: projection_options
+    text: "Adjust projection with `yaml:Options`: `allowDataProjection: false` to reject extra content, or `allowDataProjection: {nilAsOptionalField: true, absentAsNilableType: true}`"
+    difficulty: [advanced]
+  - id: yaml_document_streams
+    text: "Parse a multi-document YAML stream into a tuple, setting `allowDataProjection: {enableYamlStreamReorder: true}` so documents are matched to tuple members even when their order is unknown"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.yaml/blob/master/ballerina/yaml_api.bal", kind: github, note: "enableYamlStreamReorder: yaml document to top level tuple value will be re-ordered"}
+  - id: parse_schema_options
+    text: "Choose the YAML schema used to resolve scalars with `schema: yaml:FAILSAFE_SCHEMA`, `yaml:JSON_SCHEMA` or `yaml:CORE_SCHEMA` (default), and control `allowAnchorRedefinition` and `allowMapEntryRedefinition`"
+    difficulty: [advanced]
+  - id: to_yaml_string
+    text: "Serialize a record, map or `json` value to YAML text with `yaml:toYamlString(value)`, which returns `string|yaml:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/anydata-to-yaml-string/", kind: bbe}
+  - id: write_config
+    text: "Format output with `yaml:WriteConfig` options such as `indentationPolicy`, `blockLevel`, `flowStyle`, `useSingleQuotes`, `forceQuotes`, `canonical` and `isStream` for writing a stream of YAML documents"
+    difficulty: [intermediate, advanced]
+  - id: constraint_validation
+    text: "Rely on `@constraint` annotations on the target type being validated during parsing (`enableConstraintValidation`, on by default)"
+    difficulty: [intermediate]
+  - id: yaml_errors
+    text: "Handle `yaml:Error` returned for malformed YAML or values that do not match the target type"
+    difficulty: [beginner, intermediate]
+out_of_scope:
+  - "TOML handling (lib.toml)"
+  - "Defining constraint annotations (lib.constraint)"
+  - "Reading files (lib.io)"
+edges:
+  - {to: concept.records, rel: uses, via: [parse_string, nested_records, projection]}
+  - {to: concept.json_anydata, rel: uses, via: [parse_untyped, to_yaml_string]}
+  - {to: concept.arrays_tuples, rel: uses, via: [projection, yaml_document_streams]}
+  - {to: concept.streams, rel: uses, via: [parse_bytes_stream]}
+  - {to: concept.typedesc, rel: uses, via: [parse_string]}
+  - {to: concept.errors, rel: uses, via: [yaml_errors]}
+  - {to: lib.io, rel: uses, via: [parse_string], target_items: [file_string]}
+  - {to: lib.constraint, rel: uses, via: [constraint_validation], target_items: [constraint_annotations_fields, validate_function]}
+  - {to: lib.toml, rel: related, note: "both parse configuration-style documents"}
+notes: "Verified against module-ballerina-data.yaml master 1.0.1 (= latest tag). Option and WriteConfig semantics come from field doc comments in yaml_api.bal; the stream-reorder behaviour is documented only briefly, so the item stays at that level."

@@ -1,0 +1,39 @@
+schema_version: "0.1"
+id: lib.math.vector
+type: library
+title: ballerina/math.vector
+summary: "The `math.vector` module provides vector operations on `float[]` values: L1/L2 norms, dot product, cosine similarity, Euclidean distance and Manhattan distance, useful for comparing embeddings."
+priority: long_tail
+status: draft
+modules: [ballerina/math.vector]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/math.vector/latest", kind: central, note: "ballerina/math.vector 1.2.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-math.vector/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-math.vector/blob/main/ballerina/vector.bal", kind: github, note: "API source with examples"}
+must_cover:
+  - id: vector_norm
+    text: "Compute the norm of a `float[]` with `vector:vectorNorm(v, vector:L2)` (square root of the sum of squares, e.g. 3.7416573867739413 for `[1.0, 2.0, 3.0]`) or `vector:L1` (sum of absolute values)"
+    difficulty: [beginner]
+  - id: dot_product
+    text: "Compute the dot product of two equal-length vectors with `vector:dotProduct(v1, v2)`, e.g. 32.0 for `[1.0, 2.0, 3.0]` and `[4.0, 5.0, 6.0]`"
+    difficulty: [beginner]
+  - id: cosine_similarity
+    text: "Measure the similarity of two vectors, such as text embeddings, with `vector:cosineSimilarity(v1, v2)`, which returns the dot product divided by the product of their L2 norms"
+    difficulty: [beginner, intermediate]
+  - id: distances
+    text: "Compute distances between equal-length vectors with `vector:euclideanDistance(v1, v2)` and `vector:manhattanDistance(v1, v2)`"
+    difficulty: [beginner]
+  - id: panics
+    text: "Explain that these functions panic rather than return errors when the vectors have different lengths, or for `cosineSimilarity` when either vector is all zeros, and guard inputs or use `trap` accordingly"
+    difficulty: [intermediate]
+  - id: nearest_match
+    text: "Find the most similar item by computing `vector:cosineSimilarity` between a query vector and each candidate `float[]` and keeping the highest score"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Embedding generation and vector stores for retrieval-augmented generation (lib.ai)"
+  - "Scalar math functions such as `float:pow` and `float:sqrt` (lib.lang.float)"
+edges:
+  - {to: concept.arrays_tuples, rel: uses, via: [vector_norm, dot_product, distances, nearest_match]}
+  - {to: concept.numeric_types, rel: uses, via: [vector_norm, cosine_similarity]}
+  - {to: concept.constants_enums, rel: uses, via: [vector_norm]}
+  - {to: concept.errors, rel: uses, via: [panics]}

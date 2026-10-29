@@ -2,7 +2,7 @@ schema_version: "0.1"
 id: concept.transactions
 type: concept
 title: Transactions
-summary: Language support for transactions, covering the transaction statement, commit and rollback, transactional scope and functions, retry transaction, and the lang.transaction functions.
+summary: Language support for transactions, covering the transaction statement, commit and rollback, transactional scope and functions, retry transaction and the lang.transaction functions, plus the abstract transaction manager with global transactions, per-strand transaction stacks and the Begin, Commit (two-phase commit) and Rollback operations.
 priority: important
 status: draft
 sources:
@@ -12,6 +12,10 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.4", kind: spec, note: "7.24.4 Commit action"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.5", kind: spec, note: "7.24.5 Rollback statement"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1", kind: spec, note: "7.24.1 Transaction manager"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.1", kind: spec, note: "7.24.1.1 Begin operation"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.2", kind: spec, note: "7.24.1.2 Commit operation"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.3", kind: spec, note: "7.24.1.3 Rollback operation"}
 must_cover:
   - id: transaction_stmt
     text: "Write `transaction { ...; check commit; }`, knowing the block must contain a `commit` action and the compiler must verify that every exit other than a panic or fail has executed `commit` or `rollback`"
@@ -61,12 +65,30 @@ must_cover:
   - id: transactional_strands
     text: "Know that a `transactional` named worker, or `start` of a transactional function, creates a new transaction branch joined to the current global transaction"
     difficulty: [advanced]
+  - id: global_transactions
+    text: "Explain global transactions: one or more transaction branches, each the work of a single strand and identified by an XID combining the global transaction id and a branch id, and that each strand has a transaction stack, is in transaction mode when the stack is non-empty, and has the top entry as its current transaction branch"
+    difficulty: [advanced]
+  - id: begin_operation
+    text: "Describe the Begin operation: it starts a global transaction, pushes its initiating branch onto the strand's stack, and optionally receives information about previous attempts in a retry sequence"
+    difficulty: [advanced]
+  - id: commit_operation
+    text: "Describe the Commit operation: it pops the branch and starts a commit, running two-phase commit (prepare, then decide) and deciding to roll back with a cause error if any participant cannot commit or does not respond; once the manager decides, it calls the registered commit handlers or rollback handlers (passing the rollback cause) for its branches, tells the participants, and Commit returns the rollback error or nil"
+    difficulty: [advanced]
+  - id: rollback_operation
+    text: "Describe the Rollback operation: it pops the branch and calls the rollback handlers, passing them the given error or nil"
+    difficulty: [advanced]
+  - id: retry_manager_in_operations
+    text: "Explain that for retry transactions Commit and Rollback receive the RetryManager, call its `shouldRetry`, record the result, and pass it to rollback handlers as `willRetry`"
+    difficulty: [advanced]
+  - id: distributed_transactions
+    text: "Explain cross-program transactions: transaction managers coordinate over a network protocol, listeners join service remote or resource methods to the global transaction (and do not call a `transactional` method unless they can), and transactional client remote methods propagate the transaction to the recipient; the transaction manager may run in the same process or a separate one, but should not be connected to the program over an unreliable network"
+    difficulty: [advanced]
 out_of_scope:
-  - "Transaction manager Begin/Commit/Rollback operations and two-phase commit (concept.transaction_manager)"
   - "RetryManager classes (concept.retry)"
 edges:
-  - {to: concept.error_handling, rel: requires}
+  - {to: concept.errors, rel: requires}
   - {to: concept.functions, rel: requires}
   - {to: concept.strands_workers, rel: requires}
-  - {to: concept.retry, rel: uses, via: [retry_transaction], target_items: [retry_semantics, custom_manager]}
-  - {to: concept.langlib, rel: uses, via: [commit_action, commit_rollback_handlers, transaction_langlib], target_items: [lang_transaction]}
+  - {to: concept.retry, rel: uses, via: [retry_transaction, retry_manager_in_operations], target_items: [retry_semantics, custom_manager, retry_manager_type]}
+  - {to: lib.langlib, rel: uses, via: [commit_action, commit_rollback_handlers, transaction_langlib]}
+notes: "7.24.1.3 says the Rollback operation 'initiates a commit of the global transaction', which looks like a typo for 'rollback'; the item describes it as rollback."

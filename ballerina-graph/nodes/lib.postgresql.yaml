@@ -1,0 +1,68 @@
+schema_version: "0.1"
+id: lib.postgresql
+type: library
+title: ballerinax/postgresql
+summary: "The PostgreSQL connector: a `postgresql:Client` implementing the `sql:Client` API, PostgreSQL connection options and SSL, PostgreSQL-specific typed values and OUT parameters (JSON, UUID, network, geometric, interval, range types), and a `postgresql:CdcListener` based on logical replication."
+priority: important
+status: draft
+modules: [ballerinax/postgresql, ballerinax/postgresql.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/postgresql/latest", kind: central, note: "ballerinax/postgresql 1.19.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/client.bal", kind: github, note: "Client init, Options, SSLMode, SecureSocket, CertKey"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/types.bal", kind: github, note: "PostgreSQL TypedValue classes"}
+must_cover:
+  - id: driver_import
+    text: "Add the PostgreSQL JDBC driver by importing `ballerinax/postgresql.driver as _;`, or pin a version in `Ballerina.toml` with `[[platform.java17.dependency]]` `groupId = \"org.postgresql\"`, `artifactId = \"postgresql\"`"
+    difficulty: [beginner]
+  - id: client_init
+    text: "Create a `postgresql:Client` with positional arguments `new (\"localhost\", \"postgres\", \"postgres\", \"postgres\", 5432)` (host, username, password, database, port) or named arguments such as `new (username = \"postgres\", password = \"postgres\", database = \"test\")`, noting the parameter is `username` (default `\"postgres\"`) and the default port is 5432"
+    difficulty: [beginner]
+  - id: client_options
+    text: "Configure `postgresql:Options` such as `connectTimeout`, `socketTimeout`, `loginTimeout`, `rowFetchSize`, `currentSchema`, `preparedStatementThreshold`, `cancelSignalTimeout`, `keepAliveTcpProbe` and `binaryTransfer`"
+    difficulty: [intermediate]
+  - id: ssl
+    text: "Connect over SSL with `ssl: {mode: postgresql:REQUIRE, rootcert: \"...\", key: ...}` in `postgresql:Options`, choosing a mode from `PREFER`, `REQUIRE`, `DISABLE`, `ALLOW`, `VERIFY_CA`, `VERIFY_FULL` and giving the client key either as a `.p12` `crypto:KeyStore` or as a `postgresql:CertKey {certFile, keyFile, keyPassword}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/client.bal", kind: github, note: "SSLMode enum and SecureSocket"}
+  - id: connection_pool
+    text: "Pass `connectionPool = {maxOpenConnections: 5}` or a shared `sql:ConnectionPool` record to `postgresql:Client`, or omit it to use the global pool"
+    difficulty: [intermediate]
+  - id: sql_operations
+    text: "Use the `sql:Client` remote methods on `postgresql:Client` (`query`, `queryRow`, `execute`, `batchExecute`, `call`) with `sql:ParameterizedQuery` templates"
+    difficulty: [beginner, intermediate]
+  - id: json_uuid_values
+    text: "Insert PostgreSQL `JSON`, `JSONB` and `UUID` columns with `postgresql:JsonValue`, `postgresql:JsonBinaryValue` and `postgresql:UuidValue` (e.g. `postgresql:JsonBinaryValue doc = new ({\"a\": 1});`) inside a parameterized query"
+    difficulty: [intermediate]
+  - id: network_geometric_values
+    text: "Pass network and geometric types with `postgresql:InetValue`, `postgresql:CidrValue`, `postgresql:MacAddrValue`, and `postgresql:PointValue`, `postgresql:LineSegmentValue`, `postgresql:BoxValue`, `postgresql:CircleValue`, `postgresql:PolygonValue`, using records such as `postgresql:Point {x, y}` or string literals as values"
+    difficulty: [advanced]
+  - id: interval_range_values
+    text: "Pass interval and range types with `postgresql:IntervalValue` (from a `postgresql:Interval {years, months, days, hours, minutes, seconds}` record) and range values such as `postgresql:IntegerRangeValue`, `postgresql:NumericRangeValue`, `postgresql:TsRangeValue` and `postgresql:DateRangeValue`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/record_types.bal", kind: github, note: "Point, Interval, Range record types"}
+  - id: out_parameters
+    text: "Call PostgreSQL functions and procedures that return PostgreSQL-specific types using OUT parameters such as `postgresql:JsonOutParameter`, `postgresql:UuidOutParameter`, `postgresql:IntervalOutParameter` and `postgresql:InetOutParameter`, reading them with `get()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/procedure_params.bal", kind: github, note: "PostgreSQL OutParameter classes"}
+  - id: cdc_listener_config
+    text: "Enable logical replication (`wal_level = logical`) and configure a `postgresql:CdcListener` with `database: {username, password, databaseName, includedSchemas, includedTables, replicationConfig: {pluginName: postgresql:PGOUTPUT, slotName}, publicationConfig: {publicationName, publicationAutocreateMode: postgresql:FILTERED}}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/listener_types.bal", kind: github, note: "PostgresDatabaseConnection, ReplicationConfiguration, PublicationConfiguration"}
+out_of_scope:
+  - "Generic query/execute/call semantics and the common sql:TypedValue/OutParameter types (lib.sql)"
+  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "Using PostgreSQL through generated persist clients (lib.persist)"
+edges:
+  - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, json_uuid_values, out_parameters], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, out_parameters, connection_pools]}
+  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
+  - {to: concept.classes, rel: uses, via: [json_uuid_values, network_geometric_values, interval_range_values]}
+  - {to: concept.json_anydata, rel: uses, via: [json_uuid_values]}
+  - {to: lib.crypto, rel: uses, via: [ssl]}
+  - {to: tool.ballerina_toml, rel: uses, via: [driver_import]}
+notes: "Verified against module-ballerinax-postgresql master (1.19.1). The README lists SSL modes as `postgresql:PREFERRED`/`REQUIRED`, but the source enum is `PREFER`, `REQUIRE`, `DISABLE`, `ALLOW`, `VERIFY_CA`, `VERIFY_FULL`; items follow the source. The README's CDC example sets `pluginName`, `slotName` and `publicationName` at the top of `database`; these are @deprecated in favour of `replicationConfig`/`publicationConfig`, so items use the new form. How PostgreSQL-specific columns map back on `query` was not confirmed and is not claimed."

@@ -2,7 +2,7 @@ schema_version: "0.1"
 id: concept.strings
 type: concept
 title: Strings
-summary: The immutable string sequence type of Unicode scalar values, string literals and escapes, indexing, iteration, concatenation and string template expressions.
+summary: The immutable string sequence type of Unicode scalar values, string literals and escapes, indexing, iteration, concatenation and string template expressions, plus untagged raw templates that construct `object:RawTemplate` values holding the literal string parts and the interpolated values separately.
 priority: core
 status: draft
 sources:
@@ -10,6 +10,8 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.3.1", kind: spec, note: "5.3.1 Strings"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6", kind: spec, note: "6.6 Template expressions"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.1", kind: spec, note: "6.6.1 String template expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.4", kind: spec, note: "6.6.4 Raw template expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.5", kind: spec, note: "5.7.5 RawTemplate"}
 must_cover:
   - id: string_values
     text: Explain that a string is a sequence of zero or more Unicode scalar values (code points 0x0 to 0x10FFFF excluding surrogates), may contain noncharacters such as 0xFFFE, and is inherently immutable with no storage identity
@@ -45,8 +47,8 @@ must_cover:
     text: Explain that string template interpolations are evaluated left to right and each result is converted with the direct-style ToString, so `string `${1.0}`` gives "1.0"
     difficulty: [intermediate]
   - id: backtick_string_rules
-    text: Explain that every character in a BacktickString outside `${...}` is literal (no escape sequences), and include a literal backtick with the interpolation `${"`"}`
-    difficulty: [intermediate]
+    text: Explain that every character in a BacktickString outside `${...}` interpolations is literal (no escape sequences), including a `$` not followed by `{`, and include a literal backtick with the interpolation `${"`"}`
+    difficulty: [beginner, intermediate]
   - id: string_ordering
     text: Compare strings with `<`, `<=`, `>`, `>=`, which order lexicographically by Unicode code point
     difficulty: [beginner, intermediate]
@@ -57,12 +59,36 @@ must_cover:
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.string", kind: spec, note: "11.3.13 lang.string"}
+  - id: raw_template_expr
+    text: 'Write an untagged template such as `` `SELECT * FROM t WHERE id = ${id}` `` to construct a raw template object instead of a string'
+    difficulty: [beginner, intermediate]
+  - id: rawtemplate_type
+    text: 'Describe `object:RawTemplate`, a distinct object type with fields `public (readonly & string[]) strings` and `public (any|error)[] insertions`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+  - id: strings_and_insertions
+    text: 'Explain that `insertions` holds the interpolated values evaluated in order and `strings` holds the literal text split at the interpolation points, so `strings` has one more member than `insertions`'
+    difficulty: [intermediate]
+  - id: per_expression_class
+    text: 'Explain that each raw template expression has its own class (a subtype of RawTemplate) whose `strings` value is created once, while a new `insertions` list is created on every evaluation'
+    difficulty: [advanced]
+  - id: insertions_typing
+    text: 'Explain that the type of `insertions` comes from the contextually expected type (or the interpolation types), as for a list constructor, and that the fields are read-only if the expected type requires it'
+    difficulty: [advanced]
+  - id: constrained_raw_templates
+    text: 'Use a subtype of `object:RawTemplate` with a narrower `insertions` type as the expected type, so that the compiler checks the types of the interpolated expressions'
+    difficulty: [advanced]
 out_of_scope:
-  - "Detailed lang.string function semantics (concept.langlib_string)"
-  - "XML, raw and regular-expression templates (concept.xml, concept.raw_templates, concept.regexp)"
-  - "toString / toBalString conversions (concept.string_conversion)"
+  - "Detailed lang.string function semantics (lib.lang.string)"
+  - "XML templates (concept.xml)"
+  - "Regular expression templates `re `...`` (concept.regexp)"
+  - "toString / toBalString conversions (concept.value_cloning)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [string_langlib, string_char], target_items: [lang_string]}
-  - {to: concept.string_conversion, rel: uses, via: [template_evaluation], target_items: [tostring_styles]}
-notes: "String literal grammar has only double-quoted literals; there is no separate multi-line string literal form in 2024R1."
+  - {to: lib.lang.string, rel: uses, via: [string_langlib, string_char, rawtemplate_type]}
+  - {to: lib.langlib, rel: uses, via: [string_langlib, string_char, rawtemplate_type]}
+  - {to: concept.value_cloning, rel: uses, via: [template_evaluation], target_items: [tostring_styles]}
+  - {to: concept.objects, rel: uses, via: [rawtemplate_type, per_expression_class]}
+  - {to: concept.arrays_tuples, rel: uses, via: [insertions_typing], target_items: [list_constructor_typing]}
+notes: "String literal grammar has only double-quoted literals; there is no separate multi-line string literal form in 2024R1. constrained_raw_templates is a direct consequence of the 6.6.4 rule that the insertions type follows the contextually expected type; the spec gives no example."

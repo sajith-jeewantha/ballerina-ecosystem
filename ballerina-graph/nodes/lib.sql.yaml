@@ -1,0 +1,115 @@
+schema_version: "0.1"
+id: lib.sql
+type: library
+title: ballerina/sql
+summary: "The `sql` module defines the common `sql:Client` API shared by all relational database connectors: parameterized queries built from raw templates, streaming queries with record binding, execute/batch/stored-procedure calls, typed parameter values, connection pooling and a structured error hierarchy."
+priority: core
+status: draft
+modules: [ballerina/sql]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/sql/latest", kind: central, note: "ballerina/sql 1.19.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/README.md", kind: github, note: "Module README (pools, ParameterizedQuery, query/queryRow/execute/batchExecute/call)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/docs/spec/spec.md", kind: github, note: "SQL library specification (pool configurables, stream closing, error hierarchy)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/client.bal", kind: github, note: "sql:Client remote method signatures"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/types.bal", kind: github, note: "TypedValue, OutParameter, ExecutionResult, ProcedureCallResult"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/error.bal", kind: github, note: "Error types"}
+must_cover:
+  - id: parameterized_query
+    text: "Build `sql:ParameterizedQuery` values with backtick templates such as `` `SELECT * FROM students WHERE id < ${id} AND age > ${age}` ``, knowing each `${}` insertion becomes a bound query parameter (not string concatenation), which prevents SQL injection"
+    difficulty: [beginner]
+  - id: query_concat
+    text: "Compose dynamic queries with `sql:queryConcat(q1, q2, ...)` and expand an array into an `IN (...)` list with `sql:arrayFlattenQuery(ids)`, e.g. `sql:queryConcat(`SELECT * FROM DataTable WHERE id IN (`, sql:arrayFlattenQuery(ids), `)`)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/utils.bal", kind: github, note: "queryConcat, arrayFlattenQuery"}
+  - id: dynamic_identifiers
+    text: "Explain that only values can be parameterized in a `sql:ParameterizedQuery`; table or column names cannot, so dynamic identifiers must be validated (e.g. against a regular expression) before being embedded with string interpolation"
+    difficulty: [advanced]
+  - id: typed_values
+    text: "Pass parameters as plain Ballerina values (`string`, `int`, `float`, `decimal`, `boolean`, `byte[]`, `xml`, `time:Date`/`time:Civil`/`time:Utc`, typed arrays) or as `sql:TypedValue` subtypes such as `sql:VarcharValue`, `sql:IntegerValue`, `sql:DecimalValue`, `sql:DateValue` and `sql:TimestampValue` (e.g. `sql:VarcharValue name = new (\"James\");`) when the exact SQL type must be specified"
+    difficulty: [intermediate]
+  - id: query_stream
+    text: "Run `SELECT` statements with `dbClient->query(query)`, binding the result to `stream<Student, sql:Error?>` via the inferred `rowType` typedesc, and consume it with a query expression, e.g. `return from Album album in albumStream select album;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe, note: "Simple query"}
+  - id: record_mapping
+    text: "Explain how result columns map to record fields: column names match field names case-insensitively, an open record receives extra columns, a closed record returns an error for unmapped columns, and `stream<record {}, sql:Error?>` can be used without a predefined type"
+    difficulty: [intermediate]
+  - id: column_annotation
+    text: "Map a database column to a differently named record field with the `@sql:Column {name: \"first_name\"}` annotation on the field"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-column-mapping/", kind: bbe, note: "Query with advanced mapping"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/annotation.bal", kind: github, note: "ColumnConfig / Column annotation"}
+  - id: nested_record_mapping
+    text: "Group the columns of a joined table into a nested record field (e.g. a `Teachers teachers` field inside `Students`), optionally renaming it with `@sql:Column`"
+    difficulty: [advanced]
+  - id: query_row
+    text: "Fetch a single row with `dbClient->queryRow(query)` into a record, or a single scalar such as `int count = check dbClient->queryRow(`SELECT COUNT(*) FROM students`);`, and handle `sql:NoRowsError` when no row matches (e.g. return `http:NOT_FOUND`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-row-operation/", kind: bbe, note: "Query with one result"}
+  - id: stream_close
+    text: "Release query resources by fully consuming the result stream or calling `check resultStream.close()` when stopping early, knowing the stream is lazily loaded from the database and can be iterated only once"
+    difficulty: [intermediate]
+  - id: execute
+    text: "Run DDL and DML (`CREATE TABLE`, `INSERT`, `UPDATE`, `DELETE`) with `dbClient->execute(query)` and read the returned `sql:ExecutionResult` fields `affectedRowCount` and `lastInsertId` (the auto-generated key)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-execute-operation/", kind: bbe, note: "DML and DDL operations"}
+  - id: batch_execute
+    text: "Insert many rows in one round trip with `dbClient->batchExecute(queries)`, building the `sql:ParameterizedQuery[]` with a query expression, and read the `sql:ExecutionResult[]` (including the `sql:SUCCESS_NO_INFO` and `sql:EXECUTION_FAILED` counts)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-batch-execute-operation/", kind: bbe, note: "Batch execution"}
+  - id: call_procedures
+    text: "Call stored procedures with `dbClient->call(`{CALL get_sales_order(${filterDate}, ${total})}`, [Order])`, read result sets from `sql:ProcedureCallResult.queryResult` (cast to `stream<Order, error?>`), move to further result sets with `getNextQueryResult()`, and always call `result.close()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-call-stored-procedures/", kind: bbe, note: "Call stored procedures"}
+  - id: out_parameters
+    text: "Use `sql:IntegerOutParameter`, `sql:VarcharOutParameter` and other `sql:*OutParameter` types, `sql:InOutParameter` and `sql:CursorOutParameter` in call queries and read them with `get()` (e.g. `int total = check totalOut.get();`), including the function-call form `` `{${retVal} = call myFunc(${param})}` ``"
+    difficulty: [advanced]
+  - id: connection_pools
+    text: "Choose between the global shared pool (no `connectionPool` argument), a client-owned pool (inline `connectionPool = {maxOpenConnections: 5}`) and a pool shared by several clients (reusing one `sql:ConnectionPool` record)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-sql/blob/master/ballerina/connection-pool.bal", kind: github, note: "ConnectionPool record and configurables"}
+  - id: pool_configuration
+    text: "Tune `sql:ConnectionPool` fields such as `maxOpenConnections`, `minIdleConnections`, `maxConnectionLifeTime`, `connectionTimeout`, `idleTimeout` and `transactionIsolation` (`sql:TRANSACTION_READ_COMMITTED`...), and set the global pool defaults in `Config.toml` under `[ballerina.sql]`"
+    difficulty: [intermediate, advanced]
+  - id: transactions
+    text: "Run several `execute` calls atomically inside a `transaction` block, calling `check commit;` on success or `rollback;` when a check fails (e.g. `affectedRowCount == 0`), and handle failures in `on fail`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-atomic-transaction/", kind: bbe, note: "Atomic transactions"}
+  - id: error_types
+    text: "Handle the `sql:Error` hierarchy: `sql:DatabaseError` (detail `errorCode`, `sqlState`), `sql:BatchExecuteError` (detail `executionResults`), `sql:NoRowsError`, and `sql:ApplicationError` with its `sql:DataError` subtypes (`TypeMismatchError`, `ConversionError`, `FieldMismatchError`, `UnsupportedTypeError`), e.g. `if e is sql:DatabaseError && e.detail().errorCode == 3819`"
+    difficulty: [intermediate]
+  - id: client_lifecycle
+    text: "Create one database client for the application lifetime (e.g. a `private final mysql:Client db` field initialized in a service `init`) and close it only at shutdown with `check dbClient.close()`, which also closes its unshared pool"
+    difficulty: [beginner, intermediate]
+  - id: generic_client
+    text: "Write database-agnostic code against the `sql:Client` object type, which every connector client (`mysql:Client`, `postgresql:Client`, `jdbc:Client`...) includes with `*sql:Client`"
+    difficulty: [intermediate, advanced]
+out_of_scope:
+  - "Database-specific client construction, options, SSL and custom types (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb, lib.java.jdbc)"
+  - "ORM-style access through generated clients (lib.persist)"
+  - "Transaction statement semantics in general (concept.transactions)"
+  - "Stream and query-expression semantics (concept.streams, concept.query_expressions)"
+  - "Pool metrics exported through observability (topic.observability)"
+edges:
+  - {to: concept.strings, rel: uses, via: [parameterized_query, dynamic_identifiers], note: "Raw templates (ParameterizedQuery includes object:RawTemplate)"}
+  - {to: concept.streams, rel: uses, via: [query_stream, stream_close, call_procedures]}
+  - {to: concept.query_expressions, rel: uses, via: [query_stream, batch_execute]}
+  - {to: concept.records, rel: uses, via: [record_mapping, nested_record_mapping, query_row]}
+  - {to: concept.annotations, rel: uses, via: [column_annotation]}
+  - {to: concept.typedesc, rel: uses, via: [query_stream, query_row], note: "rowType/returnType are inferred typedesc parameters"}
+  - {to: concept.errors, rel: uses, via: [error_types, query_row]}
+  - {to: concept.transactions, rel: uses, via: [transactions]}
+  - {to: concept.client_objects, rel: uses, via: [client_lifecycle, generic_client, execute]}
+  - {to: concept.classes, rel: uses, via: [typed_values, out_parameters]}
+  - {to: lib.time, rel: uses, via: [typed_values]}
+  - {to: tool.config_toml, rel: uses, via: [pool_configuration]}
+notes: "Verified against module-ballerina-sql master (1.19.1). `sql:ArrayValue` is deprecated (replaced by plain typed arrays) and omitted. `sql:SchemaClient` (listTables/getTableInfo...) exists only as an abstract type here and no connector README documents a concrete implementation, so it is left out."

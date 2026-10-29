@@ -2,7 +2,7 @@ schema_version: "0.1"
 id: concept.query_expressions
 type: concept
 title: Query expressions
-summary: Language-integrated, SQL-like queries built from from, where, let, limit, order by and select clauses that produce lists, maps, tables, strings, xml or streams, plus query actions with a do clause.
+summary: Language-integrated, SQL-like queries built from from, where, let, join, group by, limit, order by, select and collect clauses that produce lists, maps, tables, strings, xml, streams or aggregated values, with on conflict handling and query actions with a do clause.
 priority: core
 status: draft
 sources:
@@ -13,9 +13,14 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.5", kind: spec, note: "6.35.5 Limit clause"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.6", kind: spec, note: "6.35.6 Order by clause"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.10", kind: spec, note: "6.35.10 Select clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.4", kind: spec, note: "6.35.4 Join clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#aggregated_variables", kind: spec, note: "6.35.7 Aggregated variable bindings"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.8", kind: spec, note: "6.35.8 Group by clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.9", kind: spec, note: "6.35.9 Collect clause"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.11", kind: spec, note: "6.35.11 On conflict clause"}
 must_cover:
   - id: query_basics
-    text: 'Write query expressions such as `from var p in people where p.age > 18 select p.name`, and explain them as a pipeline of clauses transforming a sequence of frames (variable bindings)'
+    text: 'Write query expressions such as `from var p in people where p.age > 18 select p.name`, explain them as a pipeline of clauses transforming a sequence of frames (variable bindings), and use `select expr` to emit one value per frame, which becomes a member of the constructed result'
     difficulty: [beginner]
   - id: from_clause
     text: 'Use `from` with a typed binding pattern or `var` over any iterable value, and use several `from` clauses to iterate over every combination of their values'
@@ -26,35 +31,23 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#conditional_variable_type_narrowing", kind: spec, note: "7.12 Conditional variable type narrowing"}
   - id: let_clause
-    text: 'Add computed bindings with `let int total = p.price * p.qty`, where a let clause with several declarations behaves like consecutive let clauses'
-    difficulty: [beginner]
-  - id: select_clause
-    text: 'Use `select expr` to emit one value per frame, which becomes a member of the constructed result'
+    text: 'Add computed bindings with `let int total = p.price * p.qty`, where a let clause with several declarations behaves like consecutive let clauses, knowing that variables bound by query clauses are implicitly final and cannot be assigned'
     difficulty: [beginner]
   - id: result_kinds
-    text: 'Construct lists, maps (with `map from ... select [key, value]`), keyed tables (`table key(id) from ...`), strings (concatenating string results), xml (concatenating xml results) and streams from a query'
-    difficulty: [intermediate]
+    text: 'Construct lists, maps (with `map from ... select [key, value]`), keyed tables (`table key(id) from ...`), strings (concatenating string results), xml (concatenating xml results) and streams from a query, knowing that a query building a list, mapping, table or xml value constructs a read-only value when the applicable expected type is a subtype of `readonly`'
+    difficulty: [intermediate, advanced]
   - id: result_type_selection
     text: 'Explain how the result basic type is chosen: an explicit `map`, `table key(...)` or `stream` keyword first, then the applicable contextually expected type, then the basic type of the first `in` expression (which must be a list, table, string, stream or xml), so a query over a stream yields a stream without the `stream` keyword'
     difficulty: [intermediate, advanced]
   - id: eager_vs_lazy
-    text: 'Explain that queries constructing streams run lazily, with clauses executed as `next` is called, while all other queries run eagerly during evaluation'
-    difficulty: [intermediate]
-  - id: early_error_completion
-    text: 'Explain that when an iterator in `from` returns an error, the query stops and that error becomes the result (eager), or is returned by the stream `next` call (lazy), where check-failures are also returned and panics still panic'
-    difficulty: [advanced]
+    text: 'Explain that queries constructing streams run lazily, with clauses executed as `next` is called, while all other queries run eagerly, and that when an iterator in `from` returns an error the query stops and that error becomes the result (eager) or is returned by the stream `next` call (lazy), where check-failures are also returned and panics still panic'
+    difficulty: [intermediate, advanced]
   - id: limit_clause
     text: 'Limit the number of frames with `limit n`, where `n` is an `int` evaluated without the frame bindings and a negative value panics'
     difficulty: [intermediate]
   - id: order_by_clause
     text: 'Sort frames with `order by e1 ascending, e2 descending` (ascending by default), where keys must be of ordered types, the sort is stable, and both `()` and NaN sort to the end in either direction'
     difficulty: [intermediate, advanced]
-  - id: readonly_results
-    text: 'Explain that a query building a list, mapping, table or xml value constructs a read-only value when the applicable expected type is a subtype of `readonly`'
-    difficulty: [advanced]
-  - id: final_variables
-    text: 'Explain that variables bound by query clauses are implicitly final and cannot be assigned'
-    difficulty: [beginner]
   - id: query_action
     text: 'Use a query action `from var x in xs where ... do { ... }` to run a statement block for each frame, which evaluates to nil, or to an error if a clause completes early with an error'
     difficulty: [beginner, intermediate]
@@ -68,14 +61,46 @@ must_cover:
   - id: contextual_keywords
     text: 'Explain that clause keywords marked not-reserved in the grammar (such as `where`, `select`, `limit`, `order`, `by`, `join`, `outer`, `group`, `collect`, `conflict`) can still be used as identifiers'
     difficulty: [advanced]
+  - id: join_clause
+    text: 'Join two sources with `join var d in depts on e.deptId equals d.id`, an inner equijoin that compares keys with DeepEquals, knowing the join scoping rules: the `in` expression sees neither earlier nor join variables, the left side of `equals` sees only earlier variables and the right side sees only the join variables'
+    difficulty: [intermediate, advanced]
+  - id: outer_join
+    text: 'Use `outer join var d in depts on ...` for a left outer join, which must use `var`, gives join variables type `T?`, and binds them to `()` when there is no match'
+    difficulty: [intermediate]
+  - id: group_by
+    text: 'Group frames with `group by deptId`, which partitions frames by DeepEquals of the grouping keys and emits one frame per group in the order each group first appears, or declare grouping keys inline with `group by var k = expr`, which is equivalent to a `let` clause followed by `group by k`'
+    difficulty: [intermediate]
+  - id: aggregated_variables
+    text: 'Explain that after `group by` each non-key variable becomes an aggregated variable of type `[T, T...]`, and after `collect` every variable becomes one of type `T[]`, and reference an aggregated variable only where a spread is allowed, as a list constructor member (`[price]`, the same as `[...price]`) or a function rest argument (`sum(price)`)'
+    difficulty: [intermediate, advanced]
+  - id: langlib_aggregation
+    text: 'Aggregate with unqualified calls such as `sum(price)`, `avg(x)`, `max(x)`, `min(x)`, `count(x)`, `first(x)` and `last(x)`, which resolve to the lang module of the member basic type (e.g. `int:sum`) or else `lang.value`, and give `()` for an empty list when the function needs at least one argument'
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
+  - id: collect_clause
+    text: 'Use a query-collect expression `from var o in orders collect sum(o.amount)` to aggregate every frame into one value, where the collect expression gets the query expected type and an early iterator error becomes the result'
+    difficulty: [intermediate]
+  - id: select_after_group
+    text: 'Combine `group by` with `select` to emit one result per group, e.g. `group by cat select {cat, total: sum(price)}`'
+    difficulty: [intermediate]
+  - id: on_conflict
+    text: 'Explain that when a query builds a map or keyed table, a new member with an existing key replaces the old one in the same position unless an `on conflict expr` clause is given, which is allowed only when building a keyed table or a map and whose `error?` result is evaluated on each key clash, with an error becoming the query result and nil letting the replacement go ahead'
+    difficulty: [intermediate]
 out_of_scope:
-  - "join, group by, collect, aggregated variables and on conflict (concept.query_joins_grouping)"
   - "The Compare operations behind ordering (concept.comparison_equality)"
+  - "Per-function semantics of int/float/decimal aggregation functions (lib.lang.int, lib.lang.float, lib.lang.decimal)"
 edges:
-  - {to: concept.iterability, rel: requires}
+  - {to: concept.loops, rel: requires}
   - {to: concept.binding_patterns, rel: requires}
-  - {to: concept.comparison_equality, rel: uses, via: [order_by_clause]}
-  - {to: concept.type_narrowing, rel: uses, via: [where_clause]}
+  - {to: concept.comparison_equality, rel: uses, via: [order_by_clause, join_clause, group_by]}
+  - {to: concept.type_cast_test, rel: uses, via: [where_clause]}
   - {to: concept.client_objects, rel: uses, via: [actions_in_queries]}
   - {to: concept.maps, rel: uses, via: [result_kinds], target_items: [map_type]}
-notes: "2024R1 (B.1) allows a query-select-expr to construct a stream without the `stream` keyword. 6.35.10 says a mapping-constructing query must specify `map`. Order-by stability follows from the index tie-break in the CompareKL definition."
+  - {to: lib.lang.int, rel: uses, via: [langlib_aggregation]}
+  - {to: lib.lang.float, rel: uses, via: [langlib_aggregation]}
+  - {to: lib.lang.decimal, rel: uses, via: [langlib_aggregation]}
+  - {to: lib.lang.value, rel: uses, via: [langlib_aggregation]}
+  - {to: lib.langlib, rel: uses, via: [langlib_aggregation]}
+  - {to: concept.tables, rel: uses, via: [on_conflict], target_items: [key_uniqueness]}
+notes: "2024R1 (B.1) allows a query-select-expr to construct a stream without the `stream` keyword. 6.35.10 says a mapping-constructing query must specify `map`. Order-by stability follows from the index tie-break in the CompareKL definition. 6.35.4 notes an optional optimisation when the join source is a table keyed by the equals expression; that is an implementation detail and is not covered. 6.35.11 wording 'the earlier new value replaces the earlier conflicting value' is garbled but intends that the new value replaces the old."

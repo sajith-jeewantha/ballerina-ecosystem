@@ -1,0 +1,53 @@
+schema_version: "0.1"
+id: lib.mssql
+type: library
+title: ballerinax/mssql
+summary: "The Microsoft SQL Server connector: an `mssql:Client` implementing the `sql:Client` API, with SQL Server connection options, TLS encryption, money and spatial typed values, and an `mssql:CdcListener` for SQL Server change data capture."
+priority: long_tail
+status: draft
+modules: [ballerinax/mssql, ballerinax/mssql.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/mssql/latest", kind: central, note: "ballerinax/mssql 1.19.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mssql/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mssql/blob/master/ballerina/Client.bal", kind: github, note: "Client init, Options, SecureSocket"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mssql/blob/master/ballerina/types.bal", kind: github, note: "Money/spatial TypedValues and CDC types"}
+must_cover:
+  - id: driver_import
+    text: "Add the SQL Server JDBC driver by importing `ballerinax/mssql.driver as _;`, or pin a version in `Ballerina.toml` with `[[platform.java21.dependency]]` `groupId = \"com.microsoft.sqlserver\"`, `artifactId = \"mssql-jdbc\"`"
+    difficulty: [beginner]
+  - id: client_init
+    text: "Create an `mssql:Client` with `new (\"localhost\", \"rootUser\", \"rootPass\", \"information_schema\", 1433)` (host, user, password, database, port) or named arguments, knowing the defaults are user `\"sa\"` and port 1433 and that a named SQL Server instance is given with the `instance` argument"
+    difficulty: [beginner]
+  - id: client_options
+    text: "Configure `mssql:Options` fields `loginTimeout`, `socketTimeout`, `queryTimeout` and `useXADatasource`"
+    difficulty: [intermediate]
+  - id: tls
+    text: "Encrypt the connection with `secureSocket: {encrypt: true, trustServerCertificate: false, cert: {path, password}, key: {path, password}}` in `mssql:Options`, using `trustServerCertificate: true` only for local testing"
+    difficulty: [intermediate]
+  - id: connection_pool
+    text: "Pass `connectionPool = {maxOpenConnections: 5}` or a shared `sql:ConnectionPool` record to `mssql:Client`, or omit it to use the global pool"
+    difficulty: [intermediate]
+  - id: sql_operations
+    text: "Use the `sql:Client` remote methods on `mssql:Client` (`query`, `queryRow`, `execute`, `batchExecute`, `call`) with `sql:ParameterizedQuery` templates"
+    difficulty: [beginner, intermediate]
+  - id: money_values
+    text: "Pass SQL Server `MONEY` and `SMALLMONEY` parameters with `mssql:MoneyValue` and `mssql:SmallMoneyValue` (values of `decimal`, `float` or `string`)"
+    difficulty: [intermediate]
+  - id: spatial_values
+    text: "Pass SQL Server geometry values with `mssql:PointValue` (from `mssql:Point {x, y}` and an optional `srid`), `mssql:LineStringValue`, `mssql:PolygonValue`, `mssql:MultiPointValue` and `mssql:GeometryCollectionValue`"
+    difficulty: [advanced]
+  - id: cdc_listener_config
+    text: "Enable SQL Server CDC (SQL Server Agent running, `EXEC sys.sp_cdc_enable_db`, `EXEC sys.sp_cdc_enable_table`) and configure an `mssql:CdcListener` whose `database` gives `username`, `password`, `databaseNames` and optionally `databaseInstance`, `includedSchemas` and `includedTables`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Generic query/execute/call semantics and common typed values (lib.sql)"
+  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "Using SQL Server through generated persist clients (lib.persist)"
+edges:
+  - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, money_values], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, connection_pools]}
+  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
+  - {to: concept.classes, rel: uses, via: [money_values, spatial_values]}
+  - {to: lib.crypto, rel: uses, via: [tls]}
+  - {to: tool.ballerina_toml, rel: uses, via: [driver_import]}
+notes: "Verified against module-ballerinax-mssql master (1.19.1). The README CDC example omits `databaseNames`, but `MsSqlDatabaseConnection.databaseNames` is a required field in the source. The README SSL sample is missing a comma after `trustServerCertificate: false`."

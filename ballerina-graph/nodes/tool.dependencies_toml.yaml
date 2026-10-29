@@ -1,0 +1,73 @@
+schema_version: "0.1"
+id: tool.dependencies_toml
+type: tool
+title: Dependencies.toml
+summary: "The compiler resolves package dependencies automatically from import declarations and records the chosen versions in the CLI-managed `Dependencies.toml`, which, together with SemVer compatibility rules and the sticky and offline modes, controls which versions later builds use."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
+  - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "The Dependencies.toml file"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/Dependencies.toml", kind: github, note: "Sample generated Dependencies.toml"}
+must_cover:
+  - id: auto_resolution
+    text: "Explain automatic dependency resolution: the compiler finds the packages behind `import` declarations and picks the latest compatible versions from the distribution repository, Ballerina Central, configured custom repositories and the local repository, with no dependency list to maintain"
+    difficulty: [beginner]
+  - id: generated_file
+    text: "Explain that the first `bal build` generates `Dependencies.toml` at the package root, that the CLI manages it (it should not be edited by hand), and that versions locked there are treated as minimum versions in later builds"
+    difficulty: [beginner]
+  - id: file_structure
+    text: "Read a generated `Dependencies.toml`: the `[ballerina]` table with `dependencies-toml-version` and `distribution-version`, and `[[package]]` entries with `org`, `name`, `version`, `dependencies`, `modules` and `scope = \"testOnly\"` for test-only packages"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/Dependencies.toml", kind: github}
+  - id: patch_updates
+    text: "Explain that builds pick up new patch versions of dependencies automatically, that this check runs at most once a day, and that running `bal clean` makes the next build check again"
+    difficulty: [intermediate]
+  - id: minor_update
+    text: "Move a dependency to a newer minor version by declaring that version as a minimum in a `Ballerina.toml` `[[dependency]]` entry, e.g. `org = \"ballerinax\"`, `name = \"mysql\"`, `version = \"1.5.0\"`"
+    difficulty: [intermediate]
+  - id: sticky
+    text: "Build with the exact versions locked in `Dependencies.toml` using `bal build --sticky`, which turns off automatic updates (also available on `bal run`, `bal test`, `bal pack`, `bal doc` and `bal graph`)"
+    difficulty: [intermediate]
+  - id: offline
+    text: "Build without network access using `--offline` (or `offline = true` in `[build-options]`), resolving only from the distribution repository and local caches, and combine `--offline --sticky` for predictable, fast builds"
+    difficulty: [intermediate]
+  - id: version_compat
+    text: "Apply the compatibility rule that two versions are compatible only if their major versions are equal and non-zero, so `0.2.3` and `0.2.4` are incompatible, `1.2.3` and `1.4.5` are compatible, and `1.2.3-beta` is newer than `1.2.3-alpha.2`"
+    difficulty: [intermediate]
+  - id: conflict_resolution
+    text: "Explain that when the dependency graph contains several versions of a package the latest compatible one wins, and incompatible versions fail the build with `Two incompatible versions exist in the dependency graph`"
+    difficulty: [advanced]
+  - id: distribution_upgrade
+    text: "Explain that switching a package to a new Swan Lake update distribution makes the compiler update `Dependencies.toml` to the latest compatible minor versions for that distribution"
+    difficulty: [intermediate]
+  - id: bal_graph
+    text: "Inspect the resolved dependency graph with `bal graph` (DOT output) for a package or a single `.bal` file, and print intermediate resolution graphs with `bal graph --dump-raw-graphs`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-graph.help", kind: github}
+  - id: deprecated_versions
+    text: "Explain that a deprecated package version is used only when it is already locked and the build is `--sticky`, or when no other compatible version exists, and that the build then warns with the deprecation message"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-deprecate.help", kind: github}
+  - id: tool_dependencies
+    text: "Explain that build tools declared with `[[tool.<command>]]` are resolved like packages from the distribution and Central repositories, and their versions are recorded in `Dependencies.toml` as minimum versions"
+    difficulty: [advanced]
+  - id: dependency_cache
+    text: "Clear cached dependencies of the current package or workspace with `bal clean --dependency-cache`, and print dependency diagnostics hidden by default with `--show-dependency-diagnostics`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-clean.help", kind: github}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-build.help", kind: github}
+out_of_scope:
+  - "Writing `[[dependency]]` and platform entries in Ballerina.toml (tool.ballerina_toml)"
+  - "Import declarations in the language (concept.modules_imports)"
+  - "Publishing and deprecating packages, custom Maven repositories (tool.central)"
+edges:
+  - {to: tool.ballerina_toml, rel: requires}
+  - {to: tool.ballerina_toml, rel: uses, via: [minor_update, offline, tool_dependencies], target_items: [dependency_min_version, build_options, build_tools]}
+  - {to: tool.packages, rel: uses, via: [auto_resolution], target_items: [import_external, semantic_versioning]}
+  - {to: tool.central, rel: uses, via: [deprecated_versions, auto_resolution], target_items: [deprecate, custom_repositories]}
+notes: "The ballerina-spec package spec still describes an older `[[dependency]]` format for Dependencies.toml; the file_structure item follows real generated files (dependencies-toml-version 2)."

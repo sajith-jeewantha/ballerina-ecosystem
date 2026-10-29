@@ -1,0 +1,70 @@
+schema_version: "0.1"
+id: lib.soap
+type: library
+title: ballerina/soap
+summary: The SOAP library provides SOAP 1.1 and 1.2 clients (`soap11:Client`, `soap12:Client`) that send XML envelopes over HTTP and apply WS-Security policies to requests and responses.
+priority: long_tail
+status: draft
+modules: [ballerina/soap, ballerina/soap.soap11, ballerina/soap.soap12]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/soap/latest", kind: central, note: "ballerina/soap 2.4.x"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-soap/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/soap-client-send-receive/", kind: bbe}
+must_cover:
+  - id: create_client
+    text: "Create a SOAP client by importing `ballerina/soap.soap11` or `ballerina/soap.soap12` and calling `check new (\"http://www.dneonline.com/calculator.asmx?WSDL\")` for `soap11:Client` or `soap12:Client`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-send-receive/", kind: bbe}
+  - id: send_receive
+    text: "Build the request envelope as an `xml` template with interpolated values and call `sendReceive(envelope, \"http://tempuri.org/Add\")` to get the response `xml`, where the SOAP action is mandatory for SOAP 1.1 and optional for SOAP 1.2"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-send-receive/", kind: bbe}
+  - id: send_only_robust
+    text: "Fire and forget with `sendOnly(envelope, action)`, and use `sendRobust(envelope, action)` when only a SOAP fault should be reported back as an error"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-soap/blob/master/ballerina/modules/soap11/soap11.bal", kind: github}
+  - id: extract_response
+    text: "Extract values from the response envelope with XML navigation, e.g. declaring `xmlns \"http://tempuri.org/\" as quer;` and reading `response/**/<quer:AddResult>/*`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-send-receive/", kind: bbe}
+  - id: attachments_headers
+    text: "Send SOAP attachments by passing `mime:Entity[]` instead of `xml` as the body, and add transport headers with the `headers` map argument"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-soap/blob/master/ballerina/modules/soap11/soap11.bal", kind: github}
+  - id: transport_tls
+    text: "Configure the underlying HTTP client through `httpConfig` in the client config, e.g. `httpConfig: {secureSocket: {cert: \"...\"}}` for TLS"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-security-ssl-tsl/", kind: bbe}
+  - id: outbound_security
+    text: "Apply WS-Security to requests with `outboundSecurity`: a username token `{username, password, passwordType: soap:TEXT}`, timestamp token, X.509 token, symmetric binding, or asymmetric binding with `signatureConfig {keystore, privateKeyAlias, privateKeyPassword}` and `encryptionConfig {keystore, publicKeyAlias}` (single policy or an array)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-security-outbound-security-config/", kind: bbe}
+  - id: inbound_security
+    text: "Verify and decrypt secured responses with `inboundSecurity: {signatureKeystore, decryptKeystore}` using `crypto:KeyStore` values"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/soap-client-security-inbound-security-config/", kind: bbe}
+  - id: fault_errors
+    text: "Handle `soap:Error` results, including SOAP faults as `soap:Soap11FaultError`/`soap:Soap12FaultError` (union `soap:SoapFaultError`) and HTTP-level failures as `soap:HttpApplicationError` or `soap:TransportError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-soap/blob/master/ballerina/error.bal", kind: github}
+out_of_scope:
+  - "Generating typed clients from WSDL (tool.bal_wsdl)"
+  - "XML language features in depth (concept.xml)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [create_client, send_receive]}
+  - {to: concept.xml, rel: uses, via: [send_receive, extract_response]}
+  - {to: concept.errors, rel: uses, via: [fault_errors]}
+  - {to: lib.http, rel: requires}
+  - {to: lib.http, rel: uses, via: [transport_tls], target_items: [ssl_tls, client_resiliency]}
+  - {to: lib.mime, rel: uses, via: [attachments_headers], target_items: [entity_content]}
+  - {to: lib.crypto, rel: uses, via: [outbound_security, inbound_security]}
+notes: "The README's username-token example also lists a `TRANSPORT_BINDING` policy constant without a module prefix; its exact qualified name was not confirmed, so it is not named in items."

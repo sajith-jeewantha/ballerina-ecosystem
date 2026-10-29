@@ -1,0 +1,96 @@
+schema_version: "0.1"
+id: lib.jwt
+type: library
+title: ballerina/jwt
+summary: "The `jwt` module issues self-signed JWTs and decodes and validates JWTs (RFC 7519/7515/7517), and provides the listener and client JWT auth providers that protocol connectors use for JWT authentication."
+priority: important
+status: draft
+modules: [ballerina/jwt]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/jwt/latest", kind: central, note: "ballerina/jwt 2.15.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/security-jwt-issue-validate/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-service-jwt-authentication/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-self-signed-jwt-authentication/", kind: bbe}
+must_cover:
+  - id: issue_jwt
+    text: "Issue a self-signed JWT with `jwt:issue(issuerConfig)`, building a `jwt:IssuerConfig` with `issuer`, `username` (mapped to `sub`), `audience` (`string` or `string[]`), `keyId` (`kid`), `jwtId` (`jti`) and `expTime` in seconds (default 300)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-jwt-issue-validate/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_issuer.bal", kind: github}
+  - id: custom_claims
+    text: "Add custom claims to an issued JWT with the `customClaims` field (`map<json>`) of `jwt:IssuerConfig`, e.g. `customClaims: {\"scp\": \"admin\"}` to carry scopes"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-self-signed-jwt-authentication/", kind: bbe}
+  - id: issuer_signature
+    text: "Sign an issued JWT through `signatureConfig` (`jwt:IssuerSignatureConfig`): pick `algorithm` (`jwt:RS256` by default, `jwt:RS384`, `jwt:RS512`, `jwt:HS256`, `jwt:HS384`, `jwt:HS512` or `jwt:NONE`) and give `config` as a private-key file record (`keyFile`, optional `keyPassword`), a keystore record (`keyStore`, `keyAlias`, `keyPassword`), a `crypto:PrivateKey`, or a `string` secret for HMAC"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_issuer.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_commons.bal", kind: github, note: "SigningAlgorithm constants"}
+  - id: validate_jwt
+    text: "Validate a JWT with `jwt:validate(jwt, validatorConfig)`, which checks the signature, expiry and the expected `issuer`, `audience`, `username`, `jwtId`, `keyId` and `customClaims` given in a `jwt:ValidatorConfig` (with `clockSkew` in seconds) and returns the `jwt:Payload` or a `jwt:Error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-jwt-issue-validate/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_validator.bal", kind: github}
+  - id: validator_signature
+    text: "Verify JWT signatures by setting `signatureConfig` (`jwt:ValidatorSignatureConfig`) to a `certFile` path or `crypto:PublicKey`, a `trustStoreConfig` (`trustStore`, `certAlias`), or an HMAC `secret`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_validator.bal", kind: github}
+  - id: jwks_validation
+    text: "Validate tokens from an identity provider against its JWKS endpoint with `signatureConfig: {jwksConfig: {url: ...}}`, optionally adding a `cacheConfig` and a `clientConfig` (`jwt:ClientConfiguration` with `httpVersion` and `secureSocket`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_validator.bal", kind: github}
+  - id: validation_cache
+    text: "Cache validated JWTs by setting `cacheConfig` (a `cache:CacheConfig`) on `jwt:ValidatorConfig`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_validator.bal", kind: github}
+  - id: decode_jwt
+    text: "Decode a JWT without validating it with `jwt:decode(jwt)`, which returns a `[jwt:Header, jwt:Payload]` tuple or a `jwt:Error`, and destructure the result"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_validator.bal", kind: github}
+  - id: payload_header_fields
+    text: "Read the registered claims of a `jwt:Payload` (`iss`, `sub`, `aud`, `exp`, `nbf`, `iat`, `jti`), custom claims through its open-record fields, and the `jwt:Header` fields `alg`, `typ`, `cty` and `kid`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/jwt_commons.bal", kind: github}
+  - id: listener_provider
+    text: "Authenticate an incoming bearer token with `jwt:ListenerJwtAuthProvider`, constructed from a `jwt:ValidatorConfig`, and its `authenticate(credential)` method returning `jwt:Payload|jwt:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/listener_jwt_auth_provider.bal", kind: github}
+  - id: client_provider
+    text: "Generate a self-signed token for outbound calls with `jwt:ClientSelfSignedJwtAuthProvider`, constructed from a `jwt:IssuerConfig`, and its `generateToken()` method returning `string|jwt:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jwt/blob/master/ballerina/client_self_signed_jwt_auth_provider.bal", kind: github}
+  - id: service_jwt_auth
+    text: "Secure a service with JWT by adding a `jwtValidatorConfig` entry (`issuer`, `audience`, `signatureConfig`, and the connector's `scopeKey` naming the scope claim) together with `scopes` to the connector's service `auth` configuration, e.g. `@http:ServiceConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-jwt-authentication/", kind: bbe}
+  - id: client_self_signed_jwt
+    text: "Make a connector client send a self-signed JWT as `Authorization: Bearer <token>` by passing JWT issuer fields (`username`, `issuer`, `audience`, `keyId`, `customClaims`, `expTime`, `signatureConfig`) as the client's `auth` configuration, e.g. `http:Client`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-self-signed-jwt-authentication/", kind: bbe}
+out_of_scope:
+  - "Basic Auth providers and user stores (lib.auth)"
+  - "OAuth2 grant types and token introspection (lib.oauth2)"
+  - "Full HTTP auth configuration records such as `http:JwtValidatorConfig` and auth handlers (lib.http)"
+  - "Low-level signing, key decoding and keystores (lib.crypto)"
+edges:
+  - {to: concept.records, rel: uses, via: [issue_jwt, validate_jwt, payload_header_fields]}
+  - {to: concept.json_anydata, rel: uses, via: [custom_claims]}
+  - {to: concept.errors, rel: uses, via: [validate_jwt, decode_jwt]}
+  - {to: concept.binding_patterns, rel: uses, via: [decode_jwt]}
+  - {to: concept.classes, rel: uses, via: [listener_provider, client_provider]}
+  - {to: lib.crypto, rel: uses, via: [issuer_signature, validator_signature], target_items: [decode_keys, keystore_truststore]}
+  - {to: lib.cache, rel: uses, via: [validation_cache, jwks_validation], target_items: [cache_config]}

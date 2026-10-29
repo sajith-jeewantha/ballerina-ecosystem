@@ -57,9 +57,10 @@ must_cover:
 out_of_scope:
   - "Named workers and fork (concept.strands_workers)"
   - "Starting transactional functions (concept.transactions)"
-  - "start inside lock statements (concept.lock_statement)"
+  - "start inside lock statements (concept.isolation)"
 edges:
   - {to: concept.strands_workers, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [future_cancel, runtime_sleep], target_items: [lang_future, lang_runtime]}
+  - {to: lib.langlib, rel: uses, via: [future_cancel, runtime_sleep]}
+  - {to: lib.lang.runtime, rel: uses, via: [future_cancel, runtime_sleep]}
   - {to: concept.isolation, rel: uses, via: [isolated_start], target_items: [start_in_isolated]}
   - {to: concept.worker_messages, rel: related}

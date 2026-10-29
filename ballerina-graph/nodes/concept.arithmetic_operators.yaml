@@ -60,7 +60,7 @@ must_cover:
     difficulty: [advanced]
 out_of_scope:
   - "Comparison and equality operators (concept.comparison_equality)"
-  - "Logical operators (concept.logical_conditional)"
+  - "Logical operators (concept.comparison_equality)"
   - "Compound assignment such as `+=` (concept.assignment)"
   - "Range expressions (concept.loops)"
 edges:

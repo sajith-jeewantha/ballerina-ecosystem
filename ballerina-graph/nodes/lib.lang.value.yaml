@@ -1,0 +1,85 @@
+schema_version: "0.1"
+id: lib.lang.value
+type: library
+title: ballerina/lang.value
+summary: The `lang.value` module provides functions that work on values of more than one basic type, for cloning, type-directed conversion, safe casting, string and Ballerina-syntax conversion, JSON conversion and parsing, and aggregation helpers.
+priority: core
+status: draft
+modules: [ballerina/lang.value]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value module"}
+must_cover:
+  - id: clone
+    text: "Use `v.clone()` on a `value:Cloneable` value (`readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>`) to get a deep copy that does not copy immutable subtrees and so can be used safely alongside the original"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#Clone", kind: spec, note: "5.8.2.1 Clone"}
+  - id: clone_readonly
+    text: "Use `v.cloneReadOnly()` to get an immutable clone typed `T & readonly`, e.g. to pass data to isolated code or store it in a `final` readonly field"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ImmutableClone", kind: spec, note: "5.8.2.2 ImmutableClone"}
+  - id: clone_with_type
+    text: "Convert anydata to a target type with `v.cloneWithType(t)`, where `t` defaults to the inferred typedesc (`Person p = check m.cloneWithType();`): the inherent type and read-only bits come from `t`, numbers convert with NumericConvert, record defaults fill missing fields, the result is a tree, and an error is returned if this cannot be done or `v` has cycles"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.8.4", kind: spec, note: "5.8.4 NumericConvert"}
+  - id: ensure_type
+    text: "Safely cast with `v.ensureType(t)` (inferred `t` by default, e.g. `int n = check j.ensureType();`), which casts like a type cast expression but returns an error instead of panicking when the cast fails"
+    difficulty: [intermediate]
+  - id: to_string
+    text: "Convert any value to a string with `v.toString()`, the direct-style ToString conversion that leaves a string value unchanged"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ToString", kind: spec, note: "5.8.5 ToString"}
+  - id: bal_string
+    text: "Use `v.toBalString()` to get the expression-style string of a value in Ballerina syntax (for acyclic anydata, an expression that evaluates to a value `==` to `v`) and `value:fromBalString(s)` to parse that subset back into `anydata|error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#ToString", kind: spec, note: "5.8.5 ToString"}
+  - id: to_json
+    text: "Convert anydata to json with `v.toJson()`, a deep copy in which xml becomes a string (as by `toString`), a table becomes a list of mappings, arrays get inherent type `json[]` and mappings `map<json>`; it panics if `v` has cycles"
+    difficulty: [intermediate]
+  - id: to_json_string
+    text: "Serialize anydata to a JSON string with `v.toJsonString()`, which first converts `v` as by `toJson`"
+    difficulty: [beginner]
+  - id: from_json_string
+    text: "Parse JSON text with `s.fromJsonString()` returning `json|error`, knowing that numbers become `decimal` except that a negative zero becomes float `-0.0` and an integer without decimal point or exponent that fits in int becomes `int`"
+    difficulty: [beginner, intermediate]
+  - id: json_float_decimal
+    text: "Parse JSON with a fixed number representation using `s.fromJsonFloatString()` (returns `value:JsonFloat|error`, numbers as float) or `s.fromJsonDecimalString()` (returns `value:JsonDecimal|error`, numbers as decimal)"
+    difficulty: [intermediate, advanced]
+  - id: from_json_with_type
+    text: "Convert json to a user-defined type with `j.fromJsonWithType(t)` (like `cloneWithType` but also undoing the conversions of `toJson`) or parse and convert in one step with `s.fromJsonStringWithType(t)`, e.g. `Order o = check payload.fromJsonStringWithType();`"
+    difficulty: [intermediate]
+  - id: merge_json
+    text: "Merge two json values with `j1.mergeJson(j2)`: nil yields the other value, two mappings merge recursively key by key (adding missing keys), any other combination fails with an error, and `j1` is unchanged when the merge fails"
+    difficulty: [intermediate, advanced]
+  - id: count_first_last
+    text: "Use `value:count(...vs)`, `value:first(v, ...vs)` and `value:last(v, ...vs)` with aggregated variables, e.g. `count(id)` or `first(name)` in a `collect` clause or after `group by`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.35.9", kind: spec, note: "6.35.9 Collect clause"}
+  - id: import_value
+    text: "Import `ballerina/lang.value` (it has no predeclared prefix) to call its functions in qualified form such as `value:fromBalString(s)` or `value:mergeJson(j1, j2)`, and know that the method form `x.f()` reaches `lang.value` whenever the module of `x`'s basic type does not define `f`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.1", kind: spec, note: "8.1 Import declaration"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+out_of_scope:
+  - "The Clone, ImmutableClone, NumericConvert and ToString abstract operations themselves (concept.value_cloning)"
+  - "json and anydata types (concept.json_anydata)"
+  - "Type cast expressions and type tests (concept.type_cast_test)"
+  - "Group-by and collect semantics (concept.query_expressions)"
+  - "Typed JSON/XML/CSV binding with annotations (lib.data.jsondata)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [import_value, count_first_last], target_items: [method_call_dispatch, override_predeclared, aggregated_rest_dispatch]}
+  - {to: concept.value_cloning, rel: uses, via: [clone, clone_readonly, clone_with_type, to_string, bal_string]}
+  - {to: concept.json_anydata, rel: uses, via: [to_json, to_json_string, from_json_string, json_float_decimal, from_json_with_type, merge_json]}
+  - {to: concept.mutability_readonly, rel: uses, via: [clone_readonly]}
+  - {to: concept.type_cast_test, rel: uses, via: [ensure_type]}
+  - {to: concept.typedesc, rel: uses, via: [clone_with_type, ensure_type, from_json_with_type]}
+  - {to: concept.records, rel: uses, via: [clone_with_type, from_json_with_type]}
+  - {to: concept.query_expressions, rel: uses, via: [count_first_last]}
+notes: "Expands the lang_value item of the removed concept.langlib node. Method-call forms on json/anydata values (e.g. `j1.mergeJson(j2)`, `s.fromJsonString()`) follow from the 6.16 rule: lang.string does not define these functions, so string receivers dispatch to lang.value. The `typedesc<anydata> t = <>` default means the target type is inferred from the contextually expected type. Code examples in items are illustrative, not quoted from the spec."

@@ -1,14 +1,15 @@
 schema_version: "0.1"
 id: concept.type_cast_test
 type: concept
-title: Type casts and tests
-summary: The distinction between casting and conversion, the `<T>` type cast expression with numeric conversion, the `is`/`!is` type test, and the error-returning `ensureType`.
+title: Type tests and narrowing
+summary: The distinction between casting and conversion, the `<T>` type cast expression with numeric conversion, the `is`/`!is` type test and the error-returning `ensureType`, plus how the compiler narrows the static type of a local variable or parameter from boolean conditions (occurrence typing) and from statements that cannot complete normally.
 priority: core
 status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.3", kind: spec, note: "6.3 Casting and conversion"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.28", kind: spec, note: "6.28 Type test expression"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#conditional_variable_type_narrowing", kind: spec, note: "7.12 Conditional variable type narrowing"}
 must_cover:
   - id: cast_vs_conversion
     text: Distinguish casting, which checks that a value belongs to another type without changing it, from conversion, which produces a possibly different value and never mutates its input; all conversions must be explicit
@@ -44,14 +45,50 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value ensureType"}
+  - id: is_narrowing
+    text: Narrow a union-typed local variable or parameter with `if x is T { ... } else { ... }`, where x has type `Tx & T` in the if block and the read-only difference of Tx and T in the else block
+    difficulty: [beginner, intermediate]
+  - id: readonly_difference
+    text: Explain the read-only difference used for the false case, where a mutable part of the type is removed only if it is entirely contained in T, because a mutable value can look like T without belonging to it
+    difficulty: [advanced]
+  - id: equality_narrowing
+    text: Narrow with `x == E` and `x != E` when E has a singleton simple type, e.g. `if x == () { ... }` or `if x != () { ... }` to remove nil
+    difficulty: [beginner, intermediate]
+  - id: compound_conditions
+    text: Combine narrowings with `!`, `&&` and `||`, e.g. `x is int && x > 0` uses the narrowed type in the right operand, and `!(x is int)` swaps the true and false narrowings
+    difficulty: [intermediate]
+  - id: narrowing_regions
+    text: Identify where narrowed types apply, namely the right operand of `&&` (truth) and `||` (falsity), the branches of `? :`, the blocks of `if`/`else`, the body of `while`, the block of a match clause after its guard, and all clauses after a query `where` clause
+    difficulty: [intermediate]
+  - id: completion_narrowing
+    text: Use narrowing from normal completion, e.g. after `if x is error { return x; }` the variable x excludes error for the rest of the block, because a statement that cannot complete normally implies `never`, and explain that after `if E B1 else B2` the narrowed type is the union of the types implied by normal completion of B1 and B2, that a missing `else` acts like an empty block, and `else if` is treated as a nested if-else
+    difficulty: [intermediate, advanced]
+  - id: assignment_invalidates
+    text: Explain that narrowing stops applying where the variable may have been assigned since the condition was evaluated, and that it is a compile error if an assignment inside a `while`, `foreach` or query action body would invalidate a narrowing from outside the loop
+    difficulty: [advanced]
+  - id: narrowing_scope_variables
+    text: Know that conditional narrowing is defined only for local variables and parameters referenced by name in the condition, so to narrow a field value first copy it into a local variable
+    difficulty: [intermediate]
+  - id: wildcard_exhaustiveness
+    text: Use a wildcard destructuring assignment such as `Z _ = v;` in the final else to assert that all union cases were handled, so adding a new member to the union later causes a compile error
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+  - id: match_narrowing
+    text: Recognize that a `match` on a variable narrows it in each clause to the target type read-only-intersected with what the clause's patterns can match after excluding earlier unguarded clauses
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.2", kind: spec, note: "7.20.2 Match clause reachability and narrowing"}
 out_of_scope:
-  - "Narrowing variables with `is` in conditions (concept.type_narrowing)"
   - "Structural conversion with cloneWithType / fromJsonWithType (concept.value_cloning, concept.json_anydata)"
-  - "String parsing with fromString functions (concept.string_conversion)"
+  - "String parsing with fromString functions (concept.value_cloning)"
+  - "Match statement syntax and patterns (concept.match_statement)"
 edges:
   - {to: concept.union_intersection_types, rel: requires}
   - {to: concept.numeric_types, rel: requires}
   - {to: concept.numeric_types, rel: uses, via: [numeric_cast], target_items: [numeric_convert, no_implicit_conversion]}
-  - {to: concept.langlib, rel: uses, via: [ensure_type], target_items: [lang_value]}
+  - {to: lib.lang.value, rel: uses, via: [ensure_type]}
   - {to: concept.mutability_readonly, rel: uses, via: [readonly_cast], target_items: [constructing_immutable]}
-notes: "6.28 says the result of `is` is true if v belongs to the type; elsewhere (match patterns) 'looks like' is used, so a mutable value that merely looks like T does not satisfy `is T`."
+  - {to: concept.control_flow, rel: requires}
+  - {to: concept.comparison_equality, rel: uses, via: [compound_conditions], target_items: [logical_and_or, logical_not]}
+notes: "6.28 says the result of `is` is true if v belongs to the type; elsewhere (match patterns) 'looks like' is used, so a mutable value that merely looks like T does not satisfy `is T`. 7.12 'If E has the form E1 && E2' defines T1 as 'narrowed type implied by the truth of T1' (should read E1); similar letter slips appear in the && rule."

@@ -60,7 +60,7 @@ out_of_scope:
   - "Mapping binding patterns (concept.binding_patterns)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [map_lookup_remove, map_functional], target_items: [lang_map]}
+  - {to: lib.lang.map, rel: uses, via: [map_lookup_remove, map_functional]}
   - {to: concept.mutability_readonly, rel: uses, via: [readonly_construction, field_readonly_bit]}
-  - {to: concept.iterability, rel: uses, via: [iteration_order]}
+  - {to: concept.loops, rel: uses, via: [iteration_order]}
 notes: "Mapping constructor grammar allows `[readonly] variable-name` shorthand as well as `[readonly] field-name: value`."

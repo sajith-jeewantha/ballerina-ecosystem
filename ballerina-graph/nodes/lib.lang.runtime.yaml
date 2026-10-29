@@ -1,0 +1,39 @@
+schema_version: "0.1"
+id: lib.lang.runtime
+type: library
+title: ballerina/lang.runtime
+summary: The `lang.runtime` module provides runtime functions that are not tied to a basic type, for sleeping, dynamically registering listeners, getting the current stack trace and registering graceful-shutdown handlers.
+priority: important
+status: draft
+modules: [ballerina/lang.runtime]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.runtime", kind: spec, note: "11.3.18 lang.runtime module"}
+must_cover:
+  - id: sleep
+    text: "Pause the current strand with `runtime:sleep(seconds)` (after `import ballerina/lang.runtime;`), where `seconds` is a decimal such as `runtime:sleep(0.5)`, knowing that sleeping makes the strand yield"
+    difficulty: [beginner]
+  - id: dynamic_listener
+    text: "Implement `runtime:DynamicListener`, an object type with `start()`, `gracefulStop()` and `immediateStop()` methods each returning `error?`, to create a listener that can be registered at run time"
+    difficulty: [advanced]
+  - id: register_listener
+    text: "Use `runtime:registerListener(l)` to make a `DynamicListener` a module listener of the calling module, so it is started and stopped with the module's listeners, and `runtime:deregisterListener(l)` to remove it"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.4", kind: spec, note: "5.7.4 Listener"}
+  - id: stack_trace
+    text: "Get the current call stack with `runtime:getStackTrace()`, which returns `runtime:StackFrame[]` with the top of the stack first, and print each frame with `toString()`"
+    difficulty: [intermediate]
+  - id: graceful_stop
+    text: "Register cleanup with `runtime:onGracefulStop(handler)`, where `handler` is a `runtime:StopHandler` (`function() returns error?`); each handler is called once during graceful shutdown, after `gracefulStop` has been called on all registered listeners, in reverse order of registration"
+    difficulty: [intermediate, advanced]
+out_of_scope:
+  - "Listener declarations, services and the module lifecycle (concept.services_listeners, concept.program_execution)"
+  - "Error stack traces via e.stackTrace() (lib.lang.error)"
+  - "Scheduling and timed jobs (lib.task)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [sleep], target_items: [override_predeclared]}
+  - {to: concept.strands_workers, rel: uses, via: [sleep]}
+  - {to: concept.services_listeners, rel: uses, via: [dynamic_listener, register_listener, graceful_stop]}
+  - {to: concept.program_execution, rel: uses, via: [register_listener, graceful_stop]}
+notes: "Expands the lang_runtime item of the removed concept.langlib node. 'Started and stopped with the module's listeners' is derived from the registerListener doc ('The listener becomes a module listener of the module from which this function is called') together with the module-listener lifecycle in 5.7.4/8.3; the spec has no example. `runtime` is not a predeclared prefix (8.1), so the module must be imported."

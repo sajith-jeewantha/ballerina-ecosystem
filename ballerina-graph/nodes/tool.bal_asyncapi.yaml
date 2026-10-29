@@ -1,0 +1,42 @@
+schema_version: '0.1'
+id: tool.bal_asyncapi
+type: tool
+title: bal asyncapi
+summary: The `bal asyncapi` CLI tool generates a Ballerina listener, service types and an event dispatcher from an AsyncAPI 2.x contract for an HTTP-based event API (webhooks), so you can implement one remote method per event type.
+priority: long_tail
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/asyncapi-tool/', kind: docs, note: AsyncAPI tool}
+- {url: 'https://github.com/ballerina-platform/asyncapi-tools', kind: github}
+must_cover:
+- id: event_identifier_extension
+  text: 'Add `x-ballerina-event-identifier` with `type` and `path` at the top of the contract so the listener can find the event type in an incoming request (only `type: "body"`, with `path` as the JSON path such as `event.type`, is currently supported)'
+  difficulty: [intermediate]
+- id: event_type_extension
+  text: 'Mark every message in a channel (e.g. each entry under `subscribe: message: oneOf:`) with `x-ballerina-event-type` set to that event''s name, such as `"app_mention"`'
+  difficulty: [intermediate]
+- id: generate_sources
+  text: Generate sources with `bal asyncapi -i <contract> [-o <dir>]`, which writes `data_types.bal` (types from the contract), `service_types.bal` (the service types for the event API), `listener.bal` (the HTTP listener) and the dispatcher service file with the event-dispatching logic
+  difficulty: [beginner]
+- id: implement_event_service
+  text: Run the generated code as a package (`bal init` in the output directory) and implement a service on the generated listener with one remote method per event, e.g. `listener Listener webhookListener = new (8090);` and `service AppService on webhookListener { remote function onAppMention(GenericEventWrapper event) returns error? { ... } }`
+  difficulty: [intermediate]
+- id: customize_dispatcher
+  text: Add logic such as authentication of incoming calls to the resource method of the generated dispatcher service, which receives every incoming request
+  difficulty: [advanced]
+- id: customize_listener
+  text: Extend the `init` function in the generated `listener.bal` when the listener needs secrets, endpoint URLs or tokens
+  difficulty: [advanced]
+out_of_scope: [Writing HTTP listeners and services by hand (lib.http), Event-driven design in general (topic.event_driven)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: lib.http
+  rel: uses
+  via: [generate_sources, customize_dispatcher]
+- to: concept.services_listeners
+  rel: uses
+  via: [implement_event_service, customize_listener]
+- to: concept.records
+  rel: uses
+  via: [generate_sources]
+notes: 'Docs: AsyncAPI 2.x only and HTTP-based event APIs only; the tool can be updated with `bal tool update asyncapi`. The docs spell the dispatcher file as both `dispacther_service.bal` and `dispatcher_service.bal`, so items do not name it. The asyncapi-tools README mentions client generation for `ws` and exporting AsyncAPI from services, but no command syntax is documented, so those are left out. Example generated modules: ballerinax/trigger.slack, ballerinax/trigger.twilio.'

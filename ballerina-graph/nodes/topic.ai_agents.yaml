@@ -1,0 +1,112 @@
+schema_version: "0.1"
+id: topic.ai_agents
+type: topic
+title: AI agents
+summary: "Building LLM-powered applications in Ballerina - typed direct LLM calls, natural expressions, tool-using agents exposed as chat services, MCP servers and clients, and retrieval-augmented generation over vector stores."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe, note: "Generative AI BBE category"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ai", kind: github, note: "ballerina/ai README (agents, memory, RAG)"}
+  - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs}
+must_cover:
+  - id: model_providers
+    text: "Obtain an `ai:ModelProvider` either with `ai:getDefaultModelProvider()` (configured in `Config.toml` by the VS Code \"Configure default WSO2 Model Provider\" command) or from a provider package such as `check new openai:ModelProvider(apiKey, modelType = openai:GPT_4O)` with the key in a configurable variable"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai", kind: github}
+  - id: typed_generate
+    text: "Call an LLM with `model->generate(`Tell me a joke about ${subject}!`)` and bind the answer either to `string` or directly to a record type such as `JokeResponse` declared on the left-hand side"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
+  - id: chat_with_history
+    text: "Hold a multi-turn conversation by building an `ai:ChatMessage[]` of `ai:ChatUserMessage` values (`role: ai:USER`), calling `model->chat(messages)`, and pushing each returned `ai:ChatAssistantMessage` back onto the history"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-history/", kind: bbe}
+  - id: natural_expressions
+    text: "Use a natural expression `natural (model) { ... ${count} ... }` whose expected type (e.g. `Attraction[]|error`, with `#`-documented record fields) drives the JSON schema sent to the LLM, and know it is experimental and needs the `--experimental` flag"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe}
+  - id: agent_tools
+    text: "Expose functions as agent tools by marking them `isolated` and annotating them with `@ai:AgentTool`, guarding shared state such as an `isolated map<Task>` with `lock` and returning cloned values"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe}
+  - id: define_agent
+    text: "Create an `ai:Agent` with `systemPrompt: {role: \"...\", instructions: string `...`}`, `tools: [addTask, listTasks]` and `model`, and drive it with `agent.run(userInput)` in a console loop"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe}
+  - id: tool_kit
+    text: "Group related tools in an isolated class that includes `*ai:BaseToolKit` and implements `getTools()` returning `ai:getToolConfigs([self.addTask, self.listTasks])`, pass an instance in `tools`, and bound the reasoning loop with `maxIter`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-tool-kit/", kind: bbe}
+  - id: connector_tools
+    text: "Turn connector operations into tools, e.g. `@ai:AgentTool` functions that call a `gmail:Client` or `calendar:Client` configured with OAuth2 refresh-token credentials from configurable variables"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-external-endpoint-integration/", kind: bbe}
+  - id: mcp_toolkit
+    text: "Give an agent the tools of a remote MCP server with `final ai:McpToolKit weatherMcpConn = check new (\"http://localhost:9090/mcp\");` passed in the agent's `tools`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-mcp-integration/", kind: bbe}
+  - id: chat_agent_service
+    text: "Expose an agent as a chat service with `service /tasks on new ai:Listener(8080)` and `resource function post chat(@http:Payload ai:ChatReqMessage request) returns ai:ChatRespMessage|error` that calls `agent.run(request.message, request.sessionId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/chat-agents/", kind: bbe}
+  - id: agent_memory
+    text: "Control per-session conversation memory with `memory = check new ai:ShortTermMemory(check new ai:InMemoryShortTermMemoryStore(15))`, make an agent stateless with `memory = ()`, and separate users with `run(query, sessionId = \"...\")`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai", kind: github, note: "README 2.5 Define the Memory"}
+  - id: mcp_server
+    text: "Write an MCP server with `listener mcp:Listener mcpListener = new (9090);` and `service mcp:Service /mcp on mcpListener`, where each documented `remote function` (e.g. `getCurrentWeather(string city) returns Weather|error`) becomes a tool"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mcp-service/", kind: bbe}
+  - id: mcp_advanced_server
+    text: "Take full control of tool listing and dispatch with `service mcp:AdvancedService` implementing `onListTools()` returning `mcp:ListToolsResult` and `onCallTool(mcp:CallToolParams params, mcp:Session? session)` returning `mcp:CallToolResult`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mcp-service-advanced/", kind: bbe}
+  - id: rag_ingestion
+    text: "Ingest documents for RAG by loading them with `ai:TextDataLoader(\"./leave_policy.md\")` and `loader.load()`, and calling `knowledgeBase.ingest(documents)` on an `ai:VectorKnowledgeBase(vectorStore, embeddingProvider)` backed by `ai:InMemoryVectorStore`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-with-in-memory-vector-store/", kind: bbe}
+  - id: rag_query
+    text: "Answer a question with retrieved context by calling `knowledgeBase.retrieve(query, 10)`, collecting `queryMatch.chunk` values with a query expression, and passing `ai:augmentUserQuery(context, query)` to `modelProvider->chat(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-with-in-memory-vector-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+  - id: external_vector_store
+    text: "Persist embeddings in an external vector database by using `new pinecone:VectorStore(serviceUrl, apiKey)` from `ballerinax/ai.pinecone` as the knowledge base's `ai:VectorStore` with `ai:getDefaultEmbeddingProvider()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+out_of_scope:
+  - "Full ai module API surface (lib.ai)"
+  - "MCP protocol details and client API (lib.mcp)"
+  - "Provider-specific options (lib.ai.openai, lib.ai.anthropic, lib.ai.azure, lib.ai.ollama)"
+edges:
+  - {to: lib.ai, rel: uses, via: [model_providers, typed_generate, chat_with_history, natural_expressions, agent_tools, define_agent, tool_kit, connector_tools, mcp_toolkit, chat_agent_service, agent_memory, rag_ingestion, rag_query, external_vector_store]}
+  - {to: lib.mcp, rel: uses, via: [mcp_server, mcp_advanced_server]}
+  - {to: lib.ai.openai, rel: uses, via: [model_providers]}
+  - {to: lib.ai.pinecone, rel: uses, via: [external_vector_store]}
+  - {to: lib.http, rel: uses, via: [chat_agent_service]}
+  - {to: concept.isolation, rel: uses, via: [agent_tools, tool_kit]}
+  - {to: concept.annotations, rel: uses, via: [agent_tools]}
+  - {to: concept.function_values, rel: uses, via: [define_agent]}
+  - {to: concept.records, rel: uses, via: [typed_generate, natural_expressions]}
+  - {to: concept.documentation, rel: uses, via: [natural_expressions, mcp_server]}
+  - {to: concept.query_expressions, rel: uses, via: [rag_query]}
+  - {to: topic.connectors, rel: related}
+notes: "Natural expressions are experimental (Swan Lake Update 13+, `--experimental`). The `ai:Agent` constructor is shown both with a record argument (`check new ({...})`) and named arguments (`check new (systemPrompt = ..., ...)`) in the BBEs."

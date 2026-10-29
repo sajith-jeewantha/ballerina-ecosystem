@@ -71,7 +71,7 @@ out_of_scope:
   - "External function bodies (concept.external_functions)"
   - "Named workers in function bodies (concept.strands_workers)"
   - "Isolated function requirements (concept.isolation)"
-  - "Method calls on objects and langlib method-call dispatch (concept.objects, concept.langlib_conventions)"
+  - "Method calls on objects and langlib method-call dispatch (concept.objects, lib.langlib)"
 edges:
   - {to: concept.variables, rel: requires}
   - {to: concept.records, rel: uses, via: [included_record_params, included_record_conflicts, included_record_rest]}

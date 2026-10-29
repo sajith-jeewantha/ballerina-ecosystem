@@ -49,7 +49,7 @@ must_cover:
     text: 'Explain that a member access evaluates the container expression before the key expression'
     difficulty: [intermediate]
 out_of_scope:
-  - "XML attribute access with `.` and `?.` on xml values (concept.xml_navigation)"
+  - "XML attribute access with `.` and `?.` on xml values (concept.xml)"
   - "Table key lookup details (concept.tables)"
   - "Assignment through field and member access (concept.assignment)"
   - "Method calls (concept.objects)"

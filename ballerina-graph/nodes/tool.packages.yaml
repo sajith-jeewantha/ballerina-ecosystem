@@ -1,0 +1,97 @@
+schema_version: "0.1"
+id: tool.packages
+type: tool
+title: Packages
+summary: "Ballerina code is organized into packages: versioned, shareable units identified by organization, name and version that hold a default module, optional non-default modules, tests and resources. Workspaces group several related packages in one directory tree."
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/organize-ballerina-code/", kind: docs, note: "Package structure, default and non-default modules"}
+  - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "Package layout, module layout, naming and versioning"}
+  - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Import a module"}
+  - {url: "https://ballerina.io/learn/workspaces/", kind: docs, note: "Workspaces"}
+  - {url: "https://ballerina.io/learn/custom-repositories/local-repository/", kind: docs, note: "Local repository"}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-new.help", kind: github, note: "bal new help text"}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-add.help", kind: github, note: "bal add help text"}
+must_cover:
+  - id: create_package
+    text: "Create a package with `bal new <package-path>` (or `bal new .` for the current directory), and explain that a directory containing `Ballerina.toml` is a package root and the generated `main.bal` belongs to the default module"
+    difficulty: [beginner]
+  - id: new_templates
+    text: "Create packages from the built-in templates with `bal new -t main`, `bal new -t service` (a service plus `tests/service_test.bal`) and `bal new -t lib` (a library source file, `README.md` and `tests/lib_test.bal`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/organize-ballerina-code/", kind: docs, note: "Create a service package / library package"}
+  - id: default_module
+    text: "Explain the default module: all `.bal` files at the package root share one namespace, so top-level symbols defined in one file are visible in the others, and the default module is referred to by the package name"
+    difficulty: [beginner]
+  - id: add_module
+    text: "Add a non-default module with `bal add <name>`, which creates `modules/<name>/` holding the module `<package-name>.<name>` (e.g. `bal add core.db` in package `app` gives `app.core.db`), where module names contain only alphanumerics, underscores and periods"
+    difficulty: [beginner]
+  - id: import_same_package
+    text: "Import a module of the same package with `import <package>.<module>;` (the org name is optional) and call its `public` symbols through the prefix, e.g. `import hello_world.util;` then `util:properCaseMessage(\"hello world!\")`, optionally renaming with `as`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/organize-ballerina-code/", kind: docs, note: "Import a module from the same package"}
+  - id: import_external
+    text: "Import modules of other packages with `import org/module [as prefix];`, including the default module (`import ballerina/io;`) and non-default modules (`import ballerinax/salesforce.bulk as sfBulk;`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Import a module"}
+  - id: package_layout
+    text: "Lay out a package with `Ballerina.toml`, `Dependencies.toml`, `README.md`, root `.bal` files, `tests/`, `resources/`, `modules/`, `generated/` and the build output directory `target/`, knowing which files are generated and which are written by hand"
+    difficulty: [beginner]
+  - id: module_tests
+    text: "Place each module's unit tests in that module's own `tests/` directory (e.g. `modules/util/tests/`), knowing tests can use the module's non-public symbols while symbols defined in test files are not visible to the module sources"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/structure-tests/", kind: docs}
+  - id: resources_dir
+    text: "Store package resources such as images and default configs in the root `resources/` directory and test-only files in `tests/resources/`, accessed by absolute path or by a path relative to the package root"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/structure-tests/", kind: docs, note: "Test resources"}
+  - id: generated_dir
+    text: "Explain the `generated/` directory: `.bal` files at its root merge into the default module, each direct subdirectory merges into the module of the same name, and its `resources` directory holds package resources"
+    difficulty: [intermediate]
+  - id: naming_rules
+    text: "Choose valid names: `org` with alphanumerics and underscores, package and module names with alphanumerics, underscores and periods (max 256 characters), and hierarchical package names such as `aws.s3` and `aws.sqs`"
+    difficulty: [beginner, intermediate]
+  - id: split_module
+    text: "Avoid the split module condition (two packages whose latest versions contain the same module) when moving a module such as `aws.rds.mysql` out of package `aws.rds`, by first pushing a new `aws.rds` version without that module"
+    difficulty: [advanced]
+  - id: semantic_versioning
+    text: "Version packages with SemVer `MAJOR.MINOR.PATCH`: use `0.x.y` while the API is unstable, pre-release versions such as `1.0.0-alpha` and `1.0.0-alpha.1` while stabilizing, and bump patch, minor or major for bug fixes, compatible additions or breaking changes"
+    difficulty: [intermediate]
+  - id: local_repository
+    text: "Try an unpublished package from another package by running `bal pack` and `bal push --repository local` (stored in `<USER_HOME>/.ballerina/repositories/local/bala`) and adding a `[[dependency]]` entry with `repository = \"local\"`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/custom-repositories/local-repository/", kind: docs}
+  - id: workspace_create
+    text: "Create a workspace with `bal new --workspace <name>`, add packages with `bal new` inside it, and list them in the workspace-level `Ballerina.toml` as `[workspace]` `packages = [\"hello-app\", \"utils\"]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/workspaces/", kind: docs}
+  - id: workspace_imports
+    text: "Import a sibling package of a workspace (e.g. `import myorg/utils;`) without publishing it, knowing workspace packages take priority over the distribution and Central repositories during resolution"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/workspaces/", kind: docs}
+  - id: workspace_build
+    text: "Build, test and run workspace packages from the workspace root with `bal build`, `bal build <package>`, `bal test` and `bal run <package>`, knowing executables are produced only for packages no other workspace package depends on"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/workspaces/", kind: docs}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-build.help", kind: github}
+out_of_scope:
+  - "Module and import declaration semantics in the language, such as prefixes and visibility (concept.modules_imports)"
+  - "Keys of the Ballerina.toml manifest (tool.ballerina_toml)"
+  - "Dependency version resolution and locking (tool.dependencies_toml)"
+  - "Publishing to and pulling from Ballerina Central (tool.central)"
+  - "Writing test functions with the test module (lib.test)"
+edges:
+  - {to: concept.modules_imports, rel: requires}
+  - {to: tool.ballerina_toml, rel: uses, via: [create_package, local_repository], target_items: [package_table, dependency_local_repo]}
+  - {to: tool.central, rel: uses, via: [local_repository, split_module], target_items: [pack_bala, push]}
+notes: "The workspaces feature is recent (the docs and `bal new --workspace` help are current as of distribution 2201.13). `bal new` also generates `.gitignore` and `.devcontainer.json` according to its help text."

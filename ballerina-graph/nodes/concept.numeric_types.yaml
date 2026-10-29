@@ -69,8 +69,10 @@ must_cover:
 out_of_scope:
   - "Arithmetic, shift and bitwise operators and overflow behaviour (concept.arithmetic_operators)"
   - "Numeric comparison and equality, including NaN and -0.0 (concept.comparison_equality)"
-  - "Detailed lang.int/lang.float/lang.decimal functions (concept.langlib_numeric)"
+  - "Detailed lang.int/lang.float/lang.decimal functions (lib.lang.int, lib.lang.float, lib.lang.decimal)"
 edges:
   - {to: concept.basic_types, rel: requires}
-  - {to: concept.langlib, rel: uses, via: [int_range, int_builtin_subtypes, float_constants], target_items: [lang_int, lang_float, lang_decimal]}
+  - {to: lib.lang.int, rel: uses, via: [int_range, int_builtin_subtypes, float_constants]}
+  - {to: lib.lang.float, rel: uses, via: [int_range, int_builtin_subtypes, float_constants]}
+  - {to: lib.lang.decimal, rel: uses, via: [int_range, int_builtin_subtypes, float_constants]}
 notes: "In 5.8.4 the 'round, error for NaN or out of int range' cell spans both the float and decimal rows (rowspan), so it applies to float-to-int and decimal-to-int. The rounding mode used for conversion to int is not named in 5.8.4."

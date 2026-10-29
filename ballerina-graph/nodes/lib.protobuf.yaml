@@ -1,0 +1,50 @@
+schema_version: "0.1"
+id: lib.protobuf
+type: library
+title: ballerina/protobuf
+summary: The protobuf library provides Ballerina representations of the protobuf well-known types (wrappers, Any, Empty, Timestamp, Duration, Struct) and the descriptor annotation used by generated gRPC stubs.
+priority: long_tail
+status: draft
+modules: [ballerina/protobuf, ballerina/protobuf.types.wrappers, ballerina/protobuf.types.any, ballerina/protobuf.types.empty, ballerina/protobuf.types.timestamp, ballerina/protobuf.types.duration, ballerina/protobuf.types.struct]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/protobuf/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/tree/master/ballerina", kind: github, note: "Module and submodule sources"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "gRPC spec section 3, protobuf to Ballerina mapping"}
+must_cover:
+  - id: descriptor_annotation
+    text: "Recognise `@protobuf:Descriptor {value: <DESC_CONSTANT>}` on message record types in generated `*_pb.bal` stubs, which links each record to its protobuf message descriptor"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/annotation.bal", kind: github}
+  - id: wrapper_context_types
+    text: "Use the context records from `ballerina/protobuf.types.wrappers` such as `wrappers:ContextString` and `wrappers:ContextInt` (fields `content` and `headers`) to send and receive gRPC headers alongside a scalar message"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-headers/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-headers/", kind: bbe}
+  - id: any_pack_unpack
+    text: "Pack a record or scalar into the protobuf `Any` type with `'any:pack(value)` (giving an `'any:Any` with `typeUrl` and `value`) and recover it with `'any:unpack(anyValue, TargetType)` from `ballerina/protobuf.types.'any`, handling `'any:TypeMismatchError`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.any/any.bal", kind: github}
+  - id: well_known_type_mapping
+    text: "Map protobuf well-known types to Ballerina values: `google.protobuf.Timestamp` to `time:Utc`, `Duration` to `time:Seconds`, `Struct` to `map<anydata>`, `Empty` to `()`, and wrapper types to `int`, `float`, `string`, `boolean` and `byte[]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "3. Protocol buffers to Ballerina data mapping"}
+  - id: context_and_stream_types
+    text: "Use the typed context and stream records for well-known types, such as `timestamp:ContextTimestamp`, `struct:ContextStruct`, `empty:ContextNil` and `'any:ContextAnyStream`, when an RPC needs headers or streams of those types"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.timestamp/timestamp.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.struct/struct.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.empty/empty.bal", kind: github}
+out_of_scope:
+  - "gRPC services and clients (lib.grpc)"
+  - "Generating stubs from .proto files (tool.bal_grpc)"
+edges:
+  - {to: concept.records, rel: uses, via: [wrapper_context_types, context_and_stream_types]}
+  - {to: concept.annotations, rel: uses, via: [descriptor_annotation]}
+  - {to: concept.typedesc, rel: uses, via: [any_pack_unpack]}
+  - {to: lib.time, rel: uses, via: [well_known_type_mapping]}
+notes: "The module README is a two-line overview; items are built from the submodule sources and the gRPC spec mapping table. Prefix names such as `timestamp:` and `struct:` assume default import prefixes of the submodules; `'any` needs a quoted identifier because `any` is a keyword."

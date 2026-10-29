@@ -1,0 +1,83 @@
+schema_version: "0.1"
+id: tool.ballerina_toml
+type: tool
+title: Ballerina.toml
+summary: "The `Ballerina.toml` manifest identifies a package and holds its metadata, build options, dependency overrides, Java platform libraries and build-time tool entries."
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "The Ballerina.toml file"}
+  - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Update dependency versions; platform dependencies"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/Ballerina.toml", kind: github, note: "Real manifest using platform.java21 and distribution"}
+must_cover:
+  - id: package_table
+    text: "Write the `[package]` table with `org`, `name` and `version`, knowing `bal new` defaults `org` to the machine user name, the directory name is used when `name` is missing, and generated manifests also record `distribution = \"2201.x.y\"`"
+    difficulty: [beginner]
+  - id: package_metadata
+    text: "Add Ballerina Central metadata to `[package]` with `readme = \"docs/Reference.md\"`, `icon = \"icon.png\"` (PNG only), `keywords`, `authors`, `repository` and `license = [\"Apache-2.0\"]`"
+    difficulty: [beginner]
+  - id: visibility_private
+    text: "Make a package private with `visibility = \"private\"` in `[package]`, so only members of its organization can see and use it, which requires an access token in `Settings.toml` to consume it as a dependency"
+    difficulty: [intermediate]
+  - id: include_files
+    text: "Pack extra files into the BALA with `include = [\"documents\", \"sample.png\"]`, using path patterns such as `*.html`, `/bar`, `baz/`, `**/grault/garply`, `waldo/xyzzy/**` and exclusions like `!corge.rs`"
+    difficulty: [intermediate]
+  - id: package_modules
+    text: "Describe non-default modules with `[[package.modules]]` entries giving `name = \"winery.foo\"`, `export = true` to make the module public (only the default module is public by default) and a module-specific `readme`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/generate-code-documentation/", kind: docs, note: "Document a module"}
+  - id: build_options
+    text: "Set build options in `[build-options]` instead of passing CLI flags: `observabilityIncluded`, `offline`, `skipTests`, `testReport`, `codeCoverage`, `cloud = \"k8s\"`, `graalvm` and `graalvmBuildOptions`"
+    difficulty: [intermediate]
+  - id: dependency_min_version
+    text: "Declare a `[[dependency]]` entry with `org`, `name` and `version` to set the minimum version of a dependency, so the latest compatible version at or above it is resolved (e.g. to move `ballerinax/mysql` to a newer minor version)"
+    difficulty: [intermediate]
+  - id: dependency_local_repo
+    text: "Resolve a dependency from the local repository by adding `repository = \"local\"` to its `[[dependency]]` entry, knowing a newer patch version in the distribution or Central repositories still takes priority"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/custom-repositories/local-repository/", kind: docs}
+  - id: platform_maven_dependency
+    text: "Bundle Java libraries with `[[platform.java21.dependency]]` entries giving Maven `groupId`, `artifactId` and `version` (resolved into `target/platform-libs`), and add private Maven repositories with `[[platform.<platform>.repository]]` (`id`, `url`, `username`, `password`)"
+    difficulty: [intermediate]
+  - id: platform_jar_path
+    text: "Bundle a local JAR with `path = \"<path-to-jar>\"`, restrict it to some modules with `modules = [...]`, and give `groupId`, `artifactId` and `version` so that conflicting versions of the same JAR resolve to the latest one"
+    difficulty: [advanced]
+  - id: platform_scope
+    text: "Set `scope = \"testOnly\"` on a platform dependency used only by tests, or `scope = \"provided\"` to keep it out of the BALA (then `groupId`, `artifactId` and `version` are mandatory and consumers must declare it themselves)"
+    difficulty: [advanced]
+  - id: graalvm_compatible
+    text: "Mark Java dependencies as GraalVM compatible with `graalvmCompatible = true` on each `[[platform.java21.dependency]]` or for the whole package with `[platform.java21]` `graalvmCompatible = true`"
+    difficulty: [advanced]
+  - id: build_tools
+    text: "Run code generation tools before the build with `[[tool.<command>]]` entries giving `id`, `filePath`, `targetModule` and `options.*`, for example `[[tool.openapi]]` with `id = \"client01\"`, `filePath = \"./openapi.yaml\"` and `options.mode = \"client\"`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/openapi-tool/", kind: docs, note: "[[tool.openapi]] example"}
+  - id: format_scan_config
+    text: "Point the formatter and the scan tool at their configuration files with `[format]` `configPath = \"Format.toml\"` and `[scan]` `configPath = \"path/to/Scan.toml\"` (a local path or an HTTP/HTTPS URL)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/customize-formatting/", kind: docs}
+      - {url: "https://ballerina.io/learn/scan-tool/", kind: docs}
+out_of_scope:
+  - "Package and module layout (tool.packages)"
+  - "The auto-generated Dependencies.toml and version resolution rules (tool.dependencies_toml)"
+  - "Runtime values in Config.toml (tool.config_toml)"
+  - "Cloud.toml and Kubernetes/Docker artifact options (tool.code_to_cloud)"
+  - "GraalVM native image builds (tool.graalvm)"
+  - "Calling Java code from Ballerina (concept.external_functions, lib.jballerina.java)"
+edges:
+  - {to: tool.packages, rel: requires}
+  - {to: tool.dependencies_toml, rel: uses, via: [dependency_min_version, dependency_local_repo], target_items: [minor_update, generated_file]}
+  - {to: tool.bal_tool, rel: uses, via: [build_tools], target_items: [build_integration]}
+  - {to: tool.bal_scan, rel: uses, via: [format_scan_config], target_items: [scan_toml]}
+  - {to: tool.bal, rel: uses, via: [format_scan_config, build_options], target_items: [format_config, build_flags]}
+  - {to: lib.jballerina.java, rel: uses, via: [platform_maven_dependency, platform_jar_path]}
+  - {to: concept.external_functions, rel: uses, via: [platform_maven_dependency]}
+  - {to: tool.code_to_cloud, rel: uses, via: [build_options]}
+  - {to: tool.graalvm, rel: uses, via: [build_options, graalvm_compatible]}
+  - {to: lib.observe, rel: uses, via: [build_options]}
+  - {to: tool.bal_openapi, rel: uses, via: [build_tools]}
+notes: "The learn docs still show `[[platform.java11.dependency]]`; current distributions (2201.13, see the ballerina/log manifest) use `java21`. Items use `java21`; reviewers may want to mention both. `distribution` is not described on the package-references page but appears in generated manifests and in the customize-formatting example."

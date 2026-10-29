@@ -1,0 +1,59 @@
+schema_version: "0.1"
+id: lib.email
+type: library
+title: ballerina/email
+summary: The email library sends mail over SMTP with `email:SmtpClient` and reads mail over POP3 and IMAP4 with `email:PopClient`/`email:ImapClient` or polling `email:PopListener`/`email:ImapListener` services, with SSL/STARTTLS and attachments.
+priority: important
+status: draft
+modules: [ballerina/email]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/email/latest", kind: central, note: "ballerina/email 2.14.x"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-email/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/send-email/", kind: bbe}
+must_cover:
+  - id: smtp_client
+    text: "Create an `email:SmtpClient` with `check new (\"smtp.email.com\", \"sender@email.com\", \"pass123\")`, optionally passing `email:SmtpConfiguration` with `port` (465 SSL by default, 587 for STARTTLS)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/send-email/", kind: bbe}
+  - id: send_message
+    text: "Compose an `email:Message` with `to`, `cc`, `bcc` (a string or string array), `subject`, `body`, `'from`, `sender` and `replyTo`, and send it with `smtpClient->sendMessage(email)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/send-email/", kind: bbe}
+  - id: send_named_args
+    text: "Send mail without building a record by calling `smtpClient->send(to, subject, from, body = \"...\", cc = [...], bcc = [...], replyTo = [...])` with named arguments"
+    difficulty: [beginner]
+  - id: html_and_attachments
+    text: "Send HTML mail with `htmlBody` and attach files with `attachments` set to an `email:Attachment {filePath, contentType}`, an array of them, or `mime:Entity` values for complex MIME parts"
+    difficulty: [intermediate]
+  - id: receive_with_client
+    text: "Read mail with `email:ImapClient` or `email:PopClient` (`check new (host, username, password)`), calling `receiveMessage(timeout = 30)` which returns `email:Message?`, in a loop, and `close()` the client when done"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/receive-email-using-client/", kind: bbe}
+  - id: email_listener
+    text: "Poll for new mail with `listener email:ImapListener` (or `email:PopListener`) configured with `host`, `username`, `password`, `pollingInterval` and `port`, and a `service` with `remote function onMessage(email:Message email)`, `onError(email:Error)` and `onClose(email:Error?)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/receive-email-using-service/", kind: bbe}
+  - id: transport_security
+    text: "Choose transport security with the `security` field (`email:SSL`, `email:START_TLS_AUTO`, `email:START_TLS_ALWAYS`, `email:START_TLS_NEVER`) and configure certificates with `secureSocket: {cert, protocol, ciphers, verifyHostName}` on clients and listeners, matching the protocol's standard ports"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/email-client-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/email-service-ssl-tls/", kind: bbe}
+  - id: smtp_oauth2
+    text: "Authenticate SMTP with OAuth2 (XOAUTH2) by setting `auth` in `email:SmtpConfiguration` to an access-token string or an `oauth2:ClientCredentialsGrantConfig`/`oauth2:PasswordGrantConfig`, omitting the password and passing `clientConfig = smtpConfig`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Building MIME entities in depth (lib.mime)"
+  - "OAuth2 grant configuration details (lib.oauth2)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [smtp_client, receive_with_client]}
+  - {to: concept.services_listeners, rel: uses, via: [email_listener]}
+  - {to: concept.records, rel: uses, via: [send_message, html_and_attachments]}
+  - {to: concept.functions, rel: uses, via: [send_named_args]}
+  - {to: lib.mime, rel: uses, via: [html_and_attachments], target_items: [email_attachments, content_disposition]}
+  - {to: lib.oauth2, rel: uses, via: [smtp_oauth2]}
+notes: "SMTP OAuth2 support appears in the email 2.14.2 README (master == latest tag at research time)."

@@ -1,0 +1,48 @@
+schema_version: "0.1"
+id: lib.udp
+type: library
+title: ballerina/udp
+summary: The UDP library sends and receives datagrams with a connectionless `udp:Client`, a peer-bound `udp:ConnectClient`, and a `udp:Listener` service with `onDatagram`/`onBytes` callbacks.
+priority: long_tail
+status: draft
+modules: [ballerina/udp]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/udp/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-udp/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/udp-listener/", kind: bbe}
+must_cover:
+  - id: connectionless_client
+    text: "Send and receive datagrams with `udp:Client socketClient = check new;`, building a `udp:Datagram {remoteHost, remotePort, data}` for `sendDatagram()`, reading `readonly & udp:Datagram` with `receiveDatagram()`, and calling `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/udp-client/", kind: bbe}
+  - id: connect_client
+    text: "Exchange data with a single peer using `udp:ConnectClient` created with `check new (\"localhost\", 9090)` and its `writeBytes()`/`readBytes()` methods, knowing large byte arrays are split across several datagrams"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/udp-connect-client/", kind: bbe}
+  - id: listener_service
+    text: "Handle incoming datagrams with `service on new udp:Listener(9090)` implementing `remote function onDatagram(readonly & udp:Datagram datagram)` (returning a `udp:Datagram` to reply) or `onBytes(readonly & byte[] data, udp:Caller caller)`, plus `onError(udp:Error err)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/udp-listener/", kind: bbe}
+  - id: caller_reply
+    text: "Reply through a `udp:Caller` parameter with `caller->sendBytes(data)` or `caller->sendDatagram(datagram)` and read the peer from `caller.remoteHost`/`caller.remotePort`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-udp/blob/master/ballerina/caller.bal", kind: github}
+  - id: configuration
+    text: "Configure local binding and timeouts: `localHost` and `timeout` on `udp:ClientConfiguration`/`udp:ConnectClientConfiguration`, and `localHost`, `remoteHost`, `remotePort` on `udp:ListenerConfiguration` to restrict a listener to one peer"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-udp/blob/master/ballerina/listener.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-udp/blob/master/ballerina/connectionless_client.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-udp/blob/master/ballerina/connect_client.bal", kind: github}
+out_of_scope:
+  - "Connection-oriented sockets (lib.tcp)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.client_objects, rel: uses, via: [connectionless_client, connect_client]}
+  - {to: concept.records, rel: uses, via: [connectionless_client, listener_service]}
+  - {to: concept.mutability_readonly, rel: uses, via: [connectionless_client, listener_service]}
+notes: "Configuration fields confirmed against udp master sources (connect_client.bal, connectionless_client.bal, listener.bal)."

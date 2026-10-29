@@ -1,0 +1,106 @@
+schema_version: "0.1"
+id: topic.resiliency
+type: topic
+title: Resiliency
+summary: "Making Ballerina integrations tolerate slow or failing dependencies with HTTP client timeouts, retries, circuit breakers, load balancing and failover, the language retry statement, broker-level error handling and graceful shutdown."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/by-example/http-retry/", kind: bbe, note: "HTTP client resiliency BBE category"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23", kind: spec, note: "7.23 Fail and retry"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/http_client_config.bal", kind: github, note: "http:RetryConfig fields"}
+must_cover:
+  - id: client_timeout
+    text: "Set a request timeout in seconds on an `http:Client`, e.g. `http:Client albumClient = check new (\"localhost:9090\", {timeout: 10});`, and handle the resulting error"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-timeout/", kind: bbe}
+  - id: client_retry_backoff
+    text: "Configure an `http:Client` with `retryConfig = {interval: 3, count: 3, backOffFactor: 2.0, maxWaitInterval: 20}` so failed requests are retried with exponential back-off capped at `maxWaitInterval`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-retry/", kind: bbe}
+  - id: retry_status_codes
+    text: "Retry only on selected HTTP response codes by setting `statusCodes` (e.g. `[502, 503]`) in the client's `http:RetryConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/http_client_config.bal", kind: github, note: "RetryConfig has count, interval, backOffFactor, maxWaitInterval, statusCodes"}
+  - id: circuit_breaker
+    text: "Protect a backend with `circuitBreaker = {rollingWindow: {timeWindow: 10, bucketSize: 2, requestVolumeThreshold: 0}, failureThreshold: 0.2, resetTime: 10, statusCodes: [400, 404, 500]}` on an `http:Client`, and explain when the circuit trips and resets"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-circuit-breaker/", kind: bbe}
+  - id: load_balancer
+    text: "Spread requests across several backend instances with `http:LoadBalanceClient` configured with `targets: [{url: ...}, ...]` and a `timeout`, calling it with resource access syntax like a normal client"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-load-balancer/", kind: bbe}
+  - id: failover
+    text: "Fall back to secondary endpoints with `http:FailoverClient` configured with `targets`, `failoverCodes: [501, 502, 503]`, `interval` and `timeout`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-failover/", kind: bbe}
+  - id: retry_statement
+    text: "Wrap a failure-prone block in a `retry { ... }` statement, which by default uses `error:DefaultRetryManager` and re-runs the block up to 3 times while it fails with an `error:Retriable` error, and pass a count with `retry(5) { ... }`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.3", kind: spec, note: "7.23.3 Retry statement"}
+  - id: custom_retry_manager
+    text: "Write a class with a `public function shouldRetry(error e) returns boolean` method (the `RetryManager` object type), and use it as `retry<MyRetryManager>(args) { ... }` to decide which errors are retried and how often"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.6", kind: spec, note: "5.7.6 RetryManager"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.3", kind: spec}
+  - id: retry_transaction
+    text: "Use `retry transaction { ...; check commit; }` so a transaction whose stages fail with `error:Retriable` is retried (3 times by default)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/retry-transaction-statement/", kind: bbe}
+  - id: on_fail_recovery
+    text: "Recover locally from failures with `do { ... } on fail error e { ... }` instead of letting `check` propagate the error to the caller or listener"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.2", kind: spec, note: "7.23.2 On fail clause"}
+      - {url: "https://ballerina.io/learn/by-example/http-default-error-handling/", kind: bbe}
+  - id: websocket_retry
+    text: "Make a `websocket:Client` reconnect automatically with `retryConfig: {maxCount: 5, interval: 5}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-retry-client/", kind: bbe}
+  - id: kafka_poison_messages
+    text: "Handle undeliverable Kafka records by setting `autoSeekOnValidationFailure: false` and implementing `remote function onError(kafka:Error 'error, kafka:Caller caller)` that logs `kafka:PayloadBindingError` / `kafka:PayloadValidationError` and calls `caller->seek({partition, offset: offset + 1})` to skip the bad record"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-error-handling/", kind: bbe}
+  - id: manual_ack
+    text: "Acknowledge RabbitMQ messages only after successful processing by setting `autoAck: false` in `@rabbitmq:ServiceConfig` and calling `caller->basicAck()` (or `basicNack`) from `onMessage`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer-with-client-acknowledgement/", kind: bbe}
+  - id: bounded_polling
+    text: "Poll a slow backend a bounded number of times with `foreach int _ in 0 ..< 10`, pausing with `runtime:sleep(5)` (which does not block the thread) and returning an error such as `error(\"Payment timed out\")` when attempts run out"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/polling-consumer/", kind: docs}
+  - id: graceful_stop
+    text: "Register cleanup logic for graceful shutdown with `runtime:onGracefulStop(handler)` from a module `init` function"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/stop-handler/", kind: bbe}
+out_of_scope:
+  - "Full retry statement and RetryManager semantics (concept.retry)"
+  - "Transaction semantics (concept.transactions)"
+  - "HTTP client configuration beyond resiliency settings (lib.http)"
+  - "Kafka and RabbitMQ APIs in general (lib.kafka, lib.rabbitmq)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_timeout, client_retry_backoff, retry_status_codes, circuit_breaker, load_balancer, failover]}
+  - {to: concept.retry, rel: uses, via: [retry_statement, custom_retry_manager, retry_transaction]}
+  - {to: concept.transactions, rel: uses, via: [retry_transaction]}
+  - {to: concept.errors, rel: uses, via: [on_fail_recovery, retry_statement]}
+  - {to: concept.classes, rel: uses, via: [custom_retry_manager]}
+  - {to: lib.websocket, rel: uses, via: [websocket_retry]}
+  - {to: lib.kafka, rel: uses, via: [kafka_poison_messages]}
+  - {to: lib.rabbitmq, rel: uses, via: [manual_ack]}
+  - {to: lib.lang.runtime, rel: uses, via: [bounded_polling, graceful_stop]}
+  - {to: topic.rest_api, rel: related}
+notes: "The spec's retry statement wording is `retry-spec := [type-parameter] [ ( arg-list ) ]`; `retry(5)` passes 5 to `DefaultRetryManager.init(int count = 3)`. `retryConfig.statusCodes` is confirmed from http source (client_config.bal), not from a BBE."

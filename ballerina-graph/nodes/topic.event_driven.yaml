@@ -1,0 +1,113 @@
+schema_version: "0.1"
+id: topic.event_driven
+type: topic
+title: Event-driven
+summary: "Building event-driven integrations in Ballerina by producing and consuming typed messages with Kafka, RabbitMQ, NATS, MQTT and JMS, receiving webhooks with WebSub, reacting to database changes with CDC, and bridging events to HTTP, WebSocket and SaaS endpoints."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/by-example/kafka-service-consume-message/", kind: bbe, note: "Kafka, RabbitMQ, NATS, MQTT, JMS, WebSub and CDC BBE categories"}
+  - {url: "https://ballerina.io/learn/enterprise-integration-patterns/publish-subscribe-channel/", kind: docs}
+  - {url: "https://ballerina.io/learn/build-a-change-data-capture-service-in-ballerina/", kind: docs}
+must_cover:
+  - id: http_to_kafka
+    text: "Accept events over HTTP and publish them to Kafka from a service that holds a `private final kafka:Producer` created in `init()`, calling `check self.orderProducer->send({topic: \"order-topic\", value: newOrder})` and returning `http:ACCEPTED`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-producer-produce-message/", kind: bbe}
+  - id: kafka_listener_service
+    text: "Consume a topic with `listener kafka:Listener orderListener = new (kafka:DEFAULT_URL, {groupId: \"...\", topics: \"order-topic\"})` and a service whose `remote function onConsumerRecord(Order[] orders)` receives payloads already bound to a record type"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-consume-message/", kind: bbe}
+  - id: kafka_poll_consumer
+    text: "Poll Kafka from a `kafka:Consumer` in a loop with `pollPayload(15)` for bound payloads, or `poll(15)` into a record that includes `*kafka:AnydataConsumerRecord` with a typed `value` when record metadata is needed"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-payload-data-binding/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/kafka-consumer-consumer-record-data-binding/", kind: bbe}
+  - id: kafka_manual_commit
+    text: "Commit offsets only after processing by setting `autoCommit: false` on the listener and calling `caller->commit()` from `onConsumerRecord(kafka:Caller caller, ...)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-kafka", kind: github, note: "README: manual offset commit"}
+  - id: message_validation
+    text: "Validate incoming messages declaratively by adding `@constraint:String {maxLength: 30, minLength: 1}` (or other constraints) to the message record type consumed by a Kafka or RabbitMQ service"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-constraint-validation/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-service-constraint-validation/", kind: bbe}
+  - id: process_batch_query
+    text: "Process a received batch with a query action such as `from Order 'order in orders where 'order.isValid do { log:printInfo(...); };`, quoting reserved words like `'order`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/kafka-service-consume-message/", kind: bbe}
+  - id: rabbitmq_publish
+    text: "Publish to RabbitMQ with a `rabbitmq:Client` created from `rabbitmq:DEFAULT_HOST` and `rabbitmq:DEFAULT_PORT`, calling `publishMessage({content: newOrder, routingKey: \"OrderQueue\"})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-producer/", kind: bbe}
+  - id: rabbitmq_service
+    text: "Consume a queue with `service \"OrderQueue\" on new rabbitmq:Listener(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT)` and `remote function onMessage(Order 'order) returns error?`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer/", kind: bbe}
+  - id: nats_service
+    text: "Subscribe to a NATS subject with `service \"orders.valid\" on new nats:Listener(nats:DEFAULT_URL)` and a typed `onMessage` remote function"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-basic-sub/", kind: bbe}
+  - id: mqtt_service
+    text: "Subscribe to MQTT with `service on new mqtt:Listener(mqtt:DEFAULT_URL, \"client-id\", \"mqtt/topic\")` and convert `message.payload` bytes to a record with `string:fromBytes` and `value:fromJsonStringWithType`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mqtt-service-subscribe-message/", kind: bbe}
+  - id: jms_service
+    text: "Consume JMS messages with a `jms:Listener` configured with `initialContextFactory` and `providerUrl`, `@jms:ServiceConfig {queueName: \"order-queue\"}`, and an `onMessage(jms:Message message)` that type-tests for `jms:MapMessage`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-service-consume-message/", kind: bbe}
+  - id: websub_webhook
+    text: "Receive webhooks with a WebSub subscriber, `@websub:SubscriberServiceConfig {target: [hubUrl, topicUrl], secret: \"...\"}` on `service on new websub:Listener(9090)`, handling `remote function onEventNotification(websub:ContentDistributionMessage event)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websub-webhook-sample/", kind: bbe}
+  - id: cdc_listener
+    text: "React to database changes with `listener mysql:CdcListener` (importing `ballerinax/mysql.cdc.driver as _`) and a service implementing `onRead`, `onCreate`, `onUpdate` or `onDelete` with a typed row record, e.g. raising a fraud alert for large transactions"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cdc-service/", kind: bbe}
+      - {url: "https://ballerina.io/learn/build-a-change-data-capture-service-in-ballerina/", kind: docs}
+  - id: pubsub_to_websocket
+    text: "Fan out events to browsers by publishing match events to Kafka from an HTTP resource and, per WebSocket connection, creating a `kafka:Consumer` with a unique `groupId` whose payloads are forwarded with `caller->writeMessage(...)` from `onOpen`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/publish-subscribe-channel/", kind: docs}
+  - id: events_to_saas
+    text: "Update a SaaS system from a stream of events, e.g. an `isolated remote function onConsumerRecord(ProductPrice[] prices)` that destructures each record and calls a `salesforce:Client` to update the matching record"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/kafka-to-salesforce-integration/", kind: docs}
+out_of_scope:
+  - "Broker client configuration, security (SSL/SASL) and full APIs (lib.kafka, lib.rabbitmq, lib.nats, lib.mqtt, lib.java.jms)"
+  - "Consumer error handling and acknowledgements for reliability (topic.resiliency)"
+  - "WebSub hubs (lib.websubhub)"
+  - "AsyncAPI code generation (tool.bal_asyncapi)"
+edges:
+  - {to: lib.kafka, rel: uses, via: [http_to_kafka, kafka_listener_service, kafka_poll_consumer, kafka_manual_commit, message_validation, pubsub_to_websocket, events_to_saas]}
+  - {to: lib.rabbitmq, rel: uses, via: [rabbitmq_publish, rabbitmq_service, message_validation]}
+  - {to: lib.nats, rel: uses, via: [nats_service]}
+  - {to: lib.mqtt, rel: uses, via: [mqtt_service]}
+  - {to: lib.java.jms, rel: uses, via: [jms_service]}
+  - {to: lib.websub, rel: uses, via: [websub_webhook]}
+  - {to: lib.cdc, rel: uses, via: [cdc_listener]}
+  - {to: lib.mysql, rel: uses, via: [cdc_listener]}
+  - {to: lib.websocket, rel: uses, via: [pubsub_to_websocket]}
+  - {to: lib.http, rel: uses, via: [http_to_kafka, pubsub_to_websocket]}
+  - {to: lib.constraint, rel: uses, via: [message_validation]}
+  - {to: concept.services_listeners, rel: uses, via: [kafka_listener_service, rabbitmq_service, nats_service, mqtt_service, jms_service, websub_webhook, cdc_listener]}
+  - {to: concept.query_expressions, rel: uses, via: [process_batch_query]}
+  - {to: concept.records, rel: uses, via: [kafka_listener_service, kafka_poll_consumer]}
+  - {to: topic.integration_patterns, rel: related}
+  - {to: topic.resiliency, rel: related}
+notes: "CDC service callbacks onUpdate/onDelete are named in the CDC guide text; the BBE shows onRead/onCreate."

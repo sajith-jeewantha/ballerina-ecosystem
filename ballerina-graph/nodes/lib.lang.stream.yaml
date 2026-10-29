@@ -1,0 +1,40 @@
+schema_version: "0.1"
+id: lib.lang.stream
+type: library
+title: ballerina/lang.stream
+summary: The `lang.stream` module (basic type stream) provides functions to iterate, read, close, map, filter and reduce `stream<T,C>` values, where `C` is the completion type (`error?`).
+priority: long_tail
+status: draft
+modules: [ballerina/lang.stream]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.stream", kind: spec, note: "11.3.12 lang.stream module"}
+must_cover:
+  - id: iterator_next
+    text: "Read a stream one member at a time with `stm.next()`, which returns `record {| T value; |}` for the next member or the completion value `C` (nil at the end, or an error), or get an iterator with `stm.iterator()` whose `next()` behaves the same way"
+    difficulty: [intermediate]
+  - id: close
+    text: "Release a stream's resources with `stm.close()`, which returns `C?` (nil on success, or an error), and know that closing an already closed stream has no effect and returns nil"
+    difficulty: [intermediate]
+  - id: map
+    text: "Use `stm.map(func)` to get a new `stream<T1,C>` containing the result of applying `func` to each member in order"
+    difficulty: [intermediate]
+  - id: filter
+    text: "Use `stm.filter(func)` to get a new `stream<T,C>` containing only the members for which the predicate returns true"
+    difficulty: [intermediate]
+  - id: for_each
+    text: "Use `stm.forEach(func)` to apply a function to each member in order, knowing that it returns the stream's completion value `C`, so `check stm.forEach(...)` propagates a stream error"
+    difficulty: [intermediate]
+  - id: reduce
+    text: "Combine a stream's members with `stm.reduce(func, initial)` on a `stream<T,E?>`, which returns the combined value or the stream's error (`T1|E`)"
+    difficulty: [intermediate, advanced]
+out_of_scope:
+  - "Stream types, stream constructors and stream-producing queries (concept.streams)"
+  - "Database result streams (lib.sql)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [map, filter, for_each, reduce], target_items: [type_params, isolated_param]}
+  - {to: concept.streams, rel: uses, via: [iterator_next, close, map, filter, for_each, reduce]}
+  - {to: concept.function_values, rel: uses, via: [map, filter, for_each, reduce]}
+  - {to: concept.errors, rel: uses, via: [close, for_each, reduce]}
+  - {to: concept.loops, rel: uses, via: [iterator_next]}
+notes: "Expands the lang_stream item of the removed concept.langlib node. In the spec the stream iterator's `next()` and `stream:next` both return `record {| Type value; |}|CompletionType`. The `check stm.forEach(...)` usage is derived from the return type, not quoted."

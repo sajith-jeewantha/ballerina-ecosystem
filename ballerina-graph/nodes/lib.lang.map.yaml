@@ -1,0 +1,61 @@
+schema_version: "0.1"
+id: lib.lang.map
+type: library
+title: ballerina/lang.map
+summary: The `lang.map` module (basic type mapping) provides functions on maps and records for size, key lookup and removal, iteration over members or key-member entries, and higher-order processing.
+priority: core
+status: draft
+modules: [ballerina/lang.map]
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.map", kind: spec, note: "11.3.9 lang.map module"}
+must_cover:
+  - id: length_has_key
+    text: "Use `m.length()` for the number of members and `m.hasKey(k)` to test whether a map has a member with string key `k`"
+    difficulty: [beginner]
+  - id: keys_to_array
+    text: "Use `m.keys()` to get a new `string[]` of all keys and `m.toArray()` to get an array of all members"
+    difficulty: [beginner]
+  - id: get
+    text: "Use `m.get(k)` when the key is known to exist: it returns the member typed `T` and panics if there is no member with key `k`, unlike `m[k]`, which returns `()` for a missing key"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+  - id: iterate_members
+    text: "Iterate over a map's members (not its keys) with `foreach` or `m.iterator()`, whose `next()` returns `record {| T value; |}` or nil at the end"
+    difficulty: [beginner]
+  - id: entries
+    text: "Use `m.entries()` to get a new `map<[string, T]>` of key-member pairs, e.g. `foreach [string, int] [k, v] in scores.entries()`, to iterate over keys and members together"
+    difficulty: [beginner, intermediate]
+  - id: map_filter
+    text: "Transform maps with `m.map(func)`, which returns a `map<T1>` with the same keys holding `func`'s results, and `m.filter(func)`, which returns a new `map<T>` with only the members for which the predicate returns true"
+    difficulty: [intermediate]
+  - id: for_each
+    text: "Use `m.forEach(func)` to apply a function to each member of a map for its side effects"
+    difficulty: [beginner, intermediate]
+  - id: reduce
+    text: "Combine a map's members with `m.reduce(func, initial)`, where `func` takes the accumulated value and a member, e.g. totalling `map<int>` values"
+    difficulty: [intermediate]
+  - id: remove
+    text: "Remove members with `m.remove(k)`, which returns the removed member and panics if there is no member with key `k`, or `m.removeIfHasKey(k)`, which returns `T?` (nil when the key is absent)"
+    difficulty: [beginner, intermediate]
+  - id: remove_all
+    text: "Clear a map with `m.removeAll()`, which panics if any member cannot be removed"
+    difficulty: [intermediate]
+  - id: records_as_maps
+    text: "Call `lang.map` functions on record values, which belong to basic type mapping, e.g. `person.keys()`, `person.hasKey(\"age\")` or `person.toArray()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+out_of_scope:
+  - "Map types, mapping constructors and member access (concept.maps)"
+  - "Record types (concept.records)"
+  - "Iteration mutation rules (concept.loops)"
+edges:
+  - {to: lib.langlib, rel: part_of}
+  - {to: lib.langlib, rel: uses, via: [map_filter, reduce, records_as_maps], target_items: [type_params, isolated_param, method_call_dispatch]}
+  - {to: concept.maps, rel: uses, via: [length_has_key, keys_to_array, get, iterate_members, entries, map_filter, for_each, reduce, remove, remove_all]}
+  - {to: concept.records, rel: uses, via: [records_as_maps]}
+  - {to: concept.field_member_access, rel: uses, via: [get]}
+  - {to: concept.loops, rel: uses, via: [iterate_members, entries]}
+  - {to: concept.function_values, rel: uses, via: [map_filter, for_each, reduce]}
+notes: "Expands the lang_map item of the removed concept.langlib node. records_as_maps follows from the method-call rule (6.16) and the fact that record types are mapping types; the spec has no record-specific example. The iterator doc comment says iteration is over members, not keys, and points to `entries` and `keys` for the others."

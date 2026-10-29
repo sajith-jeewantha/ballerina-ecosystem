@@ -1,0 +1,116 @@
+schema_version: "0.1"
+id: lib.persist
+type: library
+title: ballerina/persist
+summary: "Ballerina persist expresses an application's data model as entity record types and uses a generated, type-safe client with resource methods for CRUD, projection and relation queries over pluggable data stores (in-memory, MySQL/MSSQL/PostgreSQL, Google Sheets, Redis)."
+priority: important
+status: draft
+modules: [ballerina/persist, ballerinax/persist.sql, ballerinax/persist.inmemory, ballerinax/persist.googlesheets, ballerinax/persist.redis]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/persist/latest", kind: central, note: "ballerina/persist 1.7.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-persist/blob/master/ballerina/README.md", kind: github, note: "Data model definition rules"}
+  - {url: "https://ballerina.io/learn/persist-model/", kind: docs, note: "Data model (entities, identity, relations, SQL annotations)"}
+  - {url: "https://ballerina.io/learn/persist-client-api/", kind: docs, note: "Derived types and generated client API"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/master/ballerina/README.md", kind: github, note: "SQL data stores, type mapping, advanced annotations, Config.toml"}
+  - {url: "https://ballerina.io/learn/by-example/persist-get-all/", kind: bbe, note: "Bal persist BBE series"}
+must_cover:
+  - id: data_model_file
+    text: "Define the data model as record types in a `.bal` file under the project's `persist` directory, where every record type is an entity and the file is used only for model definition, not compiled with the package"
+    difficulty: [beginner]
+  - id: identity_fields
+    text: "Mark identity fields with `readonly` (e.g. `readonly string id;`), using one or more fields for a composite key, and restrict them to `int`, `string`, `float`, `boolean` or `decimal`"
+    difficulty: [beginner]
+  - id: field_types
+    text: "Model attributes with simple types (`()`, `boolean`, `int`, `float`, `decimal`, `string`, `byte[]`, `time:Date`, `time:TimeOfDay`, `time:Utc`, `time:Civil`, enums), use `T?` for nullable columns, and avoid unions such as `int|string` and optional `T field?` (allowed only for Redis), knowing supported types vary by data store"
+    difficulty: [intermediate]
+  - id: one_to_one
+    text: "Define a one-to-one relation with an `EntityType` field on the owner and an `EntityType?` field on the other entity (e.g. `User owner;` in `Car` and `Car? car;` in `User`), where the owner gets a foreign key such as `ownerId`"
+    difficulty: [intermediate]
+  - id: one_to_many_many_to_many
+    text: "Define a one-to-many relation with `User owner;` on one side and `Car[] cars;` on the other, and a many-to-many relation through a join entity holding two `EntityType` fields (e.g. `CarUser` with `Car car; User user;`)"
+    difficulty: [intermediate, advanced]
+  - id: derived_types
+    text: "Use the generated derived types for an entity: the entity type itself (with foreign key fields), `EmployeeInsert` for creates, `EmployeeUpdate` with all-optional non-key fields, `EmployeeOptionalized`, `EmployeeWithRelations` and `EmployeeTargetType`"
+    difficulty: [intermediate]
+  - id: client_init_config
+    text: "Initialize the generated client with `store:Client sClient = check new ();` after importing the generated module, providing data store settings in `Config.toml` under `[<package>.<module>]` (e.g. `host`, `port`, `user`, `password`, `database` for SQL; `spreadsheetId`, `clientId`, `clientSecret`, `refreshToken` for Google Sheets; `connectionConfig`/`cacheConfig` for Redis)"
+    difficulty: [beginner, intermediate]
+  - id: create_records
+    text: "Insert one or more records with `sClient->/employees.post([employee1, employee2])`, passing `store:EmployeeInsert` values and receiving the `string[]` of inserted keys"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-create/", kind: bbe, note: "Create/Create many"}
+  - id: get_all
+    text: "Read all records of an entity as `stream<store:Employee, persist:Error?> employees = sClient->/employees;` and iterate it with a query expression"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-get-all/", kind: bbe, note: "Get all"}
+  - id: get_by_key
+    text: "Read a single record by key with `store:Employee employee = check sClient->/employees/[empId];`, using one path segment per identity field for composite keys, and handle `persist:NotFoundError` when the key does not exist"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-get-by-key/", kind: bbe, note: "Get by key"}
+  - id: select_fields
+    text: "Project a subset of fields by declaring a custom target record type (e.g. `EmployeeName` with `id`, `firstName`, `lastName`) for `sClient->/employees` or `sClient->/employees/[id]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-select-fields/", kind: bbe, note: "Select fields"}
+  - id: relation_queries
+    text: "Fetch related entities (an SQL join) by declaring a target type with a nested record field for a one-to-one relation or a record-array field for a one-to-many relation (e.g. `DepartmentEmployees` with an `employees` array)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-relation-queries/", kind: bbe, note: "Relation queries"}
+  - id: update_record
+    text: "Update a record with `sClient->/employees/[empId].put({hireDate: {...}})`, passing only the fields to change as `store:EmployeeUpdate`, and receive the updated entity"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-update/", kind: bbe, note: "Update"}
+  - id: delete_record
+    text: "Delete a record with `sClient->/employees/[empId].delete()`, which returns the deleted entity"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-delete/", kind: bbe, note: "Delete"}
+  - id: filter_sort_query
+    text: "Filter, sort and limit retrieved streams with query expressions, e.g. `from var e in sClient->/employees where e.gender == \"Male\" order by e.firstName ascending limit 2 select e`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-filtering/", kind: bbe, note: "Filter and sort"}
+  - id: sql_clauses
+    text: "With SQL data stores, push filtering into the database by passing `sql:ParameterizedQuery` arguments `whereClause`, `orderByClause`, `limitClause` and `groupByClause` to the generated get-all resource method"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/persist-tools/blob/main/persist-cli-tests/src/test/resources/test-src/output/tool_test_generate_1/modules/persist_client.bal", kind: github, note: "Generated SQL client resource signatures"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-persist.sql/blob/master/ballerina/sql_client.bal", kind: github, note: "runReadQuery whereClause/orderByClause/limitClause/groupByClause"}
+  - id: native_sql
+    text: "Run hand-written SQL through the generated client with `sClient->queryNativeSQL(`SELECT ...`)` (returns a stream of the row type) and `sClient->executeNativeSQL(`UPDATE ...`)` (returns an execution result) on SQL data stores"
+    difficulty: [intermediate, advanced]
+  - id: persist_errors
+    text: "Handle `persist:Error` and its subtypes `persist:NotFoundError`, `persist:AlreadyExistsError` and `persist:ConstraintViolationError` returned by client operations, and close the client with `check sClient.close()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-persist/blob/master/ballerina/errors.bal", kind: github, note: "persist error types"}
+  - id: sql_name_type_annotations
+    text: "Customise SQL mapping in the model by importing `ballerinax/persist.sql` and annotating entities and fields with `@sql:Name {value: \"people\"}`, `@sql:Varchar {length: 100}`, `@sql:Char {length: 12}` and `@sql:Decimal {precision: [10, 2]}`"
+    difficulty: [intermediate]
+  - id: sql_index_generated_relation
+    text: "Declare indexes with `@sql:Index` and `@sql:UniqueIndex` (optionally named, composite by sharing a name), auto-generated keys with `@sql:Generated` on a `readonly int` field (removed from the Insert type), and custom foreign keys with `@sql:Relation {keys: [\"userId\"]}`"
+    difficulty: [advanced]
+out_of_scope:
+  - "The `bal persist` CLI commands (`init`, `add`, `generate`, `migrate`) and build integration (tool.bal_persist)"
+  - "Direct SQL access with the sql client API (lib.sql)"
+  - "Connection-level options of the underlying database connectors (lib.mysql, lib.postgresql, lib.mssql, lib.redis)"
+edges:
+  - {to: lib.sql, rel: uses, via: [sql_clauses, native_sql], target_items: [parameterized_query, pool_configuration]}
+  - {to: tool.bal_persist, rel: uses, via: [data_model_file, derived_types, client_init_config], note: "Client and derived types are generated by bal persist"}
+  - {to: concept.records, rel: uses, via: [data_model_file, field_types, derived_types, select_fields, relation_queries]}
+  - {to: concept.mutability_readonly, rel: uses, via: [identity_fields]}
+  - {to: concept.resource_methods, rel: uses, via: [create_records, get_all, get_by_key, update_record, delete_record]}
+  - {to: concept.client_objects, rel: uses, via: [client_init_config, native_sql]}
+  - {to: concept.query_expressions, rel: uses, via: [filter_sort_query, get_all]}
+  - {to: concept.streams, rel: uses, via: [get_all, filter_sort_query]}
+  - {to: concept.errors, rel: uses, via: [persist_errors, get_by_key]}
+  - {to: concept.annotations, rel: uses, via: [sql_name_type_annotations, sql_index_generated_relation]}
+  - {to: concept.typedesc, rel: uses, via: [select_fields, relation_queries], note: "TargetType typedesc parameters"}
+  - {to: lib.time, rel: uses, via: [field_types]}
+  - {to: tool.config_toml, rel: uses, via: [client_init_config]}
+notes: "Verified against module-ballerina-persist master (1.7.1), persist.sql 1.7.4, ballerina.io persist-model and persist-client-api pages, and a generated client in persist-tools tests. The `whereClause`/`orderByClause`/`limitClause`/`groupByClause` parameters are confirmed only in generated SQL clients, not in the learn docs; their availability for other data stores was not confirmed. Data store selection (`--datastore`) is a CLI concern for tool.bal_persist."

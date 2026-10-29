@@ -1,0 +1,95 @@
+schema_version: "0.1"
+id: lib.oauth2
+type: library
+title: ballerina/oauth2
+summary: "The `oauth2` module talks to OAuth2 authorization servers (RFC 6749, RFC 7662): a client provider that obtains and caches access tokens with the client credentials, password, refresh token and JWT bearer grants, and a listener provider that validates tokens through an introspection endpoint."
+priority: important
+status: draft
+modules: [ballerina/oauth2]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/oauth2/latest", kind: central, note: "ballerina/oauth2 2.15.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/http-service-oauth2/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-client-credentials-grant-type/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-password-grant-type/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-refresh-token-grant-type/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-jwt-bearer-grant-type/", kind: bbe}
+must_cover:
+  - id: client_credentials_grant
+    text: "Obtain an access token with the client credentials grant by creating an `oauth2:ClientOAuth2Provider` from an `oauth2:ClientCredentialsGrantConfig` (`tokenUrl`, `clientId`, `clientSecret`, optional `scopes`) and calling `generateToken()`, which returns `string|oauth2:Error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/client_oauth2_provider.bal", kind: github}
+  - id: password_grant
+    text: "Use the password grant with an `oauth2:PasswordGrantConfig` (`tokenUrl`, `username`, `password`, optional `clientId`, `clientSecret` and `scopes`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/client_oauth2_provider.bal", kind: github}
+  - id: password_refresh_config
+    text: "Let the password grant refresh expired tokens by setting `refreshConfig` to an `oauth2:RefreshConfig` (`refreshUrl`, `scopes`, ...) or to `oauth2:INFER_REFRESH_CONFIG` to reuse the grant's own values"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-password-grant-type/", kind: bbe}
+  - id: refresh_token_grant
+    text: "Use the refresh token grant with an `oauth2:RefreshTokenGrantConfig` (`refreshUrl`, `refreshToken`, `clientId`, `clientSecret`, optional `scopes`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-refresh-token-grant-type/", kind: bbe}
+  - id: jwt_bearer_grant
+    text: "Use the JWT bearer grant with an `oauth2:JwtBearerGrantConfig` (`tokenUrl`, an `assertion` holding a JWT, optional `clientId`, `clientSecret` and `scopes`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-jwt-bearer-grant-type/", kind: bbe}
+  - id: token_expiry
+    text: "Explain that `generateToken()` reuses the cached access token until it expires, and tune this with `defaultTokenExpTime` (used when the response has no `expires_in`, default 3600 s) and `clockSkew`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/client_oauth2_provider.bal", kind: github}
+  - id: credential_bearer
+    text: "Choose how the client credentials reach the token endpoint with `credentialBearer` (`oauth2:AUTH_HEADER_BEARER` by default or `oauth2:POST_BODY_BEARER`) and send extra request parameters with `optionalParams`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/oauth2_commons.bal", kind: github}
+  - id: endpoint_client_config
+    text: "Configure the HTTP client used to call the token or introspection endpoint with `clientConfig` (`oauth2:ClientConfiguration`: `httpVersion`, `customHeaders`, `customPayload`, `auth`, `secureSocket` with `cert` and `key`, `connectTimeout`, `reqTimeout`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/oauth2_commons.bal", kind: github}
+  - id: global_timeouts
+    text: "Set default token-endpoint timeouts for every provider through the module configurables `globalConnectTimeout` (default 15 s) and `globalReqTimeout` (default 30 s) under `[ballerina.oauth2]` in Config.toml"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/init.bal", kind: github}
+  - id: introspection_provider
+    text: "Validate an incoming access token with `oauth2:ListenerOAuth2Provider`, created from an `oauth2:IntrospectionConfig` (`url`, optional `tokenTypeHint`, `optionalParams`, `cacheConfig`, `defaultTokenExpTime`, `clientConfig`), by calling `authorize(token)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/listener_oauth2_provider.bal", kind: github}
+  - id: introspection_response
+    text: "Check the `active` flag of the returned `oauth2:IntrospectionResponse` and read its `scope`, `clientId`, `username`, `tokenType`, `exp`, `iat`, `sub`, `aud`, `iss` and `jti` fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-oauth2/blob/master/ballerina/listener_oauth2_provider.bal", kind: github}
+  - id: service_oauth2
+    text: "Secure a service with OAuth2 by adding an `oauth2IntrospectionConfig` entry (introspection `url`, `tokenTypeHint`, `scopeKey`, `clientConfig`) and `scopes` to the connector's service `auth` configuration, e.g. `@http:ServiceConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-oauth2/", kind: bbe}
+  - id: client_oauth2
+    text: "Make a connector client fetch and attach OAuth2 access tokens automatically by passing a grant configuration (client credentials, password, refresh token or JWT bearer fields) as the client's `auth` configuration, e.g. `http:Client`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-client-credentials-grant-type/", kind: bbe}
+out_of_scope:
+  - "Basic Auth providers (lib.auth)"
+  - "Issuing and validating JWTs locally (lib.jwt)"
+  - "Full HTTP auth configuration records and auth handlers (lib.http)"
+edges:
+  - {to: concept.records, rel: uses, via: [client_credentials_grant, password_grant, refresh_token_grant, jwt_bearer_grant, introspection_response]}
+  - {to: concept.union_intersection_types, rel: uses, via: [password_refresh_config]}
+  - {to: concept.constants_enums, rel: uses, via: [credential_bearer]}
+  - {to: concept.classes, rel: uses, via: [client_credentials_grant, introspection_provider]}
+  - {to: concept.errors, rel: uses, via: [client_credentials_grant]}
+  - {to: lib.cache, rel: uses, via: [introspection_provider], target_items: [cache_config]}
+  - {to: lib.crypto, rel: uses, via: [endpoint_client_config], target_items: [keystore_truststore]}
+  - {to: tool.config_toml, rel: uses, via: [global_timeouts]}

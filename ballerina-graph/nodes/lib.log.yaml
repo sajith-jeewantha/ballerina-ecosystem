@@ -1,0 +1,127 @@
+schema_version: "0.1"
+id: lib.log
+type: library
+title: ballerina/log
+summary: "The `log` module prints leveled, structured log records with key-value context and errors, configured through Config.toml (level, per-module levels, logfmt/JSON format, stdout/stderr/file destinations with rotation, root context), and offers root, child and configured loggers, runtime level changes and sensitive-data masking."
+priority: core
+status: draft
+modules: [ballerina/log]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/log/latest", kind: central, note: "ballerina/log 2.17.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/logging/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/logging-with-context/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/error-logging/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/logging-configuration/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/log-file-rotation/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/child-loggers-with-context/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/logger-from-config/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/custom-logger/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/sensitive-data-logging/", kind: bbe}
+must_cover:
+  - id: print_levels
+    text: "Log messages with `log:printDebug`, `log:printInfo`, `log:printWarn` and `log:printError`, knowing that only `INFO` and higher are printed by default and that records go to `stderr` in logfmt format"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging/", kind: bbe}
+  - id: key_value_context
+    text: "Attach context as named key-value arguments, e.g. `log:printInfo(\"Processing order\", orderId = 845315, amount = 99.99, user = user)`, where values can be any `anydata` including records (keys such as `message`, `time`, `level` and `error` are reserved)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-with-context/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/natives.bal", kind: github, note: "KeyValues record"}
+  - id: lazy_and_template_values
+    text: "Pass an `isolated function() returns anydata` (`log:Valuer`) as a key-value so it is evaluated only when the level is enabled, and use raw templates such as `` `Product: ${name}` `` as the message or a value"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-with-context/", kind: bbe}
+  - id: error_logging
+    text: "Log an error value with `log:printError(\"msg\", err)` (or `'error = err`), together with extra key-values, so that the error message, its cause chain and detail fields appear in the record; an explicit `stackTrace` can also be passed"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-logging/", kind: bbe}
+  - id: level_config
+    text: "Set the global log level in `Config.toml` with `[ballerina.log]` `level = \"DEBUG\"` (one of `ERROR`, `WARN`, `INFO`, `DEBUG`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-configuration/", kind: bbe}
+  - id: module_level_config
+    text: "Override the level for one module with a `[[ballerina.log.modules]]` entry that sets `name = \"<org>/<module>\"` and `level`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/README.md", kind: github}
+  - id: format_config
+    text: "Switch the output format between logfmt and JSON with `format = \"json\"` or `\"logfmt\"` under `[ballerina.log]`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-configuration/", kind: bbe}
+  - id: destinations
+    text: "Send logs to `stderr`, `stdout` or a file by adding `[[ballerina.log.destinations]]` entries with `type` or a `path` ending in `.log` (file `mode` is `APPEND` by default or `TRUNCATE`), instead of the deprecated `log:setOutputFile()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/README.md", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/natives.bal", kind: github, note: "OutputDestination, FileOutputMode"}
+  - id: file_rotation
+    text: "Rotate log files with a `[ballerina.log.destinations.rotation]` table (or a `rotation` record in code) setting `policy` (`SIZE_BASED`, `TIME_BASED` or `BOTH`), `maxFileSize` in bytes, `maxAge` in seconds and `maxBackupFiles`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/log-file-rotation/", kind: bbe}
+  - id: root_context
+    text: "Add default context to every log record with `keyValues` under `[ballerina.log]` (e.g. a `[ballerina.log.keyValues]` table with `env` and `nodeId`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logging-configuration/", kind: bbe}
+  - id: child_loggers
+    text: "Get the root logger with `log:root()` and derive child loggers that carry context with `logger.withContext(requestId = id)` (returns `log:Logger|error`), nesting them and calling `printInfo` and friends on the `log:Logger`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/child-loggers-with-context/", kind: bbe}
+  - id: logger_from_config
+    text: "Create a logger with its own settings using `log:fromConfig(...)` and a `log:Config` (`level`, `format` as `log:JSON_FORMAT` or `log:LOGFMT`, `destinations`, `keyValues`, `enableSensitiveDataMasking`), which returns `log:Logger|log:Error`, e.g. for a separate audit log"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/logger-from-config/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/root_logger.bal", kind: github}
+  - id: runtime_level_change
+    text: "Change log levels at runtime: give a logger an `id` in `log:fromConfig`, call `setLevel(log:DEBUG)` / `getLevel()` on it, and find registered loggers with `log:getLoggerRegistry()` and its `getIds()` and `getById(id)` methods"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/README.md", kind: github}
+  - id: sensitive_annotation
+    text: "Mark record fields with `@log:Sensitive` so they are excluded from log output once masking is enabled with `enableSensitiveDataMasking = true` under `[ballerina.log]` or in a logger's `log:Config`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sensitive-data-logging/", kind: bbe}
+  - id: masking_strategies
+    text: "Choose a masking strategy with `@log:Sensitive {strategy: {replacement: \"****\"}}` or a `replacement` function of type `log:ReplacementFunction` (`isolated function(string) returns string`), the default strategy being `log:EXCLUDE`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sensitive-data-logging/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/sensitive_data_masking.bal", kind: github}
+  - id: masked_string
+    text: "Get the masked string form of an `anydata` value for custom output with `log:toMaskedString(value)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-log/blob/master/ballerina/README.md", kind: github}
+  - id: custom_logger
+    text: "Write a custom logger as an `isolated class` that includes `*log:Logger` and implements `printDebug`, `printInfo`, `printWarn`, `printError`, `withContext`, `getLevel` and `setLevel`, using `log:evaluateTemplate` to render `log:PrintableRawTemplate` messages"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/custom-logger/", kind: bbe}
+out_of_scope:
+  - "General Config.toml syntax and providing configurable values (tool.config_toml)"
+  - "Metrics and tracing (lib.observe)"
+  - "Shipping logs to observability platforms and log-based monitoring practices (topic.observability)"
+  - "Printing plain output to the console (lib.io)"
+edges:
+  - {to: concept.functions, rel: uses, via: [key_value_context, print_levels]}
+  - {to: concept.function_values, rel: uses, via: [lazy_and_template_values, masking_strategies]}
+  - {to: concept.strings, rel: uses, via: [lazy_and_template_values]}
+  - {to: concept.errors, rel: uses, via: [error_logging]}
+  - {to: concept.records, rel: uses, via: [key_value_context, logger_from_config, sensitive_annotation]}
+  - {to: concept.annotations, rel: uses, via: [sensitive_annotation, masking_strategies]}
+  - {to: concept.objects, rel: uses, via: [child_loggers, custom_logger]}
+  - {to: concept.classes, rel: uses, via: [custom_logger]}
+  - {to: concept.isolation, rel: uses, via: [custom_logger, masking_strategies]}
+  - {to: tool.config_toml, rel: uses, via: [level_config, module_level_config, format_config, destinations, file_rotation, root_context]}
+notes: "Loggers, file destinations, rotation, the logger registry and sensitive-data masking are documented in the current README (log 2.17.x) and BBEs. The child-loggers BBE uses `check` on `withContext`, matching the `log:Logger` object type (`returns Logger|error`)."

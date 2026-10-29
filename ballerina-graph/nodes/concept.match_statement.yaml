@@ -54,12 +54,12 @@ must_cover:
     difficulty: [advanced]
 out_of_scope:
   - "Binding pattern grammar in general (concept.binding_patterns)"
-  - "Narrowing by if/while conditions (concept.type_narrowing)"
-  - "on fail clauses on match statements (concept.error_handling)"
+  - "Narrowing by if/while conditions (concept.type_cast_test)"
+  - "on fail clauses on match statements (concept.errors)"
 edges:
   - {to: concept.binding_patterns, rel: requires}
   - {to: concept.constants_enums, rel: requires}
   - {to: concept.control_flow, rel: requires}
   - {to: concept.comparison_equality, rel: uses, via: [const_patterns]}
-  - {to: concept.type_narrowing, rel: uses, via: [clause_narrowing]}
+  - {to: concept.type_cast_test, rel: uses, via: [clause_narrowing]}
   - {to: concept.errors, rel: uses, via: [error_patterns]}

@@ -1,0 +1,120 @@
+schema_version: "0.1"
+id: lib.grpc
+type: library
+title: ballerina/grpc
+summary: The gRPC library implements gRPC services and clients over HTTP/2 from Protocol Buffers definitions, supporting unary, server-streaming, client-streaming and bidirectional-streaming RPCs, headers, deadlines and security.
+priority: important
+status: draft
+modules: [ballerina/grpc]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/grpc/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/spec/grpc/", kind: docs, note: "Ballerina gRPC library specification"}
+  - {url: "https://ballerina.io/learn/by-example/grpc-service-simple/", kind: bbe, note: "gRPC BBE series"}
+must_cover:
+  - id: proto_stub_generation
+    text: "Start from a `.proto` service definition and generate the Ballerina stub (`*_pb.bal` with message records, the `<Service>Client` and the descriptor constant) using `bal grpc --input <file>.proto --mode service|client --output <dir>`, then copy it into the package"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-simple/", kind: bbe}
+  - id: unary_service
+    text: "Implement a unary RPC as `service \"HelloWorld\" on new grpc:Listener(9090)` annotated with `@grpc:Descriptor {value: <DESC_CONSTANT>}`, where each RPC is a `remote function hello(string request) returns string|error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-simple/", kind: bbe}
+  - id: unary_client
+    text: "Call a unary RPC through the generated client, e.g. `HelloWorldClient ep = check new (\"http://localhost:9090\"); string result = check ep->hello(\"WSO2\");`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-simple/", kind: bbe}
+  - id: server_streaming
+    text: "Implement server streaming by returning `stream<string, error?>` (e.g. `greets.toStream()`) from the remote function, and consume it on the client as `stream<string, grpc:Error?>` with `forEach` or a query action"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-server-streaming/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-server-streaming/", kind: bbe}
+  - id: client_streaming
+    text: "Implement client streaming with a `stream<T, error?> clientStream` parameter iterated by `from ... in clientStream do {...}`, and on the client obtain the generated streaming client (e.g. `LotsOfGreetingsStreamingClient`) to call `sendString()`, `complete()` and `receiveString()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-client-streaming/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-client-streaming/", kind: bbe}
+  - id: bidirectional_streaming
+    text: "Implement bidirectional streaming with a generated caller parameter (e.g. `ChatStringCaller caller`) plus the client stream, replying with `caller->sendString()` and `caller->complete()`, and on the client send with `sendChatMessage()` while reading responses concurrently (e.g. a `start`ed reader calling `receiveString()` until nil)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-bidirectional-streaming/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-bidirectional-streaming/", kind: bbe}
+  - id: headers
+    text: "Send and read gRPC headers with context records such as `wrappers:ContextString {content, headers}` from `ballerina/protobuf.types.wrappers`, call the generated `*Context` client method (e.g. `helloContext`), and read values with `grpc:getHeader(headers, \"key\")`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-headers/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-headers/", kind: bbe}
+  - id: deadlines
+    text: "Set a call deadline on the client with `grpc:setDeadline(time:utcAddSeconds(time:utcNow(), 5))` passed as headers, and check it in the service with `grpc:isCancelled(request.headers)`, returning `error grpc:DeadlineExceededError(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-set-deadline/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-check-deadline/", kind: bbe}
+  - id: error_types
+    text: "Handle gRPC status errors as `grpc:Error` subtypes such as `grpc:NotFoundError`, `grpc:InvalidArgumentError`, `grpc:UnauthenticatedError`, `grpc:UnavailableError` and `grpc:DeadlineExceededError`, and return such errors from service methods (e.g. `return error grpc:NotFoundError(\"...\")`) instead of a response"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/ballerina/grpc_errors.bal", kind: github}
+  - id: tls
+    text: "Secure gRPC with `secureSocket`: listener `key: {certFile, keyFile}` (plus `mutualSsl: {verifyClient: grpc:REQUIRE, cert}` for mTLS) and client `cert` (plus `key`), connecting the client to an `https://` URL"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-mutual-ssl/", kind: bbe}
+  - id: service_auth
+    text: "Secure gRPC services with `@grpc:ServiceConfig {auth: [...]}` using `fileUserStoreConfig`, `ldapUserStoreConfig`, `jwtValidatorConfig` or `oauth2IntrospectionConfig` with `scopes`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-basic-auth-file-user-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-jwt-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-oauth2/", kind: bbe}
+  - id: client_auth
+    text: "Authenticate gRPC client calls with the `auth` config of the generated client: Basic, bearer token, self-signed JWT and OAuth2 client credentials, password, refresh token and JWT bearer grants"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-basic-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-bearer-token-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-self-signed-jwt-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-oauth2-client-credentials-grant-type/", kind: bbe}
+  - id: retry_compression
+    text: "Configure client retries with `retryConfiguration: {retryCount, interval, maxInterval, backoffFactor, errorTypes}` and request gzip compression by adding headers from `grpc:setCompression()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "6.2 compression, 6.4 retry"}
+  - id: server_reflection
+    text: "Enable gRPC server reflection with `new grpc:Listener(9090, {reflectionEnabled: true})` so tools can discover services without the stub"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-server-reflection/", kind: bbe}
+  - id: proto_type_mapping
+    text: "Explain how protobuf types map to Ballerina: wrapper types to `int`, `float`, `string`, `boolean`, `byte[]`, `google.protobuf.Empty` to `()`, `Timestamp` to `time:Utc`, `Duration` to `time:Seconds`, `Struct` to `map<anydata>`, `Any` to `'any:Any`, and messages to records"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "3. Protocol buffers to Ballerina data mapping"}
+out_of_scope:
+  - "The `bal grpc` command options in depth (tool.bal_grpc)"
+  - "Protobuf well-known type submodules and `'any:pack`/`unpack` (lib.protobuf)"
+  - "JWT and OAuth2 internals (lib.jwt, lib.oauth2)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.client_objects, rel: uses, via: [unary_client, client_streaming, bidirectional_streaming]}
+  - {to: concept.streams, rel: uses, via: [server_streaming, client_streaming, bidirectional_streaming]}
+  - {to: concept.records, rel: uses, via: [headers, proto_type_mapping]}
+  - {to: concept.errors, rel: uses, via: [error_types, deadlines]}
+  - {to: concept.annotations, rel: uses, via: [unary_service, service_auth]}
+  - {to: concept.futures_wait, rel: uses, via: [bidirectional_streaming]}
+  - {to: lib.protobuf, rel: uses, via: [headers, proto_type_mapping], target_items: [wrapper_context_types, well_known_type_mapping]}
+  - {to: lib.time, rel: uses, via: [deadlines]}
+  - {to: lib.jwt, rel: uses, via: [service_auth, client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [service_auth, client_auth]}
+  - {to: tool.bal_grpc, rel: uses, via: [proto_stub_generation]}
+notes: "In the BBEs the gRPC service name is a string literal matching the proto service (`service \"HelloWorld\" on ...`); the README also shows an identifier form. The README's client-streaming sample uses `sendstring` (lowercase) while the BBE uses `sendString`; items follow the BBE."
