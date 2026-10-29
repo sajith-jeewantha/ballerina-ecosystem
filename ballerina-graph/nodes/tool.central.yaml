@@ -1,0 +1,84 @@
+schema_version: "0.1"
+id: tool.central
+type: tool
+title: Ballerina Central
+summary: "Ballerina Central is the public package repository. Packages are packed into BALA archives with `bal pack`, published with `bal push`, found with `bal search`, fetched with `bal pull` and deprecated with `bal deprecate`. Custom Maven repositories can host private packages or proxy Central."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/ballerina-central/", kind: docs}
+  - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Custom repositories, proxying Central"}
+  - {url: "https://ballerina.io/learn/cli-commands/", kind: docs}
+  - {url: "https://ballerina.io/learn/configure-a-network-proxy/", kind: docs}
+  - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+must_cover:
+  - id: pack_bala
+    text: "Create the distribution archive with `bal pack`, which writes `target/bala/<org>-<name>-any-<version>.bala`, after adding the `README.md` that publishing requires"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-pack.help", kind: github}
+  - id: access_token
+    text: "Authenticate to Central by putting an access token from the Central dashboard in `<USER_HOME>/.ballerina/Settings.toml` under `[central]` `accesstoken=\"<token>\"`, or in the `BALLERINA_CENTRAL_ACCESS_TOKEN` environment variable for CI, knowing tokens expire after one year"
+    difficulty: [beginner]
+  - id: organization
+    text: "Set `org` in `Ballerina.toml` to a Central organization you belong to before pushing, knowing names starting with `ballerina` (`ballerina`, `ballerinax`, ...) are reserved"
+    difficulty: [beginner]
+  - id: push
+    text: "Publish with `bal push` (or `bal push <bala-path>`), knowing a published version is permanent and cannot be overwritten or removed, so new changes need a new version"
+    difficulty: [beginner]
+  - id: local_first
+    text: "Check a package before publishing by pushing it to the local repository with `bal push --repository local` and depending on it from another package"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/custom-repositories/local-repository/", kind: docs}
+  - id: semver_check
+    text: "Check whether local API changes fit the next version number with `bal semver`, comparing against a given release with `-c <version>`/`--compare-version` and showing the source diff with `-d`/`--show-diff`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-semver.help", kind: github}
+  - id: pull
+    text: "Download a package and its dependencies into the user cache with `bal pull <org>/<package>[:<version>]`, e.g. `bal pull wso2/gmail:1.1.0`, or from a custom repository with `--repository=<id>`"
+    difficulty: [beginner]
+  - id: search
+    text: "Find packages with `bal search <keyword>`, which matches organization and package names case-insensitively, and help users find your package with `keywords` in `Ballerina.toml`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-search.help", kind: github}
+  - id: deprecate
+    text: "Deprecate all versions or one version of a published package with `bal deprecate <org>/<package>[:<version>] --message=\"...\"`, and reverse it with `--undo`, knowing deprecated versions are hidden from search and builds warn when they are used"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-deprecate.help", kind: github}
+  - id: private_packages
+    text: "Publish a private package with `visibility = \"private\"` so it is visible only to members of the organization who are logged in, and set up `Settings.toml` with a token to pull it"
+    difficulty: [intermediate]
+  - id: custom_repositories
+    text: "Configure custom Maven repositories (Nexus, Artifactory, GitHub or GitLab packages) in `Settings.toml` with `[[repository.maven]]` entries (`id`, `url`, `username`, `accesstoken`), then `bal push --repository <id>` and `bal pull ... --repository=<id>`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
+  - id: proxy_central
+    text: "Send all Central traffic through a Maven proxy repository with a single `[[repository.maven]]` entry marked `proxyCentral = true` (more than one such entry is an error)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Proxy Ballerina Central with a Maven repository"}
+  - id: network_proxy
+    text: "Reach Central through an HTTP proxy by adding `[proxy]` with `host`, `port`, `username` and `password` to `Settings.toml`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/configure-a-network-proxy/", kind: docs}
+  - id: ci_publish
+    text: "Publish from CI, e.g. a GitHub Actions workflow using `ballerina-platform/setup-ballerina@v1` that runs `bal test`, `bal pack` and `bal push` with `BALLERINA_CENTRAL_ACCESS_TOKEN` taken from a repository secret"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+out_of_scope:
+  - "Writing package metadata keys (tool.ballerina_toml)"
+  - "How builds resolve and lock dependency versions (tool.dependencies_toml)"
+  - "Pulling CLI tools with `bal tool pull` (tool.bal_tool)"
+edges:
+  - {to: tool.packages, rel: requires}
+  - {to: tool.ballerina_toml, rel: uses, via: [organization, private_packages, search], target_items: [package_table, visibility_private, package_metadata]}
+  - {to: tool.packages, rel: uses, via: [semver_check, local_first], target_items: [semantic_versioning, local_repository]}
+  - {to: tool.bal_test, rel: uses, via: [ci_publish], target_items: [run_all]}
+notes: "The docs call `bal semver` an experimental tool (available from Swan Lake Update 2)."

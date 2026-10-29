@@ -1,0 +1,63 @@
+schema_version: "0.1"
+id: lib.ai.azure
+type: library
+title: ballerinax/ai.azure
+summary: "Azure implementations of the `ballerina/ai` abstractions: `azure:OpenAiModelProvider` for Azure OpenAI deployments (Chat Completions or Responses API, legacy or v1 GA URLs), `azure:EmbeddingProvider`, and `azure:AiSearchKnowledgeBase` backed by Azure AI Search."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.azure]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.azure/latest", kind: central, note: "ballerinax/ai.azure 1.5.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Module README: API surfaces and quickstart"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/model-provider.bal", kind: github, note: "OpenAiModelProvider"}
+must_cover:
+  - id: model_provider_legacy
+    text: "Create an Azure OpenAI model with `check new azure:OpenAiModelProvider(\"https://<resource>.openai.azure.com\", apiKey, deploymentId, \"2024-10-21\")` typed as `ai:ModelProvider`; a date-based `apiVersion` is required for legacy (non-`/v1`) service URLs"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+  - id: model_provider_v1
+    text: "Target the Azure OpenAI v1 GA surface by using a `/v1`-suffixed service URL such as `https://<resource>.services.ai.azure.com/openai/v1`, omitting `apiVersion`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "API surfaces"}
+  - id: url_resolution
+    text: "Explain how the legacy base URL is derived: a bare origin is completed with `/openai`, while a URL that already has a path (such as an API Management gateway) is used verbatim"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "API surfaces"}
+  - id: api_type
+    text: "Use the Responses API instead of Chat Completions by passing `apiType = azure:RESPONSES` (default `azure:CHAT_COMPLETIONS`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Responses API example"}
+  - id: generation_settings
+    text: "Tune generation with the optional `maxTokens`, `temperature` and `reasoningEffort` (`azure:LOW`, `azure:MEDIUM`, `azure:HIGH`...) arguments and HTTP `azure:ConnectionConfig` fields such as `timeout` and `retryConfig`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/types.bal", kind: github, note: "ReasoningEffort, ConnectionConfig"}
+  - id: chat_and_generate
+    text: "Use the provider through the `ai:ModelProvider` API, e.g. `check azureOpenAiModel->chat(chatMessages, tools = [])` or a typed `generate`, and as the `model` of an `ai:Agent`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+  - id: embedding_provider
+    text: "Create embeddings with `check new azure:EmbeddingProvider(serviceUrl, apiKey, apiVersion, deploymentId)`, passing `()` as `apiVersion` for a `/v1` URL, and use it as the `ai:EmbeddingProvider` of a knowledge base"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "EmbeddingProvider example"}
+  - id: ai_search_knowledge_base
+    text: "Use Azure AI Search as an `ai:KnowledgeBase` with `check new azure:AiSearchKnowledgeBase(serviceUrl, apiKey, indexName, embeddingModel)`, then `ingest`, `retrieve` and `deleteByFilter` as with any knowledge base"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/azure_ai_search_knowledgebase.bal", kind: github, note: "AiSearchKnowledgeBase"}
+out_of_scope:
+  - "Chat, generate, agents and RAG APIs themselves (lib.ai)"
+  - "The plain OpenAI service (lib.ai.openai)"
+edges:
+  - {to: lib.ai, rel: implements, via: [model_provider_legacy, chat_and_generate, embedding_provider, ai_search_knowledge_base], target_items: [model_provider_init, chat_history, generate_typed, vector_knowledge_base, retrieve_augment]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_legacy, chat_and_generate]}
+  - {to: lib.http, rel: uses, via: [generation_settings]}
+  - {to: lib.ai.openai, rel: alternative_to, note: "Azure-hosted OpenAI models versus the OpenAI API"}
+notes: "Verified against module-ballerinax-ai.azure main (1.5.1, same as latest on Central). `azure:AiSearchKnowledgeBase` is not in the README; it is taken from the public source and its doc comments (it also accepts an `ai:Chunker|ai:AUTO|ai:DISABLE` chunker and a `search:SearchIndex` definition)."

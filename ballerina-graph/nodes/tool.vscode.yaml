@@ -1,0 +1,112 @@
+schema_version: "0.1"
+id: tool.vscode
+type: tool
+title: VS Code extension
+summary: "The Ballerina extension for Visual Studio Code adds language support (completion, hover, quick fixes, refactorings), commands that call the `bal` CLI, run and debug support through CodeLens and `launch.json`, visual tools such as the HTTP API Designer and Data Mapper, and Ballerina notebooks."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/vs-code-extension/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/get-started/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/write-the-code/commands/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/write-the-code/code-actions/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+must_cover:
+  - id: install_activate
+    text: "Install the Ballerina extension (`WSO2.ballerina`) and activate it by opening a package folder (e.g. `code .`) or several packages as a VS Code multi-root workspace, with the Ballerina version shown in the status bar"
+    difficulty: [beginner]
+  - id: commands
+    text: "Run the Command Palette commands **Ballerina: Build**, **Run**, **Test**, **Pack**, **Build Documentation**, **Add Module** and **Show Examples**, which call `bal build`, `bal run`, `bal test`, `bal pack`, `bal doc` and `bal add`, and **Create 'Cloud.toml'** for code-to-cloud settings"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/write-the-code/commands/", kind: docs}
+  - id: paste_json_record
+    text: "Generate record types from sample JSON with **Paste JSON as Record** (JSON copied to the clipboard) or the Record Editor's **Import A JSON** option with **Make Separate Record Definitions**"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/references/convert-json-to-records/", kind: docs}
+  - id: codelens_run_debug
+    text: "Run or debug a `main` function or service with the **Run** and **Debug** CodeLens, and run or debug a single test from the CodeLens shown on its `@test:Config` function"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/run-a-program/", kind: docs}
+      - {url: "https://ballerina.io/learn/vs-code-extension/test-the-code/", kind: docs}
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: launch_json
+    text: "Write `.vscode/launch.json` debug configurations of `\"type\": \"ballerina\"`: `Ballerina Debug` (`\"request\": \"launch\"` with `programArgs`, `commandOptions`, `env` and `\"terminal\": \"integrated\"`), `Ballerina Test` (`\"debugTests\": true`) and `Ballerina Remote` (`\"request\": \"attach\"`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - id: remote_debug
+    text: "Debug a program running elsewhere by starting it with `bal run --debug 5005 <package-or-jar>` or `bal test --debug <port>` and attaching a `Ballerina Remote` configuration with `debuggeeHost` and `debuggeePort`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: debug_features
+    text: "Use Ballerina debugging features: conditional breakpoints with Ballerina expressions, logpoints with `${expr}` string templates, pause and continue, expression evaluation in the Debug Console and Watch window, and the strand and stack trace view"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+  - id: error_quick_fixes
+    text: "Apply error-handling quick fixes: `Create variable and check error`, `Create variable and type guard`, `Ignore return value` (assign to `_`), `Add 'check' error`, `Surround with do/on-fail` and `Change return type to 'error?'`"
+    difficulty: [beginner, intermediate]
+  - id: type_quick_fixes
+    text: "Apply type and declaration quick fixes such as `Change variable type`, `Add type cast`, `Create function`, `Implement all`, `Create record`, `Fill record fields`, `Add isolated qualifier`, `Convert to readonly clone` and `Convert module variable to listener declaration`"
+    difficulty: [intermediate]
+  - id: import_quick_fixes
+    text: "Fix imports with `Import module`, `Pull unresolved module` (pulls missing packages from Central), `Remove import` and `Remove all unused imports`"
+    difficulty: [beginner]
+  - id: refactorings
+    text: "Refactor with `Extract to constant`, `Extract to function`, `Extract to local variable` and `Extract type` (anonymous record to a named record type), rewrite array mappings with `Map with a query expression`, and use source actions such as `Create getter and setter`, `Type guard variable` and `Document this`"
+    difficulty: [intermediate]
+  - id: intellisense
+    text: "Use completion features: service templates for each available listener, `foreach` and `foreach i` snippets for iterables, `typeguard` for union-typed variables and `Fill Record required fields`, plus hover documentation and signature help"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/write-the-code/intellisense/", kind: docs}
+  - id: try_it
+    text: "Try a running HTTP service from the editor with the **Try it** CodeLens, which opens a Swagger view where parameters are filled in and requests executed"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/try-the-services/try-http-services/", kind: docs}
+  - id: http_api_designer
+    text: "Open a service with the **Visualize** CodeLens and use the HTTP API Designer to add resources with path, query and header parameters, a payload and response status codes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/design-the-services/http-api-designer/", kind: docs}
+  - id: data_mapper
+    text: "Build an expression-bodied transformation function such as `function transform(Person person, Course[] courses) returns Student => ...` in the Data Mapper, map fields visually, fix type mismatches in the expression editor and turn array mappings into query expressions with `where`, `let`, `limit`, `order by` and `join` clauses"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/implement-the-code/data-mapper/", kind: docs}
+  - id: notebooks
+    text: "Create and run Ballerina notebooks (`.balnotebook` files), executing cells with **Run** or `Shift` + `Enter`, viewing variables, and debugging after turning on `ballerina.enableNotebookDebug`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/notebooks/", kind: docs}
+  - id: settings
+    text: "Configure the extension in `settings.json` with keys such as `ballerina.codeLens.all.enabled`, `ballerina.enableConfigurableEditor` (a form for configurable values when running), `ballerina.lowCodeMode`, `ballerina.enableSemanticHighlighting` and `ballerina.home` (with `ballerina.pluginDevMode`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/configure-the-extension/", kind: docs}
+out_of_scope:
+  - "The CLI commands the extension calls (tool.bal, tool.bal_test)"
+  - "Writing transformation logic and query expressions (topic.data_mapping, concept.query_expressions)"
+  - "HTTP service semantics (lib.http)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.bal, rel: uses, via: [commands, remote_debug], target_items: [bal_build, bal_run, bal_doc, run_watch_debug]}
+  - {to: tool.bal_test, rel: uses, via: [codelens_run_debug, remote_debug], target_items: [run_all, debug_tests]}
+  - {to: tool.packages, rel: uses, via: [commands], target_items: [add_module]}
+  - {to: tool.central, rel: uses, via: [import_quick_fixes, commands], target_items: [pull, pack_bala]}
+  - {to: tool.config_toml, rel: uses, via: [settings], target_items: [config_toml_basics]}
+  - {to: concept.records, rel: uses, via: [paste_json_record, type_quick_fixes]}
+  - {to: concept.errors, rel: uses, via: [error_quick_fixes]}
+  - {to: concept.query_expressions, rel: uses, via: [data_mapper, refactorings]}
+  - {to: concept.documentation, rel: uses, via: [refactorings]}
+  - {to: concept.isolation, rel: uses, via: [type_quick_fixes]}
+  - {to: concept.type_cast_test, rel: uses, via: [type_quick_fixes, intellisense]}
+  - {to: topic.data_mapping, rel: uses, via: [data_mapper]}
+  - {to: lib.http, rel: uses, via: [try_it, http_api_designer]}
+  - {to: tool.code_to_cloud, rel: uses, via: [commands]}
+notes: "Several visual-tool pages (Visualizer, ER diagram, GraphQL designer, Copilot, WSO2 Integration Platform deploy) were not itemized because they are UI workflows with little code to generate. The VS Code extension version referenced by the docs may lag the marketplace release."

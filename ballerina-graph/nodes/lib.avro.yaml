@@ -1,0 +1,53 @@
+schema_version: "0.1"
+id: lib.avro
+type: library
+title: ballerina/avro
+summary: The `avro` module serializes Ballerina `anydata` values to Avro binary and deserializes them back using an `avro:Schema` created from an Avro schema definition string.
+priority: long_tail
+status: draft
+modules: [ballerina/avro]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/avro/latest", kind: central, note: "ballerina/avro 1.2.7 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-avro/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-avro/blob/master/ballerina/schema.bal", kind: github, note: "Schema class: init, toAvro, fromAvro"}
+  - {url: "https://ballerina.io/learn/by-example/avro-serdes/", kind: bbe}
+must_cover:
+  - id: create_schema
+    text: "Create an `avro:Schema` with `check new (schemaString)`, passing the Avro schema JSON as a string (often a string template), and get an `avro:Error` if the schema is invalid"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/avro-serdes/", kind: bbe}
+  - id: primitive_schema
+    text: "Serialize and deserialize a primitive value with a primitive schema such as `{\"type\": \"int\", \"namespace\": \"example.data\"}`"
+    difficulty: [beginner]
+  - id: record_schema
+    text: "Write an Avro `record` schema (`namespace`, `type: \"record\"`, `name`, `fields` with `name`/`type`) that matches a Ballerina record type such as `Student {int id; string name;}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/avro-serdes/", kind: bbe}
+  - id: to_avro
+    text: "Serialize an `anydata` value to Avro binary with `byte[] data = check schema.toAvro(value);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/avro-serdes/", kind: bbe}
+  - id: from_avro
+    text: "Deserialize Avro bytes into a typed value with `schema.fromAvro(data)`, whose target type is inferred from the expected type, e.g. `Student s = check schema.fromAvro(bytes);`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/avro-serdes/", kind: bbe}
+  - id: avro_errors
+    text: "Handle `avro:Error` from schema creation, serialization of values that do not match the schema, and deserialization"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-avro/blob/master/ballerina/error.bal", kind: github}
+out_of_scope:
+  - "Kafka producers and consumers that carry Avro payloads (lib.kafka)"
+  - "Protocol Buffers serialization (lib.protobuf)"
+edges:
+  - {to: concept.classes, rel: uses, via: [create_schema]}
+  - {to: concept.records, rel: uses, via: [record_schema, from_avro]}
+  - {to: concept.json_anydata, rel: uses, via: [to_avro]}
+  - {to: concept.typedesc, rel: uses, via: [from_avro]}
+  - {to: concept.errors, rel: uses, via: [avro_errors]}
+  - {to: concept.strings, rel: uses, via: [create_schema], note: "schema given as a string template"}
+notes: "Verified against module-ballerina-avro master 1.2.7 (= latest tag). The README mentions schema evolution support but documents no API or example for it, so schema evolution is not an item."

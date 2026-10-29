@@ -1,0 +1,64 @@
+schema_version: "0.1"
+id: lib.ai.openai
+type: library
+title: ballerinax/ai.openai
+summary: "OpenAI implementations of the `ballerina/ai` abstractions: `openai:ModelProvider` (an `ai:ModelProvider` for GPT and o-series models over the Chat Completions or Responses API) and `openai:EmbeddingProvider` (an `ai:EmbeddingProvider` for RAG)."
+priority: important
+status: draft
+modules: [ballerinax/ai.openai]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.openai/latest", kind: central, note: "ballerinax/ai.openai 1.4.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/model-provider.bal", kind: github, note: "ModelProvider init at the released tag"}
+must_cover:
+  - id: model_provider_init
+    text: "Create an OpenAI model with `final ai:ModelProvider model = check new openai:ModelProvider(apiKey, modelType = openai:GPT_4O);`, reading the API key from a `configurable string apiKey = ?;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+  - id: model_selection
+    text: "Pick the model from the `openai:OPEN_AI_MODEL_NAMES` enum, e.g. `openai:GPT_4O`, `openai:GPT_4O_MINI`, `openai:GPT_4_1`, `openai:GPT_5`, `openai:GPT_5_MINI` or `openai:O3`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "OPEN_AI_MODEL_NAMES"}
+  - id: generation_settings
+    text: "Tune generation with the optional `maxTokens` and `temperature` arguments, and point at another OpenAI-compatible endpoint with `serviceUrl`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+  - id: reasoning_effort
+    text: "Set `reasoningEffort = openai:LOW` (or `MINIMAL`, `MEDIUM`, `HIGH`...) for reasoning-capable models; unsupported combinations are rejected with an `ai:Error` when the provider is created"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "ReasoningEffort"}
+  - id: api_type
+    text: "Select the OpenAI endpoint with `apiType = openai:RESPONSES` for the Responses API instead of the default `openai:CHAT_COMPLETIONS`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "ApiType"}
+  - id: connection_config
+    text: "Pass HTTP client settings from `openai:ConnectionConfig` as named arguments, such as `timeout`, `retryConfig`, `circuitBreaker`, `proxy`, `secureSocket` and `httpVersion`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+  - id: chat_and_generate
+    text: "Call the provider through the `ai:ModelProvider` API, e.g. `ai:ChatAssistantMessage response = check openAiModel->chat(chatMessages, tools = []);` or a typed `generate`, and use it as the `model` of an `ai:Agent` or a natural expression"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+  - id: embedding_provider
+    text: "Create embeddings for RAG with `final ai:EmbeddingProvider embeddingModel = check new openai:EmbeddingProvider(apiKey, openai:TEXT_EMBEDDING_3_SMALL);` (or `TEXT_EMBEDDING_3_LARGE`, `TEXT_EMBEDDING_ADA_002`) and pass it to `ai:VectorKnowledgeBase`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "3.1.1 Initialize the Embedding Provider"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/embedding-provider.bal", kind: github}
+out_of_scope:
+  - "Chat, generate, agents and RAG APIs themselves (lib.ai)"
+  - "HTTP client resiliency options in detail (lib.http)"
+edges:
+  - {to: lib.ai, rel: implements, via: [model_provider_init, chat_and_generate, embedding_provider], target_items: [model_provider_init, chat_history, generate_typed, agent_create, vector_knowledge_base]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_and_generate]}
+  - {to: concept.constants_enums, rel: uses, via: [model_selection, reasoning_effort, api_type]}
+  - {to: lib.http, rel: uses, via: [connection_config]}
+  - {to: tool.config_toml, rel: uses, via: [model_provider_init], note: "API key supplied through a configurable"}
+notes: "Items checked against the released tag v1.4.1 (Central latest); main is at 1.5.0-dev with more model names (GPT-5.x). The ballerina/ai README's RAG snippet imports `ballerina/ai.openai`, a typo for `ballerinax/ai.openai`."

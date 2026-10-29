@@ -1,0 +1,46 @@
+schema_version: "0.1"
+id: lib.url
+type: library
+title: ballerina/url
+summary: "The `url` module percent-encodes and decodes strings for use in URLs with a given character set through `url:encode` and `url:decode`."
+priority: long_tail
+status: draft
+modules: [ballerina/url]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/url/latest", kind: central, note: "ballerina/url 2.6.5 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/url-encode-decode/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/url.bal", kind: github, note: "encode/decode API"}
+must_cover:
+  - id: encode
+    text: "Percent-encode a URL component with `url:encode(value, \"UTF-8\")`, e.g. turning `data=value` into `data%3Dvalue`; the function returns `string|url:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/url-encode-decode/", kind: bbe}
+  - id: decode
+    text: "Decode a percent-encoded string with `url:decode(value, \"UTF-8\")`, e.g. `http%3A%2F%2Flocalhost%3A9090` back to `http://localhost:9090`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/url-encode-decode/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/tests/url_test.bal", kind: github}
+  - id: encoding_rules
+    text: "Explain that `url:encode` encodes a space as `%20` (not `+`) and `*` as `%2A`, and leaves `~` unencoded, so the output is safe in both paths and query strings"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/tests/url_test.bal", kind: github, note: "Tests assert no space, *, + or %7E in encoded output"}
+  - id: build_query
+    text: "Build a query string safely by encoding each parameter value with `url:encode` before concatenating it, e.g. `\"/search?q=\" + check url:encode(term, \"UTF-8\")`, for use with an HTTP client path"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/url.bal", kind: github, note: "Doc example encodes a value containing ?, = and &"}
+  - id: charset_errors
+    text: "Handle the `url:Error` returned when the charset name is not supported (e.g. `url:encode(value, \"abc\")`) with `check` or an `is url:Error` test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-url/blob/master/ballerina/tests/url_test.bal", kind: github}
+out_of_scope:
+  - "Query and path parameter binding in HTTP services and clients (lib.http)"
+  - "Base64/Base16 encoding of byte arrays (lib.lang.array)"
+edges:
+  - {to: concept.strings, rel: uses, via: [encode, decode, build_query]}
+  - {to: concept.errors, rel: uses, via: [charset_errors]}

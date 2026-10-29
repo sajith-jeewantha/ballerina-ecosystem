@@ -1,0 +1,133 @@
+schema_version: "0.1"
+id: lib.io
+type: library
+title: ballerina/io
+summary: The `io` module provides console I/O and file read/write APIs for bytes, strings, lines, CSV, JSON and XML, in both whole-content and streaming forms, plus lower-level byte, character, CSV and data channels.
+priority: core
+status: draft
+modules: [ballerina/io]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/io/latest", kind: central, note: "ballerina/io 1.8.3 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/README.md", kind: github, note: "Module README (API list per I/O category)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/docs/spec/spec.md", kind: github, note: "I/O library specification"}
+must_cover:
+  - id: console_print
+    text: "Print one or more values to standard output with `io:println` and `io:print`, which accept any number of `any`, `error` or string-template values and write them without separators"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal", kind: github, note: "print, println, Printable"}
+  - id: console_stderr
+    text: "Write to standard error or standard output explicitly with `io:fprintln(io:stderr, ...)` and `io:fprint(io:stdout, ...)`, where the first argument is an `io:FileOutputStream` (`io:stdout` or `io:stderr`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal", kind: github, note: "fprint, fprintln, FileOutputStream"}
+  - id: console_readln
+    text: "Read a line of user input with `io:readln(\"Enter choice: \")` (the optional argument is printed as a prompt), get it as a `string` and convert it as needed, e.g. with `int:fromString`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/read.bal", kind: github, note: "readln(any? a = ()) returns string"}
+  - id: file_bytes
+    text: "Read a whole file as a `readonly & byte[]` with `io:fileReadBytes` and write a `byte[]` with `io:fileWriteBytes`, e.g. to copy a binary file such as an image"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-bytes/", kind: bbe}
+  - id: file_block_streams
+    text: "Stream large binary files with `io:fileReadBlocksAsStream(path, blockSize)`, which returns `stream<io:Block, io:Error?>` (default block size 4096 bytes), and write a byte stream with `io:fileWriteBlocksFromStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-bytes/", kind: bbe}
+  - id: file_string
+    text: "Read a whole text file into a `string` with `io:fileReadString` and write a string with `io:fileWriteString`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-strings/", kind: bbe}
+  - id: file_lines
+    text: "Read a file as a `string[]` of lines with `io:fileReadLines` (line terminators removed) and write a `string[]` with `io:fileWriteLines`, which adds a newline after each line"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-strings/", kind: bbe}
+  - id: file_line_streams
+    text: "Process a large text file line by line with `io:fileReadLinesAsStream`, which returns `stream<string, io:Error?>`, iterating with `foreach` or `forEach`, and write a line stream (e.g. `lines.toStream()`) with `io:fileWriteLinesFromStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-strings/", kind: bbe}
+  - id: write_option
+    text: "Append instead of overwrite by passing `io:APPEND` as the `io:FileWriteOption` argument (default `io:OVERWRITE`) to `io:fileWriteString`, `io:fileWriteLines`, `io:fileWriteBytes`, `io:fileWriteCsv` and the stream-writing functions"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/options.bal", kind: github, note: "enum FileWriteOption {OVERWRITE, APPEND}"}
+  - id: file_json
+    text: "Read a JSON file into a `json` value with `io:fileReadJson` and write a `json` value with `io:fileWriteJson`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-json/", kind: bbe}
+  - id: file_xml
+    text: "Read an XML file with `io:fileReadXml` and write an `xml` value with `io:fileWriteXml`, using `xmlEntityType: io:EXTERNAL_PARSED_ENTITY` when appending or writing multiple roots (the default `io:DOCUMENT_ENTITY` requires a single root and disallows `io:APPEND`) and `doctype` to emit a DOCTYPE"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-xml/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/file_string_io.bal", kind: github, note: "fileWriteXml with *XmlWriteOptions"}
+  - id: csv_string_arrays
+    text: "Read a CSV file as `string[][]` with `io:fileReadCsv` (optionally skipping header rows with `skipHeaders`) and write a `string[][]` with `io:fileWriteCsv`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-csv/", kind: bbe}
+  - id: csv_records
+    text: "Map CSV rows to records by declaring the expected type, e.g. `Employee[] rows = check io:fileReadCsv(path);` where the first CSV row holds matching headers, and write a record array with `io:fileWriteCsv`, which writes the headers in `OVERWRITE` mode"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-csv-datamapping/", kind: bbe}
+  - id: csv_streams
+    text: "Stream CSV content with `io:fileReadCsvAsStream`, typed as `stream<string[], io:Error?>` or `stream<Employee, io:Error?>`, and write a stream of string arrays or records with `io:fileWriteCsvFromStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-csv-datamapping/", kind: bbe}
+  - id: byte_channels
+    text: "Use byte channels: open an `io:ReadableByteChannel` with `io:openReadableFile` (or `io:createReadableChannel(bytes)` for in-memory content) and call `read(n)`, `readAll()` or `blockStream(size)`; open an `io:WritableByteChannel` with `io:openWritableFile` and call `write(content, offset)`; always `close()` the channel"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/open.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/readable_byte_channel.bal", kind: github}
+  - id: character_channels
+    text: "Wrap a byte channel with `new io:ReadableCharacterChannel(byteChannel, \"UTF-8\")` to `read(n)`, `readString()`, `readAllLines()`, `readJson()`, `readXml()` or get a `lineStream()`, and with `new io:WritableCharacterChannel(byteChannel, \"UTF-8\")` to `write`, `writeLine`, `writeJson` or `writeXml`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/readable_character_channel.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/writable_character_channel.bal", kind: github}
+  - id: csv_channels
+    text: "Read CSV through `io:openReadableCsvFile(path, fieldSeparator, charset, skipHeaders)`, iterating with `hasNext()`/`getNext()` or `csvStream()`, or load it into a keyed table with `toTable(Employee, [\"id\"])`; write rows with `io:openWritableCsvFile(...)` and `write(string[])`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/readable_csv_channel.bal", kind: github, note: "getTable is deprecated in favour of toTable"}
+  - id: data_channels
+    text: "Read and write binary primitives with `io:ReadableDataChannel` and `io:WritableDataChannel` (`readInt32`/`writeInt32`, `readFloat64`/`writeFloat64`, `readBool`/`writeBool`, `readString(nBytes, encoding)`/`writeString(value, encoding)`, `readVarInt`/`writeVarInt`), choosing byte order `\"BE\"` (default) or `\"LE\"`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/readable_data_channel.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/writable_data_channel.bal", kind: github}
+  - id: io_errors
+    text: "Handle `io:Error` returned by every file API with `check` or by testing distinct subtypes such as `io:FileNotFoundError`, `io:AccessDeniedError`, `io:EofError`, `io:TypeMismatchError` and `io:ConfigurationError`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/io_error.bal", kind: github}
+  - id: path_injection
+    text: "Avoid path injection (static rule `ballerina/io:1`): never concatenate untrusted input into a path passed to `io:fileReadString` and similar functions; map the caller's choice to a fixed path or validate it against a known set"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-io/blob/master/docs/spec/spec.md", kind: github, note: "8.1 I/O function calls should not be vulnerable to path injection attacks"}
+out_of_scope:
+  - "File system operations such as create, delete, copy, metadata and path manipulation (lib.file)"
+  - "Typed parsing of JSON, XML, CSV and YAML content into records with projection (lib.data.jsondata, lib.data.xmldata, lib.data.csv, lib.data.yaml)"
+  - "Stream type semantics and stream query expressions (concept.streams, concept.query_expressions)"
+  - "Logging (lib.log)"
+edges:
+  - {to: concept.streams, rel: uses, via: [file_block_streams, file_line_streams, csv_streams]}
+  - {to: concept.errors, rel: uses, via: [io_errors]}
+  - {to: concept.json_anydata, rel: uses, via: [file_json]}
+  - {to: concept.xml, rel: uses, via: [file_xml]}
+  - {to: concept.records, rel: uses, via: [csv_records, csv_streams]}
+  - {to: concept.typedesc, rel: uses, via: [csv_records, csv_streams], note: "fileReadCsv/fileReadCsvAsStream infer their returnType typedesc from the expected type"}
+  - {to: concept.classes, rel: uses, via: [character_channels, data_channels]}
+  - {to: concept.tables, rel: uses, via: [csv_channels]}
+  - {to: concept.strings, rel: uses, via: [console_print, file_string]}
+notes: "API names verified against module-ballerina-io master (version 1.8.3, matches latest tag). `ReadableCSVChannel.getTable` is @deprecated and intentionally omitted; `readProperty`/`readAllProperties`/`writeProperties` exist on character channels but are not listed separately."

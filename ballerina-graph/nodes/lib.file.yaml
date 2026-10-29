@@ -1,0 +1,106 @@
+schema_version: "0.1"
+id: lib.file
+type: library
+title: ballerina/file
+summary: The `file` module creates, deletes, copies and renames files and directories, reads file metadata, manipulates paths in an OS-independent way, and provides a directory listener that reacts to file create, modify and delete events.
+priority: important
+status: draft
+modules: [ballerina/file]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/file/latest", kind: central, note: "ballerina/file 1.14.0 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/docs/spec/spec.md", kind: github, note: "File library specification"}
+must_cover:
+  - id: path_queries
+    text: "Inspect paths with `file:getAbsolutePath`, `file:isAbsolutePath`, `file:basename` and `file:parentPath`, each returning a value or a `file:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/filepaths/", kind: bbe}
+  - id: path_building
+    text: "Build and decompose paths portably with `file:joinPath(\"/\", \"foo\", \"bar\")`, `file:splitPath`, `file:relativePath(base, target)` and `file:normalizePath(path, file:CLEAN)` (other options `file:SYMLINK`, `file:NORMCASE`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/filepaths/", kind: bbe}
+  - id: path_separators
+    text: "Use `file:pathSeparator` (`/` on Unix, `\\` on Windows) and `file:pathListSeparator` (`:` or `;`) instead of hard-coding separators"
+    difficulty: [beginner]
+  - id: current_dir
+    text: "Get the program's working directory with `file:getCurrentDir()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/ballerina/file.bal", kind: github}
+  - id: create_files_dirs
+    text: "Create an empty file with `file:create(path)` and a directory with `file:createDir(path)`, passing `file:RECURSIVE` to create missing parent directories"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/files/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/directories/", kind: bbe}
+  - id: test_paths
+    text: "Check a path with `file:test(path, option)` using `file:EXISTS`, `file:IS_DIR`, `file:IS_SYMLINK`, `file:READABLE` or `file:WRITABLE`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/files/", kind: bbe}
+  - id: copy_rename
+    text: "Copy files or directories with `file:copy(source, destination, ...options)` using `file:REPLACE_EXISTING`, `file:COPY_ATTRIBUTES` or `file:NO_FOLLOW_LINKS`, and move or rename with `file:rename(oldPath, newPath)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directories/", kind: bbe}
+  - id: remove
+    text: "Delete a file or empty directory with `file:remove(path)` and a non-empty directory tree with `file:remove(path, file:RECURSIVE)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directories/", kind: bbe}
+  - id: metadata
+    text: "Read file metadata with `file:getMetaData(path)`, returning a readonly `file:MetaData` record with `absPath`, `size`, `modifiedTime` (a `time:Utc`), `dir`, `readable` and `writable`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/files/", kind: bbe}
+  - id: read_dir
+    text: "List a directory's entries with `file:readDir(path)`, which returns `file:MetaData[]`, and filter them, e.g. by `dir` or file extension"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directories/", kind: bbe}
+  - id: temp_files
+    text: "Create temporary files and directories with `file:createTemp()` and `file:createTempDir()`, optionally passing `suffix`, `prefix` and `dir` (e.g. `file:createTemp(dir = tmpDir)`), which return the absolute path"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/temp-files-directories/", kind: bbe}
+  - id: directory_listener
+    text: "Declare a directory listener with `listener file:Listener inFolder = new ({path: \"/data/in\", recursive: false});`, setting `recursive: true` to also watch subdirectories"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directory-listener/", kind: bbe}
+  - id: listener_service
+    text: "Attach a service to a `file:Listener` with remote methods `onCreate`, `onModify` and `onDelete` that each take a `file:FileEvent` (with `name` and `operation` fields)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directory-listener/", kind: bbe}
+  - id: post_processing
+    text: "Annotate `onCreate` or `onModify` with `@file:FunctionConfig` to delete or move the file after processing, using `afterProcess` and `afterError` set to `file:DELETE` or a `file:Move` record such as `{moveTo: \"/data/archive\", preserveSubDirs: true}`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/ballerina/annotations.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/docs/spec/spec.md", kind: github, note: "5.2 Post-Processing Actions"}
+  - id: file_errors
+    text: "Handle `file:Error` and its distinct subtypes such as `file:FileNotFoundError`, `file:PermissionError`, `file:InvalidOperationError` and `file:IOError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/ballerina/file_errors.bal", kind: github}
+  - id: path_injection
+    text: "Avoid path injection (static rule `ballerina/file:2`): do not build paths passed to `file:` functions from untrusted input without validating that the resolved path stays inside the intended directory"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-file/blob/master/docs/spec/spec.md", kind: github, note: "6.2 File function calls should not be vulnerable to path injection attacks"}
+out_of_scope:
+  - "Reading and writing file contents (lib.io)"
+  - "Remote file transfer over FTP/SFTP (lib.ftp)"
+  - "Listener and service lifecycle in general (concept.services_listeners)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [directory_listener, listener_service]}
+  - {to: concept.annotations, rel: uses, via: [post_processing]}
+  - {to: concept.records, rel: uses, via: [metadata, read_dir, listener_service]}
+  - {to: concept.constants_enums, rel: uses, via: [path_building, test_paths, copy_rename, create_files_dirs]}
+  - {to: concept.errors, rel: uses, via: [file_errors]}
+  - {to: lib.time, rel: uses, via: [metadata]}
+  - {to: lib.io, rel: related, note: "lib.file manages files and paths; lib.io reads and writes their contents"}
+notes: "Verified against module-ballerina-file master 1.14.0 (= latest tag). `@file:FunctionConfig` post-processing is documented in the current README and spec. Static rule `ballerina/file:1` (publicly writable directories) is not covered as a separate item."

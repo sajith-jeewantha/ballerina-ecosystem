@@ -1,0 +1,105 @@
+schema_version: "0.1"
+id: lib.rabbitmq
+type: library
+title: ballerinax/rabbitmq
+summary: "RabbitMQ (AMQP 0-9-1) connector: a `rabbitmq:Client` to declare queues and exchanges, publish and pull messages, and a `rabbitmq:Listener` whose consumer services receive messages through `onMessage`/`onRequest` with data binding, acknowledgements and transactions."
+priority: important
+status: draft
+modules: [ballerinax/rabbitmq]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/rabbitmq/latest", kind: central, note: "ballerinax/rabbitmq 3.6.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/rabbitmq-producer/", kind: bbe}
+must_cover:
+  - id: client_init
+    text: "Create a `rabbitmq:Client` with `check new (rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT)` or a custom host and port, optionally passing `rabbitmq:ConnectionConfiguration` fields such as `username`, `password`, `virtualHost`, `connectionTimeout` and `heartbeat`, and close it with `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/README.md", kind: github, note: "Set up the connection"}
+  - id: declare_entities
+    text: "Declare messaging entities with `queueDeclare(name, {durable, exclusive, autoDelete})`, `queueAutoGenerate()`, `exchangeDeclare(name, rabbitmq:DIRECT_EXCHANGE)` (or `FANOUT_EXCHANGE`, `TOPIC_EXCHANGE`) and bind them with `queueBind(queueName, exchangeName, bindingKey)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-queue-declare/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/README.md", kind: github, note: "Exchanges and queues"}
+  - id: delete_purge
+    text: "Remove entities with `queueDelete(queueName, ifUnused, ifEmpty)` and `exchangeDelete(name)`, and empty a queue with `queuePurge(queueName)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/README.md", kind: github, note: "Delete entities and purge queues"}
+  - id: publish_message
+    text: "Publish with `client->publishMessage({content: newOrder, routingKey: \"OrderQueue\"})`, where `content` is any `anydata`, optionally setting `exchange` and `properties: rabbitmq:BasicProperties` (`replyTo`, `correlationId`, `contentType`, `headers`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-producer/", kind: bbe}
+  - id: client_consume
+    text: "Pull a single message with `client->consumePayload(\"OrderQueue\")` bound to a type such as `Order`, or with `consumeMessage(queueName, autoAck)` bound to a `rabbitmq:AnydataMessage` subtype, and acknowledge it via the client's `basicAck`/`basicNack`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-sync-consumer/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/client.bal", kind: github, note: "consumeMessage, consumePayload, basicAck, basicNack"}
+  - id: listener_service
+    text: "Attach a consumer service to a `rabbitmq:Listener`, naming the queue either as the service name (`service \"OrderQueue\" on new rabbitmq:Listener(...)`) or with `@rabbitmq:ServiceConfig {queueName: \"OrderQueue\"}`, and handle deliveries in `remote function onMessage(Order 'order)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer/", kind: bbe}
+  - id: message_binding
+    text: "Bind `onMessage` parameters either to the payload type directly or to a message record such as `record {| *rabbitmq:AnydataMessage; string content; |}` or `rabbitmq:BytesMessage` to also read `routingKey`, `exchange`, `deliveryTag` and `properties`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer-with-client-acknowledgement/", kind: bbe}
+  - id: on_request
+    text: "Reply to request messages by implementing `remote function onRequest(rabbitmq:AnydataMessage message) returns string`, whose return value is sent back to the message's `replyTo` queue"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/README.md", kind: github, note: "onRequest"}
+  - id: client_ack
+    text: "Use client acknowledgement by setting `autoAck: false` in `@rabbitmq:ServiceConfig`, adding a `rabbitmq:Caller caller` parameter to `onMessage`, and calling `caller->basicAck()` or `caller->basicNack(multiple, requeue)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-consumer-with-client-acknowledgement/", kind: bbe}
+  - id: payload_validation
+    text: "Validate bound payloads with `@constraint` annotations on the record and handle failures in `remote function onError(rabbitmq:AnydataMessage message, rabbitmq:Error err)` by checking for `rabbitmq:PayloadValidationError` (also returned by `consumePayload` on the client)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-service-constraint-validation/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-client-constraint-validation/", kind: bbe}
+  - id: transactions
+    text: "Make publishing or acknowledging transactional by calling `publishMessage` or `caller->basicAck()` inside a `transaction { ... check commit; }` block"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-transaction-producer/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-transaction-consumer/", kind: bbe}
+  - id: qos_prefetch
+    text: "Limit unacknowledged deliveries per consumer by passing `rabbitmq:QosSettings` (`prefetchCount`, `prefetchSize`, `global`) as the third argument when creating a `rabbitmq:Listener`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-rabbitmq/blob/master/ballerina/listener.bal", kind: github, note: "Listener init(host, port, qosSettings, *ConnectionConfiguration)"}
+  - id: tls
+    text: "Secure client and listener connections with TLS by passing `secureSocket = {cert: \"path/public.crt\"}` (or a `crypto:TrustStore` and optional `key`) and the TLS port such as 5671"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-client-secure-connection/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-service-secure-connection/", kind: bbe}
+  - id: basic_auth
+    text: "Authenticate with username and password by passing `auth = {username: \"alice\", password: \"alice@123\"}` (a `rabbitmq:Credentials` value) when creating the client or listener"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-client-basic-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rabbitmq-service-basic-auth/", kind: bbe}
+out_of_scope:
+  - "General listener and service declaration semantics (concept.services_listeners)"
+  - "Transaction statement semantics, commit and rollback handlers (concept.transactions)"
+  - "Defining constraint annotations (lib.constraint)"
+  - "Messaging patterns such as request-reply and competing consumers in general (topic.integration_patterns)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_init, publish_message, client_consume, declare_entities]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, on_request, client_ack]}
+  - {to: concept.annotations, rel: uses, via: [listener_service, client_ack]}
+  - {to: concept.records, rel: uses, via: [message_binding, client_consume]}
+  - {to: concept.errors, rel: uses, via: [payload_validation]}
+  - {to: concept.transactions, rel: uses, via: [transactions]}
+  - {to: lib.constraint, rel: uses, via: [payload_validation]}
+  - {to: lib.crypto, rel: uses, via: [tls]}
+notes: "Verified against module-ballerinax-rabbitmq master (3.6.1, same as latest on Central). README's negative-ack snippet omits the `caller` parameter; the item follows the Caller API (`basicNack(boolean multiple = false, boolean requeue = true)`)."

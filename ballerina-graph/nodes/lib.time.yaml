@@ -1,0 +1,89 @@
+schema_version: "0.1"
+id: lib.time
+type: library
+title: ballerina/time
+summary: "The `time` module represents instants as `time:Utc` (seconds from the Unix epoch with nanosecond precision) and localized date-times as `time:Civil`, with conversions to and from RFC 3339 and RFC 5322 strings, time zones, durations and monotonic time."
+priority: important
+status: draft
+modules: [ballerina/time]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/time/latest", kind: central, note: "ballerina/time 2.8.4 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/time-utc/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/time-utc-and-civil/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/time-formatting-and-parsing/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/time-zone/", kind: bbe}
+must_cover:
+  - id: utc_now
+    text: "Get the current instant with `time:utcNow()`, a `time:Utc` tuple `[int, decimal]` of whole seconds and the fractional second since 1970-01-01T00:00:00Z, optionally with a `precision` argument (e.g. `3` for milliseconds)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-utc/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_apis.bal", kind: github}
+  - id: utc_string
+    text: "Parse an RFC 3339 timestamp with `time:utcFromString(\"2007-12-03T10:15:30.120Z\")` (returns `time:Utc|time:Error`) and format a `time:Utc` with `time:utcToString`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-formatting-and-parsing/", kind: bbe}
+  - id: utc_arithmetic
+    text: "Shift an instant with `time:utcAddSeconds(utc, seconds)` and measure the gap between two instants with `time:utcDiffSeconds(utc1, utc2)`, which returns `time:Seconds` (a `decimal`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/README.md", kind: github}
+  - id: monotonic_time
+    text: "Measure elapsed time with `time:monotonicNow()`, which returns `decimal` seconds from an unspecified epoch and always increases"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/README.md", kind: github}
+  - id: civil_record
+    text: "Build and read a `time:Civil` record with `year`, `month`, `day`, `hour`, `minute`, `second` (`decimal`), optional `utcOffset` (`time:ZoneOffset` with `hours`, `minutes`, `seconds`), `timeAbbrev`, `which` and `dayOfWeek`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-utc-and-civil/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_types.bal", kind: github}
+  - id: utc_civil_conversion
+    text: "Convert between instants and civil times with `time:utcToCivil(utc)` and `time:utcFromCivil(civil)`, knowing that `utcFromCivil` needs the `utcOffset` field and returns `time:Utc|time:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-utc-and-civil/", kind: bbe}
+  - id: civil_string
+    text: "Parse an RFC 3339 string with an offset and optional zone, e.g. `\"2021-04-12T23:20:50.520+05:30[Asia/Colombo]\"`, with `time:civilFromString`, and format a `time:Civil` with `time:civilToString`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-formatting-and-parsing/", kind: bbe}
+  - id: email_format
+    text: "Produce and parse RFC 5322 (email header) date strings with `time:utcToEmailString(utc, \"Z\")`, `time:civilFromEmailString` and `time:civilToEmailString(civil, time:PREFER_ZONE_OFFSET)` (`time:HeaderZoneHandling` also has `PREFER_TIME_ABBREV` and `ZONE_OFFSET_WITH_TIME_ABBREV_COMMENT`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-formatting-and-parsing/", kind: bbe}
+  - id: time_zones
+    text: "Look up a zone with `time:getZone(\"Asia/Tokyo\")` (returns `time:Zone?`) or load the system zone with `time:loadSystemZone()` or `new time:TimeZone()`, then convert with the zone's `utcToCivil` and `utcFromCivil` methods"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/time-zone/", kind: bbe}
+  - id: civil_add_duration
+    text: "Add or subtract calendar amounts with `time:civilAddDuration(civil, duration)` using a `time:Duration` record (`years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds`; negative values subtract), or the same method on a `time:Zone`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_types.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_apis.bal", kind: github}
+  - id: date_helpers
+    text: "Validate a `time:Date` with `time:dateValidate(date)` and get its weekday with `time:dayOfWeek(date)`, which returns a `time:DayOfWeek` such as `time:MONDAY`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_apis.bal", kind: github}
+  - id: time_errors
+    text: "Handle `time:Error` (and its subtype `time:FormatError`) returned when parsing malformed timestamps or converting incomplete civil values"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-time/blob/master/ballerina/time_errors.bal", kind: github}
+out_of_scope:
+  - "Pausing a strand with `runtime:sleep` (lib.lang.runtime)"
+  - "Scheduling jobs at a `time:Civil` trigger time (lib.task)"
+edges:
+  - {to: concept.arrays_tuples, rel: uses, via: [utc_now]}
+  - {to: concept.records, rel: uses, via: [civil_record, civil_add_duration]}
+  - {to: concept.numeric_types, rel: uses, via: [utc_arithmetic, monotonic_time]}
+  - {to: concept.objects, rel: uses, via: [time_zones]}
+  - {to: concept.errors, rel: uses, via: [time_errors, utc_string]}
+  - {to: concept.constants_enums, rel: uses, via: [email_format, date_helpers]}

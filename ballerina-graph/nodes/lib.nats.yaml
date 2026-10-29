@@ -1,0 +1,101 @@
+schema_version: "0.1"
+id: lib.nats
+type: library
+title: ballerinax/nats
+summary: "NATS connector for core publish-subscribe and request-reply messaging through `nats:Client` and `nats:Listener` services, plus persistent JetStream messaging through `nats:JetStreamClient` and `nats:JetStreamListener`."
+priority: long_tail
+status: draft
+modules: [ballerinax/nats]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/nats/latest", kind: central, note: "ballerinax/nats 3.3.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/nats-basic-pub/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/nats-basic-sub/", kind: bbe}
+must_cover:
+  - id: client_init
+    text: "Create a `nats:Client` with `check new (nats:DEFAULT_URL)`, a server URL, or an array of URLs plus `nats:ConnectionConfiguration` fields such as `connectionName`, `noEcho`, `retryConfig` and `ping`, and close it with `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/README.md", kind: github, note: "Set up the connection"}
+  - id: publish_message
+    text: "Publish with `client->publishMessage({content: newOrder, subject: \"orders.valid\"})`, where `content` is any `anydata`, optionally setting a `replyTo` subject"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-basic-pub/", kind: bbe}
+  - id: request_reply_client
+    text: "Send a request and wait for the reply with `client->requestMessage({content, subject}, timeout)`, binding the reply to a subtype such as `record {| *nats:AnydataMessage; string content; |}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-basic-request/", kind: bbe}
+  - id: listener_service
+    text: "Subscribe with a service on `nats:Listener`, naming the subject as the service name (`service \"orders.valid\" on new nats:Listener(nats:DEFAULT_URL)`) or with `@nats:ServiceConfig {subject: \"demo.example.*\"}` wildcards, and handle messages in `remote function onMessage(Order 'order)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-basic-sub/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/README.md", kind: github, note: "Listen to incoming messages"}
+  - id: message_binding
+    text: "Bind `onMessage` parameters to the payload type directly or to `nats:AnydataMessage`/`nats:BytesMessage` subtypes to also read the `subject` and `replyTo` fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/records.bal", kind: github, note: "AnydataMessage, BytesMessage"}
+  - id: queue_group
+    text: "Load-balance a subject across service instances by setting `queueName` in `@nats:ServiceConfig {subject: ..., queueName: ...}` so each message goes to one member of the queue group"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/records.bal", kind: github, note: "ServiceConfigData.queueName"}
+  - id: on_request
+    text: "Answer request messages with `remote function onRequest(Order 'order) returns string|error`, whose return value is published to the request's `replyTo` subject"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-basic-reply/", kind: bbe}
+  - id: on_error_validation
+    text: "Validate bound payloads with `@constraint` annotations and handle binding or validation failures in `remote function onError(nats:AnydataMessage message, nats:Error err)`, checking for `nats:PayloadValidationError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-service-constraint-validation/", kind: bbe}
+  - id: tls
+    text: "Secure client and listener connections with `secureSocket = {cert: \"path/public.crt\"}` or a `nats:SecureSocket` with truststore `cert` and keystore `key`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-client-secure-connection/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/nats-service-secure-connection/", kind: bbe}
+  - id: auth
+    text: "Authenticate with `auth = {username: \"alice\", password: \"alice@123\"}` (`nats:Credentials`) or a token via `nats:Tokens {token}` when creating the client or listener"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-client-basic-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/nats-service-basic-auth/", kind: bbe}
+  - id: jetstream_publish
+    text: "Create a `nats:JetStreamClient` from a `nats:Client`, define a stream with `addStream({name: \"demo\", subjects: [\"orders\"], storageType: nats:MEMORY})` and publish `byte[]` content with `publishMessage({subject, content})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-jetstream-pub/", kind: bbe}
+  - id: jetstream_service
+    text: "Consume JetStream messages with `listener nats:JetStreamListener` created from a `nats:Client`, a `service nats:JetStreamService` annotated with `@nats:StreamServiceConfig {subject, autoAck: false}`, and `remote function onMessage(nats:JetStreamMessage message)` that converts `message.content` bytes to a record"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nats-jetstream-sub/", kind: bbe}
+  - id: jetstream_pull_ack
+    text: "Pull a JetStream message with `jetStreamClient->consumeMessage(subject, timeout)` and settle it with `ack(message)`, `nak(message)` or `inProgress(message)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/jetstream_client.bal", kind: github, note: "consumeMessage, ack, nak, inProgress"}
+  - id: jetstream_streams
+    text: "Manage streams with `updateStream`, `deleteStream` and `purgeStream`, configuring `nats:StreamConfiguration` options such as `retentionPolicy` (`nats:LIMITS`, `INTEREST`, `WORKQUEUE`), `storageType` (`nats:FILE`, `MEMORY`), `maxMsgs` and `maxAge`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-nats/blob/master/ballerina/jetstream_records.bal", kind: github, note: "StreamConfiguration"}
+out_of_scope:
+  - "General listener and service declaration semantics (concept.services_listeners)"
+  - "Defining constraint annotations (lib.constraint)"
+  - "Converting bytes to JSON and records in general (lib.data.jsondata)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_init, publish_message, request_reply_client, jetstream_publish]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, on_request, jetstream_service]}
+  - {to: concept.annotations, rel: uses, via: [listener_service, queue_group, jetstream_service]}
+  - {to: concept.records, rel: uses, via: [message_binding, request_reply_client]}
+  - {to: concept.errors, rel: uses, via: [on_error_validation]}
+  - {to: lib.constraint, rel: uses, via: [on_error_validation]}
+  - {to: lib.crypto, rel: uses, via: [tls]}
+  - {to: lib.rabbitmq, rel: alternative_to, note: "Both provide broker-based publish/consume clients and listener services"}
+notes: "Verified against module-ballerinax-nats master (3.3.2, same as latest on Central). The README snippet `natsClient->publish(...)` does not match the API (the method is `publishMessage`). The JetStream BBEs are not listed on the BBE site (isLearnByExample false); the BBE URLs are given by slug. `nats:JetStreamCaller` (ack/nak/inProgress) exists, but no README/BBE shows it as an `onMessage` parameter, so it is not listed as a service item."

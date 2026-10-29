@@ -1,0 +1,56 @@
+schema_version: "0.1"
+id: lib.oracledb
+type: library
+title: ballerinax/oracledb
+summary: "The Oracle Database connector: an `oracledb:Client` implementing the `sql:Client` API, Oracle connection options, Oracle-specific types (INTERVAL, VARRAY, nested tables, OBJECT types) and OUT parameters, and an `oracledb:CdcListener` based on LogMiner."
+priority: long_tail
+status: draft
+modules: [ballerinax/oracledb, ballerinax/oracledb.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/oracledb/latest", kind: central, note: "ballerinax/oracledb package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-oracledb/blob/master/ballerina/README.md", kind: github, note: "Module README (client, custom data types, CDC)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-oracledb/blob/master/ballerina/client.bal", kind: github, note: "Client init, Options, SecureSocket"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-oracledb/blob/master/ballerina/types.bal", kind: github, note: "Interval, Varray, ObjectType records; TypedValue and OutParameter classes"}
+must_cover:
+  - id: driver_import
+    text: "Add the Oracle JDBC drivers by importing `ballerinax/oracledb.driver as _;`, or pin versions in `Ballerina.toml` with `[[platform.java17.dependency]]` entries for `ojdbc11`, `xdb` and `xmlparserv2`"
+    difficulty: [beginner]
+  - id: client_init
+    text: "Create an `oracledb:Client` with `new (\"localhost\", \"adminUser\", \"adminPassword\", \"ORCLCDB.localdomain\", 1521)` (host, user, password, database SID or service name, port) or named arguments, knowing the defaults are user `\"sys\"` and port 1521"
+    difficulty: [beginner]
+  - id: client_options
+    text: "Configure `oracledb:Options` with `ssl: {key: {path, password}, cert: {path, password}}`, `loginTimeout`, `autoCommit`, `connectTimeout`, `socketTimeout` and `useXADatasource`"
+    difficulty: [intermediate]
+  - id: connection_pool
+    text: "Pass `connectionPool = {maxOpenConnections: 5}` or a shared `sql:ConnectionPool` record to `oracledb:Client`, or omit it to use the global pool"
+    difficulty: [intermediate]
+  - id: sql_operations
+    text: "Use the `sql:Client` remote methods on `oracledb:Client` (`query`, `queryRow`, `execute`, `batchExecute`, `call`) with `sql:ParameterizedQuery` templates"
+    difficulty: [beginner, intermediate]
+  - id: interval_types
+    text: "Represent Oracle `INTERVAL YEAR TO MONTH` and `INTERVAL DAY TO SECOND` values with `oracledb:IntervalYearToMonth {years, months, sign}` and `oracledb:IntervalDayToSecond {days, hours, minutes, seconds, sign}`, where `sign` is `oracledb:Sign` (`+1` or `-1`)"
+    difficulty: [intermediate, advanced]
+  - id: varray_nested_table
+    text: "Pass Oracle collection types with `oracledb:VarrayValue` wrapping an `oracledb:Varray {name: \"CharArrayType\", elements: charArray}` and `oracledb:NestedTableValue` wrapping an `oracledb:NestedTableType`"
+    difficulty: [advanced]
+  - id: object_types
+    text: "Pass Oracle `OBJECT` type values with `oracledb:ObjectTypeValue` wrapping `oracledb:ObjectType {typename, attributes}`, and capture an Oracle function returning an OBJECT with `oracledb:ObjectOutParameter returnValue = new (\"MY_OBJECT_TYPE\");` in `` `{${returnValue} = call myFunc(${param})}` ``"
+    difficulty: [advanced]
+  - id: out_parameters
+    text: "Read Oracle-specific procedure results with `oracledb:XmlOutParameter`, `oracledb:IntervalYearToMonthOutParameter` and `oracledb:IntervalDayToSecondOutParameter`, calling `get()` after `call`"
+    difficulty: [advanced]
+  - id: cdc_listener_config
+    text: "Capture Oracle changes with LogMiner by importing `ballerinax/oracledb.cdc.driver as _;` and creating an `oracledb:CdcListener` whose `database` gives `username`, `password`, `databaseName` (the CDB), `pdbName` for a pluggable database, and an `includedTables` regular expression"
+    difficulty: [advanced]
+out_of_scope:
+  - "Generic query/execute/call semantics and common typed values (lib.sql)"
+  - "CDC service handlers, snapshot options and offset storage (lib.cdc)"
+edges:
+  - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, varray_nested_table, out_parameters], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, out_parameters, connection_pools]}
+  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, cdc_drivers, table_filtering]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
+  - {to: concept.records, rel: uses, via: [interval_types, varray_nested_table, object_types]}
+  - {to: concept.classes, rel: uses, via: [varray_nested_table, object_types, out_parameters]}
+  - {to: lib.crypto, rel: uses, via: [client_options]}
+  - {to: tool.ballerina_toml, rel: uses, via: [driver_import]}
+notes: "Verified against module-ballerinax-oracledb master (Ballerina.toml version 1.17.2). The README's VARRAY sample only shows the `Varray` record; passing it as a parameter through `oracledb:VarrayValue` is taken from types.bal. Oracle-specific LogMiner, LOB and RAC listener options are not itemised."

@@ -1,0 +1,149 @@
+schema_version: "0.1"
+id: lib.graphql
+type: library
+title: ballerina/graphql
+summary: The GraphQL library generates a GraphQL schema from a Ballerina service (resource methods are queries, remote methods are mutations, `subscribe` resources are subscriptions) and provides a GraphQL client with data-bound `query`, `mutate` and `subscribe` operations.
+priority: important
+status: draft
+modules: [ballerina/graphql, ballerina/graphql.dataloader]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/graphql/latest", kind: central, note: "ballerina/graphql 1.19.x"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-graphql/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/spec/graphql/", kind: docs, note: "Ballerina GraphQL specification"}
+  - {url: "https://ballerina.io/learn/by-example/graphql-hello-world/", kind: bbe, note: "GraphQL BBE series"}
+must_cover:
+  - id: listener_service
+    text: "Create a `graphql:Listener` from a port (`new graphql:Listener(9090)`) or an existing `http:Listener`, and attach a `service graphql:Service /graphql on ...` whose schema is generated automatically"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-hello-world/", kind: bbe}
+  - id: query_fields
+    text: "Define `Query` fields with `resource function get <name>(args) returns T`, use scalar arguments (`int`, `string`, `boolean`, `float`, `decimal`) as field arguments, and create nested object types with hierarchical resource paths such as `resource function get profile/name/first()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-input-types/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-hierarchical-resource-paths/", kind: bbe}
+  - id: mutations
+    text: "Define `Mutation` fields with `remote function` methods in the service, e.g. `remote function updateName(int id, string name) returns Profile|error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-mutations/", kind: bbe}
+  - id: subscriptions
+    text: "Define `Subscription` fields with `resource function subscribe <name>() returns stream<T, error?>` (e.g. from a stream generator class), served to clients over WebSocket with the `graphql-transport-ws` protocol"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-subscriptions/", kind: bbe}
+  - id: record_output_types
+    text: "Return records, arrays, tables, enums and nilable types (`Profile?`) from resolvers so they map to GraphQL object, list, enum and nullable types, with nested record fields becoming nested object types"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-returning-record-values/", kind: bbe}
+  - id: service_object_types
+    text: "Return `service class` objects whose `resource function get` methods become fields of an output object type, so fields can take arguments and compute values lazily"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-returning-service-objects/", kind: bbe}
+  - id: input_types
+    text: "Accept input objects as record-typed parameters (e.g. `remote function addProfile(NewProfile newProfile)`), enums and lists as arguments, mark `ID` scalars with `@graphql:ID`, and validate inputs with `@constraint` annotations on the input record"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-input-objects/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-id-scalar-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-input-constraint-validation/", kind: bbe}
+  - id: interfaces_unions
+    text: "Model GraphQL interfaces as `distinct service object` types implemented by `distinct service class`es (including interfaces that include other interfaces with `*Profile`), and GraphQL unions as unions of distinct service classes such as `type SearchResult Profile|Address`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-interfaces/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-interfaces-implementing-interfaces/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-union-types/", kind: bbe}
+  - id: error_handling
+    text: "Return `T|error` (or `T|error?` for nullable fields) from resolvers so failures appear in the response `errors` array with partial `data`, knowing a resolver cannot return only `error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-error-handling/", kind: bbe}
+  - id: context
+    text: "Use `graphql:Context` by declaring a `contextInit` function `(http:RequestContext, http:Request) returns graphql:Context|error` in `@graphql:ServiceConfig`, storing values with `context.set()` and reading them in resolvers with `context.get()` (e.g. for authorization checks)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-context/", kind: bbe}
+  - id: field_object
+    text: "Take a `graphql:Field` parameter in a resolver and inspect the selection with `'field.getName()` and `'field.getSubfieldNames()` to avoid fetching unrequested data"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-field-object/", kind: bbe}
+  - id: interceptors
+    text: "Write interceptors as `readonly service class`es including `*graphql:Interceptor` with `isolated remote function execute(graphql:Context context, graphql:Field 'field) returns anydata|error` that call `context.resolve('field)`, and engage them service-wide via `@graphql:ServiceConfig {interceptors: [...]}` or per field via `@graphql:ResourceConfig`, with `@graphql:InterceptorConfig {global: false}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-interceptors/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-field-interceptors/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-interceptor-configurations/", kind: bbe}
+  - id: dataloader
+    text: "Solve the N+1 problem with `ballerina/graphql.dataloader`: register a `dataloader:DefaultDataLoader` with a batch function via `ctx.registerDataLoader()` in `contextInit`, add keys in a prefetch method (`pre<Field>` by convention or named with `@graphql:ResourceConfig {prefetchMethodName}`), and read results with `ctx.getDataLoader(name).get(key)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-dataloader/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/custom-prefetch-methods/", kind: bbe}
+  - id: caching
+    text: "Enable response caching for whole operations with `@graphql:ServiceConfig {cacheConfig: {}}` or per field with `@graphql:ResourceConfig {cacheConfig: {maxAge, maxSize}}` (or `enabled: false`), and evict entries from mutations with `context.invalidate(\"field\")` and `context.invalidateAll()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-operation-level-caching/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-field-level-caching/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-cache-invalidation/", kind: bbe}
+  - id: query_complexity
+    text: "Limit query cost with `@graphql:ServiceConfig {queryComplexityConfig: {maxComplexity, defaultFieldComplexity}}` and per-field `@graphql:ResourceConfig {complexity: n}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-query-complexity/", kind: bbe}
+  - id: file_upload
+    text: "Accept file uploads in mutations with a `graphql:Upload` parameter, reading `file.fileName` and writing `file.byteStream` to disk"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-file-upload/", kind: bbe}
+  - id: graphiql_docs
+    text: "Enable the GraphiQL client with `@graphql:ServiceConfig {graphiql: {enabled: true, path: \"/testing\"}}`, document the schema with Ballerina doc comments (`#` lines become descriptions), and mark fields or enum members deprecated with `@deprecated`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-graphiql/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-documentation/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-directives/", kind: bbe}
+  - id: service_security
+    text: "Secure a GraphQL service with `secureSocket` on the `graphql:Listener` (TLS and mutual TLS) and `@graphql:ServiceConfig {auth: [...]}` using `fileUserStoreConfig`, `ldapUserStoreConfig`, `jwtValidatorConfig` or `oauth2IntrospectionConfig` with `scopes`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-jwt-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-oauth2/", kind: bbe}
+  - id: client_operations
+    text: "Consume GraphQL APIs with `graphql:Client` using `query(document, variables)` and `mutate(document, variables)` with the response bound to a record containing `data` (include `*graphql:GenericResponseWithErrors` to also receive `errors` for partial responses), `subscribe(document)` returning a stream, and the `auth`/`secureSocket` client settings"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-graphql/blob/master/ballerina/client.bal", kind: github, note: "query/mutate/subscribe; execute is deprecated"}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-query-endpoint/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-handle-partial-response/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-security-basic-auth/", kind: bbe}
+  - id: client_errors
+    text: "Handle `graphql:ClientError` subtypes from client calls, such as `graphql:PayloadBindingError`, `graphql:InvalidDocumentError` (also returned when the document does not match the invoked method) and `graphql:HttpError`, using `do`/`on fail` and type tests"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-error-handling/", kind: bbe}
+out_of_scope:
+  - "HTTP listener and request details beneath GraphQL (lib.http)"
+  - "Generating GraphQL schemas and clients with the CLI (tool.bal_graphql)"
+  - "Constraint annotation definitions (lib.constraint)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.resource_methods, rel: uses, via: [query_fields, subscriptions, service_object_types]}
+  - {to: concept.objects, rel: uses, via: [service_object_types, interfaces_unions]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [interfaces_unions]}
+  - {to: concept.records, rel: uses, via: [record_output_types, input_types, client_operations]}
+  - {to: concept.streams, rel: uses, via: [subscriptions, client_operations]}
+  - {to: concept.errors, rel: uses, via: [error_handling, client_errors]}
+  - {to: concept.annotations, rel: uses, via: [input_types, caching, query_complexity, graphiql_docs]}
+  - {to: concept.isolation, rel: uses, via: [interceptors, dataloader]}
+  - {to: concept.documentation, rel: uses, via: [graphiql_docs]}
+  - {to: lib.http, rel: uses, via: [listener_service, context], target_items: [service_declaration]}
+  - {to: lib.constraint, rel: uses, via: [input_types]}
+notes: "In graphql 1.19.x the client's `execute()` and `executeWithType()` are deprecated in favour of `query()`, `mutate()` and `subscribe()`; the BBE client examples still call `execute()`, so items follow the module source and README. SSL/TLS and auth BBEs for the client exist but are folded into client_operations."

@@ -1,0 +1,50 @@
+schema_version: "0.1"
+id: lib.xslt
+type: library
+title: ballerina/xslt
+summary: The `xslt` module transforms single-rooted XML into another XML, HTML or plain-text form using an XSLT 1.0 stylesheet through the `xslt:transform` function.
+priority: long_tail
+status: draft
+modules: [ballerina/xslt]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/xslt/latest", kind: central, note: "ballerina/xslt 2.9.3 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-xslt/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-xslt/blob/master/ballerina/natives.bal", kind: github, note: "transform(xml input, xml xsl, map<string|decimal|xml> params = {}) returns xml|error"}
+  - {url: "https://ballerina.io/learn/by-example/xslt-transformation/", kind: bbe}
+must_cover:
+  - id: transform_basic
+    text: "Transform an XML value with an XSL stylesheet held as an `xml` value using `xml target = check xslt:transform(sourceXml, xsl);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xslt-transformation/", kind: bbe}
+  - id: xml_to_html
+    text: "Write an XSLT 1.0 stylesheet (`xsl:stylesheet version=\"1.0\"` with `xsl:template`, `xsl:for-each` and `xsl:value-of`) that renders XML records as an HTML table, and embed it as an XML template literal"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xslt-transformation/", kind: bbe}
+  - id: xml_to_xml_or_text
+    text: "Use `xslt:transform` to restructure XML into a different XML schema or to produce plain text, knowing that only XSLT version 1.0 is supported"
+    difficulty: [intermediate]
+  - id: stylesheet_from_file
+    text: "Load the source XML and the stylesheet from files with `io:fileReadXml` before calling `xslt:transform`, and write the result with `io:fileWriteXml`"
+    difficulty: [beginner, intermediate]
+  - id: params
+    text: "Pass parameters into the stylesheet with the third argument `params`, a `map<string|decimal|xml>` such as `{\"currency\": \"USD\"}`, read in the stylesheet through `xsl:param`"
+    difficulty: [intermediate, advanced]
+  - id: single_root_input
+    text: "Provide a single-rooted XML element as the input, since `xslt:transform` transforms single-rooted XML content"
+    difficulty: [intermediate]
+  - id: transform_errors
+    text: "Handle the `error` returned when the input or stylesheet cannot be transformed (the module defines `xslt:TransformError`), using `check` or an `is error` test"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xslt/blob/master/ballerina/xslt_error.bal", kind: github}
+out_of_scope:
+  - "XML literals, navigation and mutation in the language (concept.xml, lib.lang.xml)"
+  - "XML to record conversion and XPath queries (lib.data.xmldata)"
+edges:
+  - {to: concept.xml, rel: uses, via: [transform_basic, xml_to_html, single_root_input]}
+  - {to: concept.maps, rel: uses, via: [params]}
+  - {to: concept.errors, rel: uses, via: [transform_errors]}
+  - {to: lib.io, rel: uses, via: [stylesheet_from_file], target_items: [file_xml]}
+notes: "Verified against module-ballerina-xslt master 2.9.3 (= latest tag). The params argument is documented only as 'Optional parameters passed into the xslt template'; the `xsl:param` binding is standard XSLT behaviour, not shown in a Ballerina example."

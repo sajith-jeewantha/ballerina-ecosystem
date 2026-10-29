@@ -1,0 +1,108 @@
+schema_version: "0.1"
+id: lib.data.jsondata
+type: library
+title: ballerina/data.jsondata
+summary: The `data.jsondata` module converts JSON given as a `json` value, string, byte array or byte-block stream into typed Ballerina values (records, arrays, tuples, maps) with projection and constraint validation, and adds `toJson`, `prettify` and JSONPath queries.
+priority: core
+status: draft
+modules: [ballerina/data.jsondata]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/data.jsondata/latest", kind: central, note: "ballerina/data.jsondata 1.1.7 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github, note: "Public API with doc comments"}
+must_cover:
+  - id: parse_as_type
+    text: "Convert a `json` value to a record with `jsondata:parseAsType`, letting the target type be inferred from the declaration, e.g. `Book book = check jsondata:parseAsType(jsonContent);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+  - id: parse_string
+    text: "Parse JSON text into a typed value with `jsondata:parseString`, for example content read with `io:fileReadString` or received as a string payload"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+  - id: parse_bytes
+    text: "Parse JSON from a `byte[]` into a typed value with `jsondata:parseBytes`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+  - id: parse_stream
+    text: "Parse JSON from a byte-block stream `stream<byte[], error?>` (such as the result of `io:fileReadBlocksAsStream`) with `jsondata:parseStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record/", kind: bbe}
+  - id: explicit_target_type
+    text: "Pass the target type explicitly through the `typedesc<anydata>` parameter `t` when there is no contextually expected type, e.g. `var book = check jsondata:parseString(s, t = Book);`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github, note: "parseString(string s, Options options = {}, typedesc<anydata> t = <>) returns t|Error"}
+  - id: nested_records
+    text: "Map nested JSON objects to nested record types (e.g. `Author` with a `Book[] books` field) in a single `parseAsType` or `parseString` call"
+    difficulty: [beginner, intermediate]
+  - id: arrays_tuples
+    text: "Convert a JSON array to a Ballerina array such as `Book[]` or to a tuple such as `[Book, Book]` by choosing the expected type"
+    difficulty: [intermediate]
+  - id: projection_closed_records
+    text: "Use a closed record type (`record {| ... |}`) to keep only the fields you need, so extra JSON members such as `year` and `publisher` are dropped, versus an open record which keeps them as `anydata` rest fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-to-record-with-projection/", kind: bbe}
+  - id: projection_options
+    text: "Control projection with `jsondata:Options`: set `allowDataProjection: false` to reject members not in the target type, or pass `{allowDataProjection: {nilAsOptionalField: true, absentAsNilableType: true}}` to treat `null` as an absent optional field and absent members as nil"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github, note: "type Options"}
+  - id: name_annotation
+    text: "Map a JSON key that differs from the field name with `@jsondata:Name {value: \"first-name\"}` on a record field"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github, note: "const annotation NameConfig Name on record field"}
+  - id: constraint_validation
+    text: "Rely on parse functions validating `@constraint` annotations on the target type by default, and turn this off with `{enableConstraintValidation: false}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github, note: "Options.enableConstraintValidation = true"}
+  - id: to_json
+    text: "Convert an `anydata` value such as a record to `json` with `jsondata:toJson(value)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github}
+  - id: prettify
+    text: "Format a `json` value as indented text with `jsondata:prettify(value)` or `jsondata:prettify(value, 2)` (default indentation 4)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/json_api.bal", kind: github}
+  - id: jsonpath_read
+    text: "Query a `json` value with `jsondata:read(value, query)`, where the query is a backtick JSONPath template such as `$..title` and the result is returned as `json`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jsonpath-expressions/", kind: bbe}
+  - id: jsonpath_filters
+    text: "Use JSONPath filter expressions and functions with `jsondata:read`, such as `$..[?(@.price > 80)].year` and `$..price.sum()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jsonpath-expressions/", kind: bbe}
+  - id: jsondata_errors
+    text: "Handle `jsondata:Error` returned when the input is malformed or does not match the target type, using `check` or an `is jsondata:Error` test"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-data.jsondata/blob/master/ballerina/errors.bal", kind: github}
+out_of_scope:
+  - "The `json` type, member access and the langlib `cloneWithType`/`fromJsonWithType`/`toJson` functions (concept.json_anydata, lib.lang.value)"
+  - "Defining constraint annotations (lib.constraint)"
+  - "Reading files (lib.io)"
+  - "HTTP payload data binding (lib.http)"
+edges:
+  - {to: concept.json_anydata, rel: uses, via: [parse_as_type, to_json, jsonpath_read]}
+  - {to: concept.records, rel: uses, via: [parse_as_type, nested_records, projection_closed_records]}
+  - {to: concept.typedesc, rel: uses, via: [explicit_target_type]}
+  - {to: concept.arrays_tuples, rel: uses, via: [arrays_tuples]}
+  - {to: concept.annotations, rel: uses, via: [name_annotation]}
+  - {to: concept.streams, rel: uses, via: [parse_stream]}
+  - {to: concept.errors, rel: uses, via: [jsondata_errors]}
+  - {to: lib.constraint, rel: uses, via: [constraint_validation], target_items: [constraint_annotations_fields, validate_function]}
+  - {to: lib.io, rel: uses, via: [parse_string, parse_stream], target_items: [file_string, file_block_streams]}
+  - {to: lib.lang.value, rel: related, note: "jsondata:parseAsType/toJson versus langlib cloneWithType/fromJsonWithType/toJson"}
+  - {to: lib.data.xmldata, rel: related}
+  - {to: lib.data.yaml, rel: related}
+notes: "Verified against module-ballerina-data.jsondata master 1.1.7 (= latest tag). The README covers parse functions and projection only; `@jsondata:Name`, `Options`, `toJson`, `prettify` and `read` are taken from the public API source and the jsonpath-expressions BBE. Whether `toJson` honours `@jsondata:Name` was not confirmed, so it is not claimed."

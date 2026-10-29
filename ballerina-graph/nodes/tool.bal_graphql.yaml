@@ -1,0 +1,66 @@
+schema_version: '0.1'
+id: tool.bal_graphql
+type: tool
+title: bal graphql
+summary: The `bal graphql` CLI tool exports the GraphQL schema (SDL) of a Ballerina GraphQL service, generates a Ballerina GraphQL service from an SDL schema, and (experimentally) generates Ballerina clients from a `graphql.config.yaml` file.
+priority: long_tail
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/graphql-tool/', kind: docs, note: GraphQL tool}
+- {url: 'https://github.com/ballerina-platform/graphql-tools', kind: github}
+must_cover:
+- id: generate_schema
+  text: Export the GraphQL schema of every GraphQL service in a file with `bal graphql -i service.bal -o ./schema`, which writes SDL files
+  difficulty: [beginner]
+- id: schema_for_service
+  text: Export the schema of one service by its base path with `bal graphql -i service.bal -o ./schema -s /starwars`
+  difficulty: [beginner, intermediate]
+- id: generate_service
+  text: Generate a Ballerina GraphQL service from an SDL schema with `bal graphql -i schema.graphql -m service -o ./service`, which writes one file with the service and one with the types, mapping GraphQL object types to service classes by default
+  difficulty: [intermediate]
+- id: records_for_objects
+  text: Use `-r`/`--use-records-for-objects` to generate record types for GraphQL object types, and know that types with fields that take arguments, types that are members of a union and types that implement an interface are still generated as service classes
+  difficulty: [intermediate]
+- id: mode_option
+  text: Select the operation with `-m schema|service|client`, or let the tool infer it from the input file (a `.bal` service, a `.graphql` schema or a GraphQL config file)
+  difficulty: [beginner]
+- id: client_config
+  text: Prepare client generation by writing named queries and mutations in `.graphql` documents and a `graphql.config.yaml` with `schema` (a file path or the endpoint URL) and `documents` (paths to the documents); each operation name becomes a remote method name
+  difficulty: [intermediate]
+- id: generate_client
+  text: Generate a client with `bal graphql -i graphql.config.yaml [-o <dir>]` (experimental), which validates the queries against the schema and writes `client.bal`, `utils.bal`, `types.bal` and `config_types.bal`
+  difficulty: [intermediate]
+- id: use_generated_client
+  text: Call a GraphQL API through the generated client, e.g. `GraphqlClient countryClient = check new ("https://countries.trevorblades.com/");` then `CountryByCodeResponse response = check countryClient->countryByCode("LK");`
+  difficulty: [intermediate]
+- id: secured_endpoint
+  text: 'Generate a client for a secured GraphQL API by giving the schema as the endpoint URL and adding headers under `extensions: endpoints: default: headers:` in `graphql.config.yaml`'
+  difficulty: [advanced]
+- id: multiple_documents
+  text: List several documents under `documents` to generate one client that has a remote method for every query and mutation across them
+  difficulty: [intermediate]
+- id: multiple_projects
+  text: Generate one Ballerina module per API by declaring `projects:` (each with its own `schema` and `documents`) in `graphql.config.yaml`
+  difficulty: [advanced]
+out_of_scope: [Writing GraphQL services and clients by hand (lib.graphql)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: lib.graphql
+  rel: uses
+  via: [generate_schema, schema_for_service, generate_service, records_for_objects, generate_client]
+- to: concept.services_listeners
+  rel: uses
+  via: [generate_schema, generate_service]
+- to: concept.classes
+  rel: uses
+  via: [generate_service, records_for_objects]
+- to: concept.records
+  rel: uses
+  via: [records_for_objects]
+- to: concept.client_objects
+  rel: uses
+  via: [generate_client, use_generated_client]
+- to: concept.modules_imports
+  rel: uses
+  via: [multiple_projects]
+notes: Client generation is marked experimental in the docs. The docs also list `bal tool update graphql` for updating the tool.

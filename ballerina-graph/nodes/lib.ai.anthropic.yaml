@@ -1,0 +1,47 @@
+schema_version: "0.1"
+id: lib.ai.anthropic
+type: library
+title: ballerinax/ai.anthropic
+summary: "Anthropic implementation of `ai:ModelProvider`: `anthropic:ModelProvider` connects `ballerina/ai` chat, typed generation, agents and natural expressions to Claude models."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.anthropic]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.anthropic/latest", kind: central, note: "ballerinax/ai.anthropic 1.3.5 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/model-provider.bal", kind: github, note: "ModelProvider at the released tag"}
+must_cover:
+  - id: model_provider_init
+    text: "Create a Claude model with `final ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_6);`, reading the key from a `configurable`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+  - id: model_selection
+    text: "Pick the model from the `anthropic:ANTHROPIC_MODEL_NAMES` enum, e.g. `anthropic:CLAUDE_SONNET_4_6`, `anthropic:CLAUDE_OPUS_4_6` or `anthropic:CLAUDE_HAIKU_4_5`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/types.bal", kind: github, note: "ANTHROPIC_MODEL_NAMES"}
+  - id: generation_settings
+    text: "Set the response limit and randomness with the `maxTokens` and `temperature` arguments, and override the endpoint with `serviceUrl`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+  - id: connection_config
+    text: "Pass HTTP client settings from `anthropic:ConnectionConfig` as named arguments, such as `timeout`, `retryConfig`, `proxy` and `secureSocket`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+  - id: chat_and_generate
+    text: "Use the provider through the `ai:ModelProvider` API, e.g. `check anthropicModel->chat(chatMessages, tools = [])` or a typed `generate`, and as the `model` of an `ai:Agent` or a `natural (model) {...}` expression"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+out_of_scope:
+  - "Chat, generate, agents and RAG APIs themselves (lib.ai)"
+  - "Embeddings, which this module does not provide (lib.ai.openai, lib.ai.azure)"
+edges:
+  - {to: lib.ai, rel: implements, via: [model_provider_init, chat_and_generate], target_items: [model_provider_init, chat_history, generate_typed, agent_create]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_and_generate]}
+  - {to: concept.constants_enums, rel: uses, via: [model_selection]}
+  - {to: lib.http, rel: uses, via: [connection_config]}
+notes: "Checked against the released tag v1.3.5 (Central latest). On main (same version number, unreleased changes) `CLAUDE_SONNET_4_5*` are marked @deprecated, older Claude 3/4.0 names are removed, Opus 4.7/4.8 are added and `temperature` becomes optional; prefer the 4.5+/4.6 names that exist in both."

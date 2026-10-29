@@ -1,0 +1,80 @@
+schema_version: '0.1'
+id: tool.graalvm
+type: tool
+title: GraalVM
+summary: Since Swan Lake Update 7 (2201.7.0), `bal build --graalvm` compiles a package ahead-of-time into a standalone GraalVM native executable instead of an uber JAR, either with a local GraalVM or inside a Docker build, with options to tune the native-image build, run tests natively and mark Java dependencies as GraalVM-compatible.
+priority: long_tail
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/graalvm-executable-overview/', kind: docs, note: GraalVM executable overview}
+- {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs, note: Build the GraalVM executable locally}
+- {url: 'https://ballerina.io/learn/build-the-executable-in-a-container/', kind: docs, note: Build the GraalVM executable in a container}
+- {url: 'https://ballerina.io/learn/package-references/', kind: docs, note: Ballerina.toml build options and platform compatibility}
+must_cover:
+- id: native_vs_jar
+  text: 'Explain the trade-off between the JIT-run uber JAR from `bal build` and the AOT native executable from `bal build --graalvm`: millisecond startup, a fraction of the resources, no warmup, smaller container images and a reduced attack surface, against a long, memory- and CPU-heavy build'
+  difficulty: [beginner]
+- id: local_prerequisites
+  text: 'Set up a local native build: install GraalVM (e.g. `sdk install java 21.0.2-graalce`), set `GRAALVM_HOME`, and match the JDK to the Ballerina update (Java 11 up to Update 7, 17 for Updates 8 to 10, 21 from Update 11); on Windows use Microsoft Visual C++ and the x64 Native Tools Command Prompt'
+  difficulty: [beginner, intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs}
+- id: build_native
+  text: Build a native executable with `bal build --graalvm`, which writes `target/bin/<package>` containing the package's modules, its dependencies, the Ballerina runtime and statically linked JDK native code, and run it directly (`./target/bin/hello_world`)
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/graalvm-executable-overview/', kind: docs}
+  - {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs}
+- id: container_build
+  text: Build the native executable inside Docker without a local GraalVM using `bal build --graalvm --cloud=docker`, which generates a multi-stage Dockerfile (a `ghcr.io/graalvm/native-image-community` build stage running `native-image` and a `gcr.io/distroless/base` runtime stage); give Docker at least 8GB of memory
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/build-the-executable-in-a-container/', kind: docs}
+- id: build_options
+  text: Pass native-image options with `graalvmBuildOptions = "..."` (and `graalvm = true`) under `[build-options]` in `Ballerina.toml`, or with `bal build --graalvm --graalvm-build-options="-H:+StaticExecutableWithDynamicLibC"`
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/graalvm-executable-overview/', kind: docs}
+  - {url: 'https://ballerina.io/learn/package-references/', kind: docs}
+- id: native_tests
+  text: Run tests against a native image with `bal test --graalvm` (it also accepts `--graalvm-build-options`), knowing that code coverage and runtime debugging are not supported in native test runs
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs}
+  - {url: 'https://ballerina.io/learn/graalvm-executable-overview/', kind: docs}
+- id: compatibility_warnings
+  text: 'Act on the build warning that lists dependencies pending GraalVM verification or marked incompatible: test the native image with `bal test --graalvm` (for example as a daily CI job) and, if needed, replace the packages; packages that only use the Ballerina library or Java libraries shipped with the distribution are inferred to be compatible'
+  difficulty: [intermediate, advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs}
+- id: mark_compatible
+  text: Mark a library package that uses Java platform libraries as GraalVM-compatible after verifying it with `bal test --graalvm`, by setting `graalvmCompatible = true` under `[platform.java21]` (or on each `[[platform.java21.dependency]]` entry) in `Ballerina.toml`, which removes the `bal pack` warning
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/build-the-executable-locally/', kind: docs}
+  - {url: 'https://ballerina.io/learn/package-references/', kind: docs}
+- id: serverless_native
+  text: Combine `--graalvm` with serverless targets, e.g. `bal build --cloud="aws_lambda" --graalvm` for a smaller, faster-starting Lambda function, or `bal build --cloud="azure_functions_local" --graalvm` and `--cloud="azure_functions" --graalvm` for Azure Functions
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/serverless-deployment/', kind: docs}
+out_of_scope: [Docker and Kubernetes artifact generation in general (tool.code_to_cloud), Java interop bindings (lib.jballerina.java)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: tool.ballerina_toml
+  rel: uses
+  via: [build_options, mark_compatible]
+- to: tool.bal_test
+  rel: uses
+  via: [native_tests, compatibility_warnings]
+- to: tool.code_to_cloud
+  rel: uses
+  via: [container_build, serverless_native]
+  target_items: [docker_artifacts, aws_lambda, azure_functions]
+- to: tool.packages
+  rel: uses
+  via: [mark_compatible]
+- to: lib.jballerina.java
+  rel: uses
+  via: [mark_compatible]
+notes: The learn docs do not cover reflection configuration or `@java` interop limitations for native images, so they are left out. The docs say GraalVM native-image support on Apple M1 is still experimental.

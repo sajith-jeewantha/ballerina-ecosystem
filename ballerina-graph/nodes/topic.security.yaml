@@ -1,0 +1,121 @@
+schema_version: "0.1"
+id: topic.security
+type: topic
+title: Security
+summary: "Securing Ballerina services and clients end to end with TLS and mutual TLS, declarative Basic/JWT/OAuth2 authentication and scope-based authorization, outbound client credentials, JWT issuing and validation, safe cryptography and secret handling."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/by-example/http-service-jwt-authentication/", kind: bbe, note: "REST service security and HTTP client security BBE categories"}
+  - {url: "https://ballerina.io/learn/keystore-truststore/", kind: docs, note: "Keystores and truststores"}
+  - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "Scan rules with CWE/OWASP mapping"}
+must_cover:
+  - id: https_listener
+    text: "Serve HTTPS by creating `listener http:Listener securedEP = new (9090, secureSocket = {key: {certFile: \"...\", keyFile: \"...\"}});` and attaching services to it"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-ssl-tls/", kind: bbe}
+  - id: mutual_tls
+    text: "Require client certificates with `mutualSsl: {verifyClient: http:REQUIRE, cert: ...}` in the listener `secureSocket`, and configure the client side with both `key` and `cert` in `http:Client` `secureSocket`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-mutual-ssl/", kind: bbe}
+  - id: client_tls_truststore
+    text: "Make an `http:Client` trust a server by setting `secureSocket = {cert: \"public.crt\"}` or a PKCS12 truststore `cert: {path: truststorePath, password: truststorePassword}` read from configurable variables"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/keystore-truststore/", kind: docs}
+  - id: basic_auth_file_store
+    text: "Protect a service with Basic auth backed by the file user store using `@http:ServiceConfig {auth: [{fileUserStoreConfig: {}, scopes: [\"admin\"]}]}` and `[[ballerina.auth.users]]` entries (username, password, scopes) in `Config.toml`, and explain the `401` vs `403` responses"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-file-user-store/", kind: bbe}
+  - id: jwt_auth_service
+    text: "Secure a service with JWT using `auth: [{jwtValidatorConfig: {issuer: \"wso2\", audience: \"ballerina\", signatureConfig: {certFile: \"...\"}, scopeKey: \"scp\"}, scopes: [\"admin\"]}]` in `@http:ServiceConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-jwt-authentication/", kind: bbe}
+  - id: oauth2_introspection
+    text: "Secure a service with OAuth2 token introspection using `oauth2IntrospectionConfig: {url: \"...\", tokenTypeHint: \"access_token\", scopeKey: \"scp\", clientConfig: {...}}` and required `scopes`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-oauth2/", kind: bbe}
+  - id: resource_level_auth
+    text: "Override service-level authentication and authorization for a single resource with `@http:ResourceConfig {auth: [...]}`, e.g. requiring an extra scope on a write operation"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-basic-authentication-file-user-store/", kind: bbe, note: "configs can be overwritten at the resource level"}
+  - id: client_bearer_basic
+    text: "Send credentials from an `http:Client` with `auth = {token: \"...\"}` (bearer token) or `auth = {username: \"...\", password: \"...\"}` (Basic auth) together with `secureSocket`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-bearer-token-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-basic-authentication/", kind: bbe}
+  - id: client_self_signed_jwt
+    text: "Have an `http:Client` sign its own JWT per request with `auth = {username, issuer, audience, keyId, customClaims: {\"scp\": \"admin\"}, expTime: 3600, signatureConfig: {config: {keyFile: \"...\"}}}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-self-signed-jwt-authentication/", kind: bbe}
+  - id: client_oauth2_grants
+    text: "Obtain OAuth2 access tokens automatically in an `http:Client` with the client credentials grant (`auth = {tokenUrl, clientId, clientSecret, scopes}`) or the refresh token grant (`auth = {refreshUrl, refreshToken, clientId, clientSecret}`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-client-credentials-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-oauth2-refresh-token-grant-type/", kind: bbe}
+  - id: jwt_issue_validate
+    text: "Issue a JWT with `jwt:issue(jwt:IssuerConfig)` and validate one with `jwt:validate(token, jwt:ValidatorConfig)`, always pinning `issuer` and `audience`, keeping `expTime` short and `clockSkew` small"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-jwt-issue-validate/", kind: bbe}
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/jwt:3, jwt:4, jwt:5"}
+  - id: configurable_secrets
+    text: "Keep passwords, API keys and tokens out of source code by declaring them as `configurable string password = ?;` supplied through `Config.toml`, and never printing or logging configurable values"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina:13, ballerina:14, ballerina/io:2, ballerina/log:1"}
+      - {url: "https://ballerina.io/learn/keystore-truststore/", kind: docs}
+  - id: password_hashing
+    text: "Hash stored passwords with a slow algorithm such as `crypto:hashArgon2(password, iterations = 3, memory = 65536, parallelism = 4)` or `crypto:hashBcrypt(password, 14)` instead of `crypto:hashSha256` or `crypto:hashMd5`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/crypto:2"}
+  - id: authenticated_encryption
+    text: "Encrypt data with `crypto:encryptAesGcm(data, key, iv)` rather than ECB or CBC modes, and use OAEP padding such as `crypto:OAEPwithSHA512andMGF1` with `crypto:encryptRsaEcb`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/crypto:1"}
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+  - id: sign_and_mac
+    text: "Sign data with `crypto:signRsaSha256(input, privateKey)` and check it with `crypto:verifyRsaSha256Signature`, loading keys with `crypto:decodeRsaPrivateKeyFromKeyFile` / `crypto:decodeRsaPublicKeyFromCertFile`, and compute message MACs with `crypto:hmacSha256(input, key)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+  - id: mask_sensitive_logs
+    text: "Mark record fields with `@log:Sensitive` (optionally with `strategy: {replacement: \"****\"}` or a masking function) so passwords and card numbers are masked when the record is logged"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sensitive-data-logging/", kind: bbe}
+  - id: explicit_accessors_cors
+    text: "Use explicit accessors such as `resource function delete ...` instead of `resource function default ...` for state-changing operations, and restrict CORS `allowOrigins` to trusted origins"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/http:1, ballerina/http:2"}
+out_of_scope:
+  - "LDAP user stores (lib.ldap)"
+  - "Security on gRPC, GraphQL, WebSocket and message-broker clients (lib.grpc, lib.graphql, lib.websocket, lib.kafka)"
+  - "Full crypto, jwt, oauth2 and auth module APIs (lib.crypto, lib.jwt, lib.oauth2, lib.auth)"
+  - "Running `bal scan` (tool.bal_scan)"
+edges:
+  - {to: lib.http, rel: uses, via: [https_listener, mutual_tls, client_tls_truststore, basic_auth_file_store, jwt_auth_service, oauth2_introspection, resource_level_auth, client_bearer_basic, client_self_signed_jwt, client_oauth2_grants, explicit_accessors_cors]}
+  - {to: lib.auth, rel: uses, via: [basic_auth_file_store]}
+  - {to: lib.jwt, rel: uses, via: [jwt_auth_service, client_self_signed_jwt, jwt_issue_validate]}
+  - {to: lib.oauth2, rel: uses, via: [oauth2_introspection, client_oauth2_grants]}
+  - {to: lib.crypto, rel: uses, via: [client_tls_truststore, password_hashing, authenticated_encryption, sign_and_mac]}
+  - {to: lib.log, rel: uses, via: [mask_sensitive_logs]}
+  - {to: tool.config_toml, rel: uses, via: [basic_auth_file_store, configurable_secrets]}
+  - {to: tool.bal_scan, rel: uses, via: [configurable_secrets, password_hashing, authenticated_encryption, explicit_accessors_cors]}
+  - {to: concept.annotations, rel: uses, via: [basic_auth_file_store, jwt_auth_service, resource_level_auth, mask_sensitive_logs]}
+  - {to: concept.variables, rel: uses, via: [configurable_secrets]}
+notes: "Password-hashing parameters follow the OWASP guidance quoted on the scan-rules page (bcrypt work factor >= 10, Argon2 memory >= 19456 KB)."

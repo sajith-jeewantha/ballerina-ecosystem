@@ -1,0 +1,78 @@
+schema_version: "0.1"
+id: lib.cache
+type: library
+title: ballerina/cache
+summary: "The `cache` module provides `cache:Cache`, a thread-safe in-memory key-value cache with LRU eviction, configurable capacity, eviction factor, per-entry max age and optional periodic cleanup, plus the `cache:AbstractCache` object type for custom cache implementations."
+priority: important
+status: draft
+modules: [ballerina/cache]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/cache/latest", kind: central, note: "ballerina/cache 3.10.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/cache-basics/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/cache-invalidation/", kind: bbe}
+must_cover:
+  - id: create_cache
+    text: "Create a cache with default settings using `cache:Cache cache = new ();` (capacity 100, eviction factor 0.25, entries never expire)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-basics/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/cache.bal", kind: github}
+  - id: cache_config
+    text: "Configure a cache with `cache:CacheConfig` fields passed to `new`, e.g. `new (capacity = 10, evictionFactor = 0.2, defaultMaxAge = 2, cleanupInterval = 3)` or `new ({capacity: 10, ...})`, where `defaultMaxAge` and `cleanupInterval` are in seconds and `evictionPolicy` is `cache:LRU`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-invalidation/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/README.md", kind: github}
+  - id: put_get
+    text: "Store entries with `check cache.put(key, value)` and read them with `cache.get(key)`, which returns `any|cache:Error`, casting the result back to the stored type (e.g. `<string> check cache.get(\"key1\")`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-basics/", kind: bbe}
+  - id: per_entry_max_age
+    text: "Override the default expiry for a single entry with the `maxAge` argument of `put`, e.g. `cache.put(\"key3\", \"value3\", 3600)`, where `-1` means the entry never expires"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-invalidation/", kind: bbe}
+  - id: inspect_cache
+    text: "Inspect a cache with `hasKey(key)`, `keys()`, `size()` and `capacity()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-basics/", kind: bbe}
+  - id: invalidate
+    text: "Remove one entry with `cache.invalidate(key)` or all entries with `cache.invalidateAll()`, both returning `cache:Error?`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-invalidation/", kind: bbe}
+  - id: eviction_behaviour
+    text: "Explain when entries are evicted: an expired entry is removed when `get` reaches it, a full cache drops the least recently used entries (capacity times `evictionFactor`) on `put`, and a `cleanupInterval` starts a periodic task that removes expired entries"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/README.md", kind: github}
+  - id: cache_errors
+    text: "Handle `cache:Error`, returned by `get` for a missing or expired key and by `put` when the value is `()`, for example by checking `hasKey` first or using `check`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/cache.bal", kind: github}
+  - id: read_through
+    text: "Implement a read-through lookup that returns the cached value when `hasKey` is true and otherwise computes or fetches the value and `put`s it in the cache"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cache-basics/", kind: bbe}
+  - id: abstract_cache
+    text: "Write a custom cache (e.g. backed by a file or database) as an object that is structurally equivalent to `cache:AbstractCache`, with `put`, `get`, `invalidate`, `invalidateAll`, `hasKey`, `keys`, `size` and `capacity` methods"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-cache/blob/master/ballerina/abstract_cache.bal", kind: github}
+out_of_scope:
+  - "HTTP response caching and cache-control headers (lib.http)"
+  - "GraphQL field-level caching and cache invalidation (lib.graphql)"
+  - "Distributed caches such as Redis (lib.redis)"
+edges:
+  - {to: concept.classes, rel: uses, via: [create_cache]}
+  - {to: concept.records, rel: uses, via: [cache_config]}
+  - {to: concept.type_cast_test, rel: uses, via: [put_get]}
+  - {to: concept.errors, rel: uses, via: [cache_errors, invalidate]}
+  - {to: concept.objects, rel: uses, via: [abstract_cache]}
+  - {to: concept.isolation, rel: uses, via: [abstract_cache]}
+  - {to: lib.redis, rel: alternative_to, note: "Remote/distributed cache versus in-process cache"}

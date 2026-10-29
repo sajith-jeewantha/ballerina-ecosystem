@@ -1,0 +1,68 @@
+schema_version: "0.1"
+id: lib.cdc
+type: library
+title: ballerinax/cdc
+summary: "The change data capture (CDC) library, built on Debezium: database-specific CDC listeners (`mysql:CdcListener`, `postgresql:CdcListener`, `mssql:CdcListener`, `oracledb:CdcListener`) deliver insert, update and delete events to `cdc:Service` remote methods."
+priority: long_tail
+status: draft
+modules: [ballerinax/cdc, ballerinax/mysql.cdc.driver, ballerinax/postgresql.cdc.driver, ballerinax/mssql.cdc.driver, ballerinax/oracledb.cdc.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/cdc/latest", kind: central, note: "ballerinax/cdc 1.4.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-cdc/blob/main/ballerina/README.md", kind: github, note: "Module README (quickstart)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-cdc/blob/main/docs/spec/spec.md", kind: github, note: "CDC library specification (service structure, health checks, storage, errors)"}
+  - {url: "https://ballerina.io/learn/by-example/cdc-service/", kind: bbe, note: "Listen to database"}
+  - {url: "https://ballerina.io/learn/by-example/cdc-advanced-service/", kind: bbe, note: "Group events by table"}
+must_cover:
+  - id: cdc_drivers
+    text: "Import `ballerinax/cdc`, the database module and its Debezium driver package once, e.g. `import ballerinax/mysql.cdc.driver as _;` (or `postgresql.cdc.driver`, `mssql.cdc.driver`, `oracledb.cdc.driver`)"
+    difficulty: [beginner]
+  - id: cdc_listener
+    text: "Declare a database-specific CDC listener such as `listener mysql:CdcListener financeDBListener = new (database = {username: \"root\", password: \"...\", includedDatabases: \"finance_db\"});`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cdc-service/", kind: bbe, note: "Listener declaration"}
+  - id: service_handlers
+    text: "Attach a service with remote methods `onRead(record {} after)` (snapshot rows), `onCreate(record {} after)`, `onUpdate(record {} before, record {} after)` and `onDelete(record {} before)`, each returning `cdc:Error?`"
+    difficulty: [beginner]
+  - id: typed_payloads
+    text: "Bind event payloads to typed records (e.g. `isolated remote function onCreate(Transactions trx) returns cdc:Error?`) instead of `record {}`, so column values are accessed as typed fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cdc-service/", kind: bbe, note: "Typed Transactions record"}
+  - id: table_name_param
+    text: "Add the optional `string tableName` parameter to handlers (e.g. `onDelete(Entity before, string tableName)`) to branch on the table that produced the event"
+    difficulty: [intermediate]
+  - id: service_config_tables
+    text: "Route events to separate services on one listener with `@cdc:ServiceConfig {tables: [\"store_db.products\", \"store_db.vendors\"]}`, each service handling its own tables and record type"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/cdc-advanced-service/", kind: bbe, note: "Group events by table"}
+  - id: table_filtering
+    text: "Limit captured data with the listener's `database` filters such as `includedDatabases`, `includedTables`/`excludedTables` and `includedColumns`/`excludedColumns`, which take regular expressions"
+    difficulty: [intermediate]
+  - id: on_error
+    text: "Handle failures in an optional `remote function onError(cdc:Error e)` handler, checking for `cdc:EventProcessingError` (and its subtype `cdc:PayloadBindingError`) and reading the original event from `e.detail().payload`; without `onError`, errors are logged and processing continues"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-cdc/blob/main/ballerina/errors.bal", kind: github, note: "Error, EventProcessingError, PayloadBindingError, OperationNotPermittedError"}
+  - id: cdc_options
+    text: "Tune the listener with `options` such as `snapshotMode` (`cdc:INITIAL`, `cdc:NO_DATA`, `cdc:ALWAYS`...), `skippedOperations`, `heartbeatConfig: {interval}` and `connectionRetryConfig: {maxAttempts, retryInitialDelay, retryMaxDelay}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-cdc/blob/main/ballerina/types.bal", kind: github, note: "Options, SnapshotMode, retry and heartbeat configuration"}
+  - id: offset_schema_storage
+    text: "Choose where the listener stores offsets and schema history with `offsetStorage` (`cdc:FileOffsetStorage` default `tmp/debezium-offsets.dat`, `KafkaOffsetStorage`, `MemoryOffsetStorage`, `JdbcOffsetStorage`, `RedisOffsetStorage`) and `internalSchemaStorage` (file, Kafka, memory, JDBC, Redis, Amazon S3, Azure Blob, RocketMQ), so processing resumes after a restart"
+    difficulty: [advanced]
+  - id: liveness_check
+    text: "Expose a liveness probe by calling `cdc:isLive(cdcListener)` from an HTTP resource and returning `http:OK` or `http:SERVICE_UNAVAILABLE`, with the check interval set by `livenessInterval`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Database-side CDC setup (binlog, logical replication, SQL Server CDC, LogMiner) and DB-specific listener fields (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb)"
+  - "Event-driven architecture patterns (topic.event_driven)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [cdc_listener, service_handlers, service_config_tables]}
+  - {to: concept.records, rel: uses, via: [typed_payloads, service_handlers]}
+  - {to: concept.annotations, rel: uses, via: [service_config_tables]}
+  - {to: concept.errors, rel: uses, via: [on_error]}
+  - {to: lib.http, rel: uses, via: [liveness_check]}
+notes: "Verified against module-ballerinax-cdc main (1.4.1), its spec, the mysql/postgresql/mssql/oracledb READMEs and the two CDC BBEs. The spec's own examples use stale names (`cdc:MySqlListener`, `databaseInclude`); items follow the README/BBE form (`mysql:CdcListener`, `includedDatabases`). The spec says `onTruncate` is PostgreSQL-only, which conflicts with the Oracle README mentioning truncation events, so `onTruncate` is not itemised."

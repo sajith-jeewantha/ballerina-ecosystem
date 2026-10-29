@@ -1,0 +1,49 @@
+schema_version: "0.1"
+id: lib.tcp
+type: library
+title: ballerina/tcp
+summary: The TCP library provides a connection-oriented `tcp:Client` for sending and receiving bytes and a `tcp:Listener` whose service returns a `tcp:ConnectionService` per client connection, with optional TLS.
+priority: long_tail
+status: draft
+modules: [ballerina/tcp]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/tcp/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-tcp/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/tcp-listener/", kind: bbe}
+must_cover:
+  - id: client_read_write
+    text: "Connect with `tcp:Client socketClient = check new (\"localhost\", 9090)`, send data with `writeBytes(\"Hello\".toBytes())`, read the reply as `readonly & byte[]` with `readBytes()`, convert with `string:fromBytes()`, and `close()` the client"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/tcp-client/", kind: bbe}
+  - id: listener_on_connect
+    text: "Accept connections with `service on new tcp:Listener(9090)` implementing `remote function onConnect(tcp:Caller caller) returns tcp:ConnectionService` and reading connection details such as `caller.remotePort`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/tcp-listener/", kind: bbe}
+  - id: connection_service
+    text: "Implement a `service class` including `*tcp:ConnectionService` with `remote function onBytes(readonly & byte[] data)` that echoes by returning `byte[]` or writes with `caller->writeBytes(data)`, plus `onError(tcp:Error err)` and `onClose()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/tcp-listener/", kind: bbe}
+  - id: tls
+    text: "Secure TCP with `secureSocket`: `key: {certFile, keyFile}` (a `tcp:ListenerSecureSocket`) on the listener and `cert` on the client"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/tcp-service-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/tcp-client-ssl-tls/", kind: bbe}
+  - id: client_config
+    text: "Configure the client with `tcp:ClientConfiguration` fields such as `timeout` and `writeTimeout` (seconds) and handle `tcp:Error` from reads and writes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-tcp/blob/master/ballerina/client.bal", kind: github}
+out_of_scope:
+  - "Connectionless datagrams (lib.udp)"
+  - "Higher-level protocols over TCP such as HTTP (lib.http)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.client_objects, rel: uses, via: [client_read_write]}
+  - {to: concept.classes, rel: uses, via: [connection_service]}
+  - {to: concept.mutability_readonly, rel: uses, via: [client_read_write, connection_service]}
+  - {to: lib.lang.string, rel: uses, via: [client_read_write]}
+  - {to: lib.udp, rel: related, note: "Connection-oriented vs connectionless socket libraries with the same listener/caller style"}

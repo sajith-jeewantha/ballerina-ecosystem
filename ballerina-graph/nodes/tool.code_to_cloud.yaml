@@ -1,0 +1,132 @@
+schema_version: '0.1'
+id: tool.code_to_cloud
+type: tool
+title: Code to Cloud
+summary: Code to Cloud is a compiler extension that generates Dockerfiles, container images and Kubernetes or OpenShift YAML from a Ballerina package at build time (`--cloud=docker|k8s|openshift` or `[build-options] cloud`), with defaults derived from the code and overrides in `Cloud.toml`; the same `cloud` build option also packages AWS Lambda and Azure Functions deployments.
+priority: important
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs, note: Containerized deployment}
+- {url: 'https://ballerina.io/learn/deploy-ballerina-on-kubernetes/', kind: docs, note: Deploy Ballerina on Kubernetes}
+- {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github, note: Code to Cloud specification (Cloud.toml properties)}
+- {url: 'https://ballerina.io/learn/by-example/docker-hello-world/', kind: bbe}
+- {url: 'https://ballerina.io/learn/by-example/kubernetes-hello-world/', kind: bbe}
+- {url: 'https://ballerina.io/learn/serverless-deployment/', kind: docs, note: Serverless deployment}
+must_cover:
+- id: enable_cloud_build
+  text: 'Turn on artifact generation with `cloud = "docker"` or `cloud = "k8s"` under `[build-options]` in `Ballerina.toml` and run `bal build`, or pass it inline with `bal build --cloud=docker` (also for a single file: `bal build --cloud=k8s hello.bal`)'
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: docker_artifacts
+  text: Build a Docker image from a service package with `--cloud=docker`, which writes a Dockerfile under `target/docker/`, builds the image (one container per package, exposing the listener ports) and prints a `docker run -d -p 9090:9090 <repository>/<name>:<tag>` command
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://ballerina.io/learn/by-example/docker-hello-world/', kind: bbe}
+- id: container_image
+  text: Override image settings in `Cloud.toml` under `[container.image]` (`repository`, `name`, `tag`, `base`, `entrypoint`) and the user under `[container.image.user]` (`run_as`)
+  difficulty: [beginner, intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/by-example/docker-hello-world/', kind: bbe}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: settings
+  text: 'Control generation in `Cloud.toml` under `[settings]`: `buildImage = false` to only write the Dockerfile, `singleYAML` for one YAML file with all artifacts, and `thinJar` to use thin JARs in the container'
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: copy_files
+  text: Copy extra files into the image with `[[container.copy.files]]` entries (`sourceFile`, `target`)
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: config_toml_runtime
+  text: 'Provide `Config.toml` at runtime, since it is not packed into the image: mount it in Docker with `docker run -v <path>/Config.toml:/home/ballerina/Config.toml ...`, or in Kubernetes with `[[cloud.config.files]] file = "./Config.toml"`, which creates a ConfigMap, mounts it and sets `BAL_CONFIG_FILES`'
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+- id: k8s_artifacts
+  text: Generate Kubernetes artifacts with `--cloud=k8s`, which builds the Docker image and writes a YAML file under `target/kubernetes/<module>/` with a Service for the exposed ports, a Deployment and a HorizontalPodAutoscaler; push the image (or build against Minikube after `eval $(minikube docker-env)`), then `kubectl apply -f target/kubernetes/<module>` and `kubectl expose deployment <name>-deployment --type=NodePort` for local testing
+  difficulty: [beginner, intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://ballerina.io/learn/deploy-ballerina-on-kubernetes/', kind: docs}
+  - {url: 'https://ballerina.io/learn/by-example/kubernetes-hello-world/', kind: bbe}
+- id: resource_limits
+  text: Set container resources in `Cloud.toml` under `[cloud.deployment]` (`min_memory`, `max_memory`, `min_cpu`, `max_cpu`, which become the Deployment's requests and limits) along with `internal_domain_name` and `external_accessible`
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: autoscaling
+  text: Configure the generated HorizontalPodAutoscaler under `[cloud.deployment.autoscaling]` with `min_replicas`, `max_replicas`, `cpu` and `memory` utilisation thresholds, or `enable = false`
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: probes
+  text: Add liveness and readiness probes with `[cloud.deployment.probes.liveness]` and `[cloud.deployment.probes.readiness]` (`port`, `path`), backed by a separate probe service in the code, e.g. `service /probes on new http:Listener(9091)` with `resource function get healthz()` and `get readyz()`
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: config_maps_secrets
+  text: Supply configuration and secrets to Kubernetes with `[[cloud.config.maps]]` and `[[cloud.secret.files]]` (`file`, `mount_dir`), `[[cloud.config.envs]]` (`key_ref`, `name`, `config_name`), `[[cloud.secret.envs]]` (`key_ref`, `name`, `secret_name`) and `[[cloud.config.secrets]]` (`file`, `name`)
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: volumes
+  text: Declare persistent volumes with `[[cloud.deployment.storage.volumes]]` (`name`, `local_path`, `size`)
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: cron_task
+  text: 'Run a `main` function as a Kubernetes cron job by annotating it with `@cloud:Task {schedule: {minutes: "*", hours: "*", dayOfMonth: "*", monthOfYear: "*", daysOfWeek: "*"}}` from `ballerina/cloud`'
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+- id: openshift
+  text: Generate OpenShift artifacts with `cloud = "openshift"` (or `bal build --cloud=openshift`), written to `target/openshift/`, and deploy them with `oc apply -f target/openshift/<module>`
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+- id: kustomize_cicd
+  text: 'Customise the generated YAML with Kustomize (`resources` pointing at the files in `target/kubernetes/` plus patches) and automate deployment in GitHub Actions with `ballerina-platform/ballerina-action` and `args: build --cloud=k8s`, then `docker push` and `kubectl apply`'
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs}
+- id: aws_lambda
+  text: Package functions for AWS Lambda by annotating them with `@lambda:Function` from `ballerinax/aws.lambda` (signature `function (lambda:Context, json|EventType) returns json|error`, e.g. `lambda:SQSEvent`, `lambda:S3Event`) and building with `bal build --cloud="aws_lambda"` (a ZIP) or `--cloud="aws_lambda_image"` (a container image), then deploying with the printed AWS CLI command
+  difficulty: [intermediate, advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/serverless-deployment/', kind: docs}
+- id: azure_functions
+  text: Build an Azure Functions package with `bal build --cloud="azure_functions"` (or `azure_functions_local` for local runs), and run it with `func start --script-root target/azure_functions` or publish it with `func azure functionapp publish <app> --script-root target/azure_functions`
+  difficulty: [intermediate, advanced]
+  sources:
+  - {url: 'https://ballerina.io/learn/serverless-deployment/', kind: docs}
+out_of_scope: [Native images with `--graalvm` (tool.graalvm), Writing the HTTP services being deployed (lib.http), Writing Azure Functions triggers and bindings in code (not covered by a node)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: tool.ballerina_toml
+  rel: uses
+  via: [enable_cloud_build, openshift]
+- to: tool.config_toml
+  rel: uses
+  via: [config_toml_runtime]
+- to: concept.services_listeners
+  rel: uses
+  via: [docker_artifacts, k8s_artifacts, probes]
+- to: lib.http
+  rel: uses
+  via: [probes]
+- to: concept.annotations
+  rel: uses
+  via: [cron_task, aws_lambda]
+- to: concept.program_execution
+  rel: uses
+  via: [cron_task]
+- {to: tool.graalvm, rel: related}
+notes: macOS on Apple Silicon needs `export DOCKER_DEFAULT_PLATFORM=linux/amd64` before building images (per the docs). The Dockerfile sample in the docs shows `FROM ballerina/jvm-runtime:1.0`, while the spec gives `ballerina/jvm-runtime:2.0` as the default `base`. The spec shows `[[settings]]` but the docs use `[settings]`; items follow the docs.

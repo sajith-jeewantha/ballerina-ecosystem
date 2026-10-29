@@ -1,0 +1,130 @@
+schema_version: "0.1"
+id: topic.rest_api
+type: topic
+title: REST APIs
+summary: "Building RESTful HTTP services and clients in Ballerina by combining services, resource methods, record-typed payloads, typed status-code responses, interceptors and the OpenAPI tool."
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs, note: "Write a RESTful API with Ballerina (COVID-19 CRUD service)"}
+  - {url: "https://ballerina.io/learn/by-example/http-basic-rest-service/", kind: bbe, note: "REST service BBE category"}
+  - {url: "https://ballerina.io/learn/openapi-tool/", kind: docs, note: "OpenAPI tool"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/http_status_code_types.bal", kind: github, note: "StatusCodeResponse records and CommonResponse (mediaType, headers, body)"}
+must_cover:
+  - id: service_and_resources
+    text: "Write an HTTP service such as `service /covid/status on new http:Listener(9000)` that puts the shared URL prefix in the service base path and exposes `resource function get countries()` and `resource function post countries(...)` on the same resource path"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/http-service-and-resource-paths/", kind: bbe}
+  - id: path_param_lookup
+    text: "Read a path segment with a path parameter such as `resource function get countries/[string iso_code]()` and look the entity up in a `table<T> key(k)` with `covidTable[iso_code]`, returning a not-found response when the result is `()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/http-path-param/", kind: bbe}
+  - id: query_params
+    text: "Accept query parameters as plain resource parameters (e.g. `resource function get albums(string artist)`), using nilable (`string?`) or defaultable parameters for optional ones, and filter the collection with a query expression"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-query-parameter/", kind: bbe}
+  - id: header_params
+    text: "Read request headers with `@http:Header` parameters (e.g. `@http:Header string accept`) and return `http:NOT_ACCEPTABLE` when the client asks for an unsupported media type; know a missing non-optional header yields `400 Bad Request`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-header-param/", kind: bbe}
+  - id: payload_binding
+    text: "Bind a JSON request body to a record or record array resource parameter (implicitly or with `@http:Payload`) and return records or arrays, which Ballerina serializes to JSON automatically"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-data-binding/", kind: bbe}
+      - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs}
+  - id: default_status_codes
+    text: "Explain that a resource returning a plain value responds with `200 OK`, except a `post` resource which responds with `201 Created`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs}
+  - id: status_code_constants
+    text: "Return status-code constants such as `http:CONFLICT`, `http:NOT_FOUND` or `http:NOT_ACCEPTABLE` from a resource declared as `returns Album|http:Conflict`, e.g. when a POST would create a duplicate key"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-send-different-status-codes/", kind: bbe}
+  - id: typed_error_responses
+    text: "Define response records that include a status-code type, e.g. `type InvalidIsoCodeError record {| *http:NotFound; ErrorMsg body; |}`, and return them in the union return type so error payloads are typed and appear in the generated OpenAPI specification"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/write-a-restful-api-with-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/http-send-different-status-codes-with-payload/", kind: bbe}
+  - id: response_headers
+    text: "Return `http:Created` (or a record including `*http:Created`) with a `headers` map such as a `Location` header and a `body`, and type custom response headers with a `headers` record field as in a record including `*http:Ok`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-send-header/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-http/blob/master/ballerina/http_status_code_types.bal", kind: github, note: "Created includes CommonResponse with headers and body"}
+  - id: payload_constraints
+    text: "Validate request payloads by annotating record fields with `@constraint:String {minLength: 1, maxLength: 5}` (and other `constraint` annotations) so invalid payloads are rejected with `400 Bad Request` before the resource runs"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-payload-constraint-validation/", kind: bbe}
+  - id: error_returns
+    text: "Propagate failures from a resource with `check` (the listener replies `500 Internal Server Error` and logs the error), or handle them and return `http:NotFound` / `http:InternalServerError` explicitly, e.g. mapping `http:ClientRequestError` from a backend call to `http:NotFound`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-default-error-handling/", kind: bbe}
+      - {url: "https://ballerina.io/learn/integration-tutorials/service-orchestration/", kind: docs}
+  - id: request_interceptor
+    text: "Write an `http:RequestInterceptor` service class with `resource function 'default [string... path](http:RequestContext ctx, ...)` that checks a header and returns `ctx.next()`, and engage it from an `http:InterceptableService` via `createInterceptors()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-request-interceptor/", kind: bbe}
+  - id: error_interceptor
+    text: "Centralize error responses with an `http:ResponseErrorInterceptor` whose `remote function interceptResponseError(error err)` returns a status-code response such as `http:BadRequest` with a custom body"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-error-handling/", kind: bbe}
+  - id: cors_config
+    text: "Configure CORS with `@http:ServiceConfig {cors: {allowOrigins: [...], allowCredentials: ..., allowHeaders: [...]}}` and override it per resource with `@http:ResourceConfig {cors: ...}`, listing specific trusted origins rather than `*`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-cors/", kind: bbe}
+      - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/http:2 Avoid permissive CORS"}
+  - id: cache_response
+    text: "Annotate a resource return type with `@http:Cache {maxAge: 15}` so responses carry `Cache-Control`, `ETag` and `Last-Modified` headers, e.g. `returns @http:Cache {maxAge: 15} Album|http:NotFound`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-service-cache-response/", kind: bbe}
+  - id: consume_rest_api
+    text: "Call a REST API with an `http:Client` using resource access syntax, binding the response to the expected type (`Album[] albums = check albumClient->/albums;`) and posting records with `client->/path.post(payload)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/http-client-data-binding/", kind: bbe}
+  - id: openapi_contracts
+    text: "Export an OpenAPI contract from a service with `bal openapi -i service.bal`, and generate a service skeleton or service contract type from a specification with `bal openapi -i spec.yaml --mode service [--with-service-contract]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/openapi-tool/", kind: docs}
+  - id: test_rest_service
+    text: "Test a REST service from a `@test:Config` function that calls it with an `http:Client` and asserts `response.statusCode` and the payload with `test:assertEquals`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/test-services-and-clients/", kind: docs}
+out_of_scope:
+  - "Full http module API surface such as SSE, multipart, HTTP/2 and compression (lib.http)"
+  - "Authentication, authorization and TLS on REST services (topic.security)"
+  - "Client retries, timeouts, circuit breakers and failover (topic.resiliency)"
+  - "GraphQL and gRPC APIs (lib.graphql, lib.grpc)"
+edges:
+  - {to: lib.http, rel: uses, via: [service_and_resources, path_param_lookup, query_params, header_params, payload_binding, default_status_codes, status_code_constants, typed_error_responses, response_headers, error_returns, request_interceptor, error_interceptor, cors_config, cache_response, consume_rest_api]}
+  - {to: concept.resource_methods, rel: uses, via: [service_and_resources, path_param_lookup, query_params, consume_rest_api]}
+  - {to: concept.services_listeners, rel: uses, via: [service_and_resources, request_interceptor]}
+  - {to: concept.records, rel: uses, via: [payload_binding, typed_error_responses, response_headers]}
+  - {to: concept.tables, rel: uses, via: [path_param_lookup]}
+  - {to: concept.query_expressions, rel: uses, via: [query_params]}
+  - {to: concept.annotations, rel: uses, via: [header_params, payload_constraints, cors_config, cache_response]}
+  - {to: concept.errors, rel: uses, via: [error_returns, error_interceptor]}
+  - {to: concept.client_objects, rel: uses, via: [consume_rest_api]}
+  - {to: lib.constraint, rel: uses, via: [payload_constraints]}
+  - {to: tool.bal_openapi, rel: uses, via: [openapi_contracts]}
+  - {to: lib.test, rel: uses, via: [test_rest_service]}
+  - {to: topic.security, rel: related}
+notes: "The `Location` header item relies on `http:Created` including `http:CommonResponse` (fields `mediaType`, `headers`, `body`); the BBE shows the `headers` pattern with `*http:Ok`, not specifically `Location`."

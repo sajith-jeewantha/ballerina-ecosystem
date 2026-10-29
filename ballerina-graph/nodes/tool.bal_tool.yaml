@@ -1,0 +1,66 @@
+schema_version: "0.1"
+id: tool.bal_tool
+type: tool
+title: bal tool
+summary: "`bal tool` installs and manages extra CLI tools from Ballerina Central (such as `scan`, `edi`, `health` and `consolidate-packages`), which then run as `bal <tool-id>` subcommands. Tools can also be wired into package builds through `[[tool.<command>]]` entries in `Ballerina.toml`."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/cli-commands/", kind: docs, note: "Tool commands"}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool.help", kind: github}
+  - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "Tools section of Ballerina.toml"}
+must_cover:
+  - id: pull
+    text: "Install a tool with `bal tool pull <tool-id>[:<version>]` (e.g. `bal tool pull scan` or `bal tool pull scan:1.0.0`), which picks the latest version compatible with the current distribution, or from the local repository with `--repository=local`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-pull.help", kind: github}
+  - id: list
+    text: "List installed tools and their active versions with `bal tool list`, and include inactive versions (active ones marked `*`) with `bal tool list --all`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-list.help", kind: github}
+  - id: use_version
+    text: "Switch the active version of an installed tool with `bal tool use <tool-id>:<version>` (e.g. `bal tool use health:1.0.0`), adding `--repository=local` for a locally published tool"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-use.help", kind: github}
+  - id: update
+    text: "Update a tool to the latest version compatible with the current distribution and make it active with `bal tool update <tool-id>`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-update.help", kind: github}
+  - id: remove
+    text: "Uninstall one version of a tool with `bal tool remove <tool-id>:<version>` (the active version cannot be removed this way) or every version with `bal tool remove <tool-id>`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-remove.help", kind: github}
+  - id: search
+    text: "Find tools on Ballerina Central with `bal tool search <keyword>`, e.g. `bal tool search health`"
+    difficulty: [beginner]
+  - id: invoke
+    text: "Run an installed tool as a `bal` subcommand, e.g. `bal scan` or `bal edi`, and see installed tools under `Tool Commands` in `bal help`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/cli-commands/", kind: docs}
+  - id: build_integration
+    text: "Run a tool as part of `bal build` with a `[[tool.<command>]]` entry (or `[[tool.<command>.<subcommand>]]`) giving a unique `id` (alphanumerics and single underscores, not at the start or end), the spec `filePath`, a unique `targetModule` and `options.<name>` values"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/package-references/", kind: docs, note: "Tools"}
+  - id: consolidate_packages
+    text: "Use the `consolidate-packages` tool to build several services into one executable, through `[[tool.consolidate-packages]]` with `options.services = [\"myorg/order\", \"myorg/checkout\"]` or the CLI `bal consolidate-packages new --package-path <path> <services>`, `add` and `remove`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/consolidate-packages-tool/", kind: docs}
+out_of_scope:
+  - "What individual tools do (tool.bal_scan, tool.bal_edi, tool.bal_openapi, ...)"
+  - "How tool versions are recorded in Dependencies.toml (tool.dependencies_toml)"
+  - "Managing Ballerina distributions with `bal dist` (tool.bal)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.central, rel: uses, via: [pull, search], target_items: [pull, search]}
+  - {to: tool.ballerina_toml, rel: uses, via: [build_integration, consolidate_packages], target_items: [build_tools, dependency_local_repo]}
+  - {to: tool.dependencies_toml, rel: uses, via: [build_integration], target_items: [tool_dependencies]}
+  - {to: tool.bal_edi, rel: uses, via: [invoke]}
+notes: "The help text for `bal tool` lists pull/remove/update/list/search; `bal tool use` has its own help file and is listed on the CLI commands page. How to author and publish a new bal tool (BalTool.toml) is not described in the learn docs I found, so it is left out."

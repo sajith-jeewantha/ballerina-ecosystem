@@ -1,0 +1,133 @@
+schema_version: "0.1"
+id: lib.crypto
+type: library
+title: ballerina/crypto
+summary: "The `crypto` module provides hashing, HMAC, CRC32B checksums, password hashing, key decoding from files and keystores, RSA/AES/PGP encryption and decryption, RSA/ECDSA/ML-DSA signing and verification, HKDF, key encapsulation (KEM) and hybrid public key encryption (HPKE), all operating on `byte[]` values."
+priority: important
+status: draft
+modules: [ballerina/crypto]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/crypto/latest", kind: central, note: "ballerina/crypto 2.13.0 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/changelog.md", kind: github, note: "Version history of newer APIs (bcrypt/argon2 2.8.0, PBKDF2 and RSASSA-PSS 2.10.0, equalConstantTime 2.11.0)"}
+must_cover:
+  - id: hashing
+    text: "Hash data with `crypto:hashMd5`, `hashSha1`, `hashSha256`, `hashSha384`, `hashSha512` or `hashKeccak256`, passing `string.toBytes()` input and an optional `salt`, and encode the `byte[]` digest with `toBase16()` or `toBase64()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/hash.bal", kind: github}
+  - id: crc32b
+    text: "Compute a CRC32B checksum of a `byte[]` with `crypto:crc32b(input)`, which returns a hex-encoded `string`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+  - id: hmac
+    text: "Generate an HMAC with `crypto:hmacMd5`, `hmacSha1`, `hmacSha256`, `hmacSha384` or `hmacSha512(input, key)`, which return `byte[]|crypto:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/hmac.bal", kind: github}
+  - id: password_hashing
+    text: "Store passwords safely with `crypto:hashBcrypt(password, workFactor)` / `crypto:verifyBcrypt` or `crypto:hashArgon2(password, iterations, memory, parallelism)` / `crypto:verifyArgon2`, which return a hash `string` and a `boolean` match result"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/hash.bal", kind: github}
+  - id: pbkdf2
+    text: "Hash and verify passwords with PBKDF2 using `crypto:hashPbkdf2(password, iterations, algorithm)` (algorithm `crypto:SHA1`, `crypto:SHA256` by default, or `crypto:SHA512`) and `crypto:verifyPbkdf2(password, hashedPassword)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/hash.bal", kind: github}
+  - id: constant_time_compare
+    text: "Compare a computed hash or HMAC with an expected value in constant time using `crypto:equalConstantTime(value, expectedValue)`, which accepts `byte[]` or `string` and returns a `boolean`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/utils.bal", kind: github}
+  - id: keystore_truststore
+    text: "Describe PKCS#12 key and trust stores with the `crypto:KeyStore` and `crypto:TrustStore` records (`path`, `password`), as used by key-decoding functions and by `secureSocket` configurations"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/private_public_key.bal", kind: github}
+  - id: decode_keys
+    text: "Obtain RSA keys as `crypto:PrivateKey` / `crypto:PublicKey` with `crypto:decodeRsaPrivateKeyFromKeyFile(keyFile, keyPassword)`, `decodeRsaPrivateKeyFromKeyStore(keyStore, keyAlias, keyPassword)`, `decodeRsaPublicKeyFromCertFile(certFile)`, `decodeRsaPublicKeyFromTrustStore(trustStore, keyAlias)`, the `...FromContent(byte[])` variants, or `buildRsaPublicKey(modulus, exponent)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/private_public_key.bal", kind: github}
+  - id: rsa_sign_verify
+    text: "Sign data with `crypto:signRsaSha256(input, privateKey)` (also `signRsaMd5`, `signRsaSha1`, `signRsaSha384`, `signRsaSha512`) and check the signature with the matching `crypto:verifyRsaSha256Signature(data, signature, publicKey)`, which returns `boolean|crypto:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/sign_verify.bal", kind: github}
+  - id: pss_and_ecdsa
+    text: "Sign and verify with RSASSA-PSS using `crypto:signRsaSsaPss256` / `verifyRsaSsaPss256Signature`, and with ECDSA using `crypto:signSha256withEcdsa` / `verifySha256withEcdsaSignature` (or the SHA384 variants) and EC keys from `decodeEcPrivateKeyFromKeyFile`, `decodeEcPrivateKeyFromKeyStore`, `decodeEcPublicKeyFromCertFile` or `decodeEcPublicKeyFromTrustStore`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/sign_verify.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/private_public_key.bal", kind: github}
+  - id: rsa_encrypt
+    text: "Encrypt with a public key and decrypt with the private key using `crypto:encryptRsaEcb(input, key, padding)` and `crypto:decryptRsaEcb`, with padding `crypto:PKCS1` (default) or an OAEP mode such as `crypto:OAEPWithSHA256AndMGF1` or `crypto:OAEPwithSHA512andMGF1`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/encrypt_decrypt.bal", kind: github}
+  - id: aes_encrypt
+    text: "Encrypt and decrypt with a shared AES key using `crypto:encryptAesCbc(input, key, iv, padding)` / `decryptAesCbc`, `encryptAesEcb(input, key, padding)` / `decryptAesEcb` (padding `crypto:PKCS5` by default or `crypto:NONE`), and `encryptAesGcm(input, key, iv, padding, tagSize)` / `decryptAesGcm`, generating a 16-byte key and IV"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/encrypt_decrypt.bal", kind: github}
+  - id: pgp
+    text: "Encrypt with PGP using `crypto:encryptPgp(plainText, publicKeyPath, ...options)` (options such as `compressionAlgorithm`, `symmetricKeyAlgorithm`, `armor`, `withIntegrityCheck`) and decrypt with `crypto:decryptPgp(cipherText, privateKeyPath, passphrase)`, using ASCII-armored key files"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/encrypt_decrypt.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/pgp_utils.bal", kind: github}
+  - id: pgp_streams
+    text: "Encrypt or decrypt large content as streams with `crypto:encryptStreamAsPgp` and `crypto:decryptStreamFromPgp`, which take a `stream<byte[], error?>` (e.g. from `io:fileReadBlocksAsStream`) and return `stream<byte[], crypto:Error?>`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/encrypt_decrypt.bal", kind: github}
+  - id: hkdf
+    text: "Derive key material with `crypto:hkdfSha256(input, length, salt, info)`, where `salt` and `info` default to empty byte arrays"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/kdf.bal", kind: github}
+  - id: post_quantum_sign
+    text: "Sign and verify with the post-quantum ML-DSA-65 algorithm using `crypto:signMlDsa65` / `crypto:verifyMlDsa65Signature` and keys from `decodeMlDsa65PrivateKeyFromKeyStore`, `decodeMlDsa65PrivateKeyFromKeyFile`, `decodeMlDsa65PublicKeyFromTrustStore` or `decodeMlDsa65PublicKeyFromCertFile`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/sign_verify.bal", kind: github}
+  - id: kem
+    text: "Establish a shared secret with a key encapsulation mechanism: `crypto:encapsulateMlKem768(publicKey)`, `encapsulateRsaKem` or `encapsulateRsaKemMlKem768` return a `crypto:EncapsulationResult` (`encapsulatedSecret`, `sharedSecret`), and the matching `decapsulate...` function recovers the secret with the private key"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/kem.bal", kind: github}
+  - id: hpke
+    text: "Use hybrid public key encryption with `crypto:encryptMlKem768Hpke(input, publicKey)` or `encryptRsaKemMlKem768Hpke`, which return a `crypto:HybridEncryptionResult` (`encapsulatedSecret`, `cipherText`), and decrypt with `decryptMlKem768Hpke(cipherText, encapsulatedSecret, privateKey)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/hpke.bal", kind: github}
+  - id: crypto_errors
+    text: "Handle the distinct `crypto:Error` returned by HMAC, key decoding, encryption and signing functions, e.g. for an unreadable key file or an invalid key, with `check` or an `is crypto:Error` test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-crypto/blob/master/ballerina/crypto_errors.bal", kind: github}
+out_of_scope:
+  - "Issuing and validating JWTs (lib.jwt)"
+  - "TLS/mTLS `secureSocket` configuration of listeners and clients (lib.http)"
+  - "Generating random numbers for keys and IVs (lib.random)"
+  - "`byte[]` Base16/Base64 conversions in detail (lib.lang.array)"
+  - "Security best practices such as key management (topic.security)"
+edges:
+  - {to: concept.arrays_tuples, rel: uses, via: [hashing, aes_encrypt]}
+  - {to: concept.strings, rel: uses, via: [hashing, password_hashing]}
+  - {to: concept.records, rel: uses, via: [keystore_truststore, kem, hpke, pgp]}
+  - {to: concept.errors, rel: uses, via: [crypto_errors, hmac]}
+  - {to: concept.streams, rel: uses, via: [pgp_streams]}
+  - {to: lib.lang.array, rel: uses, via: [hashing]}
+  - {to: lib.random, rel: uses, via: [aes_encrypt], target_items: [random_int_in_range]}
+  - {to: lib.io, rel: uses, via: [pgp_streams]}

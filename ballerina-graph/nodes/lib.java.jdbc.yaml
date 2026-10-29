@@ -1,0 +1,43 @@
+schema_version: "0.1"
+id: lib.java.jdbc
+type: library
+title: ballerinax/java.jdbc
+summary: "The generic JDBC connector: a `jdbc:Client` that implements the `sql:Client` API for any relational database reachable through a JDBC URL and a driver JAR added to the package."
+priority: important
+status: draft
+modules: [ballerinax/java.jdbc]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/java.jdbc/latest", kind: central, note: "ballerinax/java.jdbc 1.15.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jdbc/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jdbc/blob/master/ballerina/client.bal", kind: github, note: "Client init, Options, Operations"}
+must_cover:
+  - id: driver_dependency
+    text: "Add the JDBC driver of the target database to `Ballerina.toml` under `[[platform.java17.dependency]]`, either with `path = \"...\"` to a downloaded JAR or with Maven coordinates (e.g. `groupId = \"com.h2database\"`, `artifactId = \"h2\"`, `version = \"2.0.206\"`)"
+    difficulty: [beginner, intermediate]
+  - id: client_init
+    text: "Create a `jdbc:Client` from a JDBC URL, e.g. `jdbc:Client dbClient = check new (\"jdbc:h2:~/path/to/database\", \"root\", \"root\");` (url, user, password), where the URL is mandatory and user/password are optional"
+    difficulty: [beginner]
+  - id: datasource_options
+    text: "Configure `jdbc:Options` with a `datasourceName` (e.g. `\"org.h2.jdbcx.JdbcDataSource\"`) and driver `properties` such as `{\"loginTimeout\": \"2000\"}` applied to that data source"
+    difficulty: [intermediate]
+  - id: generated_keys
+    text: "Control for which operations auto-generated keys are requested with `requestGeneratedKeys` in `jdbc:Options` (`jdbc:NONE`, `jdbc:EXECUTE`, `jdbc:BATCH_EXECUTE`, `jdbc:ALL`, default `ALL`), knowing a `jdbc:sqlserver` URL only accepts `EXECUTE` or `NONE`"
+    difficulty: [advanced]
+  - id: connection_pool
+    text: "Pass `connectionPool = {maxOpenConnections: 5}` or a shared `sql:ConnectionPool` record to `jdbc:Client` with named arguments (e.g. `new (url = \"jdbc:...\", connectionPool = connPool)`), or omit it to use the global pool"
+    difficulty: [intermediate]
+  - id: sql_operations
+    text: "Use the `sql:Client` remote methods on `jdbc:Client` (`query`, `queryRow`, `execute`, `batchExecute`, `call`) against any JDBC database, reading `lastInsertId` from `sql:ExecutionResult` for generated keys"
+    difficulty: [beginner, intermediate]
+  - id: client_close
+    text: "Keep a `jdbc:Client` for the application lifetime and close it with `check dbClient.close()` at shutdown"
+    difficulty: [beginner]
+out_of_scope:
+  - "Generic query/execute/call semantics, typed values and errors (lib.sql)"
+  - "Database-specific connectors with dedicated options and types (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb)"
+edges:
+  - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, client_close], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, connection_pools, client_lifecycle]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
+  - {to: concept.constants_enums, rel: uses, via: [generated_keys], note: "jdbc:Operations enum"}
+  - {to: tool.ballerina_toml, rel: uses, via: [driver_dependency]}
+notes: "Verified against module-ballerinax-java.jdbc master (1.15.1). The `jdbc-atomic-transaction` example folder in ballerina-distribution contains only an output file and is not in the BBE index, so it is not cited."

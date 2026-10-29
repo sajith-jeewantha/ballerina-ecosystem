@@ -1,0 +1,46 @@
+schema_version: "0.1"
+id: lib.ldap
+type: library
+title: ballerina/ldap
+summary: The LDAP library connects to directory servers with `ldap:Client` to add, modify, rename, compare, search and delete directory entries.
+priority: long_tail
+status: draft
+modules: [ballerina/ldap]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/ldap/latest", kind: central, note: "ballerina/ldap 1.4.x"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ldap/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ldap/blob/master/ballerina/client.bal", kind: github, note: "Client remote methods"}
+  - {url: "https://ballerina.io/learn/by-example/ldap-search-entry/", kind: bbe}
+must_cover:
+  - id: connect
+    text: "Create an `ldap:Client` with `check new (hostName = \"localhost\", port = 389, domainName = \"cn=admin,dc=example,dc=com\", password = \"...\")`, optionally with `clientSecureSocket: {cert, verifyHostName, tlsVersions}` for LDAPS, and release it with `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ldap-add-remove-entry/", kind: bbe}
+  - id: add_delete
+    text: "Add an entry with `ldapClient->add(dn, entry)` where `entry` is an `ldap:Entry` such as `{\"objectClass\": [\"top\", \"person\"], \"sn\": \"user\", \"cn\": \"user\"}`, delete it with `delete(dn)`, and check `ldap:LdapResponse.resultCode`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ldap-add-remove-entry/", kind: bbe}
+  - id: modify_rename
+    text: "Update attributes of an entry with `modify(dn, entry)` and rename it with `modifyDn(currentDn, newRdn, deleteOldRdn)`"
+    difficulty: [intermediate]
+  - id: search
+    text: "Search with `search(baseDn, \"(sn=user)\", ldap:SUB)` (scopes `ldap:BASE`, `ldap:ONE`, `ldap:SUB`, `ldap:SUBORDINATE_SUBTREE`, optional attribute list) and read `ldap:SearchResult` `resultCode`, `entries` and `searchReferences`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ldap-search-entry/", kind: bbe}
+  - id: typed_reads
+    text: "Bind directory data to Ballerina types with `searchWithType(baseDn, filter, scope)` returning a record array and `getEntry(dn)` returning the expected `anydata` type"
+    difficulty: [intermediate]
+  - id: compare_and_errors
+    text: "Check an attribute value with `compare(dn, attributeName, value)` returning `boolean`, and handle `ldap:Error` whose detail carries `resultCode`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "LDAP user stores for HTTP basic authentication (lib.http, lib.auth)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [connect, add_delete, search]}
+  - {to: concept.records, rel: uses, via: [add_delete, typed_reads]}
+  - {to: concept.typedesc, rel: uses, via: [typed_reads]}
+  - {to: concept.errors, rel: uses, via: [compare_and_errors]}
+notes: "The README names the rename operation `modifyDN`, but the client source defines `modifyDn`; the item uses the source name."

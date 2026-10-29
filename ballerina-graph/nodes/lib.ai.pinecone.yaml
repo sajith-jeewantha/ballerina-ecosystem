@@ -1,0 +1,55 @@
+schema_version: "0.1"
+id: lib.ai.pinecone
+type: library
+title: ballerinax/ai.pinecone
+summary: "Pinecone implementation of `ai:VectorStore`: `pinecone:VectorStore` stores and searches embeddings in a Pinecone index (dense, sparse or hybrid) and plugs into `ai:VectorKnowledgeBase` for RAG."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.pinecone]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.pinecone/latest", kind: central, note: "ballerinax/ai.pinecone 1.1.6 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+must_cover:
+  - id: vector_store_init
+    text: "Create the store with `final ai:VectorStore vectorStore = check new pinecone:VectorStore(pineconeServiceUrl, pineconeApiKey);`, taking the index service URL and API key from `configurable` values"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Vector Store"}
+  - id: query_mode
+    text: "Choose the search mode with the `queryMode` argument: `ai:DENSE` (default), `ai:SPARSE` or `ai:HYBRID`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/vector_store.bal", kind: github, note: "init(serviceUrl, apiKey, queryMode, config, httpConfig)"}
+  - id: store_config
+    text: "Pass a `pinecone:Configuration` as `config` to set a `namespace`, default `filters` (`ai:MetadataFilters`) or a `sparseVector` for hybrid search"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/types.bal", kind: github, note: "Configuration"}
+  - id: rag_ingestion
+    text: "Ingest documents into Pinecone by wrapping the store in `new ai:VectorKnowledgeBase(vectorStore, embeddingProvider)` and calling `knowledgeBase.ingest(documents)` on documents loaded with `ai:TextDataLoader`, checking the returned `ai:Error?`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+  - id: rag_query
+    text: "Query the Pinecone-backed knowledge base with `knowledgeBase.retrieve(query, 10)` and answer from the returned chunks with `ai:augmentUserQuery` and `chat`, or by interpolating them into a `generate` prompt"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+  - id: direct_store_api
+    text: "Use the `ai:VectorStore` methods directly: `add(ai:VectorEntry[])` with `embedding` and `chunk`, `query({embedding, topK, filters})` returning `ai:VectorMatch[]`, and `delete(ids)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/vector_store.bal", kind: github, note: "add, query, delete"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/vector-store.bal", kind: github, note: "VectorStore type"}
+out_of_scope:
+  - "Knowledge base, embedding provider and data loader APIs (lib.ai)"
+  - "Creating the Pinecone index in the Pinecone console"
+edges:
+  - {to: lib.ai, rel: implements, via: [vector_store_init, rag_ingestion, rag_query], target_items: [vector_knowledge_base, ingest_documents, retrieve_augment]}
+  - {to: concept.objects, rel: uses, via: [vector_store_init, direct_store_api], note: "VectorStore is an isolated object type implemented by a class"}
+  - {to: concept.records, rel: uses, via: [store_config, direct_store_api]}
+  - {to: tool.config_toml, rel: uses, via: [vector_store_init]}
+notes: "Verified against module-ballerinax-ai.pinecone main (1.1.6, same as latest on Central). The README initializes with named arguments `serviceUrl = ...` and `apiKey = ...`; the BBEs use positional arguments."

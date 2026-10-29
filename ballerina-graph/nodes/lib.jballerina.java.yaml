@@ -1,0 +1,106 @@
+schema_version: "0.1"
+id: lib.jballerina.java
+type: library
+title: ballerina/jballerina.java
+summary: "The `jballerina.java` module provides the Java interoperability layer of jBallerina: annotations that bind external Ballerina functions to Java methods, constructors and fields, plus helpers for the `handle` type such as string conversion, null handling and casting."
+priority: important
+status: draft
+modules: [ballerina/jballerina.java]
+sources:
+  - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs, note: "Ballerina FFI guide"}
+  - {url: "https://ballerina.io/learn/call-java-code-from-ballerina/", kind: docs}
+  - {url: "https://ballerina.io/learn/by-example/interface-to-external-code/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/tree/master/langlib/jballerina.java/src/main/ballerina", kind: github, note: "annotations.bal, ballerina_values_to_Java.bal, JObject.bal"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.4", kind: spec, note: "7.3.4 Functions with external bodies"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.6", kind: spec, note: "5.5.6 Handles"}
+must_cover:
+  - id: static_method
+    text: "Bind a Ballerina function to a static Java method with `function randomUUID() returns handle = @java:Method {'class: \"java.util.UUID\"} external;`, adding `name: \"...\"` when the Java method name differs from the Ballerina function name"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: instance_method
+    text: "Call a Java instance method by binding it with `@java:Method` and passing the receiver object as an extra first `handle` parameter, e.g. `function push(handle receiver, handle e) = @java:Method {'class: \"java.util.ArrayDeque\"} external;`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: constructor
+    text: "Create Java objects by binding a function to a constructor with `@java:Constructor {'class: \"java.util.ArrayDeque\"}`, which returns a `handle` to the new instance"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: overload_param_types
+    text: "Select an overloaded Java method or constructor with `paramTypes`, listing class names such as `\"int\"` or `\"java.lang.String\"` and array types as `java:ArrayType` records like `{'class: \"char\", dimensions: 1}`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/annotations.bal", kind: github}
+  - id: field_access
+    text: "Read or update Java static or instance fields with `@java:FieldGet` and `@java:FieldSet`, e.g. `function pi() returns float = @java:FieldGet {name: \"PI\", 'class: \"java/lang/Math\"} external;`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/interface-to-external-code/", kind: bbe}
+  - id: handle_type
+    text: "Explain that a `handle` is an opaque reference to a Java object, array or `null` that can only be created by external functions, and keep it as a private field of a Ballerina class for type safety"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.6", kind: spec}
+  - id: string_conversion
+    text: "Convert between Ballerina and Java strings with `java:fromString(s)`, which returns a `handle` to a `java.lang.String`, and `java:toString(h)`, which returns `string?`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/interface-to-external-code/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/ballerina_values_to_Java.bal", kind: github}
+  - id: null_handling
+    text: "Guard against Java `null` by testing a returned handle with `java:isNull(h)` before using it, and pass a Java `null` with `java:createNull()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: wrapper_class
+    text: "Wrap a Java class in a Ballerina class (e.g. `StringStack` holding a private `handle jObj` created in `init`) whose methods call the bound external functions and convert values, to present a typed Ballerina API"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: unchecked_exceptions
+    text: "Explain that an unchecked Java exception thrown by a bound method becomes a Ballerina panic, and stop it with `trap`, e.g. `handle|error e = trap pop(deque);`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: checked_exceptions
+    text: "Bind Java methods or constructors that throw checked exceptions by including `error` in the return type (e.g. `returns handle|error`), knowing that the error message is the exception's class name and the detail holds `message` and `cause`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: type_mapping
+    text: "Map types across the boundary: Java `boolean`, `long`/`int`/`short`/`byte`/`char` and `double`/`float` correspond to Ballerina `boolean`, `int` and `float`, any Java reference type to `handle`, and Ballerina `string`, arrays, maps, records, objects and errors are received in Java as runtime API values such as `BString`, `BArray`, `BMap`, `BObject` and `BError`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: pass_ballerina_values
+    text: "Pass Ballerina arrays and maps directly to Java code, e.g. `function arrayReverse(int[] arr) returns int[] = @java:Method {'class: \"javalibs.app.ArrayReverse\"} external;` implemented in Java against `io.ballerina.runtime.api.values.BArray` from the `ballerina-runtime` dependency"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs}
+  - id: jobject_cast
+    text: "Work with generated binding classes that include `java:JObject` (a `handle jObj` field) and convert between them with `java:cast(value, typedesc)` according to Java assignability, and obtain a `java.lang.Class` handle with `java:getClass(name)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/ballerina_values_to_Java.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/JObject.bal", kind: github}
+out_of_scope:
+  - "Generating bindings automatically with `bal bindgen` (tool.bal_bindgen)"
+  - "Declaring Java platform dependencies (JARs, Maven artifacts) in Ballerina.toml (tool.ballerina_toml)"
+  - "The `external` function body syntax in the language itself (concept.external_functions)"
+  - "Writing the Java side against the Ballerina runtime API in depth (scheduling, async `Environment` usage)"
+edges:
+  - {to: concept.external_functions, rel: uses, via: [static_method, instance_method, constructor, field_access]}
+  - {to: concept.annotations, rel: uses, via: [static_method, overload_param_types]}
+  - {to: concept.classes, rel: uses, via: [wrapper_class, jobject_cast]}
+  - {to: concept.errors, rel: uses, via: [unchecked_exceptions, checked_exceptions]}
+  - {to: concept.basic_types, rel: uses, via: [handle_type, type_mapping]}
+  - {to: concept.strings, rel: uses, via: [string_conversion]}
+  - {to: concept.typedesc, rel: uses, via: [jobject_cast]}
+  - {to: concept.records, rel: uses, via: [overload_param_types]}
+notes: "The FFI guide's asynchronous-call example uses `BalEnv`/`BalFuture` names on the Java side; it was not cross-checked against the current runtime API, so it is left out."

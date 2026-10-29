@@ -1,0 +1,58 @@
+schema_version: '0.1'
+id: tool.bal_wsdl
+type: tool
+title: bal wsdl
+summary: The `bal wsdl` CLI tool (pulled from Ballerina Central) generates Ballerina SOAP client classes and XML-bound record types from a WSDL file, for calling SOAP web services through `ballerina/soap`.
+priority: long_tail
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/wsdl-tool/', kind: docs, note: WSDL tool}
+- {url: 'https://github.com/ballerina-platform/wsdl-tools', kind: github, note: wsdl-tools README}
+must_cover:
+- id: install_tool
+  text: Install the tool from Ballerina Central with `bal tool pull wsdl` before using the `bal wsdl` command
+  difficulty: [beginner]
+- id: generate_client
+  text: Generate clients and record types for all operations with `bal wsdl calculator.wsdl` run inside a Ballerina package, which writes `client.bal` (possibly several client files) and `types.bal` into the default module
+  difficulty: [beginner]
+- id: module_option
+  text: Put the generated client and types in a submodule with `bal wsdl <wsdl-file> --module custom` (`-m`), producing `modules/custom/client.bal` and `modules/custom/types.bal`
+  difficulty: [beginner, intermediate]
+- id: operations_option
+  text: Generate client methods only for selected operations with `--operations http://sample.org/action1,http://sample.org/action2` (a comma-separated list of operation URIs)
+  difficulty: [intermediate]
+- id: port_option
+  text: Generate a client only for one WSDL port with `--port <port-name>` (`-p`); without it a client is generated for every port
+  difficulty: [intermediate]
+- id: use_generated_client
+  text: 'Call a SOAP service through a generated client such as `CalculatorSoap12Client`: an `isolated client class` wrapping a `soap12:Client` whose `init` takes `string serviceUrl` (defaulting to the WSDL address) and `*soap:ClientConfig`, with one remote method per operation that takes the request envelope record and returns the response envelope record'
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/wsdl-tools/blob/main/wsdl-core/src/test/resources/expected/calculator.bal', kind: github, note: expected generated client in the tool's tests}
+- id: generated_envelope_types
+  text: 'Build request values from the generated envelope records (`...SoapRequest` with optional `Header` and a `Body` holding the operation element), which carry `@xmldata:Name {value: "Envelope"}` and `@xmldata:Namespace` annotations so they convert to SOAP XML with `xmldata:toXml` and back with `xmldata:parseAsType`'
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/wsdl-tools/blob/main/wsdl-core/src/test/resources/expected/calculator.bal', kind: github, note: expected generated types in the tool's tests}
+out_of_scope: [Writing SOAP clients by hand and SOAP security (lib.soap), XML data binding in general (lib.data.xmldata)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: tool.bal_tool
+  rel: uses
+  via: [install_tool]
+- to: lib.soap
+  rel: uses
+  via: [use_generated_client]
+- to: lib.data.xmldata
+  rel: uses
+  via: [generated_envelope_types]
+- to: concept.client_objects
+  rel: uses
+  via: [use_generated_client]
+- to: concept.records
+  rel: uses
+  via: [generated_envelope_types]
+- to: concept.modules_imports
+  rel: uses
+  via: [module_option]
+notes: The learn page documents only the command and its options. The shape of the generated client and types comes from the expected output in the wsdl-tools test resources (calculator.bal), which may differ between tool versions.

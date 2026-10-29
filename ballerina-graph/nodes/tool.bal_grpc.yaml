@@ -1,0 +1,83 @@
+schema_version: '0.1'
+id: tool.bal_grpc
+type: tool
+title: bal grpc
+summary: The `bal grpc` CLI tool compiles a Protocol Buffers (`.proto`) service definition into a Ballerina stub file and, optionally, a service or client template that uses the `ballerina/grpc` module.
+priority: important
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/grpc-tool/', kind: docs, note: gRPC tool}
+- {url: 'https://ballerina.io/learn/write-a-grpc-service-with-ballerina/', kind: docs, note: gRPC service tutorial}
+- {url: 'https://ballerina.io/learn/by-example/grpc-service-simple/', kind: bbe}
+- {url: 'https://ballerina.io/learn/by-example/grpc-client-simple/', kind: bbe}
+must_cover:
+- id: proto_definition
+  text: 'Write the `.proto` input for the tool: `syntax = "proto3";`, an optional `package`, a `service` with `rpc` methods and the `message` types they use'
+  difficulty: [beginner]
+- id: generate_stub
+  text: Generate only the stub with `bal grpc --input helloworld.proto --output stubs`, which writes `helloworld_pb.bal` holding the message record types, the client classes and the descriptor constant, and copy it into the Ballerina package that uses it
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/grpc-tool/', kind: docs}
+  - {url: 'https://ballerina.io/learn/by-example/grpc-service-simple/', kind: bbe}
+- id: generate_service_template
+  text: Generate the stub plus a service template with `bal grpc --input helloworld.proto --mode service --output <dir>`, which writes `helloworld_pb.bal` and `greeter_service.bal`; with several services in one definition you get a shared stub and one template per service
+  difficulty: [beginner]
+- id: implement_service
+  text: 'Implement a service from the template: `@grpc:Descriptor {value: HELLOWORLD_DESC}` on `service "Greeter" on grpcListener` (the descriptor maps the service to the definition and must not be changed) with `remote function sayHello(HelloRequest value) returns HelloReply|error`'
+  difficulty: [beginner, intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/write-a-grpc-service-with-ballerina/', kind: docs}
+- id: generate_client_template
+  text: Generate the stub plus a client template with `bal grpc --input helloworld.proto --mode client --output <dir>`, which writes `helloworld_pb.bal` and `greeter_client.bal` (a `main` function with a client declaration)
+  difficulty: [beginner]
+- id: use_generated_client
+  text: 'Call a service through the generated client class: `GreeterClient ep = check new ("http://localhost:9090");` then `HelloReply reply = check ep->sayHello({name: "Ballerina"});`'
+  difficulty: [beginner]
+  sources:
+  - {url: 'https://ballerina.io/learn/write-a-grpc-service-with-ballerina/', kind: docs}
+  - {url: 'https://ballerina.io/learn/by-example/grpc-client-simple/', kind: bbe}
+- id: wrapper_type_mapping
+  text: Use `google.protobuf` wrapper types such as `google.protobuf.StringValue` in a definition and get plain Ballerina types in the generated code (`remote function hello(string request) returns string`, `string result = check ep->hello("WSO2");`)
+  difficulty: [intermediate]
+  sources:
+  - {url: 'https://ballerina.io/learn/by-example/grpc-service-simple/', kind: bbe}
+  - {url: 'https://ballerina.io/learn/by-example/grpc-client-simple/', kind: bbe}
+- id: streaming_stub_types
+  text: 'Use the stub types generated for streaming RPCs: a client call returning `stream<string, grpc:Error?>` for server streaming, a `<Rpc>StreamingClient` (e.g. `LotsOfGreetingsStreamingClient`) with `send<Type>`, `complete` and `receive<Type>` for client and bidirectional streaming, and a `<Service><Type>Caller` (e.g. `ChatStringCaller`) parameter in the service method'
+  difficulty: [intermediate, advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/ballerina/README.md', kind: github, note: 'ballerina/grpc README, communication patterns'}
+- id: context_types
+  text: Use the generated `Context<Type>` records (e.g. `ContextString` with `content` and `headers` fields) and their `<rpc>Context` client methods to send and read headers, reading values with `grpc:getHeader`
+  difficulty: [intermediate, advanced]
+  sources:
+  - {url: 'https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/ballerina/README.md', kind: github, note: 'ballerina/grpc README, use headers'}
+- id: proto_path_and_input_dir
+  text: Resolve `import` directives in a definition with `--proto-path <dir>` (defaults to the current directory; the input file must be inside it), and pass a directory as `--input` to compile several `.proto` files
+  difficulty: [intermediate]
+- id: default_output_location
+  text: 'Know where output goes without `--output`: a directory named after the definition''s `package`, or `temp` in the current location when there is no package'
+  difficulty: [beginner]
+out_of_scope: ['Writing gRPC services and clients, streaming, security and deadlines (lib.grpc)']
+edges:
+- {to: tool.bal, rel: requires}
+- to: lib.grpc
+  rel: uses
+  via: [generate_stub, implement_service, use_generated_client, streaming_stub_types, context_types]
+- to: concept.services_listeners
+  rel: uses
+  via: [generate_service_template, implement_service]
+- to: concept.client_objects
+  rel: uses
+  via: [use_generated_client, streaming_stub_types]
+- to: concept.records
+  rel: uses
+  via: [generate_stub, context_types]
+- to: concept.annotations
+  rel: uses
+  via: [implement_service]
+- to: concept.streams
+  rel: uses
+  via: [streaming_stub_types]
+notes: The docs list `bal tool update grpc`. They state that Protocol Buffers serialization is only supported in the gRPC module, so the tool only generates code for gRPC service definitions. No `ballerina/protobuf` import in generated stubs was confirmed, so there is no lib.protobuf edge.

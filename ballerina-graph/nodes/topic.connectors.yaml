@@ -1,0 +1,100 @@
+schema_version: "0.1"
+id: topic.connectors
+type: topic
+title: Connectors
+summary: "Using and building Ballerina connectors - importing ballerinax client packages from Ballerina Central, configuring their authentication from configurable values, combining them in SaaS integrations, and generating, testing and publishing a connector from an OpenAPI specification."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/pre-built-integrations/", kind: docs, note: "Pre-built integrations built with connectors"}
+  - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
+  - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
+  - {url: "https://ballerina.io/learn/ballerina-central/", kind: docs}
+must_cover:
+  - id: import_connector
+    text: "Use a connector from Ballerina Central by importing it with an optional prefix, e.g. `import ballerinax/github;` or `import ballerinax/salesforce as sf;`, and explain that dependencies are resolved from the distribution and Ballerina Central repositories (cached locally)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
+      - {url: "https://ballerina.io/learn/pre-built-integrations/mysql-to-salesforce-integration/", kind: docs}
+  - id: token_auth_from_config
+    text: "Initialize a connector client with credentials from configurable variables, e.g. `configurable string githubAccessToken = ?;` and `github:Client github = check new ({auth: {token: githubAccessToken}});`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/github-to-email-integration/", kind: docs}
+  - id: oauth_refresh_config
+    text: "Configure an OAuth2 connector such as `gmail:Client` with `auth: {refreshToken, clientId, clientSecret, refreshUrl}` read from configurable variables so tokens are refreshed automatically"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-external-endpoint-integration/", kind: bbe}
+  - id: base_url_config
+    text: "Point a connector at a tenant-specific endpoint with a `baseUrl` in its config, e.g. `sf:Client salesforce = check new ({baseUrl: salesforceBaseUrl, auth: {token: salesforceAccessToken}});`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/mysql-to-salesforce-integration/", kind: docs}
+  - id: resource_and_remote_calls
+    text: "Call connector operations both as resource methods (`gmailClient->/users/me/messages(q = \"label:INBOX is:unread\")`) and as remote methods (`calendarClient->getEvents(userEmail)`), binding results to the connector's record types"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ai-agent-external-endpoint-integration/", kind: bbe}
+  - id: connector_streams
+    text: "Consume paginated connector results returned as streams, e.g. `stream<github:User, github:Error?> collaborators = check github->getCollaborators(org, repo);` processed with `check collaborators.forEach(...)` or a query expression"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/github-to-email-integration/", kind: docs}
+  - id: database_to_saas
+    text: "Move records from a database to a SaaS application by querying a `mysql:Client` into `stream<ProductReceived, error?>`, collecting it with `check from ... select`, mapping each row and creating records through the `salesforce` connector"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/mysql-to-salesforce-integration/", kind: docs}
+  - id: saas_query_update
+    text: "Query a SaaS backend and update what it returns, e.g. `sfdcClient->query(string `SELECT Id FROM PricebookEntry WHERE ...`)` returning `stream<record {}, error?>`, then `sfdcClient->update(\"PricebookEntry\", id, updatedPrice)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/kafka-to-salesforce-integration/", kind: docs}
+  - id: report_by_email
+    text: "Combine connectors in a `main` program, e.g. build a summary from `github->search(...)` results and send it with an `email:SmtpClient` created as `new (host = smtpHost, username = smtpUsername, password = smtpPassword)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/pre-built-integrations/github-to-email-integration/", kind: docs}
+  - id: generate_from_openapi
+    text: "Generate a client connector from an OpenAPI definition with `bal openapi -i docs/spec/openapi.yaml --mode client -o ballerina`, producing `client.bal`, `types.bal` and `utils.bal`, and choose method style with `--client-methods resource|remote`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/openapi-tool/", kind: docs}
+  - id: preprocess_spec
+    text: "Prepare a third-party OpenAPI definition before generation with `bal openapi flatten -i openapi.yaml -o docs/spec` and `bal openapi align -i flattened_openapi.yaml -o docs/spec`, recording further manual changes in `sanitations.md`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
+  - id: test_connector
+    text: "Test a generated connector with test functions under `ballerina/tests` that exercise its key operations, run with `bal test`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
+  - id: publish_connector
+    text: "Publish a connector by setting `org`, `name`, `version` (and optional `license`, `authors`, `keywords`, `icon`, `repository`) in `Ballerina.toml`, documenting it in `ballerina/README.md`, and running `bal pack` and `bal push`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/ballerina-central/", kind: docs}
+out_of_scope:
+  - "Individual SaaS connector APIs (not modelled in this graph)"
+  - "OpenAPI tool options in general (tool.bal_openapi)"
+  - "Package publishing, versioning and deprecation (tool.central)"
+edges:
+  - {to: tool.central, rel: uses, via: [import_connector, publish_connector]}
+  - {to: tool.bal_openapi, rel: uses, via: [generate_from_openapi, preprocess_spec]}
+  - {to: tool.ballerina_toml, rel: uses, via: [publish_connector]}
+  - {to: tool.bal_test, rel: uses, via: [test_connector]}
+  - {to: tool.config_toml, rel: uses, via: [token_auth_from_config, oauth_refresh_config, base_url_config]}
+  - {to: lib.http, rel: uses, via: [generate_from_openapi]}
+  - {to: lib.mysql, rel: uses, via: [database_to_saas]}
+  - {to: lib.email, rel: uses, via: [report_by_email]}
+  - {to: concept.client_objects, rel: uses, via: [resource_and_remote_calls, token_auth_from_config]}
+  - {to: concept.modules_imports, rel: uses, via: [import_connector]}
+  - {to: concept.streams, rel: uses, via: [connector_streams, database_to_saas, saas_query_update]}
+  - {to: concept.query_expressions, rel: uses, via: [database_to_saas]}
+  - {to: topic.event_driven, rel: related}
+notes: "Connector-specific operations (github, salesforce, gmail, calendar) come from the pre-built integration samples and BBEs; they are illustrations of the pattern, not a complete API reference."

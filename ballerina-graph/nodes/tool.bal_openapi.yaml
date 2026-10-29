@@ -1,0 +1,100 @@
+schema_version: '0.1'
+id: tool.bal_openapi
+type: tool
+title: bal openapi
+summary: The `bal openapi` CLI tool generates Ballerina HTTP service skeletons, service contract types and clients from an OpenAPI 3.x contract, exports OpenAPI contracts from Ballerina services, and works with the `@openapi` annotations that add metadata, examples and compile-time contract validation.
+priority: important
+status: draft
+sources:
+- {url: 'https://ballerina.io/learn/openapi-tool/', kind: docs, note: OpenAPI tool}
+- {url: 'https://ballerina.io/learn/package-references/', kind: docs, note: 'Ballerina.toml [[tool.<command>]] tables'}
+- {url: 'https://github.com/ballerina-platform/openapi-tools', kind: github}
+must_cover:
+- id: generate_service
+  text: Generate an HTTP service skeleton from a contract with `bal openapi -i <contract> --mode service`, which writes `<name>_service.bal` (an `http:Listener` and one `resource function` per operation) plus `types.bal` for the schemas, then fill in the resource bodies
+  difficulty: [beginner]
+- id: service_contract_type
+  text: 'Generate a service contract type with `bal openapi -i <contract> --mode service --with-service-contract`, which writes `service_contract.bal` declaring a `service object { *http:ServiceContract; ... }` type annotated with `@http:ServiceConfig {basePath: ...}`, and implement services against it'
+  difficulty: [intermediate]
+- id: generate_client
+  text: Generate a client from a contract with `bal openapi -i <contract> --mode client`, which writes `client.bal` (an `isolated client class Client`), `types.bal` and `utils.bal`, and call the API through the generated client; omitting `--mode` generates both service and client
+  difficulty: [beginner]
+- id: client_method_style
+  text: Choose the generated client method style with `--client-methods resource|remote` (resource methods by default) and call the generated client with resource-access or remote-method call syntax to match
+  difficulty: [intermediate]
+- id: filter_tags_operations
+  text: Generate code for only part of a contract with `--tags "tag1","tag2"` or `--operations "op1","op2"`
+  difficulty: [beginner, intermediate]
+- id: nullable_flag
+  text: 'Use `-n`/`--nullable` to generate nilable field types when a contract''s schema properties may come back as `null` without being marked `nullable: true`, avoiding data-binding errors'
+  difficulty: [intermediate]
+- id: with_tests
+  text: Generate a boilerplate `test.bal` covering every method of the generated client with `bal openapi -i <contract> --mode client --with-tests`
+  difficulty: [intermediate]
+- id: status_code_binding
+  text: Generate client methods that bind responses by status code with `--status-code-binding`
+  difficulty: [intermediate, advanced]
+- id: output_options
+  text: Control generated output with `-o <dir>` (output location), `--single-file` (client or service with its types and utilities in one file) and `--license <file>` (license header on generated files)
+  difficulty: [beginner]
+- id: mock_client
+  text: Generate a mock client that returns the examples documented in the contract with `bal openapi -i <contract> --mode client --mock`, for testing integrations before swapping in the real client
+  difficulty: [intermediate]
+- id: export_contract
+  text: Export an OpenAPI contract from a Ballerina HTTP service (or service contract type) with `bal openapi -i service.bal`, selecting one service by base path with `-s "/hello"`, JSON output with `--json` (YAML by default) and a location with `-o`
+  difficulty: [beginner, intermediate]
+- id: service_info_metadata
+  text: 'Set the info section of an exported contract with `@openapi:ServiceInfo {title: ..., version: ..., description: ..., email: ..., contactName: ..., contactURL: ..., termsOfService: ..., licenseName: ..., licenseURL: ...}` on a service; without it the title defaults to the base path and the version to the package version'
+  difficulty: [intermediate]
+- id: resource_info
+  text: 'Set per-operation metadata with `@openapi:ResourceInfo {operationId: ..., summary: ..., tags: [...]}` on a resource function'
+  difficulty: [intermediate]
+- id: resource_examples
+  text: Add response and request-body examples to an exported contract through the `examples` field of `@openapi:ResourceInfo`, keyed by `"response"` (status code, media type, example name) or `"requestBody"` (media type, example name), each given as an inline `value` or a `filePath` to a JSON file
+  difficulty: [advanced]
+- id: example_annotations
+  text: 'Attach a single example to a record type, record field or parameter with `@openapi:Example {value: ...}`, or several named examples with `@openapi:Examples {Name: {value: ...}}`'
+  difficulty: [intermediate]
+- id: contract_validation
+  text: 'Validate a service against a contract at compile time with `@openapi:ServiceInfo {contract: "openapi.yaml"}`, narrowing the check with `tags`, `operations`, `excludeTags` or `excludeOperations` and turning it off with `failOnErrors: false`'
+  difficulty: [intermediate, advanced]
+- id: embed_contract
+  text: 'Set `embed: true` in `@openapi:ServiceInfo` to embed the generated OpenAPI document in the service for introspection endpoint support'
+  difficulty: [advanced]
+- id: build_integration
+  text: Generate a client during `bal build` instead of committing generated code by adding a `[[tool.openapi]]` table to `Ballerina.toml` with mandatory `id` and `filePath`, an optional `targetModule`, and `options.mode`, `options.tags`, `options.operations`, `options.nullable`, `options.license`, `options.clientMethods` or `options.statusCodeBinding`, or add the table with `bal openapi add -i <contract> --id <id> --module <module> [--package <path>]`
+  difficulty: [intermediate]
+- id: align_contract
+  text: Rewrite a contract to Ballerina naming conventions with `bal openapi align -i <contract>`, which adds `x-ballerina-name` extensions and renames schemas (options `-o`, `-n` default `aligned_ballerina_openapi`, `-f json|yaml`, `-t`, `--operations`)
+  difficulty: [intermediate]
+- id: flatten_contract
+  text: Move inline schemas into `components` with `bal openapi flatten -i <contract>` (for example an inline response object becomes `InlineResponse200`), with the same `-o`, `-n` (default `flattened_openapi`), `-f`, `-t` and `--operations` options
+  difficulty: [intermediate]
+out_of_scope: [Writing HTTP services and clients by hand (lib.http), 'General `[[tool.*]]` table syntax and other Ballerina.toml settings (tool.ballerina_toml)', Designing REST APIs (topic.rest_api)]
+edges:
+- {to: tool.bal, rel: requires}
+- to: lib.http
+  rel: uses
+  via: [generate_service, service_contract_type, generate_client, export_contract, mock_client]
+- to: tool.ballerina_toml
+  rel: uses
+  via: [build_integration]
+- to: concept.services_listeners
+  rel: uses
+  via: [generate_service, service_contract_type, export_contract]
+- to: concept.resource_methods
+  rel: uses
+  via: [generate_service, client_method_style]
+- to: concept.client_objects
+  rel: uses
+  via: [generate_client, client_method_style, mock_client]
+- to: concept.annotations
+  rel: uses
+  via: [service_info_metadata, resource_info, resource_examples, example_annotations, contract_validation, embed_contract]
+- to: concept.records
+  rel: uses
+  via: [generate_service, example_annotations]
+- to: lib.test
+  rel: uses
+  via: [with_tests]
+notes: The docs list `bal tool update openapi` for updating the tool. `--use-sanitized-oas` is documented as experimental and left out. The Ballerina.toml tool config documents only client mode.

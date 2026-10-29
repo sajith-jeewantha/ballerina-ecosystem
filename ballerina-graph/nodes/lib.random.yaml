@@ -1,0 +1,52 @@
+schema_version: "0.1"
+id: lib.random
+type: library
+title: ballerina/random
+summary: "The `random` module generates pseudo-random numbers with a uniform distribution: a `float` between 0.0 and 1.0 with `random:createDecimal` and an `int` in a half-open range with `random:createIntInRange`."
+priority: long_tail
+status: draft
+modules: [ballerina/random]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/random/latest", kind: central, note: "ballerina/random 1.7.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-random/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/random-numbers/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-random/blob/master/ballerina/natives.bal", kind: github, note: "createDecimal, createIntInRange"}
+must_cover:
+  - id: random_decimal
+    text: "Generate a pseudo-random `float` between 0.0 and 1.0 with `random:createDecimal()` (despite its name it returns a `float`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/random-numbers/", kind: bbe}
+  - id: random_int_in_range
+    text: "Generate a pseudo-random `int` with `random:createIntInRange(startRange, endRange)`, where the start is inclusive and the end exclusive, e.g. `check random:createIntInRange(1, 100)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/random-numbers/", kind: bbe}
+  - id: range_error
+    text: "Handle the `random:Error` that `random:createIntInRange` returns when `endRange` is not greater than `startRange`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-random/blob/master/ballerina/natives.bal", kind: github}
+  - id: random_bytes
+    text: "Fill a fixed-length `byte[16]` with random values by casting `random:createIntInRange(0, 255)` results with `<byte>`, as done for AES keys and IVs in the crypto example"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/security-crypto/", kind: bbe}
+  - id: random_selection
+    text: "Pick a random element of an array with `items[check random:createIntInRange(0, items.length())]`, or scale `random:createDecimal()` to a custom `float` range"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-random/blob/master/ballerina/natives.bal", kind: github, note: "Start inclusive, end exclusive"}
+  - id: not_cryptographic
+    text: "Explain that the generator is a seeded linear congruential generator and is not cryptographically secure, so it should not be used for security-sensitive secrets"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-random/blob/master/ballerina/natives.bal", kind: github, note: "Doc comment: the generated number is not cryptographically secured"}
+out_of_scope:
+  - "Cryptographic hashing and encryption (lib.crypto)"
+  - "Generating random UUIDs (lib.uuid)"
+edges:
+  - {to: concept.numeric_types, rel: uses, via: [random_decimal, random_int_in_range, random_bytes]}
+  - {to: concept.errors, rel: uses, via: [range_error]}
+  - {to: concept.arrays_tuples, rel: uses, via: [random_bytes, random_selection]}
+  - {to: concept.type_cast_test, rel: uses, via: [random_bytes]}

@@ -1,0 +1,48 @@
+schema_version: "0.1"
+id: lib.websub
+type: library
+title: ballerina/websub
+summary: The WebSub library implements the W3C WebSub subscriber role as a `websub:Listener` service that subscribes to a hub topic, verifies intent and receives content distribution (webhook) notifications.
+priority: long_tail
+status: draft
+modules: [ballerina/websub]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/websub/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-websub/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/websub-webhook-sample/", kind: bbe}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-websub/blob/master/docs/spec/spec.md", kind: github, note: "WebSub library specification"}
+must_cover:
+  - id: subscriber_service
+    text: "Write a subscriber with `@websub:SubscriberServiceConfig {target: [\"<HUB_URL>\", \"<TOPIC_URL>\"], leaseSeconds: 36000}` on `service /subscriber on new websub:Listener(9090)`, implementing `remote function onEventNotification(websub:ContentDistributionMessage event)` that returns `websub:ACKNOWLEDGEMENT`"
+    difficulty: [beginner, intermediate]
+  - id: verification_callbacks
+    text: "Implement the optional callbacks `onSubscriptionVerification` (returning `websub:SUBSCRIPTION_VERIFICATION_SUCCESS` or an error), `onUnsubscriptionVerification` (`websub:UNSUBSCRIPTION_VERIFICATION_SUCCESS`) and `onSubscriptionValidationDenied(websub:SubscriptionDeniedError)`"
+    difficulty: [intermediate]
+  - id: resource_discovery
+    text: "Let the subscriber discover the hub and topic by giving a single resource URL as `target: \"RESOURCE_URL\"` in `@websub:SubscriberServiceConfig`"
+    difficulty: [intermediate]
+  - id: callback_url
+    text: "Omit the service path to let the listener generate one, and set a public `callback` URL (e.g. an ngrok URL) with `appendServicePath: true` when the subscriber runs behind a tunnel"
+    difficulty: [intermediate]
+  - id: webhook_content
+    text: "Use a WebSub subscriber as a webhook receiver (e.g. for GitHub) by setting `secret` for authenticated content distribution and `httpConfig: {auth: {token: ...}}`, and read the payload from `event.content` with `ensureType()` into `json` or a record"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websub-webhook-sample/", kind: bbe}
+  - id: unsubscribe_on_shutdown
+    text: "Unsubscribe automatically on shutdown with `unsubscribeOnShutdown: true` together with `websub:ListenerConfiguration {gracefulShutdownPeriod: 15}`"
+    difficulty: [intermediate]
+  - id: error_returns
+    text: "Return `error` from subscriber remote methods and know how each is interpreted (verification failure for the verification callbacks, still acknowledged for `onEventNotification`), and return `websub:SubscriptionDeletedError` from `onEventNotification` when the subscriber no longer needs updates (sent as 410 Gone)"
+    difficulty: [advanced]
+out_of_scope:
+  - "Implementing a hub or publishing updates (lib.websubhub)"
+  - "HTTP client configuration details (lib.http)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.annotations, rel: uses, via: [subscriber_service, resource_discovery, callback_url]}
+  - {to: concept.errors, rel: uses, via: [error_returns, verification_callbacks]}
+  - {to: concept.json_anydata, rel: uses, via: [webhook_content]}
+  - {to: lib.http, rel: uses, via: [webhook_content], target_items: [client_auth]}
+  - {to: lib.websubhub, rel: counterpart_of, note: "Subscriber side vs hub/publisher side of WebSub"}
+notes: "Items come from the module README and the single WebSub BBE (websub 2.x)."

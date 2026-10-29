@@ -1,0 +1,47 @@
+schema_version: "0.1"
+id: lib.websubhub
+type: library
+title: ballerina/websubhub
+summary: The WebSubHub library implements the WebSub hub role as a `websubhub:Service` on a `websubhub:Listener`, plus a `websubhub:HubClient` for delivering content to subscribers and a `websubhub:PublisherClient` for registering topics and publishing updates.
+priority: long_tail
+status: draft
+modules: [ballerina/websubhub]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/websubhub/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-websubhub/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-websubhub/blob/main/docs/spec/spec.md", kind: github, note: "WebSubHub library specification"}
+must_cover:
+  - id: hub_listener
+    text: "Create a `websubhub:Listener` from a port or an `http:Listener` and attach a hub service declaratively (`service /hub on new websubhub:Listener(9090)`) or programmatically with `attach`, `'start` and `gracefulStop`"
+    difficulty: [intermediate]
+  - id: topic_registration
+    text: "Implement `remote function onRegisterTopic(websubhub:TopicRegistration msg)` and `onDeregisterTopic(websubhub:TopicDeregistration msg)` returning `websubhub:TOPIC_REGISTRATION_SUCCESS`/`websubhub:TOPIC_REGISTRATION_ERROR` and the deregistration counterparts"
+    difficulty: [intermediate]
+  - id: update_message
+    text: "Accept publisher content updates in `remote function onUpdateMessage(websubhub:UpdateMessage msg)` returning `websubhub:ACKNOWLEDGEMENT` or `websubhub:UPDATE_MESSAGE_ERROR`"
+    difficulty: [intermediate]
+  - id: subscription_flow
+    text: "Handle subscriptions with `onSubscription(websubhub:Subscription msg)` (returning `websubhub:SUBSCRIPTION_ACCEPTED` or `websubhub:BAD_SUBSCRIPTION_ERROR`), `onSubscriptionValidation` (returning `websubhub:SUBSCRIPTION_DENIED_ERROR` to reject) and `onSubscriptionIntentVerified(websubhub:VerifiedSubscription msg)`, plus the matching `onUnsubscription*` methods"
+    difficulty: [advanced]
+  - id: service_config
+    text: "Configure the hub with `@websubhub:ServiceConfig {leaseSeconds, webHookConfig, autoVerifySubscriptionIntent}` and, with auto-verification on, take a `websubhub:Controller` parameter in `onSubscription` to call `markAsVerified()`"
+    difficulty: [advanced]
+  - id: hub_client
+    text: "Deliver content to a verified subscriber by creating `websubhub:HubClient` from the subscription message (`check new (msg)`) and calling `notifyContentDistribution({content: ...})`"
+    difficulty: [advanced]
+  - id: publisher_client
+    text: "Act as a publisher with `websubhub:PublisherClient` created from the hub URL, calling `registerTopic(topic)`, `deregisterTopic(topic)`, `publishUpdate(topic, payload)` and `notifyUpdate(topic)`"
+    difficulty: [intermediate]
+  - id: error_returns
+    text: "Return `error` from hub remote methods and know the meaning for each (e.g. topic registration failure for `onRegisterTopic`, internal server error for `onSubscription`, validation failure for `onSubscriptionValidation`)"
+    difficulty: [advanced]
+out_of_scope:
+  - "The subscriber side of WebSub (lib.websub)"
+  - "Underlying HTTP client settings reused by `websubhub:ClientConfiguration` (lib.http)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.client_objects, rel: uses, via: [hub_client, publisher_client]}
+  - {to: concept.errors, rel: uses, via: [error_returns, topic_registration]}
+  - {to: concept.annotations, rel: uses, via: [service_config]}
+  - {to: lib.http, rel: uses, via: [hub_listener, hub_client], target_items: [client_resiliency, client_auth]}
+notes: "The README's HubClient sample types `onSubscriptionIntentVerified` with `websubhub:Subscription`, while the spec's service type uses `websubhub:VerifiedSubscription`; items follow the spec. Spec section 2.2.2.3 is headed `onEventMessage` but the service type and README use `onUpdateMessage`."

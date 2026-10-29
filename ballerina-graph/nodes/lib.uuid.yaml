@@ -1,0 +1,63 @@
+schema_version: "0.1"
+id: lib.uuid
+type: library
+title: ballerina/uuid
+summary: "The `uuid` module generates RFC 4122 UUIDs of versions 1, 3, 4 and 5 as strings or `uuid:Uuid` records, and validates, inspects and converts UUIDs between string, byte and record forms."
+priority: important
+status: draft
+modules: [ballerina/uuid]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/uuid/latest", kind: central, note: "ballerina/uuid 1.10.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-uuid/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/uuid-operations/", kind: bbe}
+must_cover:
+  - id: random_uuid
+    text: "Generate a random (version 4) UUID string with `uuid:createType4AsString()` or its alias `uuid:createRandomUuid()`, e.g. as an ID for a new record"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-uuid/blob/master/ballerina/uuid.bal", kind: github}
+  - id: time_based_uuid
+    text: "Generate a version 1 UUID, based on the MAC address and the current time, with `uuid:createType1AsString()` or `uuid:createType1AsRecord()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+  - id: name_based_uuid
+    text: "Generate deterministic name-based UUIDs with `uuid:createType3AsString(namespace, name)` (MD5) or `uuid:createType5AsString(namespace, name)` (SHA-1), using a `uuid:NamespaceUUID` such as `uuid:NAME_SPACE_DNS`, `NAME_SPACE_URL`, `NAME_SPACE_OID` or `NAME_SPACE_X500`; these return `string|uuid:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-uuid/blob/master/ballerina/constants.bal", kind: github}
+  - id: uuid_records
+    text: "Generate UUIDs as `uuid:Uuid` records with the `createType1AsRecord`, `createType3AsRecord`, `createType4AsRecord` and `createType5AsRecord` functions and read the record fields `timeLow`, `timeMid`, `timeHiAndVersion`, `clockSeqHiAndReserved`, `clockSeqLo` and `node`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+  - id: nil_uuid
+    text: "Get the nil UUID (all zeros) with `uuid:nilAsString()` or `uuid:nilAsRecord()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+  - id: validate_uuid
+    text: "Check whether a string is a valid UUID with `uuid:validate(s)`, which returns a `boolean`, e.g. to validate an ID path parameter"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-operations/", kind: bbe}
+  - id: uuid_version
+    text: "Detect the version of a UUID string with `uuid:getVersion(s)`, which returns a `uuid:Version` (`V1`, `V3`, `V4`, `V5`) or a `uuid:Error` for an invalid UUID"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-operations/", kind: bbe}
+  - id: uuid_conversions
+    text: "Convert UUIDs between forms with `uuid:toBytes(string|uuid:Uuid)`, `uuid:toString(byte[]|uuid:Uuid)` and `uuid:toRecord(string|byte[])`, handling the error returned for an invalid UUID"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/uuid-operations/", kind: bbe}
+out_of_scope:
+  - "Generating random numbers (lib.random)"
+edges:
+  - {to: concept.strings, rel: uses, via: [random_uuid, validate_uuid]}
+  - {to: concept.records, rel: uses, via: [uuid_records, uuid_conversions]}
+  - {to: concept.constants_enums, rel: uses, via: [name_based_uuid, uuid_version]}
+  - {to: concept.errors, rel: uses, via: [name_based_uuid, uuid_version, uuid_conversions]}

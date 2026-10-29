@@ -1,0 +1,139 @@
+schema_version: "0.1"
+id: lib.test
+type: library
+title: ballerina/test
+summary: "The `test` module (Testerina) provides the annotations and functions for writing Ballerina tests: `@test:Config` test functions with groups, dependencies, data providers and before/after hooks, suite/group/each-level setup and teardown, assertions, and function and object mocking."
+priority: core
+status: draft
+modules: [ballerina/test]
+sources:
+  - {url: "https://ballerina.io/learn/test-ballerina-code/write-tests/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/configure-tests/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/mocking/", kind: docs}
+  - {url: "https://ballerina.io/learn/test-ballerina-code/test-services-and-clients/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/tree/master/misc/testerina/modules/testerina-core/src/main/ballerina", kind: github, note: "annotations.bal, assert.bal, mock.bal"}
+  - {url: "https://ballerina.io/learn/by-example/testerina-assertions/", kind: bbe}
+must_cover:
+  - id: test_function
+    text: "Write a test by importing `ballerina/test` and annotating a function with `@test:Config` in a file under the module's `tests` directory, where module-level functions and variables are visible to the test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/write-tests/", kind: docs}
+      - {url: "https://ballerina.io/learn/test-ballerina-code/structure-tests/", kind: docs}
+  - id: assert_equality
+    text: "Assert values with `test:assertEquals(actual, expected, msg = \"...\")` and `test:assertNotEquals`, which compare by value (including `json`, records and tuples), and read the expected/actual diff printed on failure"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-assertions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/test-ballerina-code/write-tests/", kind: docs}
+  - id: assert_boolean_fail
+    text: "Assert conditions with `test:assertTrue` and `test:assertFalse`, and fail a test explicitly with `test:assertFail(msg = \"...\")`, e.g. when an expected error is not returned"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-assertions/", kind: bbe}
+  - id: assert_exact
+    text: "Check reference identity with `test:assertExactEquals` and `test:assertNotExactEquals`, e.g. that two variables refer to the same object"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-assertions/", kind: bbe}
+  - id: test_returns_error
+    text: "Declare a test function `returns error?` and use `check` inside it, so an unexpected error fails the test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-data-driven-tests/", kind: bbe}
+  - id: config_enable_groups
+    text: "Disable a test with `@test:Config {enable: false}` and tag tests with `groups: [\"g1\", \"g2\"]` so they can be selected or excluded by group"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-group-tests/", kind: bbe}
+  - id: depends_on
+    text: "Guarantee execution order with `dependsOn: [testFunction1]`, which runs the listed test functions before the annotated one"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-guarantee-test-execution-order/", kind: bbe}
+  - id: before_after_test
+    text: "Run set-up and tear-down code around a single test with the `before` and `after` fields of `@test:Config`, which take function references"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-before-and-after-test/", kind: bbe}
+  - id: each_hooks
+    text: "Run a function before or after every test in the module with `@test:BeforeEach` and `@test:AfterEach`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-before-and-after-each/", kind: bbe}
+  - id: suite_hooks
+    text: "Run one-time suite set-up and clean-up with `@test:BeforeSuite` and `@test:AfterSuite` (with `alwaysRun: true` to run even if dependent functions fail)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-before-and-after-suite/", kind: bbe}
+      - {url: "https://ballerina.io/learn/test-ballerina-code/configure-tests/", kind: docs}
+  - id: group_hooks
+    text: "Run code before or after the tests of specific groups with `@test:BeforeGroups {value: [\"g1\"]}` and `@test:AfterGroups {value: [\"g1\"], alwaysRun: true}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-before-and-after-groups/", kind: bbe}
+  - id: data_provider_array
+    text: "Write a data-driven test with `dataProvider: dataGen`, where the provider returns an array of argument arrays (e.g. `string[][]`) and the test function takes one parameter per value"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-data-driven-tests/", kind: bbe}
+  - id: data_provider_map
+    text: "Use a map-based data provider returning `map<[int, int, string]>|error`, whose keys name each data set case"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-data-driven-tests/", kind: bbe}
+  - id: function_mock_stub
+    text: "Mock a function by declaring `@test:Mock {functionName: \"intAdd\"} test:MockFunction intAddMockFn = new ();` and stubbing it with `test:when(intAddMockFn).thenReturn(20)` or `.withArguments(0, 0).thenReturn(-1)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-mocking-functions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/test-ballerina-code/mocking/", kind: docs}
+  - id: function_mock_call
+    text: "Replace a function, including an imported one such as `io:println` (`@test:Mock {moduleName: \"ballerina/io\", functionName: \"println\"}`), with a same-signature function via `test:when(mockFn).call(\"mockPrint\")`, and restore it with `callOriginal()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/mocking/", kind: docs}
+  - id: compile_time_mock
+    text: "Replace a function at compile time by annotating a substitute function with `@test:Mock {functionName: \"initializeClient\"}`, e.g. to return `test:mock(http:Client)` for a `final` client that object mocking cannot reassign"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/test-services-and-clients/", kind: docs}
+  - id: object_test_double
+    text: "Substitute an object such as an `http:Client` with a test double by assigning `test:mock(http:Client, new MockHttpClient())`, where the mock client class implements only the methods the code calls"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-mocking-objects/", kind: bbe}
+      - {url: "https://ballerina.io/learn/test-ballerina-code/mocking/", kind: docs}
+  - id: object_stub_methods
+    text: "Stub object methods with `test:prepare(mockObj).when(\"get\")` followed by `thenReturn(value)`, `withArguments(...).thenReturn(value)`, `thenReturnSequence(v1, v2)` or `doNothing()`, and stub a public field with `getMember(\"id\").thenReturn(value)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/testerina-mocking-objects/", kind: bbe}
+  - id: object_stub_resources
+    text: "Stub client resource methods with `test:prepare(mockObj).whenResource(\"employee/:id\").onMethod(\"get\")`, optionally narrowed with `withPathParameters({id: \"emp014\"})` and `withArguments(...)`, then `thenReturn`, `thenReturnSequence` or `doNothing`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/mocking/", kind: docs}
+  - id: serial_execution
+    text: "Keep a test out of parallel execution with `@test:Config {serialExecution: true}`, and make tests eligible for parallel runs by keeping test, data provider and hook functions `isolated` with `readonly` parameters"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/test-ballerina-code/execute-tests-in-parallel/", kind: docs}
+out_of_scope:
+  - "Running tests with `bal test`, selecting groups or tests on the CLI, code coverage and test reports (tool.bal_test)"
+  - "Test-only Config.toml values and test-scoped dependencies in Ballerina.toml (tool.config_toml, tool.ballerina_toml)"
+  - "HTTP client and service APIs used inside tests (lib.http)"
+edges:
+  - {to: concept.annotations, rel: uses, via: [test_function, config_enable_groups, suite_hooks, function_mock_stub]}
+  - {to: concept.functions, rel: uses, via: [test_function, before_after_test]}
+  - {to: concept.function_values, rel: uses, via: [depends_on, data_provider_array, before_after_test]}
+  - {to: concept.errors, rel: uses, via: [test_returns_error]}
+  - {to: concept.maps, rel: uses, via: [data_provider_map]}
+  - {to: concept.arrays_tuples, rel: uses, via: [data_provider_array, data_provider_map]}
+  - {to: concept.objects, rel: uses, via: [object_test_double, object_stub_methods]}
+  - {to: concept.client_objects, rel: uses, via: [object_test_double, object_stub_resources]}
+  - {to: concept.resource_methods, rel: uses, via: [object_stub_resources]}
+  - {to: concept.isolation, rel: uses, via: [serial_execution]}
+  - {to: concept.comparison_equality, rel: uses, via: [assert_equality, assert_exact]}
+  - {to: tool.bal_test, rel: related, note: "bal test runs the tests written with this module"}
+notes: "The current testerina-core source also has `minPassRate` and `runs` fields on `test:TestConfig` (described as evaluation settings); they are not documented on ballerina.io/learn or in BBEs yet, so they are left out."

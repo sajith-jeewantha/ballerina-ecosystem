@@ -1,0 +1,103 @@
+schema_version: "0.1"
+id: tool.bal
+type: tool
+title: bal
+summary: "`bal` is the Ballerina build tool and package manager. It builds, runs, formats and documents packages and single files, and manages installed Ballerina distributions."
+priority: core
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/cli-commands/", kind: docs}
+  - {url: "https://ballerina.io/learn/get-started/", kind: docs}
+  - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/tree/master/cli/ballerina-cli/src/main/resources/cli-help", kind: github, note: "bal command help texts (build, run, clean, format, doc, profile)"}
+must_cover:
+  - id: bal_help
+    text: "Discover commands with `bal help`, `bal help <command>` (e.g. `bal help pull`) and `bal <command> --help`, and print the distribution, language specification and update tool versions with `bal version`"
+    difficulty: [beginner]
+  - id: bal_run
+    text: "Run a program with `bal run` for the current package, `bal run app.bal` for a single file or `bal run target/bin/app.jar` for a built JAR, and pass program arguments to `main` after `--`, e.g. `bal run -- add 10 5`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-run.help", kind: github}
+  - id: run_configurables
+    text: "Give values to configurable variables when running, e.g. `bal run -- -Cval1=add -Cval2=10`, alongside or instead of a `Config.toml` file"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-run.help", kind: github}
+  - id: bal_build
+    text: "Build an executable JAR with `bal build` (written to `target/bin/`) or `bal build app.bal` for a single file (written to the current directory, renamed with `-o <output>`), knowing individual `.bal` files of a package cannot be built on their own"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-build.help", kind: github}
+  - id: build_flags
+    text: "Use common build flags: `--offline`, `--sticky`, `--target-dir <path>`, `--observability-included`, `--experimental` for experimental language features, and `--show-dependency-diagnostics`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-build.help", kind: github}
+  - id: build_artifacts
+    text: "Produce other build outputs: container and Kubernetes artifacts with `bal build --cloud=docker` or `--cloud=k8s`, a native image with `--graalvm` and `--graalvm-build-options=\"...\"`, and OpenAPI definitions for services with `--export-openapi`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-build.help", kind: github}
+  - id: run_watch_debug
+    text: "Re-run a service project automatically on file changes with `bal run --watch` (experimental), and start a program for remote debugging with `bal run --debug <port>`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-run.help", kind: github}
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: bal_clean
+    text: "Delete build outputs with `bal clean`, or a custom output directory with `bal clean --target-dir <path>`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-clean.help", kind: github}
+  - id: bal_format
+    text: "Format code to the coding conventions with `bal format` for the package, `bal format <module>` or `bal format app.bal`, and preview the files that would change with `bal format -d`/`--dry-run`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-format.help", kind: github}
+  - id: format_config
+    text: "Customize formatting with a `Format.toml` file (or `[format]` `configPath` in `Ballerina.toml`) using sections such as `[indent]` `indentSize`, `[wrapping]` `maxLineLength`, `[braces]` `functionBraceStyle = \"NewLine\"`, `[functionDefinition]` `parametersWrap = \"ChopDown\"`, `[import]` `sortImports` and `[query]` `alignMultiLineQueries`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/customize-formatting/", kind: docs}
+  - id: bal_doc
+    text: "Write documentation comments (`#` lines with `+ param - description` and `+ return - description`) and generate HTML API docs with `bal doc` into `target/apidocs`, using `-o <dir>` for another output directory and `-e` to exclude modules"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/generate-code-documentation/", kind: docs}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-doc.help", kind: github}
+  - id: bal_dist
+    text: "Manage installed distributions with `bal dist list`, `bal dist update`, `bal dist pull <version>`, `bal dist use <version>` and `bal dist remove <version>`, and update the `bal` tool itself with `bal update`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+  - id: bal_shell
+    text: "Try snippets in the experimental REPL with `bal shell`, using `/imports`, `/vars`, `/dclns`, `/file <FILE>`, `/remove <NAMES>`, `/reset` and `/exit`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-shell/", kind: docs}
+  - id: bal_profile
+    text: "Profile a package or file with the experimental `bal profile` command, which runs the program and writes a flame graph to `ProfilerReport.html` in the target directory"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-profile.help", kind: github}
+out_of_scope:
+  - "`bal new`, `bal add` and package layout (tool.packages)"
+  - "`bal test` and its options (tool.bal_test)"
+  - "`bal pack`, `bal push`, `bal pull`, `bal search`, `bal semver`, `bal deprecate` (tool.central)"
+  - "Dependency locking with `--sticky`/`--offline` and `bal graph` (tool.dependencies_toml)"
+  - "Installing tools with `bal tool` (tool.bal_tool)"
+  - "Code generators such as `bal openapi`, `bal grpc`, `bal persist` (tool.bal_openapi, tool.bal_grpc, tool.bal_persist)"
+  - "Docker, Kubernetes and GraalVM build details (tool.code_to_cloud, tool.graalvm)"
+edges:
+  - {to: tool.packages, rel: requires}
+  - {to: tool.config_toml, rel: uses, via: [run_configurables], target_items: [cli_args, config_toml_basics]}
+  - {to: tool.dependencies_toml, rel: uses, via: [build_flags], target_items: [sticky, offline, dependency_cache]}
+  - {to: tool.ballerina_toml, rel: uses, via: [build_flags, format_config], target_items: [build_options, format_scan_config]}
+  - {to: concept.documentation, rel: uses, via: [bal_doc]}
+  - {to: concept.program_execution, rel: uses, via: [bal_run]}
+  - {to: tool.code_to_cloud, rel: uses, via: [build_artifacts]}
+  - {to: tool.graalvm, rel: uses, via: [build_artifacts]}
+  - {to: tool.bal_openapi, rel: uses, via: [build_artifacts]}
+  - {to: lib.observe, rel: uses, via: [build_flags]}
+notes: "The docs show running a built JAR with `bal run target/bin/<name>.jar`. Commands such as `dist` and `version` are handled by the tool itself; `build`, `run`, `test`, `pull` and `push` are delegated to the active distribution."

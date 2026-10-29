@@ -1,0 +1,97 @@
+schema_version: "0.1"
+id: lib.java.jms
+type: library
+title: ballerinax/java.jms
+summary: "Java Message Service connector that works with any JMS provider (such as ActiveMQ) through a `jms:Connection`, `jms:Session`, `jms:MessageProducer` and `jms:MessageConsumer`, plus a `jms:Listener` whose services receive messages asynchronously."
+priority: long_tail
+status: draft
+modules: [ballerinax/java.jms, ballerinax/activemq.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/java.jms/latest", kind: central, note: "ballerinax/java.jms 1.2.2 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/README.md", kind: github, note: "Module README at the released 1.2.2 tag"}
+  - {url: "https://ballerina.io/learn/by-example/jms-producer-produce-message/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/jms-consumer-consume-message/", kind: bbe}
+must_cover:
+  - id: provider_driver
+    text: "Bring in the JMS provider's client libraries with a driver import such as `import ballerinax/activemq.driver as _;` next to `import ballerinax/java.jms;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-producer-produce-message/", kind: bbe}
+  - id: connection
+    text: "Open a `jms:Connection` with `check new (initialContextFactory = \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\", providerUrl = \"tcp://localhost:61616\")`, optionally setting `connectionFactoryName`, `username`, `password` and `properties`, and control it with `'start()`, `stop()` and `close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/connection.bal", kind: github, note: "Connection, ConnectionConfiguration"}
+  - id: session_ack_modes
+    text: "Create a `jms:Session` with `connection->createSession()` and choose an acknowledgement mode: `jms:AUTO_ACKNOWLEDGE` (default), `jms:CLIENT_ACKNOWLEDGE`, `jms:DUPS_OK_ACKNOWLEDGE` or `jms:SESSION_TRANSACTED`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/session.bal", kind: github, note: "AcknowledgementMode"}
+  - id: destinations
+    text: "Describe destinations as `jms:Destination` values such as `{'type: jms:QUEUE, name: \"order-queue\"}`, using `jms:TOPIC`, `jms:TEMPORARY_QUEUE` or `jms:TEMPORARY_TOPIC` as needed"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/destination.bal", kind: github}
+  - id: message_types
+    text: "Build messages as `jms:TextMessage` (`string` content), `jms:MapMessage` (`map<anydata>` content) or `jms:BytesMessage` (`byte[]` content), all including `jms:Message` header fields such as `correlationId`, `replyTo` and `properties`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/message.bal", kind: github, note: "Message, TextMessage, MapMessage, BytesMessage"}
+  - id: producer_send
+    text: "Create a producer with `session.createProducer({'type: jms:QUEUE, name: \"order-queue\"})` and send with `producer->send(message)`, e.g. a `jms:MapMessage` built from an HTTP request payload"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-producer-produce-message/", kind: bbe}
+  - id: producer_send_to
+    text: "Create a producer without a default destination via `session.createProducer()` and choose the destination per message with `producer->sendTo({'type: jms:QUEUE, name: \"order-queue\"}, message)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-producer-transaction/", kind: bbe}
+  - id: consumer_receive
+    text: "Create a consumer with `session.createConsumer(destination = {...})` and read messages synchronously with `consumer->receive(timeoutMillis)` or `receiveNoWait()`, which return `jms:Message?`, then narrow with `is jms:TextMessage`, `is jms:MapMessage` or `is jms:BytesMessage`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-consumer-consume-message/", kind: bbe}
+  - id: consumer_ack
+    text: "Acknowledge messages explicitly by creating the session with `jms:CLIENT_ACKNOWLEDGE` and calling `consumer->acknowledge(message)` after processing"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-consumer-acknowledgement/", kind: bbe}
+  - id: durable_shared_consumers
+    text: "Create durable or shared topic subscriptions with `session.createConsumer({'type: jms:DURABLE, destination: {'type: jms:TOPIC, name: ...}, subscriberName: ...})` (also `jms:SHARED`, `jms:SHARED_DURABLE`), using `messageSelector` and `noLocal`, and remove one with `session->unsubscribe(subscriptionId)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/message_consumer.bal", kind: github, note: "ConsumerType, ConsumerOptions"}
+  - id: session_transactions
+    text: "Send messages atomically using a `jms:SESSION_TRANSACTED` session, calling `session->'commit()` after the sends and `session->'rollback()` in an `on fail` clause"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/jms-producer-transaction/", kind: bbe}
+  - id: listener_service
+    text: "Consume asynchronously with a service on `new jms:Listener(connectionConfig = {initialContextFactory: ..., providerUrl: ...}, consumerOptions = {destination: {'type: jms:QUEUE, name: \"MyQueue\"}})` that implements `remote function onMessage(jms:Message message) returns error?`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/README.md", kind: github, note: "Asynchronous message consumer"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/message_listener.bal", kind: github, note: "MessageListenerConfigurations"}
+  - id: listener_ack_caller
+    text: "Set `acknowledgementMode = jms:CLIENT_ACKNOWLEDGE` (or `jms:SESSION_TRANSACTED`) on the `jms:Listener`, add a `jms:Caller caller` parameter to `onMessage`, and call `caller->acknowledge(message)`, `caller->'commit()` or `caller->'rollback()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/caller.bal", kind: github, note: "Caller: acknowledge, commit, rollback"}
+  - id: listener_topic
+    text: "Subscribe a listener service to a topic by giving `consumerOptions` with a `jms:TOPIC` destination and, for durable or shared subscriptions, `'type: jms:DURABLE` and a `subscriberName`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/message_listener.bal", kind: github, note: "consumerOptions uses ConsumerOptions"}
+out_of_scope:
+  - "General listener and service declaration semantics (concept.services_listeners)"
+  - "IBM MQ native queue-manager API (lib.ibm.ibmmq)"
+  - "Declaring Java platform dependencies in Ballerina.toml (tool.ballerina_toml)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [connection, producer_send, consumer_receive, session_transactions]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, listener_ack_caller, listener_topic]}
+  - {to: concept.records, rel: uses, via: [message_types, destinations]}
+  - {to: concept.type_cast_test, rel: uses, via: [consumer_receive]}
+  - {to: concept.errors, rel: uses, via: [session_transactions]}
+  - {to: concept.modules_imports, rel: uses, via: [provider_driver], note: "Driver imported with `as _` for its side effect"}
+notes: "Items follow the released API (Central latest 1.2.2, branch 1.2.x). The repository master branch (unreleased) changes the API: `jms:Listener` takes the connection configuration directly, services are bound with `@jms:ServiceConfig {queueName | topicName, sessionAckMode, messageSelector}`, an `onError(jms:Error)` method is added, and the message subtypes are replaced by a single `jms:Message` with `content` of `string|map<jms:Value>|byte[]`. The published BBE jms-service-consume-message already uses `@jms:ServiceConfig`, which does not exist in 1.2.2. Revisit this node when the next java.jms release ships."

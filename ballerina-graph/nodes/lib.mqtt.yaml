@@ -1,0 +1,56 @@
+schema_version: "0.1"
+id: lib.mqtt
+type: library
+title: ballerina/mqtt
+summary: The MQTT library publishes messages with `mqtt:Client` and subscribes to topics with an `mqtt:Listener` service, supporting QoS, manual acknowledgements, request-response and TLS/basic authentication.
+priority: long_tail
+status: draft
+modules: [ballerina/mqtt]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/mqtt/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mqtt/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-mqtt/blob/main/docs/spec/spec.md", kind: github, note: "MQTT library specification"}
+  - {url: "https://ballerina.io/learn/by-example/mqtt-client-publish-message/", kind: bbe}
+must_cover:
+  - id: publish
+    text: "Create an `mqtt:Client` with `check new (mqtt:DEFAULT_URL, clientId)` (a unique id, e.g. `uuid:createType1AsString()`) and publish with `mqttClient->publish(\"mqtt/topic\", {payload: data.toJsonString().toBytes()})`, which returns an `mqtt:DeliveryToken`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mqtt-client-publish-message/", kind: bbe}
+  - id: message_record
+    text: "Build and read `mqtt:Message` records with `payload` (`byte[]`), `qos` (0, 1 or 2), `retained`, and on received messages `topic`, `messageId` and `duplicate`"
+    difficulty: [beginner]
+  - id: subscribe_service
+    text: "Subscribe with `service on new mqtt:Listener(mqtt:DEFAULT_URL, clientId, \"mqtt/topic\")` implementing `remote function onMessage(mqtt:Message message)`, converting the payload with `string:fromBytes()` and `value:fromJsonStringWithType()`, plus optional `onError(mqtt:Error err)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mqtt-service-subscribe-message/", kind: bbe}
+  - id: manual_acks
+    text: "Acknowledge messages explicitly by setting `manualAcks: true` in `mqtt:ListenerConfiguration` and calling `caller->complete()` on the `mqtt:Caller` parameter of `onMessage`"
+    difficulty: [intermediate]
+  - id: subscriptions_qos
+    text: "Subscribe to several topics or with a chosen QoS by passing `string[]` or `mqtt:Subscription {topic, qos}` values as the listener's subscriptions"
+    difficulty: [intermediate]
+  - id: request_response
+    text: "Implement request-response: the publisher calls `subscribe(responseTopic)`, publishes with `properties: {responseTopic, correlationData}` and reads replies from `receiveResponse()`, while the subscriber replies with `caller->respond({payload: ...})`"
+    difficulty: [advanced]
+  - id: security
+    text: "Authenticate and secure connections with `connectionConfig: {username, password, secureSocket: {cert, key}}` in the client or listener configuration, using an `ssl://` URL for TLS"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mqtt-client-basic-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mqtt-service-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mqtt-client-ssl/", kind: bbe}
+  - id: connection_management
+    text: "Manage client connections with `isConnected()`, `reconnect()`, `disconnect()` and `close()`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Other messaging brokers (lib.kafka, lib.rabbitmq, lib.nats)"
+  - "Event-driven architecture patterns (topic.event_driven)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [publish, connection_management]}
+  - {to: concept.services_listeners, rel: uses, via: [subscribe_service, manual_acks]}
+  - {to: concept.records, rel: uses, via: [message_record, subscriptions_qos]}
+  - {to: concept.streams, rel: uses, via: [request_response]}
+  - {to: lib.uuid, rel: uses, via: [publish]}
+notes: "Remote method names (`publish`, `subscribe`, `receiveResponse`, `isConnected`, `reconnect`, `disconnect`, `close`, caller `complete`/`respond`) are from the mqtt spec (mqtt 1.4.x)."

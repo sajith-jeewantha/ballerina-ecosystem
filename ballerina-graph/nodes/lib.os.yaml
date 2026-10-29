@@ -1,0 +1,71 @@
+schema_version: "0.1"
+id: lib.os
+type: library
+title: ballerina/os
+summary: The `os` module reads, sets and lists environment variables, returns the current OS user's name and home directory, and runs operating system commands as subprocesses through `os:exec` and `os:Process`.
+priority: important
+status: draft
+modules: [ballerina/os]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/os/latest", kind: central, note: "ballerina/os 1.10.3 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-os/blob/master/docs/spec/spec.md", kind: github, note: "OS library specification"}
+  - {url: "https://ballerina.io/learn/by-example/environment-variables/", kind: bbe}
+must_cover:
+  - id: get_env
+    text: "Read an environment variable with `os:getEnv(\"HTTP_PORT\")`, which returns the value as a `string`, or an empty string when the variable is not set, and fall back to a default when it is empty"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/environment-variables/", kind: bbe}
+  - id: set_unset_env
+    text: "Set an environment variable for the current process with `os:setEnv(key, value)` and remove one with `os:unsetEnv(key)`, both returning `os:Error?` (an empty key, or `==` for `setEnv`, is rejected)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-os/blob/master/ballerina/os.bal", kind: github}
+  - id: list_env
+    text: "Get all environment variables as a `map<string>` with `os:listEnv()` and iterate or look them up by key"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-os/blob/master/ballerina/os.bal", kind: github}
+  - id: user_info
+    text: "Get the current user's name with `os:getUsername()` and home directory with `os:getUserHome()`, each returning an empty string if it cannot be determined"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/environment-variables/", kind: bbe}
+  - id: exec_command
+    text: "Run an OS command with `os:exec({value: \"/usr/bin/git\", arguments: [\"status\"]})`, passing an `os:Command` record with the executable in `value` and each argument as a separate `arguments` element, and get an `os:Process` or an `os:Error`"
+    difficulty: [intermediate]
+  - id: exec_env
+    text: "Pass extra environment variables to the child process as named arguments of `os:exec`, e.g. `os:exec({value: \"bal\", arguments: [\"run\", path]}, BAL_CONFIG_FILES = \"/abc/Config.toml\")`, through the included `os:EnvProperties` record"
+    difficulty: [intermediate]
+  - id: process_wait
+    text: "Wait for a subprocess to finish with `process.waitForExit()`, which returns the exit code as an `int` (0 on success), and branch on non-zero codes"
+    difficulty: [intermediate]
+  - id: process_output
+    text: "Read a subprocess's standard output as `byte[]` with `process.output()` (or standard error with `process.output(io:stderr)`) and convert it with `string:fromBytes`"
+    difficulty: [intermediate]
+  - id: process_exit
+    text: "Terminate a running subprocess with `process.exit()`"
+    difficulty: [intermediate]
+  - id: os_errors
+    text: "Handle `os:Error` and its subtype `os:ProcessExecError`, which is returned when `os:exec` fails to start the command"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-os/blob/master/ballerina/os_errors.bal", kind: github}
+  - id: secure_exec
+    text: "Execute commands safely (static rules `ballerina/os:1`, `os:3`, `os:4`): do not build arguments from unsanitised input, do not run a command string through `/bin/sh -c`, and name executables by absolute path rather than relying on `PATH`"
+    difficulty: [intermediate, advanced]
+  - id: secure_env
+    text: "Avoid setting environment variables from untrusted input with `os:setEnv` (static rule `ballerina/os:2`), since they affect every process started afterwards"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Configurable variables and Config.toml as the preferred way to supply configuration (tool.config_toml)"
+  - "File system operations (lib.file)"
+edges:
+  - {to: concept.records, rel: uses, via: [exec_command, exec_env]}
+  - {to: concept.functions, rel: uses, via: [exec_env], note: "included record parameter `*EnvProperties` passed as named arguments"}
+  - {to: concept.classes, rel: uses, via: [process_wait, process_output, process_exit]}
+  - {to: concept.errors, rel: uses, via: [os_errors]}
+  - {to: concept.maps, rel: uses, via: [list_env]}
+  - {to: lib.io, rel: uses, via: [process_output], target_items: [console_stderr], note: "`io:stdout`/`io:stderr` select the stream for `Process.output`"}
+  - {to: lib.lang.string, rel: uses, via: [process_output]}
+notes: "Verified against module-ballerina-os master 1.10.3 (= latest tag). The module README only lists env vars and user info; `exec`/`Process` details come from the module spec section 4 and process.bal."

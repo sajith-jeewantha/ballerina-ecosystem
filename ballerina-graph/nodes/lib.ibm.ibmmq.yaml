@@ -1,0 +1,93 @@
+schema_version: "0.1"
+id: lib.ibm.ibmmq
+type: library
+title: ballerinax/ibm.ibmmq
+summary: "IBM MQ connector: connect to a queue manager with `ibmmq:QueueManager`, put and get messages on `ibmmq:Queue` and `ibmmq:Topic` clients, and consume asynchronously with an `ibmmq:Listener` service."
+priority: long_tail
+status: draft
+modules: [ballerinax/ibm.ibmmq]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ibm.ibmmq/latest", kind: central, note: "ballerinax/ibm.ibmmq 1.4.x package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/docs/spec/spec.md", kind: github, note: "ibm.ibmmq library specification"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples", kind: github, note: "Produce/consume, security, headers and service examples"}
+must_cover:
+  - id: driver_dependency
+    text: "Add the IBM MQ client jar as a platform dependency in `Ballerina.toml` with a `[[platform.java21.dependency]]` entry for `groupId = \"com.ibm.mq\"`, `artifactId = \"com.ibm.mq.allclient\"`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/README.md", kind: github, note: "Step 2: Add IBM MQ driver"}
+  - id: queue_manager
+    text: "Connect with `ibmmq:QueueManager queueManager = check new (name = queueManagerName, host = host, port = port, channel = channel, userID = userID, password = password)`, typically from `configurable` values, and end the connection with `queueManager.disconnect()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/README.md", kind: github, note: "Step 3: Instantiate a new connector"}
+  - id: access_queue
+    text: "Open a queue with `queueManager.accessQueue(queueName, ibmmq:MQOO_OUTPUT)` or combined open options such as `ibmmq:MQOO_OUTPUT | ibmmq:MQOO_INPUT_AS_Q_DEF`, and close it with `queue->close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/ibmmq-client-security", kind: github}
+  - id: put_message
+    text: "Send a message with `queue->put({payload: \"...\".toBytes()})`, setting `ibmmq:Message` fields such as `properties`, `correlationId`, `replyToQueueName`, `priority`, `persistence` and `expiry`, and optional put options such as `ibmmq:MQPMO_NO_SYNCPOINT`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/types.bal", kind: github, note: "Message record"}
+  - id: get_message
+    text: "Receive with `queue->get(options = ibmmq:MQGMO_WAIT, waitInterval = ...)`, which returns `ibmmq:Message?`, optionally selecting by `matchOptions` (`messageId`, `correlationId`), and decode the body with `string:fromBytes(message.payload)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/types.bal", kind: github, note: "GetMessageOptions, MatchOptions"}
+  - id: topics
+    text: "Publish and subscribe on topics with `queueManager.accessTopic(topicName, topicString, ibmmq:OPEN_AS_PUBLICATION, ibmmq:MQOO_OUTPUT)` (or `ibmmq:OPEN_AS_SUBSCRIPTION`), then `topic->put(...)`/`topic->get()`, or `topic->send(message)` for JMS-compatible delivery"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/queue_manager.bal", kind: github, note: "accessTopic(topicName, topicString, openTopicOption, options)"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/destination.bal", kind: github, note: "Topic put/get/send"}
+  - id: mq_headers
+    text: "Attach IBM MQ headers through the `headers` field, e.g. an `ibmmq:MQRFH2` with `flags` and a `fieldValues` table of `{folder, 'field, value}` entries, or `ibmmq:MQIIH`, `ibmmq:MQCIH`, `ibmmq:MQRFH`, and read them back from consumed messages"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/produce-mqrfh2-headers", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-mqiih-headers", kind: github}
+  - id: tls
+    text: "Secure the connection by passing `sslCipherSuite = ibmmq:TLS12ORHIGHER` and `secureSocket = {cert: {path, password}, key: {path, password}}` (truststore and keystore) to the `ibmmq:QueueManager`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/ibmmq-client-security", kind: github}
+  - id: listener_service
+    text: "Consume asynchronously with `listener ibmmq:Listener ibmmqListener = new ({name, host, port, channel, userID, password})` and a service annotated `@ibmmq:ServiceConfig {queueName, pollingInterval}` implementing `remote function onMessage(ibmmq:Message message) returns error?`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/tree/main/examples/consume-messages-service", kind: github}
+  - id: listener_topic
+    text: "Subscribe a service to a topic with `@ibmmq:ServiceConfig {topicName, consumerType: ibmmq:DURABLE, subscriberName}`, optionally filtering with `messageSelector` and tuning `pollingInterval` and `receiveTimeout`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/types.bal", kind: github, note: "QueueConfig, TopicConfig"}
+  - id: caller_ack_tx
+    text: "Set `sessionAckMode: ibmmq:CLIENT_ACKNOWLEDGE` or `ibmmq:SESSION_TRANSACTED` in `@ibmmq:ServiceConfig`, add an `ibmmq:Caller caller` parameter to `onMessage`, and call `caller->acknowledge(message)`, `caller->'commit()` or `caller->'rollback()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/docs/spec/spec.md", kind: github, note: "7.4 Caller"}
+  - id: errors
+    text: "Handle `ibmmq:Error` values, whose `ibmmq:ErrorDetails` detail carries `reasonCode`, `errorCode` and `completionCode`, and add `remote function onError(ibmmq:Error err) returns error?` to a service for receive or dispatch failures"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/errors.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/docs/spec/spec.md", kind: github, note: "7.3.2 Service functions"}
+out_of_scope:
+  - "Generic JMS providers and the JMS session API (lib.java.jms)"
+  - "Configurable variables and Config.toml (tool.config_toml)"
+  - "Declaring platform dependencies in Ballerina.toml in general (tool.ballerina_toml)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [queue_manager, access_queue, put_message, get_message, topics]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, listener_topic, caller_ack_tx]}
+  - {to: concept.annotations, rel: uses, via: [listener_service, listener_topic]}
+  - {to: concept.records, rel: uses, via: [put_message, mq_headers]}
+  - {to: concept.tables, rel: uses, via: [mq_headers], note: "MQRFH2 fieldValues is a table"}
+  - {to: concept.errors, rel: uses, via: [errors]}
+  - {to: lib.crypto, rel: uses, via: [tls]}
+  - {to: tool.ballerina_toml, rel: uses, via: [driver_dependency]}
+  - {to: lib.java.jms, rel: related, note: "Same service/Caller/ack-mode model; Topic.send uses the JMS API"}
+notes: "Verified against module-ballerinax-ibm.ibmmq main (Ballerina.toml 1.4.5; Central latest 1.4.6). The README's accessTopic snippet omits the `openTopicOption` argument that the API requires; the item follows the source signature. The spec's usage sample puts `ibmmq:Caller` first in `onMessage`, while 7.3.2 shows `(ibmmq:Message message, ibmmq:Caller caller)`."

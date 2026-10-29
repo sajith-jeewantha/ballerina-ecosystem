@@ -1,0 +1,97 @@
+schema_version: "0.1"
+id: lib.data.csv
+type: library
+title: ballerina/data.csv
+summary: The `data.csv` module parses CSV given as a string, byte array, byte-block stream or `string[][]` into record arrays or `anydata[][]` with projection, transforms record arrays between shapes, streams large files record by record, and supports fail-safe parsing with error logging.
+priority: important
+status: draft
+modules: [ballerina/data.csv]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/data.csv/latest", kind: central, note: "ballerina/data.csv 1.0.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.csv/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-data.csv/blob/master/ballerina/types.bal", kind: github, note: "Option record types"}
+must_cover:
+  - id: parse_string_records
+    text: "Parse a CSV string with a header row into a record array with `csv:parseString`, e.g. `Book[] books = check csv:parseString(csvString);`, where values are converted to the field types"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-record-array/", kind: bbe}
+  - id: parse_string_arrays
+    text: "Parse CSV into `string[][]`, `anydata[][]` or a tuple array such as `[string, int][]` by choosing the expected type of `csv:parseString`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-anydata-array/", kind: bbe}
+  - id: projection
+    text: "Project only the needed columns by targeting a closed record type such as `record {| string name; string author; |}[]`, or a fixed-length inner array such as `string[][2]` to keep the first two columns"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-record-array/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-anydata-array/", kind: bbe}
+  - id: parse_bytes
+    text: "Parse CSV held in a `byte[]` with `csv:parseBytes`"
+    difficulty: [beginner]
+  - id: parse_stream
+    text: "Parse a CSV byte-block stream, such as the result of `io:fileReadBlocksAsStream`, into a complete array with `csv:parseStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-streams-to-record-array/", kind: bbe}
+  - id: parse_to_stream
+    text: "Process large CSV files incrementally with `csv:parseToStream(byteStream)`, which returns `stream<Book, csv:Error?>` parsing one record at a time, and consume it with `forEach` or `foreach`"
+    difficulty: [intermediate, advanced]
+  - id: parse_list
+    text: "Convert a `string[][]` to records or typed arrays with `csv:parseList`, naming columns with `customHeaders` and treating leading rows as headers with `headerRows`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/parse-csv-lists/", kind: bbe}
+  - id: transform_records
+    text: "Reshape a record array into another record type or into `anydata[][]` with `csv:transform`, using `headerOrder` in `csv:TransformOptions` to fix column order for list output"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/transform-csv-records-to-custom-types/", kind: bbe}
+  - id: name_annotation
+    text: "Map a CSV header to a differently named field with `@csv:Name {value: \"empId\"}` on the record field"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/parse-csv-lists/", kind: bbe}
+  - id: parse_options
+    text: "Parse non-standard CSV with `csv:ParseOptions` such as `delimiter: \"|\"`, `textEnclosure`, `escapeChar`, `comment: \"#\"`, `lineTerminator` (`csv:LF`, `csv:CRLF`), `encoding` and `locale`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-user-configurations/", kind: bbe}
+  - id: header_options
+    text: "Handle header rows with the `header` option of `csv:ParseOptions` and supply column names with `customHeadersIfHeadersAbsent` when the data has none; set `outputWithHeaders: true` to include the headers as the first row of list output"
+    difficulty: [intermediate, advanced]
+  - id: skip_lines
+    text: "Skip specific data rows with `skipLines`, e.g. `{skipLines: [2, 4]}`, in parse and transform options"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-user-configurations/", kind: bbe}
+  - id: nil_handling
+    text: "Control nil handling with `nilValue` (`csv:NULL`, `csv:NOT_APPLICABLE`, `csv:EMPTY_STRING`, `csv:NIL`) and `allowDataProjection: {nilAsOptionalField: true, absentAsNilableType: true}`"
+    difficulty: [advanced]
+  - id: fail_safe
+    text: "Keep parsing past bad rows with the `failSafe` option, logging errors to the console (`enableConsoleLogs`) and to a file via `fileOutputMode: {filePath: ..., contentType: csv:METADATA | csv:RAW | csv:RAW_AND_METADATA, fileWriteOption: csv:APPEND | csv:OVERWRITE}`"
+    difficulty: [advanced]
+  - id: constraint_validation
+    text: "Rely on `@constraint` annotations on the target record being validated during parsing (`enableConstraintValidation`, on by default)"
+    difficulty: [intermediate]
+  - id: csv_errors
+    text: "Handle `csv:Error` returned for malformed input or type mismatches, e.g. declaring `Book[]|csv:Error result = csv:parseString(s);` and testing the result"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-string-to-record-array/", kind: bbe}
+out_of_scope:
+  - "Reading and writing CSV files directly with `io:fileReadCsv`/`io:fileWriteCsv` (lib.io)"
+  - "Defining constraint annotations (lib.constraint)"
+  - "Querying the parsed arrays (concept.query_expressions)"
+edges:
+  - {to: concept.records, rel: uses, via: [parse_string_records, projection, transform_records]}
+  - {to: concept.arrays_tuples, rel: uses, via: [parse_string_arrays, projection, parse_list]}
+  - {to: concept.annotations, rel: uses, via: [name_annotation]}
+  - {to: concept.streams, rel: uses, via: [parse_stream, parse_to_stream]}
+  - {to: concept.typedesc, rel: uses, via: [parse_string_records, parse_string_arrays]}
+  - {to: concept.errors, rel: uses, via: [csv_errors, fail_safe]}
+  - {to: lib.io, rel: uses, via: [parse_stream, parse_to_stream], target_items: [file_block_streams]}
+  - {to: lib.io, rel: related, note: "io:fileReadCsv/fileWriteCsv offer simpler file-level CSV I/O"}
+  - {to: lib.constraint, rel: uses, via: [constraint_validation], target_items: [constraint_annotations_fields, validate_function]}
+notes: "Verified against module-ballerina-data.csv master 1.0.1 (= latest tag). The exact semantics of the `header` option values and the string form of `skipLines` (type `int[]|string`) were not documented with examples, so items stay general on `header` and use only the `int[]` form of `skipLines`. The module has no CSV string writer; serialization to CSV files is done with lib.io."

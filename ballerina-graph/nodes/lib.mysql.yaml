@@ -1,0 +1,77 @@
+schema_version: "0.1"
+id: lib.mysql
+type: library
+title: ballerinax/mysql
+summary: "The MySQL connector: a `mysql:Client` that implements the `sql:Client` API for MySQL, plus MySQL-specific connection options (SSL, failover, timeouts, XA) and a `mysql:CdcListener` for change data capture."
+priority: important
+status: draft
+modules: [ballerinax/mysql, ballerinax/mysql.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/mysql/latest", kind: central, note: "ballerinax/mysql 1.19.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mysql/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-mysql/blob/master/ballerina/client.bal", kind: github, note: "Client init, Options, FailoverConfig, SecureSocket, SSL modes"}
+  - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe, note: "MySQL BBE series (query, queryRow, execute, batch, transactions, procedures)"}
+must_cover:
+  - id: driver_import
+    text: "Add the MySQL JDBC driver by importing `ballerinax/mysql.driver as _;` (bundles the driver JAR and enables GraalVM native builds)"
+    difficulty: [beginner]
+  - id: custom_driver_jar
+    text: "Use a specific MySQL driver version instead by declaring it in `Ballerina.toml` under `[[platform.java17.dependency]]`, either with `path = \"...\"` or with `groupId = \"mysql\"`, `artifactId = \"mysql-connector-java\"` and `version`"
+    difficulty: [intermediate]
+  - id: client_init
+    text: "Create a `mysql:Client` with positional arguments `new (\"localhost\", \"root\", \"Test@123\", \"MUSIC_STORE\", 3306)` (host, user, password, database, port) or with named arguments such as `new (user = \"rootUser\", password = \"rootPass\", options = mysqlOptions)`, and handle the `sql:Error` returned on failure"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe, note: "Client created in service init"}
+  - id: client_options
+    text: "Configure `mysql:Options` fields `connectTimeout`, `socketTimeout`, `serverTimezone` and `noAccessToProcedureBodies` when creating the client"
+    difficulty: [intermediate]
+  - id: ssl
+    text: "Connect over SSL by setting `ssl` in `mysql:Options` with a `mode` (`mysql:SSL_PREFERRED`, `mysql:SSL_REQUIRED`, `mysql:SSL_VERIFY_CA`, `mysql:SSL_VERIFY_IDENTITY`, `mysql:SSL_DISABLED`), `.p12` `key`/`cert` keystores (`{path, password}`) and optionally `allowPublicKeyRetrieval`"
+    difficulty: [intermediate]
+  - id: failover
+    text: "Configure server failover with `failoverConfig: {failoverServers: [{host: \"...\", port: 3306}], timeBeforeRetry: ..., queriesBeforeRetry: ..., failoverReadOnly: true}` in `mysql:Options`"
+    difficulty: [advanced]
+  - id: xa_transactions
+    text: "Enable XA (distributed) transactions for the client with `useXADatasource: true` in `mysql:Options`"
+    difficulty: [advanced]
+  - id: connection_pool
+    text: "Pass `connectionPool = {maxOpenConnections: 5}` (client-owned pool) or a shared `sql:ConnectionPool` record to `mysql:Client`, or omit it to use the global pool"
+    difficulty: [intermediate]
+  - id: sql_operations
+    text: "Use the `sql:Client` remote methods on `mysql:Client` (`query`, `queryRow`, `execute`, `batchExecute`, `call`), e.g. in an HTTP service that stores the client in a `private final mysql:Client db` field initialized in `init`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-execute-operation/", kind: bbe, note: "DML and DDL operations"}
+      - {url: "https://ballerina.io/learn/by-example/mysql-batch-execute-operation/", kind: bbe, note: "Batch execution"}
+  - id: auto_increment_key
+    text: "Insert into a table with an `AUTO_INCREMENT` key and read the generated id from `sql:ExecutionResult.lastInsertId`"
+    difficulty: [beginner, intermediate]
+  - id: atomic_transaction
+    text: "Make an order insert and inventory update atomic with `transaction { ... check commit; }`, rolling back when `affectedRowCount == 0`, and inspect MySQL error codes in `on fail` via `e is sql:DatabaseError` and `e.detail().errorCode` (e.g. 3819 for a CHECK constraint violation)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-atomic-transaction/", kind: bbe, note: "Atomic transactions"}
+  - id: stored_procedures
+    text: "Create a MySQL procedure with `IN`/`INOUT`/`OUT` parameters via `execute`, then call it with `mysqlClient->call(`{CALL GetCount(${id}, ${totalCount})}`, [Student])` using `sql:InOutParameter` and `sql:IntegerOutParameter`, and close the `sql:ProcedureCallResult`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-call-stored-procedures/", kind: bbe, note: "Call stored procedures"}
+  - id: cdc_listener_config
+    text: "Prepare MySQL for change data capture (binary logging with `log-bin` and `binlog-format=ROW`) and configure a `mysql:CdcListener` with MySQL-specific `database` fields such as `hostname`, `port`, `username`, `password`, `includedDatabases` and `includedTables`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-mysql/blob/master/ballerina/types.bal", kind: github, note: "MySqlDatabaseConnection, MySqlListenerConfiguration"}
+out_of_scope:
+  - "Generic query/execute/call semantics, typed values and error types (lib.sql)"
+  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "Using MySQL through generated persist clients (lib.persist)"
+edges:
+  - {to: lib.sql, rel: implements, via: [sql_operations, auto_increment_key, stored_procedures, connection_pool], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, connection_pools]}
+  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: concept.transactions, rel: uses, via: [atomic_transaction, xa_transactions]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
+  - {to: concept.services_listeners, rel: uses, via: [sql_operations]}
+  - {to: lib.crypto, rel: uses, via: [ssl], note: "key/cert are crypto:KeyStore / crypto:TrustStore"}
+  - {to: tool.ballerina_toml, rel: uses, via: [custom_driver_jar]}
+notes: "Verified against module-ballerinax-mysql master (1.19.1). The MySQL CDC driver package (`ballerinax/mysql.cdc.driver`) is listed on lib.cdc."

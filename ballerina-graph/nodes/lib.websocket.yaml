@@ -1,0 +1,104 @@
+schema_version: "0.1"
+id: lib.websocket
+type: library
+title: ballerina/websocket
+summary: The WebSocket library provides a `websocket:Listener` with an upgrade service that returns a `websocket:Service` for full-duplex messaging, and a synchronous `websocket:Client` for reading and writing text and binary messages.
+priority: important
+status: draft
+modules: [ballerina/websocket]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/websocket/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-websocket/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/spec/websocket/", kind: docs, note: "Ballerina WebSocket library specification"}
+  - {url: "https://ballerina.io/learn/by-example/websocket-basic-sample/", kind: bbe}
+must_cover:
+  - id: upgrade_service
+    text: "Write the upgrade service `service /chat on new websocket:Listener(9090)` with `resource function get .() returns websocket:Service` that returns a new `service class` including `*websocket:Service`, optionally taking an `http:Request`, query parameters or `@http:Header` values"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-basic-sample/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-query-parameter/", kind: bbe}
+  - id: reject_upgrade
+    text: "Validate the handshake (e.g. the `Origin` header) in the upgrade resource and cancel it by returning an error or `websocket:UpgradeError` instead of a service"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-error-handling/", kind: bbe}
+  - id: on_message
+    text: "Handle incoming messages with `remote function onMessage(websocket:Caller caller, T data)` where `T` may be `string`, `byte[]`, `json`, `xml` or a record for data binding, and reply with `caller->writeMessage(...)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-basic-sample/", kind: bbe}
+  - id: text_binary_methods
+    text: "Use the lower-level `onTextMessage(websocket:Caller, string)` and `onBinaryMessage(websocket:Caller, byte[])` remote methods with `writeTextMessage`/`writeBinaryMessage`, knowing they cannot be combined with `onMessage`"
+    difficulty: [intermediate]
+  - id: lifecycle_methods
+    text: "Implement connection lifecycle remote methods `onOpen(websocket:Caller)`, `onClose(websocket:Caller, int statusCode, string reason)`, `onError(websocket:Caller, error)` and `onIdleTimeout(websocket:Caller)` (with `idleTimeout` set in `@websocket:ServiceConfig`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-query-parameter/", kind: bbe}
+  - id: ping_pong_close
+    text: "Handle control frames with `onPing`/`onPong` and `caller->pong(data)`, register a client-side `*websocket:PingPongService` through `pingPongHandler`, and close connections with `close()`"
+    difficulty: [advanced]
+  - id: client_read_write
+    text: "Use `websocket:Client` created with `check new (\"ws://localhost:9090/chat\")` to `writeMessage()` and `readMessage()` synchronously (binding the read to `string`, `json`, a record and so on), or `writeTextMessage`/`readTextMessage`/`writeBinaryMessage`/`readBinaryMessage`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-client/", kind: bbe}
+  - id: constraint_validation
+    text: "Validate WebSocket payloads with `@constraint` annotations on the bound type, both in `onMessage` parameters and in `readMessage()` results on the client"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-payload-constraint-validation/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-payload-constraint-validation/", kind: bbe}
+  - id: custom_dispatching
+    text: "Dispatch JSON messages to custom remote methods with `@websocket:ServiceConfig {dispatcherKey: \"event\"}` so `{\"event\": \"heartbeat\"}` goes to `onHeartbeat`, override names with `@websocket:DispatcherConfig {dispatcherValue: ...}`, and handle binding failures in `on<Name>Error`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-websocket/blob/master/docs/spec/spec.md", kind: github, note: "3.2.2 Dispatching custom remote methods"}
+  - id: service_config
+    text: "Tune services with `@websocket:ServiceConfig` fields such as `subProtocols`, `idleTimeout`, `maxFrameSize` and `connectionClosureTimeout`, and enable or disable per-message compression with `webSocketCompressionEnabled`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-websocket/blob/master/docs/spec/spec.md", kind: github, note: "3.1.1 UpgradeService configurations"}
+  - id: tls
+    text: "Use `wss://` by configuring `secureSocket` on the listener (`key: {certFile, keyFile}`, `mutualSsl: {verifyClient: http:REQUIRE, cert}`) and on the client (`cert`, `key`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-ssl-tls/", kind: bbe}
+  - id: service_auth
+    text: "Secure WebSocket upgrades with `@websocket:ServiceConfig {auth: [...]}` using `fileUserStoreConfig`, `ldapUserStoreConfig`, `jwtValidatorConfig` or `oauth2IntrospectionConfig` with `scopes`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-basic-auth-file-user-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-jwt-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-oauth2/", kind: bbe}
+  - id: client_auth
+    text: "Authenticate a `websocket:Client` with the `auth` config (Basic, bearer token, self-signed JWT, OAuth2 grant types) over `wss://`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-basic-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-bearer-token-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-oauth2-client-cred-grant-type/", kind: bbe}
+  - id: client_resiliency
+    text: "Make clients resilient with `handShakeTimeout` and `retryConfig: {maxCount, interval}` for reconnecting"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/websocket-timeout-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-retry-client/", kind: bbe}
+out_of_scope:
+  - "HTTP request and header APIs used during the upgrade (lib.http)"
+  - "AsyncAPI generation for WebSocket services (tool.bal_asyncapi)"
+edges:
+  - {to: concept.services_listeners, rel: requires}
+  - {to: concept.resource_methods, rel: uses, via: [upgrade_service]}
+  - {to: concept.classes, rel: uses, via: [upgrade_service, ping_pong_close]}
+  - {to: concept.client_objects, rel: uses, via: [client_read_write]}
+  - {to: concept.json_anydata, rel: uses, via: [on_message, client_read_write]}
+  - {to: concept.annotations, rel: uses, via: [custom_dispatching, service_config, service_auth]}
+  - {to: lib.http, rel: uses, via: [upgrade_service, reject_upgrade, tls], target_items: [request_response_caller]}
+  - {to: lib.constraint, rel: uses, via: [constraint_validation]}
+  - {to: lib.jwt, rel: uses, via: [service_auth, client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [service_auth, client_auth]}
+notes: "Remote method signatures follow the module spec and README (websocket 2.16.x)."

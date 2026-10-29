@@ -1,0 +1,114 @@
+schema_version: "0.1"
+id: topic.integration_patterns
+type: topic
+title: Integration patterns
+summary: "Implementing enterprise integration patterns (routing, splitting, aggregation, scatter-gather, enrichment, translation, wire tap, idempotency, claim check) and service orchestration in Ballerina with HTTP services and clients, typed records, match, workers and query expressions."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/enterprise-integration-patterns/", kind: docs, note: "Enterprise Integration Patterns (EIP) samples"}
+  - {url: "https://ballerina.io/learn/integration-tutorials/", kind: docs, note: "Integration tutorials (healthcare scenario)"}
+must_cover:
+  - id: forward_to_backend
+    text: "Write a service whose `resource function get doctors/[string category]()` forwards the call to a backend through a module-level `final http:Client queryDoctorEP = check new (healthcareBackend);`, binding the reply with `Doctor[]|http:ClientError resp = queryDoctorEP->/[category];`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/sending-a-message-to-a-service/", kind: docs}
+  - id: content_based_router
+    text: "Route each message to the right backend with a `match` statement on an enum-typed field (e.g. `match reservation.hospital_id { grandoak => {...} clemency => {...} _ => {...} }`), selecting the `http:Client` to call"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/content-based-message-routing/", kind: docs}
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/content-based-router/", kind: docs}
+  - id: service_orchestration
+    text: "Orchestrate several backend calls in sequence (reserve, fetch fee, pay), checking each result with `if appointment !is Appointment` and mapping `http:ClientRequestError` to `http:NotFound` and other failures to `http:InternalServerError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/service-orchestration/", kind: docs}
+  - id: message_filter_recipient_list
+    text: "Implement a message filter and a recipient list by iterating recipients with `foreach var {contact, subscription} in recipientList.get(category)` and dispatching with `match subscription { \"EMAIL\" => ... \"SMS\" => ... }`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/recipient-list/", kind: docs}
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/message-filter/", kind: docs}
+  - id: splitter
+    text: "Split a composite request into one outbound message per element with nested `foreach` loops over `request.events` and `event.attendees`, calling a helper that returns `error?` with `check`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/splitter/", kind: docs}
+  - id: aggregator
+    text: "Aggregate related messages by buffering them in a `final map<json[]>` keyed by a correlation header and forwarding the combined message once the expected count arrives, then removing the entry"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/aggregator/", kind: docs}
+  - id: scatter_gather
+    text: "Call several providers in parallel with named `worker` blocks inside a resource, collect results with `wait {hotwire, avis}`, and build the response with `map from var [vendor, result] in responses.entries() where result !is error select [vendor, result]`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/scatter-gather/", kind: docs}
+  - id: content_enricher
+    text: "Enrich a message with data from a lookup call and build the outgoing value with a spread, e.g. `{...req, bankCode: ibanRes.bank_code}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/content-enricher/", kind: docs}
+  - id: message_translator
+    text: "Translate between two record schemas in a dedicated function (e.g. `translate(SalesData) returns QuickBooksInvoice`) using field mapping and a query expression for nested arrays, then forward the result with `targetType = http:Response`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/message-translator/", kind: docs}
+  - id: normalizer
+    text: "Accept heterogeneous payloads with `@http:Payload json|xml request`, branch with `if request is json`, read XML fields with `(request/<subject>).data()`, and normalize both into one canonical shape"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/normalizer/", kind: docs}
+  - id: wire_tap
+    text: "Copy messages to a secondary channel without delaying the main response by starting a `worker w returns error? { check wiretap(...); }` inside the resource before returning the result"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/wire-tap/", kind: docs}
+  - id: idempotent_receiver
+    text: "Make a `put` resource idempotent by comparing the incoming state with the stored state (e.g. in a `map<OrderStatus>`) and returning `http:STATUS_NO_CONTENT` for repeats and `http:STATUS_CREATED` for changes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/idempotent-receiver/", kind: docs}
+  - id: claim_check
+    text: "Apply the claim check pattern by storing a large payload (a byte stream) in an object store with an `http:Client` `put`, publishing only a generated `uuid:createType1AsString()` reference to Kafka, and fetching the payload back in the consumer"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/claim-check/", kind: docs}
+  - id: routing_slip
+    text: "Implement a routing slip by computing a `string[]` of processing steps from lookups and attaching it to the message with `{...request, routingSlip: routingSlip}` before invoking the steps"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/enterprise-integration-patterns/routing-slip/", kind: docs}
+  - id: email_notification
+    text: "Finish an orchestration by sending a confirmation email with an `email:SmtpClient` created from configurable `host`, `username` and `password`, calling `smtpClient->sendMessage({to, subject, body})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/sending-emails-from-a-service/", kind: docs}
+  - id: configurable_backends
+    text: "Externalize backend URLs as `configurable string hospitalServicesBackend = \"http://localhost:9090\";` and initialize module-level `final http:Client` objects from them"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/integration-tutorials/service-orchestration/", kind: docs}
+out_of_scope:
+  - "Message-broker based publish-subscribe and point-to-point channels (topic.event_driven)"
+  - "Detailed data transformation techniques (topic.data_mapping)"
+  - "Retry, failover and polling with back-off (topic.resiliency)"
+edges:
+  - {to: lib.http, rel: uses, via: [forward_to_backend, content_based_router, service_orchestration, message_filter_recipient_list, splitter, aggregator, scatter_gather, content_enricher, message_translator, normalizer, wire_tap, idempotent_receiver, claim_check, routing_slip, configurable_backends]}
+  - {to: concept.match_statement, rel: uses, via: [content_based_router, message_filter_recipient_list]}
+  - {to: concept.constants_enums, rel: uses, via: [content_based_router, idempotent_receiver]}
+  - {to: concept.type_cast_test, rel: uses, via: [service_orchestration, normalizer]}
+  - {to: concept.loops, rel: uses, via: [message_filter_recipient_list, splitter]}
+  - {to: concept.maps, rel: uses, via: [aggregator, idempotent_receiver]}
+  - {to: concept.strands_workers, rel: uses, via: [scatter_gather, wire_tap]}
+  - {to: concept.futures_wait, rel: uses, via: [scatter_gather]}
+  - {to: concept.query_expressions, rel: uses, via: [scatter_gather, message_translator]}
+  - {to: concept.records, rel: uses, via: [content_enricher, message_translator, routing_slip]}
+  - {to: concept.xml, rel: uses, via: [normalizer]}
+  - {to: lib.kafka, rel: uses, via: [claim_check]}
+  - {to: lib.uuid, rel: uses, via: [claim_check]}
+  - {to: lib.email, rel: uses, via: [email_notification]}
+  - {to: tool.config_toml, rel: uses, via: [configurable_backends, email_notification]}
+notes: "EIP samples call mocked endpoints (`*.balmock.io`); the samples elide some helper code with `⋯`."

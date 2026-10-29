@@ -1,0 +1,86 @@
+schema_version: "0.1"
+id: lib.task
+type: library
+title: ballerina/task
+summary: "The `task` module schedules `task:Job` objects to run once at a given time or repeatedly at an interval, manages scheduled jobs (pause, resume, unschedule), and offers a `task:Listener` that runs task services on a trigger with retries and multi-node warm-backup coordination."
+priority: important
+status: draft
+modules: [ballerina/task]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/task/latest", kind: central, note: "ballerina/task 2.11.4 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/README.md", kind: github, note: "Module README"}
+  - {url: "https://ballerina.io/learn/by-example/task-one-time-job-execution/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/task-frequency-job-execution/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/manage-scheduled-jobs/", kind: bbe}
+must_cover:
+  - id: job_class
+    text: "Define a job as a class that includes `*task:Job` and implements `public function execute()`, keeping any state the job needs in its fields"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/task-frequency-job-execution/", kind: bbe}
+  - id: one_time_job
+    text: "Run a job once at a given time with `task:scheduleOneTimeJob(new Job(), triggerTime)`, where the trigger time is a `time:Civil` (e.g. from `time:utcToCivil(time:utcAddSeconds(time:utcNow(), 3))`), getting back a `task:JobId`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/task-one-time-job-execution/", kind: bbe}
+  - id: recurring_job
+    text: "Run a job repeatedly with `task:scheduleJobRecurByFrequency(job, interval)`, where `interval` is in seconds, optionally limiting it with `maxCount` (`-1` runs forever) and a `startTime`/`endTime` given as `time:Civil`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/task-frequency-job-execution/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/scheduler.bal", kind: github}
+  - id: task_policy
+    text: "Control failure and overlap handling with a `task:TaskPolicy` (`errorPolicy` of `task:LOG_AND_TERMINATE`, `LOG_AND_CONTINUE`, `TERMINATE` or `CONTINUE`; `waitingPolicy` of `task:WAIT`, `IGNORE` or `LOG_AND_IGNORE`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/commons.bal", kind: github}
+  - id: manage_jobs
+    text: "Manage scheduled jobs with `task:pauseJob(id)`, `task:resumeJob(id)`, `task:unscheduleJob(id)`, `task:pauseAllJobs()`, `task:resumeAllJobs()` and `task:getRunningJobs()`, which returns the `task:JobId[]` of active jobs"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/manage-scheduled-jobs/", kind: bbe}
+  - id: keep_alive
+    text: "Keep a `main`-based program alive while scheduled jobs run (e.g. with `runtime:sleep`) and stop recurring jobs with `task:unscheduleJob` when done"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/task-frequency-job-execution/", kind: bbe}
+  - id: worker_pool
+    text: "Size the scheduler's thread pool with `task:configureWorkerPool(workerCount, waitingTime)` or the `globalSchedulerWorkerCount` and `globalSchedulerWaitingTime` configurables"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/scheduler.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/commons.bal", kind: github}
+  - id: task_listener
+    text: "Run scheduled work as a service by declaring `listener task:Listener taskListener = new (trigger = {interval: 2, maxCount: 5});` and attaching `service \"job-1\" on taskListener` with an `isolated function execute() returns error?` method"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/README.md", kind: github}
+  - id: listener_retry
+    text: "Retry failing listener job executions with the trigger's `retryConfig` (`task:RetryConfiguration` with `maxAttempts`, `retryInterval`, `backoffStrategy` of `task:FIXED` or `task:EXPONENTIAL`, and optional `maxInterval`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/commons.bal", kind: github}
+  - id: warm_backup
+    text: "Coordinate a task across nodes for high availability with the listener's `warmBackupConfig` (`databaseConfig` as a `task:MysqlConfig` or `task:PostgresqlConfig`, a unique `taskId` per node, a shared `groupId`, `livenessCheckInterval` and `heartbeatFrequency`), so only the active node runs the job"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/README.md", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/commons.bal", kind: github}
+  - id: task_errors
+    text: "Handle `task:Error`, returned for example when scheduling with a non-positive `maxCount` or a trigger time that is not in the future, with `check`, knowing that a `time:Civil` without `utcOffset` is treated as UTC"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-task/blob/master/ballerina/scheduler.bal", kind: github}
+out_of_scope:
+  - "Creating and converting `time:Civil` and `time:Utc` values (lib.time)"
+  - "Sleeping with `runtime:sleep` (lib.lang.runtime)"
+  - "Database configuration for MySQL/PostgreSQL in general (lib.mysql, lib.postgresql)"
+edges:
+  - {to: concept.classes, rel: uses, via: [job_class]}
+  - {to: concept.objects, rel: uses, via: [job_class]}
+  - {to: concept.services_listeners, rel: uses, via: [task_listener, listener_retry, warm_backup]}
+  - {to: concept.isolation, rel: uses, via: [task_listener]}
+  - {to: concept.records, rel: uses, via: [task_policy, listener_retry, warm_backup]}
+  - {to: concept.errors, rel: uses, via: [task_errors]}
+  - {to: lib.time, rel: uses, via: [one_time_job, recurring_job], target_items: [civil_record, utc_civil_conversion]}
+  - {to: lib.lang.runtime, rel: uses, via: [keep_alive]}

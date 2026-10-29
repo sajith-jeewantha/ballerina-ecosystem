@@ -1,0 +1,92 @@
+schema_version: "0.1"
+id: tool.config_toml
+type: tool
+title: Config.toml
+summary: "Values for `configurable` variables are supplied at runtime through TOML content (a `Config.toml` file, `BAL_CONFIG_FILES` or `BAL_CONFIG_DATA`), `-Ckey=value` command-line arguments or `BAL_CONFIG_VAR_*` environment variables."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/provide-values-to-configurable-variables/", kind: docs}
+  - {url: "https://ballerina.io/learn/configure-values/", kind: docs, note: "Module information, Kubernetes, sensitive values"}
+  - {url: "https://ballerina.io/learn/configure-a-sample-ballerina-service/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github, note: "Supplying values to configurable variables (TOML keys, resolution, file lookup)"}
+  - {url: "https://ballerina.io/learn/by-example/configuring-via-toml/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/configuring-via-cli/", kind: bbe}
+must_cover:
+  - id: config_toml_basics
+    text: "Supply values in a `Config.toml` file in the current working directory, which `bal run` and the built program read by default, e.g. `port = 8080` for `configurable int port = 9090;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/configure-a-sample-ballerina-service/", kind: docs}
+  - id: required_values
+    text: "Give a value for every `configurable` declared with `= ?` (the program exits with an error if one is missing), and override defaulted ones such as `configurable int port = 9090;` only when needed"
+    difficulty: [beginner]
+  - id: toml_scalar_types
+    text: "Write TOML values for scalar configurables: `boolean`, `int` and `byte` as integers, `float` and `decimal` as floats, `string` as a string, `xml` as a string such as `book = \"<book>The Lost World</book>\"`, and an enum by its member value such as `country = \"Sri Lanka\"`"
+    difficulty: [beginner]
+  - id: toml_arrays_tuples
+    text: "Write TOML arrays for array and tuple configurables, e.g. `ports = [9090, 9091]`, `acceptTypes = [\"application/xml\", \"application/json\"]` and `student = [\"Jane\", 1101, [\"Maths\", \"English\"], {level = 4, class = \"B\"}, 98]`"
+    difficulty: [beginner, intermediate]
+  - id: toml_records_maps
+    text: "Configure record and map values as TOML tables, e.g. `[person]` with `name = \"John\"` and `age = 45`, nested record fields with dotted keys like `food.name = \"carrot\"`, or inline tables like `admin = {username = \"admin\", password = \"password\"}`"
+    difficulty: [intermediate]
+  - id: toml_arrays_of_tables
+    text: "Configure `Person[]`, `map<string>[]` and `table<...>` values (e.g. `configurable UserTable & readonly users = ?;`) as arrays of tables with repeated `[[users]]` headers or an inline array of tables, and `table<...>[]` as a 2-D array of inline tables"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/configuring-via-toml/", kind: bbe}
+  - id: toml_union_anydata
+    text: "Supply union, `anydata` and `json` configurables with the TOML type that matches the value, e.g. `code = \"10001A\"` for `int|string`, `data = 123` and `payload = {name = \"Jane\"}`, and give nil-typed configurables a default because TOML has no nil value"
+    difficulty: [intermediate]
+  - id: module_qualified_keys
+    text: "Configure variables of non-root modules and of dependency packages with `[org-name.module-name]` tables or dotted keys such as `myapp.port = 9090`, knowing the org and module parts are optional only for the root module of the root package"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/configure-values/", kind: docs, note: "Configure in multiple modules"}
+  - id: library_config
+    text: "Configure library behaviour through their configurables in TOML, e.g. `[ballerina.log]` with `level = \"ERROR\"` and `format = \"logfmt\"`, or `[ballerina.observe]` with `enabled = true`, `metricsEnabled` and `tracingEnabled`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github, note: "TOML keys examples"}
+      - {url: "https://ballerina.io/learn/overview-of-ballerina-observability/", kind: docs}
+  - id: bal_config_files
+    text: "List one or more TOML files in the `BAL_CONFIG_FILES` environment variable with the OS path separator (`:` on Linux/macOS, `;` on Windows), where earlier files take precedence and `Config.toml` is no longer read unless it is listed too"
+    difficulty: [intermediate]
+  - id: bal_config_data
+    text: "Pass TOML content directly in the `BAL_CONFIG_DATA` environment variable, e.g. `export BAL_CONFIG_DATA='maxPayload=1.0'`, when no config file can be mounted"
+    difficulty: [intermediate]
+  - id: cli_args
+    text: "Override values on the command line with `-Ckey=value` after `--`, e.g. `bal run -- -Cport=9090 -Cname=John`, using module-qualified keys `[[org.]module.]variable` and the `toString()` form, for `int`, `byte`, `float`, `boolean`, `string`, `decimal`, enum and `xml` only"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/configuring-via-cli/", kind: bbe}
+  - id: env_vars
+    text: "Set single values with `BAL_CONFIG_VAR_<KEY>` environment variables (e.g. `export BAL_CONFIG_VAR_PORT=9090`), where module-qualified keys become `ORGNAME_MODULENAME_VARIABLE` in upper case with dots replaced by underscores, supported for the same simple types as `-C` (Swan Lake Update 9 and later)"
+    difficulty: [intermediate]
+  - id: precedence
+    text: "Explain the override order when values come from several places: `BAL_CONFIG_VAR_*` environment variables win over `-C` arguments, which win over TOML content"
+    difficulty: [intermediate]
+  - id: secrets
+    text: "Keep passwords and tokens in a separate TOML file listed first in `BAL_CONFIG_FILES` (for example a Kubernetes secret mounted as a volume) and read them through `configurable string password = ?;` instead of hard-coding them"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/configure-values/", kind: docs, note: "Configure sensitive values"}
+out_of_scope:
+  - "Declaring `configurable` variables and the allowed types in the language (concept.variables)"
+  - "Test-specific `tests/Config.toml` and `bal test -C` (tool.bal_test)"
+  - "Cloud.toml and Kubernetes ConfigMap/Secret generation (tool.code_to_cloud)"
+  - "Settings.toml for Central access tokens and proxies (tool.central)"
+edges:
+  - {to: concept.variables, rel: requires}
+  - {to: concept.records, rel: uses, via: [toml_records_maps]}
+  - {to: concept.maps, rel: uses, via: [toml_records_maps]}
+  - {to: concept.tables, rel: uses, via: [toml_arrays_of_tables]}
+  - {to: concept.arrays_tuples, rel: uses, via: [toml_arrays_tuples]}
+  - {to: concept.constants_enums, rel: uses, via: [toml_scalar_types]}
+  - {to: concept.json_anydata, rel: uses, via: [toml_union_anydata]}
+  - {to: concept.xml, rel: uses, via: [toml_scalar_types]}
+  - {to: tool.packages, rel: uses, via: [module_qualified_keys], target_items: [add_module, import_external]}
+  - {to: lib.log, rel: uses, via: [library_config]}
+  - {to: lib.observe, rel: uses, via: [library_config]}
+  - {to: tool.code_to_cloud, rel: uses, via: [secrets]}
+notes: "The configurable spec says the TOML file lookup also applies to `java -jar`; the learn docs only show `bal run`. Precedence follows the note at the top of the provide-values page."
