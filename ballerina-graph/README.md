@@ -38,4 +38,4 @@ Point the VS Code YAML extension at the schema by adding this to `.vscode/settin
 
 ## Status
 
-v0.1: 72 draft nodes, schema v0.1. All nodes are `status: draft` and await domain-expert review.
+v2: 159 draft nodes (50 concept, 79 library, 20 tool, 10 topic), schema v0.1. All nodes are `status: draft` and await domain-expert review.

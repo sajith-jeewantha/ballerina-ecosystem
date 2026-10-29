@@ -234,6 +234,7 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
         <output id="gapVal" for="gap"></output>
         <button type="button" id="gapReset">Default</button>
       </div>
+      <button type="button" id="png">Download PNG</button>
       <button type="button" id="fullscreen" aria-pressed="false">Full screen</button>
     </div>
     <div class="canvas-tools">
@@ -343,7 +344,7 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   }
 
   // ---- spacing: scale node positions around a point, so node sizes stay the same and the gaps grow or shrink
-  var DEFAULT_GAP = 1.5, MIN_GAP = 0.5, MAX_GAP = 3;
+  var DEFAULT_GAP = 2, MIN_GAP = 0.5, MAX_GAP = 3;
   var gap = DEFAULT_GAP;
   try { var savedGap = parseFloat(localStorage.getItem("bkg-gap")); if (savedGap >= MIN_GAP && savedGap <= MAX_GAP) gap = savedGap; } catch (e) {}
 
@@ -682,6 +683,23 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   document.getElementById("gapUp").addEventListener("click", function () { setGap(gap + 0.1); });
   document.getElementById("gapReset").addEventListener("click", function () { setGap(DEFAULT_GAP); });
   showGap();
+
+  // ---- PNG export: the whole visible graph (not just the viewport), at a zoom where labels stay readable
+  function graphPng() {
+    var bb = cy.elements(":visible").boundingBox();
+    // With full: true the image is the graph's bounding box times `scale` (the current zoom is ignored).
+    var scale = Math.min(3, Math.max(1, 4000 / Math.max(bb.w, 1)));
+    return cy.png({ output: "blob", full: true, scale: scale, bg: css("--bg"), maxWidth: 8000, maxHeight: 8000 });
+  }
+  document.getElementById("png").addEventListener("click", function () {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(graphPng());
+    a.download = "ballerina-graph.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
 
   // ---- full screen (the graph canvas only; Esc also exits)
   var stage = document.querySelector("main"), fsBtn = document.getElementById("fullscreen");
