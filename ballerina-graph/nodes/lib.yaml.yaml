@@ -1,0 +1,64 @@
+schema_version: "0.2"
+id: lib.yaml
+type: library
+title: ballerina/yaml
+summary: "The older `ballerina/yaml` package parsed YAML text or files into `json` and wrote `json` back as YAML (`readString`, `readFile`, `writeString`, `writeFile`); new code uses `ballerina/data.yaml`, which binds YAML directly to typed records."
+priority: long_tail
+status: deprecated
+replaced_by: lib.data.yaml
+modules: [ballerina/yaml]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/yaml/latest", kind: central, note: "ballerina/yaml 0.8.0 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/yaml.bal", kind: github, note: "Public functions"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/types.bal", kind: github, note: "ReadConfig, WriteConfig, YamlType, schemas"}
+  - {url: "https://central.ballerina.io/ballerina/data.yaml/latest", kind: central, note: "Replacement package"}
+must_cover:
+  - id: read_string
+    text: "Recognise `json data = check yaml:readString(yamlString);`, which parses YAML text into a `json` value or returns a `yaml:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/yaml.bal", kind: github}
+  - id: read_file
+    text: "Recognise `json config = check yaml:readFile(\"config.yaml\");`, which reads and parses a YAML file into `json`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/yaml.bal", kind: github}
+  - id: read_config
+    text: "Recognise `yaml:ReadConfig` options passed as named arguments: `schema` (`yaml:FAILSAFE_SCHEMA`, `yaml:JSON_SCHEMA` or the default `yaml:CORE_SCHEMA`), `isStream` for multi-document streams, `allowAnchorRedefinition` (default `true`) and `allowMapEntryRedefinition` (default `false`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/types.bal", kind: github}
+  - id: write_string_file
+    text: "Recognise `string[] lines = check yaml:writeString(jsonValue);`, which returns the YAML as an array of lines, and `check yaml:writeFile(\"out.yaml\", jsonValue);`, which writes it to a file"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/yaml.bal", kind: github}
+  - id: write_config
+    text: "Recognise `yaml:WriteConfig` options: `indentationPolicy` (default 2), `blockLevel`, `canonical`, `useSingleQuotes`, `forceQuotes`, `schema`, `customTagHandles` and `isStream`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/types.bal", kind: github}
+  - id: custom_yaml_types
+    text: "Recognise custom tags registered through `yamlTypes`, each a `yaml:YamlType` record with `tag`, `ballerinaType`, `kind` (`yaml:MAPPING`, `yaml:SEQUENCE` or `yaml:STRING`) and isolated `construct` and `represent` functions"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-yaml/blob/main/ballerina/types.bal", kind: github}
+  - id: migrate_parse
+    text: "Migrate parsing to `ballerina/data.yaml` (same `yaml` prefix): replace `yaml:readString(s)` with `yaml:parseString(s)` bound to a record type (or `json`), and `yaml:readFile(path)` with `io:fileReadString(path)` followed by `yaml:parseString`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/data.yaml/latest", kind: central}
+  - id: migrate_write
+    text: "Migrate writing by replacing `yaml:writeString(value)` (lines) with `yaml:toYamlString(value)`, which returns one `string`, and `yaml:writeFile` with `toYamlString` plus `io:fileWriteString`; parse options `schema`, `allowAnchorRedefinition` and `allowMapEntryRedefinition` and write options `indentationPolicy`, `blockLevel`, `useSingleQuotes`, `forceQuotes`, `canonical` and `isStream` keep their names"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/data.yaml/latest", kind: central}
+out_of_scope:
+  - "The full data.yaml API, projection and constraint validation (lib.data.yaml)"
+  - "TOML configuration (lib.toml, tool.config_toml)"
+edges:
+  - {to: lib.data.yaml, rel: uses, via: [migrate_parse, migrate_write]}
+  - {to: lib.io, rel: uses, via: [migrate_parse, migrate_write]}
+  - {to: concept.json_anydata, rel: uses, via: [read_string, read_file, write_string_file]}
+  - {to: concept.function_values, rel: uses, via: [custom_yaml_types]}
+notes: "Central (0.8.0) does not flag ballerina/yaml as deprecated and its README has no notice; it is marked deprecated here per the v3 plan because ballerina/data.yaml supersedes it (the YAML BBEs use data.yaml). Whether `customTagHandles` and custom `yamlTypes` have equivalents in data.yaml was not confirmed, so the migration items do not claim it."

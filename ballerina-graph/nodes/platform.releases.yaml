@@ -1,0 +1,129 @@
+schema_version: "0.2"
+id: platform.releases
+type: platform
+title: Swan Lake releases
+summary: What each Swan Lake update changed for developers, covering language features, library APIs, tooling, runtime and breaking changes, with a focus on Update 9 (2201.9.0, the first update based on the 2024R1 spec) through Update 14 (2201.14.x).
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/downloads/archived/", kind: docs, note: "Index of all Swan Lake release notes"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.9.0/", kind: docs, note: "Update 9, based on 2024R1"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.10.0/", kind: docs, note: "Update 10"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "Update 11"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.12.0/", kind: docs, note: "Update 12"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs, note: "Update 13"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.14.0/", kind: docs, note: "Update 14"}
+must_cover:
+  - id: earlier_updates
+    text: "Use language features by the update that added them before 2024R1: spread `...xs` in list constructors (Update 1), annotations on tuple members (Update 4), regular expressions and `int:range` (Update 5), `group by` and `collect` query clauses (Update 7) and list constants such as `const int[] CODES = [404, 500];` (Update 8)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.1.0/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.4.0/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.5.0/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.7.0/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.8.0/", kind: docs}
+  - id: u9_worker_messages
+    text: "Use the worker messaging added in Update 9: alternate receive `<- w1 | w2`, multiple receive `<- {a: w1, b: w2}`, conditional sends whose receive type includes `error:NoMessage`, and an `on fail` clause on named workers"
+    difficulty: [intermediate, advanced]
+  - id: u9_record_defaults
+    text: "Construct `T & readonly` record values from record types whose fields have mutable default values (Update 9 wraps the default in `cloneReadOnly`), and rely on a field default being evaluated only when the mapping constructor omits that field"
+    difficulty: [intermediate]
+  - id: u9_xmlns
+    text: "Refer to a module-level `xmlns` declaration that appears later in the file, and declare the same XML namespace prefix in several source files of a package, both allowed from Update 9"
+    difficulty: [intermediate]
+  - id: u9_config_env
+    text: "Set configurable variables through `BAL_CONFIG_VAR_<ORG>_<MODULE>_<VAR>` environment variables (Update 9), which take precedence over `-C` arguments and TOML files"
+    difficulty: [beginner, intermediate]
+  - id: u9_libraries
+    text: "Use the Update 9 library additions: `data.jsondata` (`jsondata:read` with JSONPath such as `$..title`, `jsondata:prettify`), `data.xmldata` (`xmldata:parseAsType`), `uuid:createRandomUuid()`, the `avro` package and the `soap` clients for SOAP 1.1 and 1.2"
+    difficulty: [intermediate]
+  - id: u9_tools
+    text: "Use the Update 9 tooling: `bal test --parallel`, mocking client resource methods with `test:mock(http:Client)` and `test:prepare(c).whenResource(\"::path\").withPathParameters({...}).thenReturn(...)`, `[[tool.openapi]]` build-time client generation with `bal openapi add`, and `bal persist add` and `bal persist pull`"
+    difficulty: [intermediate]
+  - id: u10_tuple_langlib
+    text: "Call `shift`, `unshift`, `pop` and `remove` on tuples (Update 10), e.g. `[int, int...] t = [1, 2]; int v = t.shift();`, knowing the call panics or fails to compile when it would break the tuple's inherent type"
+    difficulty: [intermediate]
+  - id: u10_xml_breaking
+    text: "Handle the Update 10 typing fixes: optional attribute access `xe?.attr` on an `xml:Element` now has a static type that includes `error`, and `xml + string` concatenation gets an XML type that includes `xml:Text`"
+    difficulty: [advanced]
+  - id: u10_changes
+    text: "Use the Update 10 changes: `data.yaml` (`yaml:parseString`), HTTP server-sent events and service contract types, `bal run --watch`, `bal openapi --mock` and `--with-service-contract`, and move module-level `resources` directories to the package root; `ballerina/xmldata` is deprecated in favour of `data.xmldata`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.10.0/", kind: docs}
+  - id: u11_xml_steps
+    text: "Use XML step extensions, implemented in Update 11: method calls, member access and filters after a step, e.g. `x/**/<name>[1]`, `x/<brand>.children()`, `x/*.<price>` and `x/*[0].filter(y => y is xml:Comment)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs}
+  - id: u11_java21
+    text: "Account for the Update 11 move to Java 21, where strands run on virtual threads and native code uses the reworked runtime Java APIs (`Environment.yieldAndRun`, `Runtime.callFunction`, `Runtime.callMethod`) in place of removed ones such as `Environment.markAsync` and `Runtime.invokeMethodAsync`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs}
+  - id: u11_changes
+    text: "Use the Update 11 additions: `crypto:hashBcrypt`/`verifyBcrypt`, `crypto:hashArgon2`/`verifyArgon2`, `crypto:hashKeccak256` and `crypto:encryptStreamAsPgp`, `laxDataBinding` on HTTP clients and services, the `bal wsdl` and `bal xsd` tools, and `README.md` replacing `Package.md`/`Module.md` (with a `readme` field in `Ballerina.toml`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs}
+  - id: u12_changes
+    text: "Use the Update 12 additions: the shared `http:getDefaultListener()` configured with `[ballerina.http] defaultListenerPort` in `Config.toml`, `res.getStatusCodeRecord()`, the `@sql:Schema` persist annotation, and the `consolidate-packages` tool (`bal tool pull consolidate-packages`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.12.0/", kind: docs}
+  - id: u13_natural_expressions
+    text: "Use natural expressions, added experimentally in Update 13: `natural (model) { ... ${subject} ... }` with an `ai:ModelProvider`, where the expected type sets the response schema, built and run with the `--experimental` flag"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs}
+  - id: u13_compile_time_codegen
+    text: "Use compile-time code generation, added experimentally in Update 13: `const natural { ... }` expressions to generate `anydata` values, and `external` functions annotated with `@natural:code {prompt: ...}` whose generated code is kept in the `generated` directory"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs}
+  - id: u13_changes
+    text: "Use the Update 13 platform changes: multi-package workspaces (`[workspace] packages = [...]`, `bal new --workspace`), separately updated tools with `bal tool update openapi`, `bal clean --dependency-cache`, `bal build --cloud=openshift`, `xml:fromString` keeping the XML declaration, and `time:civilAddDuration`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs}
+  - id: u14_changes
+    text: "Use the Update 14 changes: the Java 25 runtime, the stable `ballerina/workflow` 1.0.0 (`@workflow:Workflow`, `@workflow:Activity`, `workflow:run`, `ctx->awaitHumanTask`), stable `ballerina/otel`, `data.yaml` and `data.csv`, and HTTP client SOCKS proxies with `proxy = {host, port, protocol: http:SOCKS5}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.14.0/", kind: docs}
+  - id: u14_breaking
+    text: "Migrate for the Update 14 breaking changes: `ballerina/yaml` is no longer packed (use `data.yaml` `yaml:parseString` and `yaml:toYamlString`), library packages use Netty 4.2, and `tcp` clients verify host names by default unless `verifyHostName: false`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.14.0/", kind: docs}
+out_of_scope:
+  - "Full semantics of each feature (the concept, library and tool nodes linked by edges)"
+  - "Connector revamps listed in the release notes (connector nodes)"
+  - "Bug-fix lists in patch releases, which link only to GitHub milestones"
+edges:
+  - {to: concept.worker_messages, rel: uses, via: [u9_worker_messages]}
+  - {to: concept.records, rel: uses, via: [u9_record_defaults]}
+  - {to: concept.xml, rel: uses, via: [u9_xmlns, u10_xml_breaking, u11_xml_steps]}
+  - {to: concept.query_expressions, rel: uses, via: [earlier_updates]}
+  - {to: concept.natural_expressions, rel: uses, via: [u13_natural_expressions, u13_compile_time_codegen]}
+  - {to: lib.lang.array, rel: uses, via: [u10_tuple_langlib]}
+  - {to: tool.config_toml, rel: uses, via: [u9_config_env, u12_changes]}
+  - {to: lib.data.jsondata, rel: uses, via: [u9_libraries]}
+  - {to: lib.data.xmldata, rel: uses, via: [u9_libraries, u10_changes]}
+  - {to: lib.data.yaml, rel: uses, via: [u10_changes, u14_breaking]}
+  - {to: lib.crypto, rel: uses, via: [u11_changes]}
+  - {to: lib.http, rel: uses, via: [u10_changes, u11_changes, u12_changes, u14_changes]}
+  - {to: lib.soap, rel: uses, via: [u9_libraries]}
+  - {to: lib.uuid, rel: uses, via: [u9_libraries]}
+  - {to: lib.workflow, rel: uses, via: [u14_changes]}
+  - {to: lib.test, rel: uses, via: [u9_tools]}
+  - {to: tool.bal_openapi, rel: uses, via: [u9_tools, u10_changes]}
+  - {to: tool.bal_persist, rel: uses, via: [u9_tools]}
+  - {to: tool.bal_wsdl, rel: uses, via: [u11_changes]}
+  - {to: tool.bal_xsd, rel: uses, via: [u11_changes]}
+  - {to: tool.packages, rel: uses, via: [u13_changes, u10_changes]}
+  - {to: lib.jballerina.java, rel: uses, via: [u11_java21]}
+  - {to: platform.runtime, rel: related, via: [u11_java21, u14_changes]}
+  - {to: platform.specifications, rel: related, via: [u9_worker_messages, u13_natural_expressions]}
+notes: "Update 9's worker-messaging features and Update 11's XML step extensions are part of the 2024R1 spec (implemented in those updates). The only language features beyond 2024R1 in the release notes are the experimental natural expressions, const natural expressions and @natural:code functions (Update 13); the tuple langlib operations (Update 10) are a runtime change. Updates 12 and 14 list no language features; patch releases (9.x to 14.x) list only bug-fix milestones, apart from the experimental `bal wsdl` tool in 2201.9.2."

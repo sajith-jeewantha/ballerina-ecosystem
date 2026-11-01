@@ -1,0 +1,88 @@
+schema_version: "0.2"
+id: connector.hubspot_crm
+type: connector
+title: ballerinax/hubspot.crm.*
+summary: "The HubSpot CRM connectors (`ballerinax/hubspot.crm.*`): one generated package per CRM object or API, each with a `ConnectionConfig`, a `Client` and resource methods for CRUD, batch, search, merge, associations, schemas, pipelines, properties, owners, lists and imports."
+priority: important
+status: draft
+modules: [ballerinax/hubspot.crm.associations, ballerinax/hubspot.crm.associations.schema, ballerinax/hubspot.crm.commerce.carts, ballerinax/hubspot.crm.commerce.discounts, ballerinax/hubspot.crm.commerce.orders, ballerinax/hubspot.crm.commerce.quotes, ballerinax/hubspot.crm.commerce.taxes, ballerinax/hubspot.crm.engagement.meeting, ballerinax/hubspot.crm.engagement.notes, ballerinax/hubspot.crm.engagements.calls, ballerinax/hubspot.crm.engagements.communications, ballerinax/hubspot.crm.engagements.email, ballerinax/hubspot.crm.engagements.tasks, ballerinax/hubspot.crm.extensions.timelines, ballerinax/hubspot.crm.extensions.videoconferencing, ballerinax/hubspot.crm.import, ballerinax/hubspot.crm.lists, ballerinax/hubspot.crm.obj.companies, ballerinax/hubspot.crm.obj.contacts, ballerinax/hubspot.crm.obj.deals, ballerinax/hubspot.crm.obj.feedback, ballerinax/hubspot.crm.obj.leads, ballerinax/hubspot.crm.obj.lineitems, ballerinax/hubspot.crm.obj.products, ballerinax/hubspot.crm.obj.schemas, ballerinax/hubspot.crm.obj.tickets, ballerinax/hubspot.crm.owners, ballerinax/hubspot.crm.pipelines, ballerinax/hubspot.crm.properties, ballerinax/hubspot.crm.schema]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/hubspot.crm.obj.contacts/latest", kind: central, note: "Representative README (OAuth2 config, Client, ->/.post, ->/.get)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.crm.obj.contacts/blob/main/ballerina/client.bal", kind: github, note: "Resource paths (batch, search, merge, gdpr-delete); main = released 1.0.2"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.crm.obj.contacts/blob/main/ballerina/types.bal", kind: github, note: "ConnectionConfig auth union and ApiKeysConfig"}
+  - {url: "https://central.ballerina.io/ballerinax/hubspot.crm.associations/latest", kind: central, note: "Associations v4 README"}
+must_cover:
+  - id: oauth2_client
+    text: "Create a HubSpot CRM client, e.g. `final contacts:Client hubSpotContacts = check new ({auth})`, where `auth` is a `contacts:OAuth2RefreshTokenGrantConfig` (`clientId`, `clientSecret`, `refreshToken`, `credentialBearer: oauth2:POST_BODY_BEARER`) from `configurable` values"
+    difficulty: [beginner]
+  - id: private_app_auth
+    text: "Authenticate instead with a private app access token as `auth: {token: accessToken}` (`http:BearerTokenConfig`) or with the package's `ApiKeysConfig` (`privateApp`, `privateAppLegacy`) in `ConnectionConfig.auth`"
+    difficulty: [beginner]
+  - id: crud_objects
+    text: "Create, read, update, archive and list core CRM records with the `hubspot.crm.obj.contacts`, `hubspot.crm.obj.deals`, `hubspot.crm.obj.tickets`, `hubspot.crm.obj.leads`, `hubspot.crm.obj.products` and `hubspot.crm.obj.lineitems` clients: `->/.post(payload)` with a `SimplePublicObjectInputForCreate` (`properties` map), `->/[id].get()`, `->/[id].patch(...)`, `->/[id].delete()` and `->/.get()` returning `CollectionResponseSimplePublicObjectWithAssociationsForwardPaging`"
+    difficulty: [beginner]
+  - id: companies_and_carts_paths
+    text: "Use the clients whose base URL stops at `/crm/v3/objects`, where the object name is part of the path: `hubspot.crm.obj.companies` (`->/companies.post(newCompany)`, `->/companies`, `->/companies/[companyId]`) and `hubspot.crm.commerce.carts` (`->/carts.post(payload)`, `->/carts/search.post`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/hubspot.crm.obj.companies/latest", kind: central, note: "Companies README"}
+      - {url: "https://central.ballerina.io/ballerinax/hubspot.crm.commerce.carts/latest", kind: central, note: "Carts README"}
+  - id: create_with_associations
+    text: "Create a record already linked to another one by filling `associations: [{to: {id: contactId}, types: [{associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: 194}]}]` in `SimplePublicObjectInputForCreate`"
+    difficulty: [intermediate]
+  - id: search
+    text: "Search records with `->/search.post(payload)` using a `PublicObjectSearchRequest` (`filterGroups` of `filters` with `propertyName`, `operator`, `value`, plus `properties`, `sorts`, `limit`, `after`) and page through `CollectionResponseWithTotalSimplePublicObjectForwardPaging`"
+    difficulty: [intermediate]
+  - id: batch_operations
+    text: "Run bulk operations with `->/batch/create.post`, `->/batch/read.post({inputs: [{id}], properties: [...]})`, `->/batch/update.post`, `->/batch/upsert.post` and `->/batch/archive.post`, handling `BatchResponseSimplePublicObject|BatchResponseSimplePublicObjectWithErrors`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/hubspot.crm.engagements.email/latest", kind: central, note: "batch/read example"}
+  - id: merge_gdpr
+    text: "Merge duplicate records with `->/merge.post({primaryObjectId, objectIdToMerge})` on the contacts, deals and tickets clients (`->/companies/merge.post` on companies), and permanently delete a contact with `->/gdpr\\-delete.post`"
+    difficulty: [intermediate]
+  - id: commerce_objects
+    text: "Manage commerce records with the `hubspot.crm.commerce.discounts`, `hubspot.crm.commerce.taxes`, `hubspot.crm.commerce.orders` and `hubspot.crm.commerce.quotes` clients, e.g. `->/.post` a discount with `hs_type: \"PERCENT\"` and `hs_value`, or list orders with `->/.get('limit = 10, archived = false, properties = [...])` (query parameters are passed as named arguments)"
+    difficulty: [beginner, intermediate]
+  - id: engagements
+    text: "Log activities with the engagement clients `hubspot.crm.engagements.calls`, `hubspot.crm.engagements.email`, `hubspot.crm.engagements.tasks`, `hubspot.crm.engagements.communications`, `hubspot.crm.engagement.notes` and `hubspot.crm.engagement.meeting`, setting properties such as `hs_timestamp`, `hs_call_title` or `hs_task_subject` and associating each with a contact"
+    difficulty: [intermediate]
+  - id: feedback_read
+    text: "Read feedback submissions with the `hubspot.crm.obj.feedback` client (base path `/crm/v3/objects/feedback_submissions`): `->/.get('limit = 10)`, `->/[feedbackSubmissionId]`, `->/batch/read.post` and `->/search.post`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.crm.obj.feedback/blob/main/ballerina/client.bal", kind: github, note: "Resource paths at v2.0.2"}
+  - id: associations_v4
+    text: "Link records with the `hubspot.crm.associations` (v4) client: `->/objects/[fromObjectType]/[fromObjectId]/associations/[toObjectType]` to list, `->/objects/[objectType]/[objectId]/associations/default/[toObjectType]/[toObjectId].put()` for a default link, and `->/associations/[fromObjectType]/[toObjectType]/batch/create.post` / `batch/read.post` / `batch/archive.post` in bulk"
+    difficulty: [intermediate]
+  - id: association_labels
+    text: "Define association labels with the `hubspot.crm.associations.schema` client: `->/[fromObjectType]/[toObjectType]/labels` to read, `.post`/`.put` to create or rename, `->/[fromObjectType]/[toObjectType]/labels/[associationTypeId].delete()`, and association limits via `->/definitions/configurations/[fromObjectType]/[toObjectType]/batch/create.post`"
+    difficulty: [advanced]
+  - id: custom_object_schemas
+    text: "Manage custom object types with the `hubspot.crm.obj.schemas` client (`->/.get()`, `->/.post`, `->/[objectType].patch`, `->/[objectType]/associations.post`), or with the older generated `hubspot.crm.schema` client's `getAll`, `create`, `getById` and `update` remote methods"
+    difficulty: [advanced]
+  - id: properties_pipelines_owners
+    text: "Configure the CRM with the `hubspot.crm.properties` client (`->/[objectType]` properties and `->/[objectType]/groups.post(payload)`), the `hubspot.crm.pipelines` client (`->/[objectType]`, `->/[objectType]/[pipelineId]/stages.post`) and read owners with the `hubspot.crm.owners` client (`->/('limit = 10)`, `->/[ownerId]`)"
+    difficulty: [intermediate]
+  - id: lists
+    text: "Create and manage lists with the `hubspot.crm.lists` remote methods, e.g. `crmListClient->postCreate({objectTypeId: \"0-1\", processingType: \"MANUAL\", name: \"my-test-list\"})`, `putListIdMembershipsAddAdd` and `getListIdMembershipsGetPage`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.crm.lists/blob/main/ballerina/client.bal", kind: github, note: "Remote method names"}
+  - id: imports
+    text: "Bulk-import records from files with the `hubspot.crm.import` client (imported as `ballerinax/hubspot.crm.'import as crmImport`): `->/.post` to start an import, `->/.get({})` to list, `->/[importId]/errors` and `->/[importId]/cancel.post()`"
+    difficulty: [advanced]
+  - id: timelines_videoconferencing
+    text: "Build app extensions with the `hubspot.crm.extensions.timelines` client (`->/[appId]/event\\-templates.get()`, `->/events.post`, `->/events/batch/create.post`) and the `hubspot.crm.extensions.videoconferencing` client created with `ApiKeysConfig {hapikey}` (`->/[appIdSigned32].put(settings)` with `ExternalSettings` such as `createMeetingUrl`)"
+    difficulty: [advanced]
+out_of_scope:
+  - "HubSpot marketing, automation, files, events and webhook-listener packages (connector.hubspot)"
+  - "The ballerinax/trigger.hubspot listener (trigger.hubspot)"
+edges:
+  - {to: lib.http, rel: uses, via: [private_app_auth, crud_objects]}
+  - {to: lib.oauth2, rel: uses, via: [oauth2_client]}
+  - {to: concept.client_objects, rel: uses, via: [oauth2_client, crud_objects]}
+  - {to: concept.resource_methods, rel: uses, via: [crud_objects, search, batch_operations, associations_v4]}
+  - {to: concept.records, rel: uses, via: [create_with_associations, search]}
+  - {to: concept.errors, rel: uses, via: [batch_operations]}
+notes: "Every repo's main Ballerina.toml version matches Central, so resource paths come from client.bal. Some READMEs show wrong paths (feedback `->/feedback_submissions`, line items `->/crm/v3/objects/line_items`, quotes `->/crm/v3/objects/quotes`); items follow the code. hubspot.crm.schema is an old openapi-connectors package (v2.3.2, 1 pull)."

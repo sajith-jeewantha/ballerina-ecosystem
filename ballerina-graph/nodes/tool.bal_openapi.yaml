@@ -1,11 +1,13 @@
-schema_version: '0.1'
+schema_version: '0.2'
 id: tool.bal_openapi
 type: tool
 title: bal openapi
 summary: The `bal openapi` CLI tool generates Ballerina HTTP service skeletons, service contract types and clients from an OpenAPI 3.x contract, exports OpenAPI contracts from Ballerina services, and works with the `@openapi` annotations that add metadata, examples and compile-time contract validation.
 priority: important
 status: draft
+modules: [ballerina/openapi]
 sources:
+- {url: 'https://central.ballerina.io/ballerina/openapi/latest', kind: central, note: 'ballerina/openapi 2.4.2 annotations README'}
 - {url: 'https://ballerina.io/learn/openapi-tool/', kind: docs, note: OpenAPI tool}
 - {url: 'https://ballerina.io/learn/package-references/', kind: docs, note: 'Ballerina.toml [[tool.<command>]] tables'}
 - {url: 'https://github.com/ballerina-platform/openapi-tools', kind: github}
@@ -44,7 +46,7 @@ must_cover:
   text: Export an OpenAPI contract from a Ballerina HTTP service (or service contract type) with `bal openapi -i service.bal`, selecting one service by base path with `-s "/hello"`, JSON output with `--json` (YAML by default) and a location with `-o`
   difficulty: [beginner, intermediate]
 - id: service_info_metadata
-  text: 'Set the info section of an exported contract with `@openapi:ServiceInfo {title: ..., version: ..., description: ..., email: ..., contactName: ..., contactURL: ..., termsOfService: ..., licenseName: ..., licenseURL: ...}` on a service; without it the title defaults to the base path and the version to the package version'
+  text: 'Import `ballerina/openapi` and set the info section of an exported contract with `@openapi:ServiceInfo {title: ..., version: ..., description: ..., email: ..., contactName: ..., contactURL: ..., termsOfService: ..., licenseName: ..., licenseURL: ...}` on a service (all fields optional); without it the title defaults to the base path and the version to the package version'
   difficulty: [intermediate]
 - id: resource_info
   text: 'Set per-operation metadata with `@openapi:ResourceInfo {operationId: ..., summary: ..., tags: [...]}` on a resource function'
@@ -59,7 +61,7 @@ must_cover:
   text: 'Validate a service against a contract at compile time with `@openapi:ServiceInfo {contract: "openapi.yaml"}`, narrowing the check with `tags`, `operations`, `excludeTags` or `excludeOperations` and turning it off with `failOnErrors: false`'
   difficulty: [intermediate, advanced]
 - id: embed_contract
-  text: 'Set `embed: true` in `@openapi:ServiceInfo` to embed the generated OpenAPI document in the service for introspection endpoint support'
+  text: 'Set `embed: true` in `@openapi:ServiceInfo` to expose the OpenAPI contract at runtime, then discover the introspection resources with an `OPTIONS` request to the service (e.g. `curl -v localhost:9090/hello -X OPTIONS`), whose `link` header points to the OpenAPI document (`rel="service-desc"`) and a Swagger UI (`rel="swagger-ui"`)'
   difficulty: [advanced]
 - id: build_integration
   text: Generate a client during `bal build` instead of committing generated code by adding a `[[tool.openapi]]` table to `Ballerina.toml` with mandatory `id` and `filePath`, an optional `targetModule`, and `options.mode`, `options.tags`, `options.operations`, `options.nullable`, `options.license`, `options.clientMethods` or `options.statusCodeBinding`, or add the table with `bal openapi add -i <contract> --id <id> --module <module> [--package <path>]`

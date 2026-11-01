@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.classes
 type: concept
 title: Classes
@@ -9,25 +9,39 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.6", kind: spec, note: "8.6 Module class definition"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.1.5", kind: spec, note: "6.8.1.5 Initialization"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.8.2", kind: spec, note: "6.8.2 New expression"}
+  - {url: "https://ballerina.io/learn/advanced-general-purpose-language-features/", kind: docs, note: "Learn: Advanced general-purpose language features"}
 must_cover:
   - id: class_defn
     text: "Define classes such as `class Person { string name; function init(string name) { self.name = name; } }`, optionally `public`, containing fields, methods, remote and resource methods and object type inclusions"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/object/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/defining-classes/", kind: bbe}
   - id: class_quals
     text: "Apply the class qualifiers `distinct`, `readonly`, `isolated`, `client` and `service` to a class definition, knowing each keyword may appear at most once"
     difficulty: [intermediate]
   - id: private_members
     text: "Use `private` fields and methods, visible only within the class's method definitions, and know that a class with private members has no other object types as subtypes"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/visibility-of-object-fields-and-methods/", kind: bbe}
   - id: new_explicit
-    text: "Create instances with `new Person(\"Ann\")`, which allocates the object and passes the argument list to the class's `init` method, with a compile error if the arguments do not match `init`'s signature"
+    text: "Create instances with `new Person(\"Ann\")`, which allocates the object and passes the argument list to the class's `init` method, with a compile error if the arguments do not match `init`'s signature, so `init`'s parameter defaults and named arguments apply, as in `new Person()` or `new Person(name = \"Bob\")`"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/object/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/defining-classes/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/object-value-from-class-definition/", kind: bbe}
   - id: new_implicit
     text: "Use implicit `new` or `new(args)` when the applicable contextually expected type is a class or stream type, e.g. `Person p = new(\"Ann\");`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/object-value-from-class-definition/", kind: bbe}
   - id: init_error
     text: "Declare `init` with return type `error?` and explain that `new T(...)` then has static type `T|E` and evaluates to the error value instead of the object when `init` returns an error"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/init-return-type/", kind: bbe}
   - id: init_rules
     text: "Follow the `init` method rules: its return type must be a subtype of `error?` that contains `()`, it cannot be `private`, it is not part of the object's shape, and it can be called explicitly only as `self.init(...)`"
     difficulty: [intermediate, advanced]
@@ -37,6 +51,8 @@ must_cover:
   - id: init_params
     text: "Know that a class's `init` method may declare parameters, whereas an `init` method in an object constructor must have an empty parameter list"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/defining-classes/", kind: bbe}
   - id: missing_init
     text: "Explain that a missing `init` method is equivalent to an isolated `init` with no parameters and an empty body"
     difficulty: [intermediate]
@@ -51,12 +67,18 @@ must_cover:
   - id: class_inclusion
     text: "Include an object type in a class with `*T;`, which requires the class to define every method declared in `T` with the same visibility (and to be in `T`'s module if `T` has module-level members); including a class copies only its type, not its method bodies or field initializers"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/object-type-inclusion/", kind: bbe}
   - id: readonly_class
     text: "Define a `readonly class` whose objects have the read-only bit set, where each field's effective type is its declared type intersected with `readonly` and only read-only objects belong to the class's type"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/readonly-objects-and-classes/", kind: bbe}
   - id: distinct_class
     text: "Define a `distinct class` whose primary type-id comes from that `distinct` occurrence, with the type-ids of included object types as secondary type-ids"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/distinct-object-types/", kind: bbe}
   - id: isolated_class
     text: "Define an `isolated class`, whose objects have the isolated bit set and whose fields and methods follow the rules of an explicitly isolated object constructor (non-isolated fields must be `private` and initializers must be isolated expressions)"
     difficulty: [advanced]

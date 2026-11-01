@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.retry
 type: concept
 title: Retry
@@ -9,6 +9,7 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.23.3", kind: spec, note: "7.23.3 Retry statement"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.6", kind: spec, note: "5.7.6 RetryManager"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#lang.error", kind: spec, note: "11.3.4 lang.error (Retriable, DefaultRetryManager)"}
+  - {url: "https://ballerina.io/learn/concurrency/", kind: docs, note: "Learn: Concurrency"}
 must_cover:
   - id: retry_basic
     text: "Use `retry { ... }` to re-execute a block that fails through `check` or `fail`, with `error:DefaultRetryManager` deciding whether to retry when no manager type is given"

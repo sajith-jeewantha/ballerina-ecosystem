@@ -1,0 +1,64 @@
+schema_version: "0.2"
+id: connector.new_york_times
+type: connector
+title: "New York Times connectors"
+summary: "Nine OpenAPI-generated Ballerina clients for the New York Times developer APIs (Archive, Article Search, Books, Most Popular, Movie Reviews, Newswire, Semantic, TimesTags, Top Stories), all authenticated with an `api-key`."
+priority: long_tail
+status: draft
+modules: [ballerinax/nytimes.archive, ballerinax/nytimes.articlesearch, ballerinax/nytimes.books, ballerinax/nytimes.mostpopular, ballerinax/nytimes.moviereviews, ballerinax/nytimes.newswire, ballerinax/nytimes.semantic, ballerinax/nytimes.timestags, ballerinax/nytimes.topstories]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.archive/latest", kind: central, note: "ballerinax/nytimes.archive README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.articlesearch/latest", kind: central, note: "ballerinax/nytimes.articlesearch README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.books/latest", kind: central, note: "ballerinax/nytimes.books README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.mostpopular/latest", kind: central, note: "ballerinax/nytimes.mostpopular README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.moviereviews/latest", kind: central, note: "ballerinax/nytimes.moviereviews README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.newswire/latest", kind: central, note: "ballerinax/nytimes.newswire README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.semantic/latest", kind: central, note: "ballerinax/nytimes.semantic README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.timestags/latest", kind: central, note: "ballerinax/nytimes.timestags README"}
+  - {url: "https://central.ballerina.io/ballerinax/nytimes.topstories/latest", kind: central, note: "ballerinax/nytimes.topstories README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+must_cover:
+  - id: client_shape
+    text: "Create any NYT client, e.g. `nytimes.books:Client`, with `check new ({apiKey: key})` (an `ApiKeysConfig` sent as the `api-key` query parameter) and its default `serviceUrl` such as `https://api.nytimes.com/svc/books/v3`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.books", kind: github, note: "nytimes.books generated client.bal/types.bal"}
+  - id: articles
+    text: "Find articles with `nytimes.articlesearch` `articleSearch(q = \"...\", fq = ..., beginDate = ..., endDate = ..., sort = ...)`, and fetch a whole month with `nytimes.archive` `getArticles(year, month)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.articlesearch", kind: github, note: "nytimes.articlesearch generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.archive", kind: github, note: "nytimes.archive generated client.bal/types.bal"}
+  - id: top_and_popular
+    text: "Get front-page and trending stories with `nytimes.topstories` `topStories(section, \"json\")` and `nytimes.mostpopular` `getMostviewed(section, timePeriod)`, `getMostshared(...)` and `getMostemailed(...)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.topstories", kind: github, note: "nytimes.topstories generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.mostpopular", kind: github, note: "nytimes.mostpopular generated client.bal/types.bal"}
+  - id: books
+    text: "Query best-seller data with `nytimes.books` `getListsNamesFormat(\"json\")`, `getListsFormat(\"json\", list = ...)`, `getListsDateListJson(date, list)`, `getListsOverviewFormat(\"json\")`, `getListsBestSellersHistoryJson(author = ...)` and `getReviewsFormat(\"json\", isbn = ...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.books", kind: github, note: "nytimes.books generated client.bal/types.bal"}
+  - id: movie_reviews
+    text: "Read movie reviews with `nytimes.moviereviews` `searchMovieReviews(query = ..., criticsPick = ...)`, `criticsPicks(resourceType)` and `getMovieReviews(resourceType)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.moviereviews", kind: github, note: "nytimes.moviereviews generated client.bal/types.bal"}
+  - id: newswire
+    text: "Follow the live feed with `nytimes.newswire` `filterContents(source, section)`, `filterContentsByTime(source, section, timePeriod)` and `getContents(url)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.newswire", kind: github, note: "nytimes.newswire generated client.bal/types.bal"}
+  - id: semantic_tags
+    text: "Use NYT vocabularies with `nytimes.semantic` `searchConcepts(query)` and `getConcepts(conceptType, specificConcept, query)`, and suggest tags with `nytimes.timestags` `getTimesTags(query, filter = ..., max = 10)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.semantic", kind: github, note: "nytimes.semantic generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nytimes.timestags", kind: github, note: "nytimes.timestags generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape]}
+  - {to: concept.client_objects, rel: uses, via: [client_shape, articles]}
+  - {to: concept.functions, rel: uses, via: [articles, books], note: "named and defaultable arguments for optional query parameters"}
+  - {to: concept.errors, rel: uses, via: [client_shape]}
+notes: "Central READMEs are stubs; method names come from openapi-connectors main client.bal. Responses are generic InlineResponse* records. No BBEs exist."

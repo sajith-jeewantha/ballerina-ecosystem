@@ -1,4 +1,4 @@
-schema_version: '0.1'
+schema_version: '0.2'
 id: tool.bal_grpc
 type: tool
 title: bal grpc
@@ -61,23 +61,11 @@ must_cover:
   difficulty: [beginner]
 out_of_scope: ['Writing gRPC services and clients, streaming, security and deadlines (lib.grpc)']
 edges:
-- {to: tool.bal, rel: requires}
-- to: lib.grpc
-  rel: uses
-  via: [generate_stub, implement_service, use_generated_client, streaming_stub_types, context_types]
-- to: concept.services_listeners
-  rel: uses
-  via: [generate_service_template, implement_service]
-- to: concept.client_objects
-  rel: uses
-  via: [use_generated_client, streaming_stub_types]
-- to: concept.records
-  rel: uses
-  via: [generate_stub, context_types]
-- to: concept.annotations
-  rel: uses
-  via: [implement_service]
-- to: concept.streams
-  rel: uses
-  via: [streaming_stub_types]
-notes: The docs list `bal tool update grpc`. They state that Protocol Buffers serialization is only supported in the gRPC module, so the tool only generates code for gRPC service definitions. No `ballerina/protobuf` import in generated stubs was confirmed, so there is no lib.protobuf edge.
+  - {to: tool.bal, rel: requires}
+  - {to: lib.grpc, rel: uses, via: [generate_stub, implement_service, use_generated_client, streaming_stub_types, context_types]}
+  - {to: concept.services_listeners, rel: uses, via: [generate_service_template, implement_service]}
+  - {to: concept.client_objects, rel: uses, via: [use_generated_client, streaming_stub_types]}
+  - {to: concept.records, rel: uses, via: [generate_stub, context_types]}
+  - {to: concept.annotations, rel: uses, via: [implement_service]}
+  - {to: concept.streams, rel: uses, via: [streaming_stub_types]}
+notes: The docs list `bal tool update grpc`. They state that Protocol Buffers serialization is only supported in the gRPC module, so the tool only generates code for gRPC service definitions. No `ballerina/protobuf` import in generated stubs was confirmed, so there is no edge for the ballerina/protobuf package (now part of lib.grpc).

@@ -1,0 +1,50 @@
+schema_version: "0.2"
+id: connector.google_other
+type: connector
+title: ballerinax/googleapis.* (other)
+summary: "Generated connectors for Google consumer and commerce APIs outside Workspace and Cloud: YouTube Data, Analytics and Reporting, Blogger, Books, Business Profile (My Business), Manufacturer Center, Retail, Vault, Abusive Experience Report and the Google OAuth2 token-info API."
+priority: long_tail
+status: draft
+modules: [ballerinax/googleapis.abusiveexperiencereport, ballerinax/googleapis.blogger, ballerinax/googleapis.books, ballerinax/googleapis.manufacturercenter, ballerinax/googleapis.mybusiness, ballerinax/googleapis.oauth2, ballerinax/googleapis.retail, ballerinax/googleapis.vault, ballerinax/googleapis.youtube.analytics, ballerinax/googleapis.youtube.data, ballerinax/googleapis.youtube.reporting]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.youtube.data/latest", kind: central, note: "googleapis.youtube.data 1.5.2"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.vault/latest", kind: central, note: "googleapis.vault 1.5.2"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "client.bal of each googleapis.* package listed here (init signatures and remote methods)"}
+must_cover:
+  - id: google_generated_client
+    text: "Initialise a generated Google API client with `new ({auth: {clientId, clientSecret, refreshToken, refreshUrl}})` (or `{auth: {token}}`), relying on the default `serviceUrl` such as `https://youtube.googleapis.com/`; `googleapis.abusiveexperiencereport` and `googleapis.mybusiness` accept a default config (`new ()`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.youtube.data/client.bal", kind: github, note: "init(ConnectionConfig config, string serviceUrl)"}
+  - id: youtube_data
+    text: "Work with YouTube content using `googleapis.youtube.data`: `listChannels`, `listSearch`, `listPlaylists`, `insertPlaylist`, `insertPlaylistItem`, `listPlaylistItems`, `listCommentThreads`, `insertComment`, `listSubscriptions` and `insertSubscription`"
+    difficulty: [intermediate]
+  - id: youtube_analytics_reporting
+    text: "Report on YouTube channels with `googleapis.youtube.analytics` (`queryReports`, `listGroups`, `insertGroups`, `insertGroupItems`) and bulk reports with `googleapis.youtube.reporting` (`listReportTypes`, `createJob`, `listJobReports`, `getJobReports`, `downloadMedia`)"
+    difficulty: [intermediate]
+  - id: blogger_posts
+    text: "Publish to Blogger with `googleapis.blogger`: `getBloggerBlogs`, `listBloggerPosts`, `insertBloggerPosts`, `updateBloggerPosts`, `publishBloggerPosts`, `deleteBloggerPosts`, pages via `insertBloggerPages`, and comment moderation via `listBloggerComments` and `approveBloggerComments`"
+    difficulty: [intermediate]
+  - id: books_library
+    text: "Access a user's Google Books library with `googleapis.books`: `listMylibraryBookshelves`, `addvolumeMylibraryBookshelves`, `removevolumeMylibraryBookshelves`, `listMylibraryAnnotations` and `insertMylibraryAnnotations`"
+    difficulty: [intermediate]
+  - id: business_commerce
+    text: "Manage commerce listings with `googleapis.mybusiness` (`listAccounts`, `listCategories`, `batchgetAccountsLocations`, `updatereplyAccountsLocationsReviews`), `googleapis.manufacturercenter` (`listAccountsProducts`, `getAccountsProducts`, `updateAccountsProducts`) and `googleapis.retail` (`createProduct`, `importProducts`, `setInventory`, `writeUserEvents`, `search`, `predict`)"
+    difficulty: [intermediate, advanced]
+  - id: vault_ediscovery
+    text: "Run eDiscovery with `googleapis.vault`: `createVaultMatter`, `listMatters`, `closeMatter`, `createHold`/`addHeldAccount`, `createExport`/`getExport`, and saved queries via `createSavedQueries`"
+    difficulty: [advanced]
+  - id: oauth2_tokeninfo_report
+    text: "Inspect tokens with `googleapis.oauth2` (`getOAuth2TokenInfo(accessToken = ...)` returning `Tokeninfo`, `getOAuth2UserInfo` returning `Userinfo`) and check site ad violations with `googleapis.abusiveexperiencereport` (`listViolatingsites`, `getSites`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.oauth2/client.bal", kind: github, note: "Token info and user info"}
+out_of_scope:
+  - "Google Workspace APIs (connector.google_workspace)"
+  - "Google Cloud Platform APIs (connector.google_cloud)"
+edges:
+  - {to: lib.http, rel: uses, via: [google_generated_client]}
+  - {to: lib.oauth2, rel: uses, via: [google_generated_client]}
+  - {to: concept.client_objects, rel: uses, via: [youtube_data, blogger_posts]}
+  - {to: concept.records, rel: uses, via: [business_commerce]}
+notes: "All packages are 1.5.2 OpenAPI-generated connectors with one-line Central READMEs; operation names come from openapi-connectors main client.bal. Exact method names for the 1.5.2 builds may differ slightly; ApiKey-only auth for YouTube was not confirmed and is left out."

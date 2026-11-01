@@ -1,0 +1,99 @@
+schema_version: "0.2"
+id: connector.health_hl7v2
+type: connector
+title: ballerinax/health.hl7v2*
+summary: "HL7 version 2 support: the `health.hl7v2` base package (generic parser, encoder, client and custom-segment registry), typed message/segment/data-type packages for HL7 v2.2 through v2.8, cross-version union types, and HL7v2-to-FHIR R4 mapping utilities."
+priority: important
+status: draft
+modules:
+  - ballerinax/health.hl7v2
+  - ballerinax/health.hl7v2.utils.v2tofhirr4
+  - ballerinax/health.hl7v22
+  - ballerinax/health.hl7v23
+  - ballerinax/health.hl7v23.utils.v2tofhirr4
+  - ballerinax/health.hl7v231
+  - ballerinax/health.hl7v24
+  - ballerinax/health.hl7v25
+  - ballerinax/health.hl7v251
+  - ballerinax/health.hl7v26
+  - ballerinax/health.hl7v27
+  - ballerinax/health.hl7v271
+  - ballerinax/health.hl7v28
+  - ballerinax/health.hl7v2commons
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/health.hl7v2/latest", kind: central, note: "HL7v2 base package README (3.0.10)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.hl7v2", kind: github, note: "Source: base/utils.bal (parse, encode), base/hl7_client.bal, base/registry.bal, commons/union_type_defs.bal, utils/v2tofhirr4/mappings.bal"}
+  - {url: "https://github.com/ballerina-guides/healthcare-samples", kind: github, note: "working-with-hl7, hl7v2-to-json and hl7v2-to-fhir samples"}
+must_cover:
+  - id: parse_string
+    text: "Parse an HL7 v2 message string (segments separated by `\\r`) with `hl7v2:parse(msgStr)` from `health.hl7v2`, which returns `hl7v2:Message|hl7v2:HL7Error`, and narrow it to the version-specific type, e.g. `hl7v23:QRY_A19 q = check hl7v2:parse(msgStr).ensureType(hl7v23:QRY_A19);` then read `q.qrd.qrd4`"
+    difficulty: [beginner]
+  - id: parse_bytes_tcp
+    text: "Receive HL7 messages over MLLP/TCP with a `tcp:Listener` whose `tcp:ConnectionService` `onBytes(tcp:Caller caller, readonly & byte[] data)` calls `hl7v2:parse(data)` (it accepts `string|byte[]`) and narrows to e.g. `hl7v23:ADT_A01`"
+    difficulty: [intermediate]
+  - id: encode_message
+    text: "Encode a message record to wire format with `byte[] wire = check hl7v2:encode(hl7v23:VERSION, qry_a19);` and convert it with `string:fromBytes(wire)`; fill segments with nested field records such as `msh: {msh3: {hd1: \"ADT1\"}, msh9: {cm_msg1: \"QRY\", cm_msg2: \"A19\"}, msh12: \"2.3\"}`"
+    difficulty: [intermediate]
+  - id: ack_server
+    text: "Build an HL7 server that replies with an acknowledgement: extract `hl7v25:MSH` from the parsed message (`parsedMsg[\"msh\"].ensureType()`), build an `hl7v25:ACK` with `msh9: {cm_msg1: hl7v25:ACK_MESSAGE_TYPE}` and `msa: {msa1: \"AA\", msa2: msh.msh10}`, encode it with `hl7v2:encode(hl7v25:VERSION, ack)` and send it with `caller->writeBytes(encodedMsg)`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.hl7v25/latest", kind: central, note: "Simple HL7 v2.5 server sample"}
+  - id: generic_client
+    text: "Send a message to an HL7 server with the generic client `hl7v2:HL7Client hl7client = check new(\"localhost\", 59519);` and `hl7v2:Message resp = check hl7client.sendMessage(qry_a19);` (accepts a `Message` or `byte[]`), then inspect the returned `ACK` (`msa1`, `msa3`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.hl7v2/blob/main/base/hl7_client.bal", kind: github, note: "HL7Client init(remoteHost, remotePort) and sendMessage"}
+  - id: custom_segment_field
+    text: "Extend a standard segment with an extra field by declaring `type PID record {*hl7v23:PID; hl7v23:ST pid31 = \"\";}` annotated with `@hl7v2:SegmentDefinition {fields: {\"pid31\": {required: false, length: 1, maxReps: 1, dataType: hl7v23:ST}}}` and registering it with `hl7v2:registerCustomSegment(\"2.3\", pid)` before parsing"
+    difficulty: [advanced]
+  - id: custom_z_segment
+    text: "Define and register a custom Z-segment, e.g. `type ZPD record {*hl7v2:Segment; string name = \"ZPD\"; hl7v23:ST zpd1 = \"\";}` with `@hl7v2:SegmentDefinition {name: \"ZPD\", required: false, fields: {...}}`, register it with `hl7v2:registerCustomSegment(\"2.3\", zpd)` and read it from the parsed message as `parsedMsg[\"zpd\"].cloneWithType()` (`hl7v2:registerCustomMessage` and `registerCustomSegmentGroup` exist for messages and groups)"
+    difficulty: [advanced]
+  - id: version_packages_early
+    text: "Import the version package matching the sender's `MSH-12`: `health.hl7v22` (v2.2), `health.hl7v23` (v2.3), `health.hl7v231` (v2.3.1) or `health.hl7v24` (v2.4), each providing message records (e.g. `hl7v23:ADT_A01`, `hl7v23:QRY_A19`), segment records (`hl7v24:PID`), data types (`hl7v23:ST`) and a `VERSION` constant"
+    difficulty: [beginner]
+  - id: version_packages_late
+    text: "Use the later version packages `health.hl7v25`, `health.hl7v251`, `health.hl7v26`, `health.hl7v27`, `health.hl7v271` and `health.hl7v28` the same way (e.g. `hl7v25:ACK`, `hl7v28:ADT_A01`), and build with `bal build --optimize-dependency-compilation` (or `optimizeDependencyCompilation = true` under `[build-options]` in `Ballerina.toml`) to reduce compile-time memory for these large packages"
+    difficulty: [beginner, intermediate]
+  - id: map_to_custom_record
+    text: "Map a parsed `hl7v23:ADT_A01` to an application record with an expression-bodied function, e.g. `firstName: adtA01.pid.pid5[0].xpn2`, `lastName: adtA01.pid.pid5[0].xpn1`, `address: adtA01.pid.pid11[0].xad1`, `phoneNumber: adtA01.pid.pid13[0].xtn1`, and emit it with `toJsonString()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/hl7v2-to-json", kind: github, note: "HL7v2 to custom JSON"}
+  - id: commons_union_types
+    text: "Write version-independent code with the union types in `health.hl7v2commons` (e.g. `hl7v2commons:Pid` = `hl7v23:PID|hl7v231:PID|...|hl7v28:PID`, and `Msh`, `Pv1`, `Obx`, `Nk1`, `Dg1`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.hl7v2/blob/main/commons/union_type_defs.bal", kind: github, note: "Union type definitions"}
+  - id: v2_to_fhir
+    text: "Convert an HL7 v2 message to a FHIR R4 Bundle (as `json`) with `v2tofhirr4:v2ToFhir(msg)` from `health.hl7v2.utils.v2tofhirr4` (accepts `string|hl7v2:Message`), following the HL7 v2-to-FHIR IG segment and datatype maps"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.hl7v2.utils.v2tofhirr4/latest", kind: central, note: "v2tofhirr4 README"}
+  - id: v2_to_fhir_segment
+    text: "Use the low-level mapping functions directly, e.g. `hl7:Message m = check v2tofhirr4:stringToHl7(msg);` then `r4:HumanName[]? names = v2tofhirr4:pidToPatientName(m.pid.pid5, m.pid.pid9)`, `v2tofhirr4:pidToPatient(pid)` or `v2tofhirr4:mshToMessageHeader(msh)`"
+    difficulty: [intermediate]
+  - id: v2_to_fhir_custom_mapper
+    text: "Override individual segment mappings by passing a `v2tofhirr4:V2SegmentToFhirMapper` record (e.g. `{pv1ToEncounter: pv1ToEncounter}` where the function takes `hl7v2commons:Pv1` and returns `international401:Encounter`) as `v2tofhirr4:v2ToFhir(msg, customMapper)`; `V2ToFhirCustomMapperServiceConfig` (`baseUrl`, `segmentMappings`) delegates segments to an external mapping service"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/hl7v2-to-fhir", kind: github, note: "Custom mapper sample"}
+  - id: v23_to_fhir
+    text: "Convert HL7 v2.3 messages specifically with `health.hl7v23.utils.v2tofhirr4` (`import ballerinax/health.hl7v23.utils.v2tofhirr4;`), which exposes the same `v2ToFhir`, `stringToHl7` and `pidToPatientName` functions for v2.3 types"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.hl7v23.utils.v2tofhirr4/latest", kind: central, note: "HL7v2.3 to FHIR README"}
+out_of_scope:
+  - "The TCP `health.clients.hl7` HL7Client with TLS (connector.health_other)"
+  - "FHIR resource handling after conversion (connector.health_fhir)"
+edges:
+  - {to: lib.tcp, rel: uses, via: [parse_bytes_tcp, ack_server]}
+  - {to: concept.records, rel: uses, via: [encode_message, custom_segment_field, custom_z_segment, map_to_custom_record]}
+  - {to: concept.annotations, rel: uses, via: [custom_segment_field, custom_z_segment]}
+  - {to: concept.union_intersection_types, rel: uses, via: [commons_union_types]}
+  - {to: concept.type_cast_test, rel: uses, via: [parse_string, parse_bytes_tcp]}
+  - {to: concept.function_values, rel: uses, via: [v2_to_fhir_custom_mapper]}
+  - {to: connector.health_fhir, rel: uses, via: [v2_to_fhir, v2_to_fhir_segment, v2_to_fhir_custom_mapper], target_items: [r4_base_types, international_records]}
+  - {to: tool.ballerina_toml, rel: uses, via: [version_packages_late]}
+notes: "The base README shows `hl7client.sendMessage(...)` called as a regular method; the source confirms `HL7Client` is a class with `public function sendMessage(Message|byte[] message)`. The ACK sample's message-type field name (`cm_msg1`) differs between versions (v2.3 `msh9: {cm_msg1, cm_msg2}`, the clients.hl7 sample uses `msg1`/`msg2`), so use the field names of the chosen version package."

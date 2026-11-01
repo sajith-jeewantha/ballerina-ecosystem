@@ -1,0 +1,76 @@
+schema_version: "0.2"
+id: lib.pdf
+type: library
+title: ballerina/pdf
+summary: "The `ballerina/pdf` module converts HTML to PDF and reads existing PDFs (per-page text extraction and page-to-image conversion), all processed locally with no external service."
+priority: long_tail
+status: draft
+modules: [ballerina/pdf]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central, note: "ballerina/pdf 0.9.3 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/pdf_api.bal", kind: github, note: "Public functions"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/types.bal", kind: github, note: "ConversionOptions, PageSize, PageMargins, Font"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/errors.bal", kind: github, note: "Error types"}
+must_cover:
+  - id: html_to_pdf
+    text: "Convert an HTML string (a full document or a fragment) to PDF bytes with `byte[] pdfBytes = check pdf:parseHtml(\"<h1>Hello World</h1>\");` after `import ballerina/pdf;`, and save the result with `io:fileWriteBytes(\"output.pdf\", pdfBytes)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central}
+  - id: html_file_report
+    text: "Render a report by reading an HTML template with `io:fileReadString(\"report.html\")`, passing it to `pdf:parseHtml` and writing the PDF, injecting style overrides with the `additionalCss` option instead of editing the HTML"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central}
+  - id: page_size_margins
+    text: "Set the page layout through `pdf:ConversionOptions` fields passed as named arguments to `parseHtml`: `pageSize` as `pdf:A4` (the default when CSS `@page` gives none), `pdf:LETTER`, `pdf:LEGAL` or a `pdf:CustomPageSize` record `{width, height}` in points, and `margins` as a `pdf:PageMargins` record `{top, right, bottom, left}` in points (default 0)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/types.bal", kind: github}
+  - id: font_size_max_pages
+    text: "Use `fallbackFontSize` (default `12.0`, used only where the CSS sets no `font-size`) and `maxPages` (must be greater than 0), which scales the content so the output fits in that many pages"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/types.bal", kind: github}
+  - id: custom_fonts
+    text: "Register TTF fonts for the conversion with `customFonts: [{family: \"Inter\", content: fontBytes, bold: false, italic: false}]` (`pdf:Font` records) and reference them from CSS `font-family`, because `@font-face` is not supported; without custom fonts the bundled Liberation Sans and Liberation Serif are used"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/types.bal", kind: github}
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central, note: "Known limitations (fonts)"}
+  - id: html_css_limits
+    text: "Write HTML and CSS that the CSS 2.1 renderer behind `parseHtml` supports (block, inline, float, table and absolute/relative positioning), avoiding flexbox, CSS Grid, `calc()`, `var()`, `@media` and `@import`, `::before`/`::after`, gradients, transforms, SVG, `rowspan` and non-solid borders"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central, note: "Known limitations (HTML-to-PDF conversion)"}
+  - id: extract_text
+    text: "Extract the text of each page of a PDF held in memory with `string[] pages = check pdf:extractText(pdfBytes);`, one string per page, and iterate with `foreach int i in 0 ..< pages.length()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central}
+  - id: extract_text_file_url
+    text: "Extract per-page text directly from a file path with `pdf:fileExtractText(filePath)` or from a URL with `pdf:urlExtractText(url)`, both returning `string[]|pdf:Error`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/pdf_api.bal", kind: github}
+  - id: to_images
+    text: "Convert each page to a Base64-encoded PNG string with `pdf:toImages(pdfBytes)`, or from a path or URL with `pdf:fileToImages(filePath)` and `pdf:urlToImages(url)`, each returning `string[]` with one image per page"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/pdf/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/pdf_api.bal", kind: github}
+  - id: pdf_errors
+    text: "Handle `pdf:Error` and its distinct subtypes: `pdf:HtmlParseError` when the HTML cannot be parsed, `pdf:RenderError` when layout, painting or PDF generation fails, and `pdf:ReadError` when an input PDF is corrupted, inaccessible or invalid"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-pdf/blob/main/ballerina/errors.bal", kind: github}
+out_of_scope:
+  - "Reading and writing files in general (lib.io)"
+  - "Filling PDF forms, merging or editing existing PDFs (not provided by the module)"
+edges:
+  - {to: lib.io, rel: uses, via: [html_to_pdf, html_file_report, extract_text]}
+  - {to: concept.errors, rel: uses, via: [pdf_errors]}
+  - {to: concept.type_ids_distinct, rel: uses, via: [pdf_errors]}
+  - {to: concept.records, rel: uses, via: [page_size_margins, custom_fonts]}
+  - {to: concept.functions, rel: uses, via: [page_size_margins, font_size_max_pages]}
+notes: "Package version 0.9.3 (pre-1.0). The README calls it a connector but it is a local library. The file/URL variants (`fileExtractText`, `urlExtractText`, `fileToImages`, `urlToImages`) and `maxPages` come from the GitHub source of the same version, not the README. `parseHtml` takes `*ConversionOptions`, so the options are passed as named arguments."

@@ -1,0 +1,108 @@
+schema_version: "0.2"
+id: platform.specifications
+type: platform
+title: Specifications
+summary: Ballerina's semantics are defined by the versioned Ballerina Language Specification (latest 2024R1). Platform specifications for configurability, Code to Cloud, packages, testing and deprecation live in the `ballerina-spec` repository, and library specifications are published per package.
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs, note: "Spec versions, release dates, library specifications"}
+  - {url: "https://github.com/ballerina-platform/ballerina-spec", kind: github, note: "Repository README and tree"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#changes", kind: spec, note: "B. Changes since previous releases"}
+must_cover:
+  - id: spec_defines_language
+    text: "Explain that Ballerina is defined by specifications rather than by its implementation, that jBallerina (compiling to Java bytecode) is currently the only implementation, and that `bal version` reports which language specification version a distribution implements"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs}
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs, note: "bal version prints Language specification <SPEC_VERSION>"}
+  - id: spec_versioning
+    text: "Read language spec versions in the `20XYRn` scheme (2-digit year, R for release, release number in that year) used since 2019, replacing the semver scheme abandoned at 0.980"
+    difficulty: [beginner]
+  - id: spec_versions_to_releases
+    text: "Map spec versions to distributions: 2024R1 (2024-07-18) is the basis for Swan Lake Update 9 and later, 2023R1 for Update 7 and 8, 2022R4 for Update 3 to 6, 2022R3 for Update 2, 2022R2 for Update 1, 2022R1 for 2201.0.0, 2021R1 for Swan Lake Beta1 and 2019R3 for jBallerina 1.0.0"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.6.0/", kind: docs, note: "Update 6 is based on 2022R4"}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.8.0/", kind: docs, note: "Update 8 is based on 2023R1"}
+  - id: spec_locations
+    text: "Find the language spec at `https://ballerina.io/spec/lang/2024R1/` (or another version), the current snapshot at `/spec/lang/master/`, drafts at `/spec/lang/draft/`, and its XHTML source in `lang/spec.html` of the `ballerina-spec` repository, where spec comments are filed as issues"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#introduction", kind: spec, note: "Language and document status"}
+  - id: spec_structure
+    text: "Navigate the language spec's chapters: lexical structure, values, types and variables, expressions, actions and statements, module-level declarations, metadata (annotations and documentation), data tags and the lang library, plus appendices for changes and planned future functionality"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11. Lang library"}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#planned_future_functionality", kind: spec, note: "C. Planned future functionality"}
+  - id: changes_2024r1
+    text: "List what 2024R1 changed from 2023R1: isolated inference for object constructors, query-select creating a stream without the `stream` keyword, no sync-send or receive inside `lock`, `on fail` on `retry`, `transaction` and named workers, conditional sends, and the alternate receive action"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_B.1", kind: spec}
+  - id: changes_2023r1
+    text: "List what 2023R1 changed from 2022R4: `group by` and `collect` query clauses, non-reserved query clause keywords except `from` and `let`, aggregation functions such as `int:avg`, `boolean:some` and `value:count`, actions in `join` clauses, and defaults in readonly record types"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_B.2", kind: spec}
+  - id: preview_and_experimental
+    text: "Distinguish spec status from implementation status: regular expressions are a preview feature in 2024R1, and experimental features shipped later, such as natural expressions (Update 13, `--experimental`), are not part of any published spec"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#introduction", kind: spec}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs}
+  - id: configurable_spec
+    text: "Use the configurability spec (`configurable/spec.md`) for how values reach `configurable` variables of type `anydata & readonly`: TOML keys resolved to org, module and variable, `BAL_CONFIG_FILES` and `BAL_CONFIG_DATA` lookup, and `-Ckey=value` arguments with `key := [[org .] module .] variable`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github}
+  - id: c2c_spec
+    text: "Use the Code to Cloud spec (`c2c/code-to-cloud-spec.md`) for generating Docker and Kubernetes artifacts with `bal build --cloud=docker|k8s` or `[build-options] cloud = \"k8s\"`, overriding defaults in `Cloud.toml` (e.g. `[container.image]`), and outputs in `target/docker` and `target/kubernetes`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md", kind: github}
+  - id: package_spec
+    text: "Use the package spec (`packages/package-spec.md`) for organizations, package and module names, the default module, SemVer package versions (major version 0 or pre-release means unstable), the source layout with `Ballerina.toml` and `Dependencies.toml`, and the distribution, Central and local repositories"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/packages/package-spec.md", kind: github}
+  - id: test_spec
+    text: "Use the test framework spec (`test/test-framework-spec.md`) for test organization in `tests/` directories, `@test:Config`, before/after annotations such as `@test:BeforeSuite`, assertions like `test:assertEquals`, groups, mocking with `@test:Mock` and `test:mock`/`test:prepare`, code coverage and exit codes 0 or 1"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/test/test-framework-spec.md", kind: github}
+  - id: deprecation_spec
+    text: "Apply the deprecation spec (`langext/deprecation/spec.md`): mark public API elements and parameters with `@deprecated`, which makes the compiler warn on use (except inside other deprecated elements), and explain migration in a `# # Deprecated` documentation section"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/langext/deprecation/spec.md", kind: github}
+  - id: library_specs
+    text: "Find the library specifications at `https://ballerina.io/spec/<package>/`, e.g. `/spec/http/`, published for `auth`, `cache`, `constraint`, `crypto`, `edi`, `email`, `file`, `ftp`, `graphql`, `grpc`, `io`, `http`, `jwt`, `log`, `mime`, `oauth2`, `os`, `protobuf`, `smb`, `websub`, `websubhub`, `xlsx` and `zip`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs, note: "Ballerina library specifications table"}
+  - id: proposals
+    text: "Locate proposals and conformance material in the `ballerina-spec` repository: language proposals in `lang/proposals`, Ballerina Enhancement Proposals in `beps/` (e.g. `bal-persist`, `lib-kafka`, `lib-sql`), `stdlib/proposals`, `bal-tools/proposals` and conformance tests in `conformance/lang`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "The content of individual language features (concept nodes) and library APIs (library nodes)"
+  - "Release-by-release implementation changes (platform.releases)"
+edges:
+  - {to: tool.config_toml, rel: uses, via: [configurable_spec]}
+  - {to: tool.code_to_cloud, rel: uses, via: [c2c_spec]}
+  - {to: tool.packages, rel: uses, via: [package_spec]}
+  - {to: tool.ballerina_toml, rel: uses, via: [package_spec]}
+  - {to: tool.dependencies_toml, rel: uses, via: [package_spec]}
+  - {to: lib.test, rel: uses, via: [test_spec]}
+  - {to: tool.bal_test, rel: uses, via: [test_spec]}
+  - {to: concept.annotations, rel: uses, via: [deprecation_spec]}
+  - {to: concept.documentation, rel: uses, via: [deprecation_spec]}
+  - {to: lib.langlib, rel: uses, via: [spec_structure]}
+  - {to: concept.worker_messages, rel: uses, via: [changes_2024r1]}
+  - {to: concept.query_expressions, rel: uses, via: [changes_2023r1]}
+  - {to: concept.regexp, rel: uses, via: [preview_and_experimental]}
+  - {to: lib.http, rel: uses, via: [library_specs]}
+notes: "The master spec snapshot (lang/spec.html on master) is still titled 2024R1 and its change log ends at 2023R1 to 2024R1, so no later language spec has been published. The ballerina-spec README still says it contains only the language spec; the tree shows the other directories listed. The Learn page's library-spec table may lag behind newer packages."

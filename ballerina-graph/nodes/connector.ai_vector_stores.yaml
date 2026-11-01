@@ -1,0 +1,126 @@
+schema_version: "0.2"
+id: connector.ai_vector_stores
+type: connector
+title: AI vector stores
+summary: "The `ballerinax/ai.*` packages that implement `ai:VectorStore` over external vector databases (Pinecone, Milvus, pgvector, Weaviate, Amazon S3 Vectors) so they plug into `ai:VectorKnowledgeBase` for RAG, plus the S3 `ai:DataLoader`."
+priority: important
+status: draft
+modules: [ballerinax/ai.aws.s3, ballerinax/ai.milvus, ballerinax/ai.pgvector, ballerinax/ai.pinecone, ballerinax/ai.weaviate]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.pinecone/latest", kind: central, note: "ballerinax/ai.pinecone 1.1.6 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/README.md", kind: github, note: "ai.pinecone module README"}
+  - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+  - {url: "https://central.ballerina.io/ballerinax/ai.milvus/latest", kind: central, note: "ballerinax/ai.milvus 1.0.5 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.pgvector/latest", kind: central, note: "ballerinax/ai.pgvector 1.0.6 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.weaviate/latest", kind: central, note: "ballerinax/ai.weaviate 1.0.6 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "ballerinax/ai.aws.s3 1.0.1 package docs and README (data loader and vector store)"}
+must_cover:
+  - id: vector_store_init
+    text: "Create a Pinecone store from `ballerinax/ai.pinecone` with `final ai:VectorStore vectorStore = check new pinecone:VectorStore(pineconeServiceUrl, pineconeApiKey);`, taking the index service URL and API key from `configurable` values"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Vector Store"}
+  - id: query_mode
+    text: "Choose the Pinecone search mode with the `queryMode` argument of `pinecone:VectorStore`: `ai:DENSE` (default), `ai:SPARSE` or `ai:HYBRID`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/vector_store.bal", kind: github, note: "init(serviceUrl, apiKey, queryMode, config, httpConfig)"}
+  - id: store_config
+    text: "Pass a `pinecone:Configuration` as `config` to set a `namespace`, default `filters` (`ai:MetadataFilters`) or a `sparseVector` for hybrid search"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/types.bal", kind: github, note: "Configuration"}
+  - id: rag_ingestion
+    text: "Ingest documents into an external store by wrapping it in `new ai:VectorKnowledgeBase(vectorStore, embeddingProvider)` and calling `knowledgeBase.ingest(documents)` on documents loaded with `ai:TextDataLoader`, checking the returned `ai:Error?`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-ingestion-with-external-vector-store/", kind: bbe}
+  - id: rag_query
+    text: "Query a store-backed knowledge base with `knowledgeBase.retrieve(query, 10)` and answer from the returned chunks with `ai:augmentUserQuery` and `chat`, or by interpolating them into a `generate` prompt"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rag-query-with-external-vector-store/", kind: bbe}
+  - id: direct_store_api
+    text: "Use the `ai:VectorStore` methods directly on any of these stores: `add(ai:VectorEntry[])` with `id`, `embedding` and `chunk` (`{'type: \"text\", content: ...}`), `query({embedding, topK, filters})` returning `ai:VectorMatch[]`, and `delete(ids)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pinecone/blob/main/ballerina/vector_store.bal", kind: github, note: "add, query, delete"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/vector-store.bal", kind: github, note: "VectorStore type"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.milvus/latest", kind: central, note: "Step 3: Invoke the operations"}
+  - id: milvus_vector_store
+    text: "Create a Milvus store from `ballerinax/ai.milvus` with `ai:VectorStore vectorStore = check new milvus:VectorStore(serviceUrl = ..., apiKey = ..., config = {collectionName: \"...\"})` against a Docker standalone instance or Zilliz Cloud, optionally setting `milvus:Configuration` fields `chunkFieldName`, `primaryKeyField` (default `\"id\"`) and `additionalFields` to return with matches"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.milvus/latest", kind: central, note: "Step 2: Initialize the Milvus vector store"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.milvus/blob/main/ballerina/types.bal", kind: github, note: "Configuration"}
+  - id: pgvector_vector_store
+    text: "Create a pgvector store from `ballerinax/ai.pgvector` with `ai:VectorStore vectorStore = check new pgvector:VectorStore(host, user, password, database, tableName, configs = {vectorDimension: 1536});` on PostgreSQL with the `vector` extension (e.g. the `pgvector/pgvector:pg17` image and `CREATE EXTENSION IF NOT EXISTS vector;`); the store creates its table and an HNSW index if they are missing"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.pgvector/latest", kind: central, note: "Setup guide; Step 2: Initialize the Pgvector vector store"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pgvector/blob/main/ballerina/vector_store.bal", kind: github, note: "init, initializeDatabase"}
+  - id: pgvector_config
+    text: "Configure `pgvector:Configuration` with `embeddingType` (`ai:DENSE` default, or `ai:SPARSE` for a `sparsevec` column), `vectorDimension` and `similarityMetric` (`pgvector:COSINE`, `pgvector:EUCLIDEAN` or `pgvector:MANHATTAN`), and pass `port` (default 5432), `postgresql:Options` and an `sql:ConnectionPool` as further init arguments"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.pgvector/blob/main/ballerina/types.bal", kind: github, note: "Configuration, SimilarityMetric"}
+  - id: weaviate_vector_store
+    text: "Create a Weaviate store from `ballerinax/ai.weaviate` with `ai:VectorStore vectorStore = check new weaviate:VectorStore(serviceUrl = ..., config = {collectionName: \"...\"}, apiKey = ...)` using the cluster REST endpoint and API key from the Weaviate Console, optionally setting `chunkFieldName` (default `content`) and `httpConfig` fields such as `timeout`, `retryConfig` and `secureSocket`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.weaviate/latest", kind: central, note: "Set up guide; Step 2: Initialize the Weaviate vector store"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.weaviate/blob/main/ballerina/types.bal", kind: github, note: "Configuration, ConnectionConfig"}
+  - id: s3_vector_store_init
+    text: "Create an Amazon S3 Vectors store from `ballerinax/ai.aws.s3` with `s3:VectorStore vectorStore = check new ({auth: {accessKeyId: ..., secretAccessKey: ...}, region: \"us-east-1\"}, {vectorBucketName: \"my-vector-bucket\", indexName: \"my-index\"});`, or name the index by `{indexArn: \"arn:aws:s3vectors:...\"}` for another account, using `auth:DEFAULT_CREDENTIALS` on AWS infrastructure"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Vector store: Quickstart; Connection; Index"}
+  - id: s3_vector_index_setup
+    text: "Create the S3 vector bucket and index beforehand with `aws s3vectors create-vector-bucket` and `aws s3vectors create-index` (fixed `--dimension` and `--distance-metric cosine|euclidean`), declaring the chunk-text key (`contentKey`, default `\"content\"`) in `nonFilterableMetadataKeys`, which `init` checks with `GetIndex` unless `validateIndexOnInit` is `false`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Before you start: create a vector index"}
+  - id: s3_vector_store_config
+    text: "Tune `s3:VectorStore` with `VectorStoreConfig` fields `filters` (applied to every query), `queryMode` (`CLASSIC` or `ENHANCED`), `returnVectorData`, `maxListScan` (bound for filter-only queries such as `deleteByFilter`) and an `httpConfig` in the connection config, and know its limits: dense embeddings and string text chunks only, reserved metadata keys `contentKey` and `_chunkType`, idempotent `delete`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Store behaviour (VectorStoreConfig); Limitations"}
+  - id: s3_vector_store_errors
+    text: "Handle S3 Vectors failures as `ai:Error` values whose `detail()` carries `httpStatusCode`, `httpStatusText`, `errorCode`, `errorMessage` and `requestId`, e.g. `if result is ai:Error { ... result.detail()[\"errorCode\"] ... }`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Errors"}
+  - id: s3_data_loader
+    text: "Load RAG documents from S3 with `s3:TextDataLoader loader = check new ({auth: {...}, region: \"us-east-1\"}, [{bucket: \"my-corpus-bucket\", paths: [\"reports/\"], recursive: true, includeExtensions: [\".pdf\", \"docx\"]}]);` and `loader.load()`, which returns one `ai:Document` or an `ai:Document[]` that `knowledgeBase.ingest(documents)` accepts"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Quickstart; Sources and paths"}
+  - id: s3_loader_client_and_options
+    text: "Reuse an existing `ballerinax/aws.s3` client by passing it to `s3:TextDataLoader` instead of the connection config, and cap per-object size with loader options `{maxObjectSize: 20 * 1024 * 1024}` (default 100 MiB)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "Reusing an existing client; Loader options"}
+  - id: s3_loader_files
+    text: "Explain how `s3:TextDataLoader` resolves paths (omitted = whole bucket, trailing `/` = prefix, otherwise exact key first), which types it extracts in memory (text formats, PDF, `docx`, `pptx`, `xlsx`; no OCR, no legacy `.doc`/`.ppt`/`.xls`), that unloadable objects under a prefix are skipped with a warning but are errors when named, and the metadata it attaches (`fileName`, `mimeType`, `bucket`, `key`, `eTag`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.s3/latest", kind: central, note: "How paths are resolved; Supported file types"}
+out_of_scope:
+  - "Knowledge base, embedding provider and data loader APIs (lib.ai)"
+  - "Raw Pinecone, Milvus and Weaviate REST/SDK connectors (connector.area_ai_machine_learning)"
+  - "Creating Pinecone indexes, Milvus clusters or Weaviate clusters in their consoles"
+  - "The ballerinax/aws.s3 object storage connector and AWS credential types (connector.aws)"
+edges:
+  - {to: lib.ai, rel: implements, via: [vector_store_init, milvus_vector_store, pgvector_vector_store, weaviate_vector_store, s3_vector_store_init, s3_data_loader, rag_ingestion, rag_query, direct_store_api], target_items: [vector_knowledge_base, ingest_documents, retrieve_augment, metadata_filters]}
+  - {to: concept.objects, rel: uses, via: [vector_store_init, direct_store_api], note: "VectorStore is an isolated object type implemented by a class"}
+  - {to: concept.records, rel: uses, via: [store_config, direct_store_api, pgvector_config, s3_vector_store_config]}
+  - {to: concept.errors, rel: uses, via: [s3_vector_store_errors]}
+  - {to: tool.config_toml, rel: uses, via: [vector_store_init]}
+  - {to: connector.postgresql, rel: uses, via: [pgvector_config], note: "postgresql:Options"}
+  - {to: lib.sql, rel: uses, via: [pgvector_config], note: "sql:ConnectionPool"}
+  - {to: lib.http, rel: uses, via: [weaviate_vector_store, s3_vector_store_config]}
+  - {to: connector.aws, rel: uses, via: [s3_vector_store_init, s3_loader_client_and_options], note: "ballerinax/aws.auth credentials and the ballerinax/aws.s3 client"}
+  - {to: connector.area_ai_machine_learning, rel: related, note: "ai:VectorStore implementations versus the raw Pinecone/Milvus/Weaviate connectors"}
+notes: "Merged in v3 from lib.ai.pinecone (verified against module-ballerinax-ai.pinecone main 1.1.6, same as Central; the README uses named arguments `serviceUrl = ...`, `apiKey = ...`, the BBEs positional ones). Milvus, pgvector and Weaviate items are from the Central READMEs and their main-branch types.bal/vector_store.bal. The ai.milvus README says it supports dense, sparse and hybrid search, but its init has no query-mode argument, so no mode item was written. The pgvector README calls `check new(host, ...)` without a class name; the class is `pgvector:VectorStore`. ai.aws.s3 items come from its Central README."

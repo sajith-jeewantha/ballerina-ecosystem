@@ -20,6 +20,9 @@
   --focus: #1C7C9C;
   --c-concept: #148F86;
   --c-library: #4A5CCF;
+  --c-connector: #5E8A1E;
+  --c-trigger: #C9512B;
+  --c-platform: #64727F;
   --c-tool: #B7791F;
   --c-topic: #B83F72;
   --edge: #A3AEB8;
@@ -43,6 +46,9 @@
     --focus: #5CC3D8;
     --c-concept: #3CC2B6;
     --c-library: #8293F2;
+    --c-connector: #9BC45A;
+    --c-trigger: #EE8A66;
+    --c-platform: #A2AEBA;
     --c-tool: #E2A64A;
     --c-topic: #E77AA6;
     --edge: #4C5966;
@@ -63,6 +69,9 @@
   --focus: #5CC3D8;
   --c-concept: #3CC2B6;
   --c-library: #8293F2;
+  --c-connector: #9BC45A;
+  --c-trigger: #EE8A66;
+  --c-platform: #A2AEBA;
   --c-tool: #E2A64A;
   --c-topic: #E77AA6;
   --edge: #4C5966;
@@ -197,7 +206,7 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
   <aside class="filters" aria-label="Filters">
     <div class="group">
       <h2><label for="q">Find a node or checklist item</label></h2>
-      <input id="q" class="search" type="search" placeholder="retry, lib.http, isolated…" autocomplete="off">
+      <input id="q" class="search" type="search" placeholder="retry, lib.http, salesforce…" autocomplete="off">
       <div class="results" id="results" role="listbox" aria-label="Search results"></div>
     </div>
     <div class="group">
@@ -252,8 +261,8 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
 (function () {
   "use strict";
   var DATA = JSON.parse(document.getElementById("graph-data").textContent);
-  var TYPES = ["concept", "library", "tool", "topic"];
-  var TYPE_LABEL = { concept: "Concepts", library: "Libraries", tool: "Tools", topic: "Topics" };
+  var TYPES = ["concept", "library", "connector", "trigger", "tool", "platform", "topic"];
+  var TYPE_LABEL = { concept: "Concepts", library: "Libraries", connector: "Connectors", trigger: "Triggers", tool: "Tools", platform: "Platform", topic: "Topics" };
   var PRIOS = ["core", "important", "long_tail"];
   var PRIO_LABEL = { core: "Core", important: "Important", long_tail: "Long tail" };
   var RELS = ["requires", "implements", "uses", "part_of", "counterpart_of", "alternative_to", "related"];
@@ -329,7 +338,7 @@ aside.inspector { border-left: 1px solid var(--line); background: var(--surface)
     var visible = cy.elements(":visible");
     var opts;
     if (name === "concentric") {
-      var ring = { concept: 4, library: 2, tool: 3, topic: 1 };
+      var ring = { concept: 7, library: 6, tool: 5, platform: 4, connector: 3, trigger: 2, topic: 1 };
       opts = { name: "concentric", concentric: function (n) { return ring[n.data("type")]; }, levelWidth: function () { return 1; }, minNodeSpacing: 18, animate: false };
     } else if (name === "breadthfirst") {
       opts = { name: "breadthfirst", directed: true, spacingFactor: 0.9, animate: false,

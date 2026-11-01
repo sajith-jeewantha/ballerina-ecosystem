@@ -1,0 +1,62 @@
+schema_version: "0.2"
+id: connector.powertools
+type: connector
+title: "PowerTools connectors"
+summary: "Eight OpenAPI-generated Ballerina clients for the Apptigent PowerTools Developer utility APIs (collections, data conversion, date-time, files, finance, math, text and weather), sharing one API-key client shape with record-in, record-out remote methods."
+priority: long_tail
+status: draft
+modules: [ballerinax/powertoolsdeveloper.collections, ballerinax/powertoolsdeveloper.data, ballerinax/powertoolsdeveloper.datetime, ballerinax/powertoolsdeveloper.files, ballerinax/powertoolsdeveloper.finance, ballerinax/powertoolsdeveloper.math, ballerinax/powertoolsdeveloper.text, ballerinax/powertoolsdeveloper.weather]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.collections/latest", kind: central, note: "ballerinax/powertoolsdeveloper.collections README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.data/latest", kind: central, note: "ballerinax/powertoolsdeveloper.data README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.datetime/latest", kind: central, note: "ballerinax/powertoolsdeveloper.datetime README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.files/latest", kind: central, note: "ballerinax/powertoolsdeveloper.files README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.finance/latest", kind: central, note: "ballerinax/powertoolsdeveloper.finance README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.math/latest", kind: central, note: "ballerinax/powertoolsdeveloper.math README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.text/latest", kind: central, note: "ballerinax/powertoolsdeveloper.text README"}
+  - {url: "https://central.ballerina.io/ballerinax/powertoolsdeveloper.weather/latest", kind: central, note: "ballerinax/powertoolsdeveloper.weather README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+must_cover:
+  - id: client_shape
+    text: "Create any PowerTools client, e.g. `powertoolsdeveloper.math:Client`, with `check new ({xIbmClientId: clientId})` (an `ApiKeysConfig` sent as the `X-IBM-Client-Id` header) and default `serviceUrl` `https://connect.apptigent.com/api/utilities`; each remote method takes one input record (e.g. `InputCalculateNumbers {input, value, decimals}`) and returns an output record or `error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.math", kind: github, note: "powertoolsdeveloper.math generated client.bal/types.bal"}
+  - id: text_ops
+    text: "Transform strings with `powertoolsdeveloper.text` `convertCase(...)`, `compareStrings(...)`, `replaceString(...)`, `splitString(...)`, `trimString(...)`, `encodeString(...)`/`decodeString(...)`, `generateHash(...)`/`verifyHash(...)`, `generateGuid(...)`, `validateEmail(...)`, `redactString(...)` and `translateString(...)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.text", kind: github, note: "powertoolsdeveloper.text generated client.bal/types.bal"}
+  - id: data_conversion
+    text: "Convert and query data with `powertoolsdeveloper.data` `jsonToCsv(...)`, `jsonToXml(...)`, `jsonToHtml(...)`, `csvToJson(...)`, `xmlToJson(...)`, `queryJson(InputDataQuery)` and `queryXml(...)`, and manipulate lists with `powertoolsdeveloper.collections` `sortCollection(...)`, `filterCollection(...)`, `addToCollection(...)`, `countCollection(...)` and `collectionToJSON(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.data", kind: github, note: "powertoolsdeveloper.data generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.collections", kind: github, note: "powertoolsdeveloper.collections generated client.bal/types.bal"}
+  - id: math_ops
+    text: "Compute values with `powertoolsdeveloper.math` `calculateAddition(InputCalculateNumbers)`, `calculateAverage(InputCalculateSeries)`, `calculateMedian(...)`, `standardDeviation(...)`, `calculatePower(...)`, `roundNumber(...)`, `randomNumber(InputNumberRange)` and unit conversions such as `convertTemperature(...)`, `convertDistance(...)` and `convertWeight(...)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.math", kind: github, note: "powertoolsdeveloper.math generated client.bal/types.bal"}
+  - id: datetime_ops
+    text: "Work with dates using `powertoolsdeveloper.datetime` `dateTimeInfo(InputDateTimeInfo)`, `dateTimeDifference(InputDateTimeDifference)`, `formatDateTime(InputDateTimeFormat)` and `worldTime(InputDateTimeConversion)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.datetime", kind: github, note: "powertoolsdeveloper.datetime generated client.bal/types.bal"}
+  - id: finance_weather
+    text: "Get market and weather data with `powertoolsdeveloper.finance` `convertCurrency(InputCurrencyConversion)`, `formatCurrency(...)`, `stockPrices(InputStockPrices)` and `marketIndex(...)`, and `powertoolsdeveloper.weather` `weatherConditions(...)`, `weatherDailyForecast(...)` and `weatherHourlyForecast(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.finance", kind: github, note: "powertoolsdeveloper.finance generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.weather", kind: github, note: "powertoolsdeveloper.weather generated client.bal/types.bal"}
+  - id: qr_code
+    text: "Generate a QR code with `powertoolsdeveloper.files` `generateQRCode({input, payload})` (an `InputQRCode`), which returns the image as a `string`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/powertoolsdeveloper.files", kind: github, note: "powertoolsdeveloper.files generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape]}
+  - {to: concept.client_objects, rel: uses, via: [client_shape]}
+  - {to: concept.records, rel: uses, via: [client_shape, math_ops]}
+  - {to: concept.errors, rel: uses, via: [client_shape]}
+notes: "Central READMEs are stubs; method and record names come from openapi-connectors main client.bal/types.bal. Most of these utilities have native Ballerina equivalents (lang.string, data.jsondata, time); generated samples should still use the connector calls. No BBEs exist."

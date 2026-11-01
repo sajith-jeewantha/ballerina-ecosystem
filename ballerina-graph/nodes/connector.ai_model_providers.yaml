@@ -1,0 +1,164 @@
+schema_version: "0.2"
+id: connector.ai_model_providers
+type: connector
+title: AI model providers
+summary: "The `ballerinax/ai.*` packages that implement the `ballerina/ai` model abstractions for specific LLM services: `ai:ModelProvider` classes for OpenAI, Anthropic, Azure OpenAI, Ollama, Amazon Bedrock, Google Vertex AI, DeepSeek, Mistral and OpenRouter, plus embedding providers, provider-hosted knowledge bases and the Devant chunker."
+priority: important
+status: draft
+modules: [ballerinax/ai.anthropic, ballerinax/ai.aws.bedrock, ballerinax/ai.azure, ballerinax/ai.deepseek, ballerinax/ai.devant, ballerinax/ai.googleapis.vertex, ballerinax/ai.mistral, ballerinax/ai.ollama, ballerinax/ai.openai, ballerinax/ai.openrouter]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.openai/latest", kind: central, note: "ballerinax/ai.openai 1.4.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "ai.openai module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/model-provider.bal", kind: github, note: "ai.openai ModelProvider init at the released tag"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.anthropic/latest", kind: central, note: "ballerinax/ai.anthropic 1.3.5 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "ai.anthropic module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/model-provider.bal", kind: github, note: "ai.anthropic ModelProvider at the released tag"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.azure/latest", kind: central, note: "ballerinax/ai.azure 1.5.1 package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "ai.azure module README: API surfaces and quickstart"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/model-provider.bal", kind: github, note: "ai.azure OpenAiModelProvider"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.ollama/latest", kind: central, note: "ballerinax/ai.ollama 1.2.x package docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "ai.ollama module README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/provider.bal", kind: github, note: "ai.ollama ModelProvider"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.aws.bedrock/latest", kind: central, note: "ballerinax/ai.aws.bedrock 1.0.1 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.googleapis.vertex/latest", kind: central, note: "ballerinax/ai.googleapis.vertex 1.0.3 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.deepseek/latest", kind: central, note: "ballerinax/ai.deepseek 1.1.5 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.mistral/latest", kind: central, note: "ballerinax/ai.mistral 1.2.5 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.openrouter/latest", kind: central, note: "ballerinax/ai.openrouter 1.0.3 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.devant/latest", kind: central, note: "ballerinax/ai.devant 1.0.5 package docs and README"}
+must_cover:
+  - id: openai_model_provider
+    text: "Create an OpenAI model from `ballerinax/ai.openai` with `final ai:ModelProvider model = check new openai:ModelProvider(apiKey, modelType = openai:GPT_4O);`, reading the key from a `configurable string apiKey = ?;` and picking the model from the `openai:OPEN_AI_MODEL_NAMES` enum, e.g. `openai:GPT_4O`, `openai:GPT_4O_MINI`, `openai:GPT_4_1`, `openai:GPT_5`, `openai:GPT_5_MINI` or `openai:O3`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "OPEN_AI_MODEL_NAMES"}
+  - id: openai_reasoning_and_api
+    text: "Set `reasoningEffort = openai:LOW` (or `MINIMAL`, `MEDIUM`, `HIGH`...) on `openai:ModelProvider` for reasoning-capable models, where unsupported combinations are rejected with an `ai:Error` when the provider is created, and select the Responses API with `apiType = openai:RESPONSES` instead of the default `openai:CHAT_COMPLETIONS`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "ReasoningEffort, ApiType"}
+  - id: generation_settings
+    text: "Tune generation on `openai:ModelProvider` and `anthropic:ModelProvider` with the optional `maxTokens` and `temperature` arguments, and point either provider at another compatible endpoint with `serviceUrl`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+  - id: connection_config
+    text: "Pass HTTP client settings to a provider as named arguments from its included connection record (`openai:ConnectionConfig`, `anthropic:ConnectionConfig`, `ollama:ConnectionConfig`), such as `timeout`, `retryConfig`, `circuitBreaker`, `proxy`, `secureSocket` and `httpVersion`, e.g. a longer `timeout` for slow local Ollama inference"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/types.bal", kind: github, note: "ConnectionConfig"}
+  - id: chat_and_generate
+    text: "Call any provider through the `ai:ModelProvider` API, e.g. `ai:ChatAssistantMessage response = check model->chat(chatMessages, tools = []);` followed by `chatMessages.push(response)`, or a typed `generate`, and use it as the `model` of an `ai:Agent` or a `natural (model) {...}` expression, so OpenAI, Anthropic, Azure, Ollama and the other providers are interchangeable"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "Step 4: Invoke chat completion"}
+  - id: embedding_providers
+    text: "Create an `ai:EmbeddingProvider` for RAG with `check new openai:EmbeddingProvider(apiKey, openai:TEXT_EMBEDDING_3_SMALL)` (or `TEXT_EMBEDDING_3_LARGE`, `TEXT_EMBEDDING_ADA_002`) or with `check new azure:EmbeddingProvider(serviceUrl, apiKey, apiVersion, deploymentId)` (passing `()` as `apiVersion` for a `/v1` URL), and pass it to `ai:VectorKnowledgeBase`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "3.1.1 Initialize the Embedding Provider"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.openai/blob/v1.4.1/ballerina/embedding-provider.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "EmbeddingProvider example"}
+  - id: anthropic_model_provider
+    text: "Create a Claude model from `ballerinax/ai.anthropic` with `final ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_6);`, reading the key from a `configurable` and picking the model from the `anthropic:ANTHROPIC_MODEL_NAMES` enum, e.g. `anthropic:CLAUDE_SONNET_4_6`, `anthropic:CLAUDE_OPUS_4_6` or `anthropic:CLAUDE_HAIKU_4_5`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.anthropic/blob/v1.3.5/ballerina/types.bal", kind: github, note: "ANTHROPIC_MODEL_NAMES"}
+  - id: azure_model_provider
+    text: "Create an Azure OpenAI model from `ballerinax/ai.azure` with `check new azure:OpenAiModelProvider(\"https://<resource>.openai.azure.com\", apiKey, deploymentId, \"2024-10-21\")` typed as `ai:ModelProvider`; a date-based `apiVersion` is required for legacy (non-`/v1`) service URLs"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+  - id: azure_url_surfaces
+    text: "Target the Azure OpenAI v1 GA surface with a `/v1`-suffixed service URL such as `https://<resource>.services.ai.azure.com/openai/v1` and no `apiVersion`, and explain how `azure:OpenAiModelProvider` derives a legacy base URL: a bare origin is completed with `/openai`, while a URL that already has a path (such as an API Management gateway) is used verbatim"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "API surfaces"}
+  - id: azure_api_and_settings
+    text: "Use the Responses API on `azure:OpenAiModelProvider` by passing `apiType = azure:RESPONSES` (default `azure:CHAT_COMPLETIONS`), and tune it with the optional `maxTokens`, `temperature` and `reasoningEffort` (`azure:LOW`, `azure:MEDIUM`, `azure:HIGH`...) arguments and `azure:ConnectionConfig` fields such as `timeout` and `retryConfig`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/README.md", kind: github, note: "Responses API example"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/model-provider.bal", kind: github, note: "init parameters"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/types.bal", kind: github, note: "ReasoningEffort, ConnectionConfig"}
+  - id: azure_ai_search_knowledge_base
+    text: "Use Azure AI Search as an `ai:KnowledgeBase` with `check new azure:AiSearchKnowledgeBase(serviceUrl, apiKey, indexName, embeddingModel)`, then `ingest`, `retrieve` and `deleteByFilter` as with any knowledge base"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.azure/blob/main/ballerina/azure_ai_search_knowledgebase.bal", kind: github, note: "AiSearchKnowledgeBase"}
+  - id: ollama_model_provider
+    text: "Create a model for a locally pulled Ollama model by name with `final ai:ModelProvider ollamaModel = check new ollama:ModelProvider(\"llama3\");` (`ballerinax/ai.ollama`, Ollama server already running), point it at a non-default server with `serviceUrl` (default `http://localhost:11434`), and set sampling options as named arguments from the included `ollama:OllamaModelParameters` record, such as `temperature`, `topK`, `topP`, `numCtx`, `numPredict`, `repeatPenalty` and `seed`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/README.md", kind: github, note: "Step 2: Initialize the Model Provider"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/provider.bal", kind: github, note: "DEFAULT_OLLAMA_SERVICE_URL"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.ollama/blob/main/ballerina/types.bal", kind: github, note: "OllamaModelParameters"}
+  - id: bedrock_model_providers
+    text: "Create an Amazon Bedrock model from `ballerinax/ai.aws.bedrock` with a per-vendor class taking a model, credentials and a region, e.g. `check new bedrock:RuntimeAnthropicModelProvider(bedrock:CLAUDE_SONNET_4_6, auth:DEFAULT_CREDENTIALS, aws:US_EAST_1)` (also `RuntimeOpenAIModelProvider`, `RuntimeAmazonModelProvider`, `RuntimeMistralModelProvider`, `RuntimeQwenModelProvider`, `RuntimeGoogleModelProvider`, `RuntimeDeepSeekModelProvider`), or `bedrock:ConverseModelProvider` with any model ID string such as `\"us.meta.llama3-3-70b-instruct-v1:0\"`, and switch from the default Converse API with `apiType = bedrock:MESSAGES`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.bedrock/latest", kind: central, note: "Step 2: Initialize the Model Provider; Notes (cross-region Claude IDs, required region)"}
+  - id: bedrock_auth
+    text: "Authenticate Bedrock providers with `auth:DEFAULT_CREDENTIALS` (instance profile, task role or service account on AWS) or a `bedrock:BedrockAuthConfig` such as `{accessKeyId: ..., secretAccessKey: ...}` (plus `sessionToken`), `{profileName: ...}`, `{roleArn: ...}` or `{apiKey: ...}` (Bedrock API keys work for model and embedding providers but not knowledge bases)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.bedrock/latest", kind: central, note: "Authentication"}
+  - id: bedrock_embeddings
+    text: "Embed text on Bedrock with `final ai:EmbeddingProvider titan = check new bedrock:TitanEmbeddingProvider(bedrock:TITAN_EMBED_TEXT_V2, auth:DEFAULT_CREDENTIALS, aws:US_EAST_1);` and `titan->embed({content: \"hello\", 'type: \"text-chunk\"})`, or with `bedrock:CohereEmbeddingProvider`, setting `inputType = bedrock:SEARCH_DOCUMENT` when ingesting documents one at a time with `embed()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.bedrock/latest", kind: central, note: "Embeddings"}
+  - id: bedrock_knowledge_bases
+    text: "Use a Bedrock knowledge base as an `ai:KnowledgeBase` with `check new bedrock:ManagedKnowledgeBase(\"<KNOWLEDGE_BASE_ID>\", auth:DEFAULT_CREDENTIALS, aws:US_EAST_1)` or a `{name: \"support-docs\", serviceRoleArn: ...}` definition that creates it, then `kb.retrieve(query, 5)` and `kb.ingest(docs)` (which needs a `CUSTOM` data source), or `bedrock:SelfManagedKnowledgeBase` for a knowledge base over a vector store you own"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.bedrock/latest", kind: central, note: "Knowledge bases"}
+  - id: vertex_model_provider
+    text: "Create a Google Vertex AI model from `ballerinax/ai.googleapis.vertex` with `check new vertex:ModelProvider(auth = ..., projectId = \"your-gcp-project-id\", location = \"us-central1\", model = \"google/gemini-2.0-flash\")`, where `auth` is an OAuth2 refresh-token record (`clientId`, `clientSecret`, `refreshToken`), a service-account JSON key file path, or inline service-account credentials (`clientEmail`, `privateKey`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.googleapis.vertex/latest", kind: central, note: "Step 2: Initialize the Model Provider (three auth options)"}
+  - id: typed_output_and_vertex_embeddings
+    text: "Bind `generate` output from `vertex:ModelProvider` or `openrouter:ModelProvider` to a record type, optionally giving an explicit schema with an `@ai:JsonSchema {...}` annotation on the type, and create Vertex embeddings with `check new vertex:EmbeddingProvider(auth = ..., projectId = ..., location = ...)` and `vertexEmbedding->embed(<ai:TextChunk>{content: \"Hello, world!\"})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.googleapis.vertex/latest", kind: central, note: "Step 4: Generate typed output; Step 5: Use an embedding provider"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.openrouter/latest", kind: central, note: "Step 4: Generate typed output"}
+  - id: api_key_providers
+    text: "Create API-key providers for other LLM services: `check new deepseek:ModelProvider(apiKey)` (`ballerinax/ai.deepseek`), `check new mistral:ModelProvider(apiKey, mistral:MINISTRAL_3B_2410)` (`ballerinax/ai.mistral`) and `check new openrouter:ModelProvider(apiKey, modelType = \"anthropic/claude-3.5-sonnet\")` (`ballerinax/ai.openrouter`, 200+ models through one API), each typed as `ai:ModelProvider`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.deepseek/latest", kind: central, note: "Step 2: Intialize the Model Provider"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.mistral/latest", kind: central, note: "Step 2: Intialize the Model Provider"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.openrouter/latest", kind: central, note: "Step 2: Initialize the Model Provider"}
+  - id: devant_chunking
+    text: "Load a file with `devant:BinaryDataLoader loader = check new (\"./sample.pdf\");` and `loader.load()`, then chunk an `ai:Document` with the Devant AI service via `devant:Chunker chunker = new (serviceUrl, accessToken);` and `ai:Chunk[] chunks = check chunker.chunk(doc)` (`ballerinax/ai.devant`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.devant/latest", kind: central, note: "Quickstart"}
+out_of_scope:
+  - "Chat, generate, agents and RAG APIs themselves (lib.ai)"
+  - "HTTP client resiliency options in detail (lib.http)"
+  - "Raw REST connectors for the OpenAI and Azure OpenAI APIs (connector.openai) and for Mistral and OpenRouter (connector.area_ai_machine_learning)"
+  - "AWS credential types in general (connector.aws)"
+  - "Installing Ollama and pulling models"
+edges:
+  - {to: lib.ai, rel: implements, via: [openai_model_provider, anthropic_model_provider, azure_model_provider, ollama_model_provider, bedrock_model_providers, vertex_model_provider, api_key_providers, chat_and_generate, embedding_providers, bedrock_embeddings, bedrock_knowledge_bases, azure_ai_search_knowledge_base, typed_output_and_vertex_embeddings, devant_chunking], target_items: [model_provider_init, chat_history, generate_typed, agent_create, vector_knowledge_base, retrieve_augment, ingest_documents, chunking]}
+  - {to: concept.client_objects, rel: uses, via: [openai_model_provider, chat_and_generate]}
+  - {to: concept.constants_enums, rel: uses, via: [openai_model_provider, openai_reasoning_and_api, anthropic_model_provider, azure_api_and_settings]}
+  - {to: concept.records, rel: uses, via: [ollama_model_provider, bedrock_auth], note: "Included record parameter supplies named arguments"}
+  - {to: concept.annotations, rel: uses, via: [typed_output_and_vertex_embeddings], note: "@ai:JsonSchema"}
+  - {to: concept.natural_expressions, rel: uses, via: [chat_and_generate]}
+  - {to: lib.http, rel: uses, via: [connection_config, azure_api_and_settings]}
+  - {to: tool.config_toml, rel: uses, via: [openai_model_provider, anthropic_model_provider], note: "API key supplied through a configurable"}
+  - {to: connector.aws, rel: uses, via: [bedrock_model_providers, bedrock_auth], note: "ballerinax/aws.auth credentials and aws:Region"}
+  - {to: connector.openai, rel: related, note: "ai:ModelProvider implementations versus the raw OpenAI/Azure OpenAI REST connectors"}
+  - {to: connector.area_ai_machine_learning, rel: related, note: "ai.mistral/ai.openrouter providers versus the raw ballerinax/mistral and ballerinax/openrouter connectors"}
+notes: "Merged in v3 from lib.ai.openai, lib.ai.anthropic, lib.ai.azure and lib.ai.ollama. ai.openai items were checked against the released tag v1.4.1 (Central latest); main is at 1.5.0-dev with more model names (GPT-5.x). The ballerina/ai README's RAG snippet imports `ballerina/ai.openai`, a typo for `ballerinax/ai.openai`. ai.anthropic was checked against v1.3.5: on main `CLAUDE_SONNET_4_5*` are @deprecated, older Claude 3/4.0 names are removed, Opus 4.7/4.8 are added and `temperature` becomes optional; prefer the 4.5+/4.6 names that exist in both. ai.azure was verified against main (1.5.1, same as Central); `azure:AiSearchKnowledgeBase` is not in the README and comes from the public source (it also accepts an `ai:Chunker|ai:AUTO|ai:DISABLE` chunker and a `search:SearchIndex` definition). ai.ollama was verified against main (1.2.6-dev; Central 1.2.5, same init signature); the model is a plain string, \"llama3\" is an example name. Bedrock, Vertex, DeepSeek, Mistral, OpenRouter and Devant items come from their Central READMEs only; DeepSeek model names, Mistral/OpenRouter/Vertex init parameters beyond the README, Bedrock guardrails and image input (listed as features but not shown) were left out. ai.devant is a document loader and chunker rather than a model provider, but is assigned here."

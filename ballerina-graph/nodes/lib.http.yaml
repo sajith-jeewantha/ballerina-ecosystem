@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.http
 type: library
 title: ballerina/http
@@ -150,7 +150,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/http-request-with-multiparts/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/http-response-with-multiparts/", kind: bbe}
   - id: sse_and_protocols
-    text: "Stream server-sent events by returning `stream<http:SseEvent, error?>` from a resource and consuming it on the client as `stream<http:SseEvent, error?>`; choose protocol behaviour knowing HTTP/2 is the default, with `httpVersion = http:HTTP_1_1` to downgrade, `http2Settings: {http2PriorKnowledge: true}`, chunking via `chunking: http:CHUNKING_ALWAYS` or `http1Settings`, and HTTP/2 server push with `http:PushPromise`"
+    text: "Stream server-sent events by returning `stream<http:SseEvent, error?>` from a resource and consuming it on the client as `stream<http:SseEvent, error?>`; choose protocol behaviour knowing HTTP/2 is the default, with `httpVersion = http:HTTP_1_1` to downgrade, `http2Settings: {http2PriorKnowledge: true}`, chunking via `chunking: http:CHUNKING_ALWAYS` or `http1Settings`, and HTTP/2 server push with `http:PushPromise` (client side: `submit` returns an `http:HttpFuture`, then `hasPromise`, `getNextPromise`, `rejectPromise`, `getResponse` and `getPromisedResponse`)"
     difficulty: [intermediate, advanced]
     sources:
       - {url: "https://ballerina.io/learn/by-example/http-sse-service/", kind: bbe}
@@ -159,6 +159,9 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/http-2-prior-knowledge-client/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/http-service-chunking/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/http-2-0-server-push/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-client-chunking/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-2-to-1-1-downgrade-client/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/http-2-0-client-server-push/", kind: bbe}
 out_of_scope:
   - "General resource method syntax and service/listener semantics of the language (concept.resource_methods, concept.services_listeners)"
   - "Designing REST APIs end to end (topic.rest_api)"

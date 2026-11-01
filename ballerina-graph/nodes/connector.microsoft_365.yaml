@@ -1,0 +1,95 @@
+schema_version: "0.2"
+id: connector.microsoft_365
+type: connector
+title: ballerinax/microsoft.*
+summary: "Microsoft Graph based connectors for Microsoft 365: Outlook Mail and Calendar, OneDrive, Excel, OneNote, Teams and SharePoint sites, lists and pages, all authenticated with OAuth2 against Microsoft Entra ID."
+priority: important
+status: draft
+modules: [ballerinax/microsoft.excel, ballerinax/microsoft.onedrive, ballerinax/microsoft.onenote, ballerinax/microsoft.outlook.calendar, ballerinax/microsoft.outlook.mail, ballerinax/microsoft.sharepoint.lists, ballerinax/microsoft.sharepoint.pages, ballerinax/microsoft.sharepoint.sites, ballerinax/microsoft.teams]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.outlook.mail/latest", kind: central, note: "microsoft.outlook.mail 3.1.0 README (setup, auth flows, quickstart)"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.onedrive/latest", kind: central, note: "microsoft.onedrive 3.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.teams/latest", kind: central, note: "microsoft.teams 3.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.sharepoint.sites/latest", kind: central, note: "microsoft.sharepoint.sites 1.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.sharepoint.lists/latest", kind: central, note: "microsoft.sharepoint.lists 1.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.sharepoint.pages/latest", kind: central, note: "microsoft.sharepoint.pages 1.1.1 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.excel/tree/v2.4.1/excel", kind: github, note: "microsoft.excel 2.4.1 client and Module.md"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.outlook.calendar/tree/v2.4.1/calendar", kind: github, note: "microsoft.outlook.calendar 2.4.1 client and Module.md"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.onenote/tree/v2.4.1/onenote", kind: github, note: "microsoft.onenote 2.4.1 endpoint and Module.md"}
+must_cover:
+  - id: graph_refresh_token_auth
+    text: "Register an Entra ID app, obtain a refresh token through the authorization-code flow (`offline_access` scope) and create a client with an OAuth2 refresh token grant, e.g. `mail:Client` with `{auth: {clientId, clientSecret, refreshToken, refreshUrl}}` where `refreshUrl` is `https://login.microsoftonline.com/common/oauth2/v2.0/token`, reading the values from `configurable` variables"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/microsoft.outlook.mail/latest", kind: central, note: "Step 5 auth flow and quickstart"}
+  - id: graph_client_credentials_auth
+    text: "Authenticate app-only with the client credentials grant: `{auth: {clientId, clientSecret, tokenUrl: \"https://login.microsoftonline.com/\" + tenantId + \"/oauth2/v2.0/token\", scopes: [\"https://graph.microsoft.com/.default\"]}}`, as used by the SharePoint connectors and the Outlook `...FromUser` operations"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/microsoft.sharepoint.sites/latest", kind: central, note: "Client credentials config"}
+  - id: outlook_mail_read
+    text: "List and read mail with the `microsoft.outlook.mail` client: `listMessages(dollarTop = 5, dollarSelect = [\"id\", \"subject\", \"from\", \"receivedDateTime\", \"isRead\"])` returning `mail:MicrosoftGraphMessageCollectionResponse`, `getMessage`, `updateMessage` (e.g. mark as read) and `deleteMessage`"
+    difficulty: [beginner]
+  - id: outlook_mail_send
+    text: "Send mail with `sendMail`, or draft with `createDraftMessage`, attach files with `addAttachment` (or `createUploadSession` for large files) and send with `sendDraftMessage`; use `forwardMessage` and `copyMessage`, and the `sendMailFromUser`/`listMessagesFromUser` variants for `users/{userIdentifier}` with application permissions"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.outlook.mail/blob/main/ballerina/client.bal", kind: github, note: "Outlook mail remote methods"}
+  - id: outlook_mail_folders
+    text: "Organise a mailbox with `listMailFolders`, `createMailFolder`, `getMailFolder`, `updateMailFolder`, `deleteMailFolder` and child folders via `createChildFolder`/`listChildFolders`"
+    difficulty: [intermediate]
+  - id: outlook_calendar
+    text: "Manage calendars with `microsoft.outlook.calendar` (`calendar:Client`, refresh-token config): `createEvent(eventMetadata)`, `addQuickEvent`, `getEvent`, `listEvents`, `updateEvent`, `deleteEvent`, and `createCalendar`, `listCalendars`, `deleteCalendar`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.outlook.calendar/blob/v2.4.1/calendar/client.bal", kind: github, note: "Calendar 2.4.1 remote methods"}
+  - id: onedrive_files
+    text: "Create an `onedrive:Client` with `config = {auth: {refreshToken, clientId, clientSecret, scopes: [\"Files.Read\", \"Files.ReadWrite\", ...]}}` and work with drives and items: `listDrive`, `getDrive`, `getRoot`, `listChildrenInRoot`, `getItemByPath`, `setChildrenContentByPath` (upload), `getChildrenContent` (download), `createUploadSession`, `deleteItem` and `search`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.onedrive/blob/master/ballerina/client.bal", kind: github, note: "OneDrive remote methods"}
+  - id: onedrive_sharing
+    text: "Share and manage OneDrive items with `createLink`, `invite`, `copy`, `checkout`/`checkin`, `restore`, `preview`, `sharedWithMe` and `recent`"
+    difficulty: [intermediate]
+  - id: excel_workbooks
+    text: "Edit workbooks stored in OneDrive/SharePoint with `microsoft.excel` (`excel:Client`, refresh-token config): `addWorksheet(\"workbookIdOrPath\", \"sheetName\")`, `listWorksheets`, `getCell`, `addTable`, `createRow(workbook, worksheet, table, values)`, `listRows`, `updateRow`, `deleteRow`, columns via `createColumn`/`listColumns`, and `createSession` for persistent sessions"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.excel/blob/v2.4.1/excel/client.bal", kind: github, note: "Excel 2.4.1 remote methods"}
+  - id: excel_charts
+    text: "Create and manage worksheet charts with `excel:Client` `addChart`, `listCharts`, `updateChart`, `setChartPosition`, `resetChartData`, `getChartImage` and `deleteChart`, and recalculate with `calculateWorkbookApplication`"
+    difficulty: [intermediate]
+  - id: onenote_notebooks
+    text: "Work with OneNote content through `microsoft.onenote`: `createNotebook(\"test\")`, `listNotebooks`, `getRecentNotebooks`, `createSection`, `listSections`, `createSectionGroup`, `createPage`/`createPageWithHTML`, `listPages`, `getPage` and `deletePage`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.onenote/blob/v2.4.1/onenote/endpoint.bal", kind: github, note: "OneNote 2.4.1 remote methods"}
+  - id: teams_client
+    text: "Create a `teams:Client` with a `teams:OAuth2RefreshTokenGrantConfig` whose `refreshUrl` is `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, and manage teams and channels with `createTeam`, `getTeam`, `listChannels(teamId)` (`teams:ChannelCollectionResponse`), `createChannel` and `updateChannel`"
+    difficulty: [beginner, intermediate]
+  - id: teams_messages
+    text: "Post to Teams channels with `createChannelMessage`, reply with `createChannelMessageReply`, react with `setReactionChannelMessage`, list with `listChannelMessages`, and manage channel membership with `createChannelMember`/`addChannelMembers`/`listChannelMembers`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.teams/blob/main/ballerina/client.bal", kind: github, note: "Teams remote methods"}
+  - id: sharepoint_sites
+    text: "Use the `microsoft.sharepoint.sites` client (`sites:Client`) to `listSite`, `getSite`, read `getAnalytics`/`analyticsGetAllTime`, manage site columns and content types (`listColumns`, `createColumns`, `listContentTypes`), and create a document library with `createLists(siteId, {displayName, list: {template: \"documentLibrary\"}})`"
+    difficulty: [intermediate]
+  - id: sharepoint_lists
+    text: "Manage SharePoint lists and items with `lists:Client` from `microsoft.sharepoint.lists`: `createList(siteId, {displayName, list: {template: \"genericList\"}})`, `listLists`, `getList`, `listColumns`, `createColumn`, and items via `listItems`, `createItem`, `getItem`, `updateItem` and `deleteItem`"
+    difficulty: [intermediate]
+  - id: sharepoint_pages
+    text: "Read and edit modern pages with `pages:Client` from `microsoft.sharepoint.pages`: `listPages(siteId)` (`pages:BaseSitePageCollectionResponse`), `createPages`, `getSitePage`, `getSitePageCanvasLayout`, horizontal sections (`listHorizontalSections`, `createHorizontalSection`) and web parts (`listSitePageWebParts`, `createHSectionColumnWebpart`)"
+    difficulty: [intermediate, advanced]
+out_of_scope:
+  - "Dynamics 365 (connector.microsoft_dynamics365)"
+  - "Azure services and Azure AD directory management (connector.azure)"
+  - "Local .xlsx file handling (lib.xlsx)"
+edges:
+  - {to: lib.http, rel: uses, via: [graph_refresh_token_auth]}
+  - {to: lib.oauth2, rel: uses, via: [graph_refresh_token_auth, graph_client_credentials_auth]}
+  - {to: concept.client_objects, rel: uses, via: [outlook_mail_read, onedrive_files, teams_client]}
+  - {to: concept.records, rel: uses, via: [sharepoint_lists, outlook_mail_send]}
+  - {to: concept.errors, rel: uses, via: [outlook_mail_read]}
+  - {to: tool.config_toml, rel: uses, via: [graph_refresh_token_auth]}
+notes: "microsoft.excel, microsoft.onenote and microsoft.outlook.calendar (2.4.1) are older hand-written connectors whose main branches have been reset; operation names were taken from the v2.4.1 tag. The Graph-generated connectors use remote methods (not resource paths) with OData query parameters such as dollarTop/dollarSelect."

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.binding_patterns
 type: concept
 title: Binding patterns
@@ -12,27 +12,50 @@ must_cover:
   - id: capture_and_wildcard
     text: 'Use a capture binding pattern `x` to bind any value and the wildcard `_`, and know that `_` matches only values whose basic type is not error'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/wildcard-binding-pattern/", kind: bbe}
   - id: list_binding
     text: 'Destructure lists with `[a, b]` and `[first, ...rest]`, where the pattern matches when it has no more members than the list and `rest` gets a new list of the remaining members'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/list-binding-pattern/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rest-binding-pattern-in-list-binding-pattern/", kind: bbe}
   - id: mapping_binding
     text: 'Destructure mappings with `{name: n, age}` (the shorthand `age` means `age: age`) and `{id, ...others}`, where `others` gets a new mapping of the unmatched fields'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mapping-binding-pattern/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rest-binding-pattern-in-mapping-binding-pattern/", kind: bbe}
   - id: optional_field_binding
     text: 'Explain that a field binding pattern binds `()` for an absent field only when the field is known at compile time to be optional and unable to hold nil'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/optional-fields/", kind: bbe}
   - id: error_binding
     text: 'Destructure errors with `error(msg, cause, code = c, ...rest)` and `error MyError(msg)`, matching the message, the optional cause, named detail fields and the remaining detail fields'
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-binding-pattern/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/rest-binding-pattern-in-error-binding-pattern/", kind: bbe}
   - id: distinct_variables
     text: 'Explain that all variables in one binding pattern must be distinct, so `[x, x]` is not allowed'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/binding-patterns/", kind: bbe}
   - id: typed_binding_var
     text: 'Write typed binding patterns with an explicit type or `var`, e.g. `var [x, y] = point;`, where `var` infers the type from the initializer'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/typed-binding-pattern/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/single-use-of-typed-binding/", kind: bbe}
   - id: single_vs_iterative
     text: 'Distinguish single use of a typed binding pattern (followed by `=`, or after `on fail`) from iterative use (followed by `in`), where `var` infers the iteration value type'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/typed-binding-pattern/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/single-use-of-typed-binding/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/single-use-with-on-fail-clause/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/iterative-use-of-typed-binding/", kind: bbe}
   - id: var_unused_error
     text: 'Explain the compile error when `var x = expr;` infers a type that may include an error and `x` is never used'
     difficulty: [intermediate]
@@ -50,6 +73,8 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+      - {url: "https://ballerina.io/learn/by-example/binding-patterns/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mapping-binding-pattern/", kind: bbe}
   - id: destructuring_isolated_vars
     text: 'Explain that a destructuring assignment pattern must not refer to a module variable declared `isolated`'
     difficulty: [advanced]

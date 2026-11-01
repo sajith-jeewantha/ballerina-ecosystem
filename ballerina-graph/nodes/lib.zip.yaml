@@ -1,0 +1,72 @@
+schema_version: "0.2"
+id: lib.zip
+type: library
+title: ballerina/zip
+summary: "The `ballerina/zip` module creates, lists and unpacks ZIP archives, with entry-by-entry `ArchiveWriter` and `ArchiveReader` objects that stream content and defensive extraction limits for untrusted archives."
+priority: long_tail
+status: draft
+modules: [ballerina/zip]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/zip/latest", kind: central, note: "ballerina/zip 1.0.1 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-zip/tree/main/ballerina", kind: github, note: "zip.bal, types.bal, errors.bal, archive_reader.bal, archive_writer.bal"}
+  - {url: "https://ballerina.io/learn/by-example/zip-compress/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/zip-decompress/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/zip-decompress-untrusted/", kind: bbe}
+must_cover:
+  - id: compress
+    text: "Archive a file or a directory with `check zip:compress(\"./reports\", \"./reports.zip\")`, passing a `zip:CompressOptions` record such as `{level: zip:BEST, overwrite: true}` where `level` is `zip:NONE`, `zip:FASTEST`, `zip:DEFAULT` or `zip:BEST`, `overwrite` replaces an existing archive, and `includeSourceDirectory: false` stops entries being prefixed with the source directory name"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-compress/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/types.bal", kind: github}
+  - id: list_entries
+    text: "List an archive's contents without unpacking it with `zip:Entry[] entries = check zip:listEntries(\"reports.zip\");`, reading each `zip:Entry`'s `name`, `isDirectory`, `isSymlink`, `uncompressedSize`, `compressedSize`, `method` (`zip:STORE`, `zip:DEFLATE` or `zip:OTHER`), `modifiedTime` (`time:Utc`) and `crc32`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-decompress/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/types.bal", kind: github}
+  - id: decompress
+    text: "Unpack an archive into a directory (created if missing) with `zip:decompress(\"reports.zip\", \"restored\", {fileWriteMode: zip:REPLACE})`, where `fileWriteMode` is `zip:FAIL_IF_EXISTS` (default), `zip:REPLACE` or `zip:SKIP` for files already at the target"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-decompress/", kind: bbe}
+  - id: extraction_limits
+    text: "Unpack untrusted archives with `limits` in `zip:DecompressOptions` (`zip:ExtractionLimits` with `maxEntries`, `maxTotalSize` in bytes and `maxCompressionRatio`), so an archive built to exhaust the disk is stopped; an absent limit means no limit"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-decompress-untrusted/", kind: bbe}
+  - id: zip_errors
+    text: "Tell a hostile archive from a broken one by the error type: test the result for `zip:LimitExceededError`, `zip:UnsafePathError` (an entry name that would write outside the target directory) and `zip:UnsupportedEntryError` (symbolic links, encrypted entries or unsupported compression), which carry `entryName` in their detail, besides `zip:InvalidArchiveError`, `zip:EntryNotFoundError`, `zip:FileSystemError` and the base `zip:Error`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-decompress-untrusted/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/errors.bal", kind: github}
+  - id: archive_writer
+    text: "Build an archive entry by entry with `zip:ArchiveWriter writer = check new (\"./bundle.zip\", {level: zip:BEST});`, adding files with `writer.addFile(path)` (optionally under another `entryName`), directories with `addDirectory(path)` and in-memory or streamed content with `addEntry(\"notes.txt\", content)` where content is `byte[]` or `stream<byte[], error?>`, then `check writer.close();`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/zip/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/archive_writer.bal", kind: github}
+  - id: archive_reader
+    text: "Read individual entries with `zip:ArchiveReader archive = check new (\"./bundle.zip\");` using `entries()`, `hasEntry(name)`, `getEntry(name)`, `readEntry(name)` (as `byte[]` or, by the expected type, as a `stream<byte[], zip:Error?>` for large entries), `extractEntry(name, targetPath)` and `extractAll(targetPath, options)`, and `close()` it when done"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/zip/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/archive_reader.bal", kind: github}
+  - id: copy_entry
+    text: "Rewrite an archive (a ZIP cannot be changed in place) by opening the old one with `ArchiveReader`, writing a new one with `ArchiveWriter`, carrying the entries to keep across with `writer.copyEntry(reader, entryName)` (stored bytes copied without decompressing) and adding new entries with `addEntry`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/zip/latest", kind: central, note: "Rewrite an Archive example"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-zip/blob/main/ballerina/archive_writer.bal", kind: github}
+out_of_scope:
+  - "General file system operations (lib.file)"
+  - "Other archive formats such as tar or gzip (not provided by the module)"
+edges:
+  - {to: concept.errors, rel: uses, via: [zip_errors]}
+  - {to: concept.type_cast_test, rel: uses, via: [zip_errors]}
+  - {to: concept.streams, rel: uses, via: [archive_writer, archive_reader]}
+  - {to: concept.classes, rel: uses, via: [archive_writer, archive_reader, copy_entry]}
+  - {to: lib.time, rel: uses, via: [list_entries]}
+  - {to: concept.records, rel: uses, via: [compress, extraction_limits]}
+notes: "Option and error names come from the GitHub source of version 1.0.1 and the three BBEs. Encrypted entries are refused on extraction (`UnsupportedEntryError`); `CompressOptions` has no password option, so writing encrypted archives is not covered."

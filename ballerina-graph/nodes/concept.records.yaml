@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.records
 type: concept
 title: Records
@@ -7,16 +7,24 @@ priority: core
 status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.2", kind: spec, note: "5.4.2.2 Record types"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: record_basics
     text: 'Define record types such as `type Person record { string name; int age; };` whose fields are required, and create values of them with mapping constructors'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/records/", kind: bbe}
   - id: optional_fields
     text: 'Declare optional fields with `T f?;`, meaning the field may be absent but if present its value must belong to `T`'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/optional-fields/", kind: bbe}
   - id: default_values
     text: 'Declare fields with default values `int retries = 3;`, and explain the default is a closure evaluated each time a value is constructed without that field and does not affect the type'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/default-values-for-record-fields/", kind: bbe}
   - id: default_restrictions
     text: 'Explain that a field default-expression must meet the requirements for an isolated function and that it is a compile-time error for it to contain `check`'
     difficulty: [advanced]
@@ -25,12 +33,28 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+  - id: default_values_propagation
+    text: 'Explain that `value:cloneWithType` with a record typedesc fills in the default values of missing fields (e.g. `Student s = check j.cloneWithType(Student);`), and that including a record with `*T` also copies its field defaults'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/default-values-for-record-fields/", kind: bbe}
   - id: open_vs_closed
     text: 'Distinguish inclusive records `record { ... }`, which also allow extra `anydata` fields (equivalent to `record {| ...; anydata...; |}`), from exclusive records `record {| ... |}`, which allow only the described fields'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/records/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/open-records/", kind: bbe}
   - id: rest_descriptor
     text: 'Use a record rest descriptor `record {| string name; int...; |}` to allow extra fields of a given type, and classify a record type as open (inclusive, or exclusive with rest) or closed'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/open-records/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/controlling-openness/", kind: bbe}
+  - id: record_map_equivalence
+    text: 'Explain that `map<T>` is the same type as `record {| T...; |}`, so a value of a closed record whose fields all have type `T` (e.g. `record {| string name; string country; |}`) or of an exclusive record with rest descriptor `T...` can be assigned to `map<T>`'
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/controlling-openness/", kind: bbe}
   - id: readonly_fields
     text: 'Declare `readonly` fields, whose read-only bit must be set and whose type is the intersection of `readonly` and the declared type'
     difficulty: [intermediate]
@@ -40,9 +64,13 @@ must_cover:
   - id: type_inclusion
     text: 'Include the fields and rest descriptor of another record type with `*OtherRecord;`, and know a record may not directly or indirectly include itself'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/type-inclusion-for-records/", kind: bbe}
   - id: inclusion_overrides
     text: 'Override an included field with a field of the same name whose type is a subtype, and explain the error when two inclusions bring a same-named field or different rest descriptors that the including type does not override'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/type-inclusion-for-records/", kind: bbe}
   - id: constructor_field_must_exist
     text: 'Explain that in a mapping constructor whose inherent type is a record, a field written with a plain field name (not a string literal) must be declared in the record type'
     difficulty: [intermediate, advanced]

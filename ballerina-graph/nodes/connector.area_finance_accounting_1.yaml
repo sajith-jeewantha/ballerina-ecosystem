@@ -1,0 +1,104 @@
+schema_version: "0.2"
+id: connector.area_finance_accounting_1
+type: connector
+title: "Finance & Accounting connectors (A–P)"
+summary: "Ballerina connectors for finance and accounting APIs from Apideck to Plaid: the PayPal Orders, Payments, Invoices and Subscriptions resource-method clients plus OpenAPI-generated clients for accounting, payroll, banking, currency and crypto services."
+priority: long_tail
+status: draft
+modules: [ballerinax/apideck.accounting, ballerinax/chaingateway, ballerinax/cloudmersive.currency, ballerinax/exchangerates, ballerinax/freshbooks, ballerinax/nowpayments, ballerinax/openfigi, ballerinax/paylocity, ballerinax/paypal.invoices, ballerinax/paypal.orders, ballerinax/paypal.payments, ballerinax/paypal.subscriptions, ballerinax/plaid]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/apideck.accounting/latest", kind: central, note: "ballerinax/apideck.accounting README"}
+  - {url: "https://central.ballerina.io/ballerinax/chaingateway/latest", kind: central, note: "ballerinax/chaingateway README"}
+  - {url: "https://central.ballerina.io/ballerinax/cloudmersive.currency/latest", kind: central, note: "ballerinax/cloudmersive.currency README"}
+  - {url: "https://central.ballerina.io/ballerinax/exchangerates/latest", kind: central, note: "ballerinax/exchangerates README"}
+  - {url: "https://central.ballerina.io/ballerinax/freshbooks/latest", kind: central, note: "ballerinax/freshbooks README"}
+  - {url: "https://central.ballerina.io/ballerinax/nowpayments/latest", kind: central, note: "ballerinax/nowpayments README"}
+  - {url: "https://central.ballerina.io/ballerinax/openfigi/latest", kind: central, note: "ballerinax/openfigi README"}
+  - {url: "https://central.ballerina.io/ballerinax/paylocity/latest", kind: central, note: "ballerinax/paylocity README"}
+  - {url: "https://central.ballerina.io/ballerinax/paypal.invoices/latest", kind: central, note: "ballerinax/paypal.invoices README"}
+  - {url: "https://central.ballerina.io/ballerinax/paypal.orders/latest", kind: central, note: "ballerinax/paypal.orders README"}
+  - {url: "https://central.ballerina.io/ballerinax/paypal.payments/latest", kind: central, note: "ballerinax/paypal.payments README"}
+  - {url: "https://central.ballerina.io/ballerinax/paypal.subscriptions/latest", kind: central, note: "ballerinax/paypal.subscriptions README"}
+  - {url: "https://central.ballerina.io/ballerinax/plaid/latest", kind: central, note: "ballerinax/plaid README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.orders", kind: github, note: "module-ballerinax-paypal.orders source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.payments", kind: github, note: "module-ballerinax-paypal.payments source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.invoices", kind: github, note: "module-ballerinax-paypal.invoices source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.subscriptions", kind: github, note: "module-ballerinax-paypal.subscriptions source"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal (ConnectionConfig, ApiKeysConfig, remote methods)"}
+must_cover:
+  - id: paypal_client
+    text: "Import a PayPal package with an alias (`import ballerinax/paypal.orders as paypal;`) and create `paypal:Client` with `check new ({auth: {clientId, clientSecret, tokenUrl}}, serviceUrl)` (OAuth2 client credentials, sandbox or live `serviceUrl` and `tokenUrl` read from `Config.toml`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/paypal.orders/latest", kind: central, note: "Quickstart"}
+  - id: paypal_orders
+    text: "Create a PayPal order with `paypal->/orders.post({intent: \"CAPTURE\", purchase_units: [{amount: {currency_code: \"USD\", value: \"100.00\"}}]})` returning `paypal:Order`, then read it with `/orders/[id]`, patch it, and complete it with `/orders/[id]/authorize.post(...)` or `/orders/[id]/capture.post(...)`; add shipment tracking with `/orders/[id]/track.post(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/paypal.orders/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.orders/blob/main/ballerina/client.bal", kind: github, note: "orders resources"}
+  - id: paypal_payments
+    text: "With `paypal.payments`, capture an authorization with `paypal->/authorizations/[authorizationId]/capture.post({amount: {currency_code, value}, final_capture: true})` (a `paypal:CaptureRequest`, returns `paypal:Capture2`), reauthorize or void it via `/reauthorize.post` and `/void.post`, refund with `/captures/[captureId]/refund.post(...)` and read `/refunds/[refundId]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/paypal.payments/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.payments/blob/main/ballerina/client.bal", kind: github, note: "authorizations/captures/refunds resources"}
+  - id: paypal_invoices
+    text: "With `paypal.invoices`, create a draft `paypal:Invoice` (`detail`, `invoicer`, `primary_recipients`, `items`) via `paypalInvoices->/invoices.post(invoice)`, then `/invoices/[invoiceId]/send.post(...)`, `/remind.post`, `/cancel.post`, record a payment with `/invoices/[invoiceId]/payments.post(...)`, and use `/generate\\-next\\-invoice\\-number.post()`, `/search\\-invoices.post(...)` and `/templates`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/paypal.invoices/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.invoices/blob/main/ballerina/client.bal", kind: github, note: "invoices/templates resources"}
+  - id: paypal_subscriptions
+    text: "With `paypal.subscriptions`, create a billing plan via `paypal->/plans.post(plan)` using `paypal:PlanRequestPOST` (`product_id`, `billing_cycles` with `frequency`, `tenure_type`, `pricing_scheme`, and `payment_preferences`), activate/deactivate it, then create a subscription with `/subscriptions.post(...)` and `suspend`, `cancel`, `activate` or list `/subscriptions/[id]/transactions`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/paypal.subscriptions/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-paypal.subscriptions/blob/main/ballerina/client.bal", kind: github, note: "plans/subscriptions resources"}
+  - id: generated_auth
+    text: "Initialize the generated clients with the auth they declare: an `ApiKeysConfig` first argument for `apideck.accounting` and `chaingateway` (`authorization`), `cloudmersive.currency` (`apikey`), `nowpayments` (`xApiKey`), `openfigi` (`xOpenfigiApikey`) and `plaid` (`plaidClientId`, `plaidSecret`, `plaidVersion`); a bearer token `{auth: {token}}` for `freshbooks`; OAuth2 client credentials for `paylocity`; while `exchangerates` needs no config and takes `apikey` per call"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal (ConnectionConfig, ApiKeysConfig, remote methods)"}
+  - id: apideck_accounting
+    text: "Use the unified `apideck.accounting` client, passing `xApideckConsumerId` and `xApideckAppId` on each call: `companiesAll(...)`, `contactsAdd(...)`, `invoicesAll(...)`/`invoicesAdd(...)`, `ledgerAccountsAll(...)` and `taxRatesAll(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/apideck.accounting", kind: github, note: "apideck.accounting generated client.bal/types.bal"}
+  - id: freshbooks_ops
+    text: "Use the `freshbooks` client with an `accountId`: `listClients(accountId)`, `createClient(accountId, ClientCreateObject)`, `listInvoices`/`createInvoice`, `createExpense(accountId, ExpenseCreateObject)`, `listEstimates`, `createTimeEntry` and `makePayment`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/freshbooks", kind: github, note: "freshbooks generated client.bal/types.bal"}
+  - id: paylocity_payroll
+    text: "Manage payroll employees with `paylocity`: `addEmployee(companyId, Employee)`, `getAllEmployees(companyId)`, `getEmployee(companyId, employeeId)`, `updateEmployee(...)`, `getAllEarnings(companyId, employeeId)` and `getAllDirectDeposit(companyId, employeeId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/paylocity", kind: github, note: "paylocity generated client.bal/types.bal"}
+  - id: plaid_banking
+    text: "Use the `plaid` client with request records: `linkTokenCreate(...)`, `itemPublicTokenExchange(...)`, `accountsGet(...)`, `accountsBalanceGet(...)`, `authGet(AuthGetRequest)`, `transactionsGet(TransactionsGetRequest)`, `identityGet(...)` and `institutionsSearch(InstitutionsSearchRequest)`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/plaid", kind: github, note: "plaid generated client.bal/types.bal"}
+  - id: currency_rates
+    text: "Get exchange data: `exchangerates` `getExchangeRateFor(apikey, baseCurrency)`; `cloudmersive.currency` `currencyExchangeConvertCurrency(source, destination, amount)`, `currencyExchangeGetExchangeRate(source, destination)` and `currencyExchangeGetAvailableCurrencies()`; and `openfigi` `mapIdentifiers(BulkMappingJob)` to map third-party identifiers to FIGIs"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/exchangerates", kind: github, note: "exchangerates generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/cloudmersive.currency", kind: github, note: "cloudmersive.currency generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/openfigi", kind: github, note: "openfigi generated client.bal/types.bal"}
+  - id: crypto_payments
+    text: "Use crypto APIs: `chaingateway` `getEthereumBalance(GetEthereumBalanceRequest)`, `getTokenBalance(...)`, `getGasPrice(contentType)`, `getTransactions(...)` and `newAddress(...)`; `nowpayments` `getEstimatedPrice(amount, currencyFrom, currencyTo)`, `getTheMinimumPaymentAmount(...)` and `getListOfPayments(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/chaingateway", kind: github, note: "chaingateway generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/nowpayments", kind: github, note: "nowpayments generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [generated_auth, paypal_client]}
+  - {to: lib.oauth2, rel: uses, via: [paypal_client, generated_auth]}
+  - {to: concept.client_objects, rel: uses, via: [generated_auth, freshbooks_ops, plaid_banking]}
+  - {to: concept.resource_methods, rel: uses, via: [paypal_orders, paypal_payments, paypal_invoices, paypal_subscriptions]}
+  - {to: concept.records, rel: uses, via: [paypal_invoices, paypal_subscriptions]}
+  - {to: concept.errors, rel: uses, via: [paypal_client]}
+  - {to: tool.config_toml, rel: uses, via: [paypal_client]}
+notes: "PayPal module versions (orders 2.0.3, payments 2.0.2, invoices 1.0.2, subscriptions 1.0.3) match Central. Generated packages checked against openapi-connectors main. No BBEs exist for these connectors."

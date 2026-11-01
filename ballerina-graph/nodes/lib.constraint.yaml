@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.constraint
 type: library
 title: ballerina/constraint
@@ -72,7 +72,7 @@ must_cover:
 out_of_scope:
   - "Annotation syntax in general (concept.annotations)"
   - "Regular expression syntax (concept.regexp)"
-  - "HTTP and messaging payload validation configuration (lib.http, lib.kafka, lib.rabbitmq)"
+  - "HTTP and messaging payload validation configuration (lib.http, connector.kafka, connector.rabbitmq)"
 edges:
   - {to: concept.annotations, rel: uses, via: [constraint_annotations_types, constraint_annotations_fields]}
   - {to: concept.records, rel: uses, via: [constraint_annotations_fields]}

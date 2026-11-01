@@ -1,15 +1,17 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.connectors
 type: topic
 title: Connectors
 summary: "Using and building Ballerina connectors - importing ballerinax client packages from Ballerina Central, configuring their authentication from configurable values, combining them in SaaS integrations, and generating, testing and publishing a connector from an OpenAPI specification."
 priority: important
 status: draft
+modules: [ballerinax/client.config]
 sources:
   - {url: "https://ballerina.io/learn/pre-built-integrations/", kind: docs, note: "Pre-built integrations built with connectors"}
   - {url: "https://ballerina.io/learn/create-your-first-connector-with-ballerina/", kind: docs}
   - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
   - {url: "https://ballerina.io/learn/ballerina-central/", kind: docs}
+  - {url: "https://central.ballerina.io/ballerinax/client.config/latest", kind: central, note: "ballerinax/client.config 1.0.1"}
 must_cover:
   - id: import_connector
     text: "Use a connector from Ballerina Central by importing it with an optional prefix, e.g. `import ballerinax/github;` or `import ballerinax/salesforce as sf;`, and explain that dependencies are resolved from the distribution and Ballerina Central repositories (cached locally)"
@@ -57,6 +59,11 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/learn/pre-built-integrations/github-to-email-integration/", kind: docs}
+  - id: client_config_utils
+    text: "Reuse the shared connector configuration types of `ballerinax/client.config` when writing a connector: accept a `config:ConnectionConfig` (`auth`, `httpVersion`, `http1Settings`, `http2Settings`, `timeout`, `forwarded`, `poolConfig`, `cache`, `compression`, `circuitBreaker`, `retryConfig`, `responseLimits`, `secureSocket`, `proxy`, `validation`), with `auth` as one of the OAuth2 grant records such as `config:OAuth2RefreshTokenGrantConfig`, and turn it into an `http:ClientConfiguration` with `check config:constructHTTPClientConfig(config)` before creating the `http:Client`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/client.config/latest", kind: central, note: "API docs: ConnectionConfig, constructHTTPClientConfig"}
   - id: generate_from_openapi
     text: "Generate a client connector from an OpenAPI definition with `bal openapi -i docs/spec/openapi.yaml --mode client -o ballerina`, producing `client.bal`, `types.bal` and `utils.bal`, and choose method style with `--client-methods resource|remote`"
     difficulty: [intermediate]
@@ -89,8 +96,8 @@ edges:
   - {to: tool.ballerina_toml, rel: uses, via: [publish_connector]}
   - {to: tool.bal_test, rel: uses, via: [test_connector]}
   - {to: tool.config_toml, rel: uses, via: [token_auth_from_config, oauth_refresh_config, base_url_config]}
-  - {to: lib.http, rel: uses, via: [generate_from_openapi]}
-  - {to: lib.mysql, rel: uses, via: [database_to_saas]}
+  - {to: lib.http, rel: uses, via: [generate_from_openapi, client_config_utils]}
+  - {to: connector.mysql, rel: uses, via: [database_to_saas]}
   - {to: lib.email, rel: uses, via: [report_by_email]}
   - {to: concept.client_objects, rel: uses, via: [resource_and_remote_calls, token_auth_from_config]}
   - {to: concept.modules_imports, rel: uses, via: [import_connector]}

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.websocket
 type: library
 title: ballerina/websocket
@@ -67,6 +67,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/websocket-service-ssl-tls/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-service-mutual-ssl/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-client-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-mutual-ssl/", kind: bbe}
   - id: service_auth
     text: "Secure WebSocket upgrades with `@websocket:ServiceConfig {auth: [...]}` using `fileUserStoreConfig`, `ldapUserStoreConfig`, `jwtValidatorConfig` or `oauth2IntrospectionConfig` with `scopes`"
     difficulty: [intermediate, advanced]
@@ -74,6 +75,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/websocket-service-basic-auth-file-user-store/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-service-jwt-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-service-oauth2/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-service-basic-auth-ldap-user-store/", kind: bbe}
   - id: client_auth
     text: "Authenticate a `websocket:Client` with the `auth` config (Basic, bearer token, self-signed JWT, OAuth2 grant types) over `wss://`"
     difficulty: [intermediate]
@@ -81,6 +83,10 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/websocket-client-basic-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-client-bearer-token-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/websocket-client-oauth2-client-cred-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-self-signed-jwt-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-oauth2-password-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-oauth2-refresh-token-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/websocket-client-oauth2-jwt-bearer-grant-type/", kind: bbe}
   - id: client_resiliency
     text: "Make clients resilient with `handShakeTimeout` and `retryConfig: {maxCount, interval}` for reconnecting"
     difficulty: [intermediate]

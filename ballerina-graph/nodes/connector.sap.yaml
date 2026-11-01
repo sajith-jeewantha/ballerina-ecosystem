@@ -1,0 +1,89 @@
+schema_version: "0.2"
+id: connector.sap
+type: connector
+title: ballerinax/sap
+summary: "The generic SAP connectors: `sap:Client`, an HTTP client for SAP OData/REST APIs with built-in CSRF token handling and Basic or SAML Bearer auth (the transport under the S/4HANA and SuccessFactors connectors), `sap.jco` for RFC/BAPI calls, IDocs and inbound RFC servers over SAP JCo, and the SAP Commerce, Signavio and Fieldglass API clients."
+priority: important
+status: draft
+modules: [ballerinax/sap, ballerinax/sap.commerce.webservices, ballerinax/sap.fieldglass.approval, ballerinax/sap.jco, ballerinax/sap.signavio]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/sap/latest", kind: central, note: "ballerinax/sap 1.4.0 README (setup, quickstart)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap/blob/v1.4.0/ballerina/sap_http_client.bal", kind: github, note: "Client init, resource/remote HTTP methods, CSRF fetch and retry, SAML Bearer header"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap/blob/v1.4.0/ballerina/types.bal", kind: github, note: "ConnectionConfig, SamlBearerAuthConfig"}
+  - {url: "https://central.ballerina.io/ballerinax/sap.jco/latest", kind: central, note: "ballerinax/sap.jco 2.1.2 README (setup, client, listener, IDoc/RFC services)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.jco/blob/v2.1.2/ballerina/client.bal", kind: github, note: "execute, sendIDoc, createTid/confirmTid, sendTRfc, sendQRfc, bgRFC unit methods, close"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.jco/blob/v2.1.2/ballerina/types.bal", kind: github, note: "DestinationConfig, ServerConfig, IDocType, RfcParameters, BgRfcUnitConfig, error types"}
+  - {url: "https://central.ballerina.io/ballerinax/sap.commerce.webservices/latest", kind: central, note: "SAP Commerce Web Services 0.9.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/sap.signavio/latest", kind: central, note: "SAP Signavio 1.0.0 README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/sap.fieldglass.approval/client.bal", kind: github, note: "SAP Fieldglass Approval generated client"}
+must_cover:
+  - id: client_init
+    text: "Create a `sap:Client` with the full OData service URL, e.g. `check new (string `https://${hostname}/sap/opu/odata/sap/API_SALES_ORDER_SRV`, {auth: {username, password}})`, reading `hostname`, `username` and `password` from `configurable` variables; initialization fails with `sap:ClientError`"
+    difficulty: [beginner]
+  - id: resource_get
+    text: "Read SAP entity sets with resource-access calls such as `json salesOrderList = check sapClient->/A_SalesOrder();` (the target type can be `json`, a record or `http:Response`, and query parameters are passed as named arguments), or with the remote form `sapClient->get(\"/A_SalesOrder\")`"
+    difficulty: [beginner]
+  - id: csrf_modifying_requests
+    text: "Send modifying requests with `sapClient->/A_SalesOrder.post(payload)` (or `put`, `patch`, `delete`, and the remote `post(path, message)` forms) and rely on the client to fetch an `X-CSRF-TOKEN` with `X-CSRF-TOKEN: fetch`, cache it with the session cookies, and refetch and retry once when SAP rejects the token"
+    difficulty: [intermediate]
+  - id: saml_bearer_auth
+    text: "Authenticate with OAuth 2.0 SAML Bearer by setting `auth` to a `sap:SamlBearerAuthConfig` (`apiKey`, `companyId`, `username`, `privateKey` as a file path string, `certificate`, `tokenUrl`, optional `validityPeriod`); the client obtains the access token, attaches it to every request and refreshes it on a 401"
+    difficulty: [advanced]
+  - id: connection_config
+    text: "Tune `sap:ConnectionConfig` HTTP options such as `timeout`, `retryConfig`, `circuitBreaker`, `secureSocket`, `proxy` and `httpVersion`, and handle `sap:ClientError` and `sap:CSRFTokenFetchFailure` (both `http:ClientError`)"
+    difficulty: [intermediate]
+  - id: jco_setup
+    text: "Prepare a `sap.jco` project by adding `sapjco3.jar` and `sapidoc3.jar` under `[[platform.java21.dependency]]` in `Ballerina.toml` with `scope = \"provided\"`, and putting the native JCo library on `PATH`, `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` at run time"
+    difficulty: [intermediate]
+  - id: jco_client_init
+    text: "Create a `jco:Client` from `configurable jco:DestinationConfig configurations` (`ashost`, `sysnr`, `jcoClient`, `user`, `passwd`, `group`, `lang`) or from a `jco:AdvancedConfig` map of raw `jco.client.*` properties, optionally with `destinationId = \"MY_DESTINATION\"`, and release it with `jcoClient.close()`"
+    difficulty: [beginner, intermediate]
+  - id: jco_execute_rfc
+    text: "Call an RFC-enabled function module or BAPI with `jcoClient->execute(\"TEST_FUNCTION\", {importParameters: {...}, tableParameters: {...}})` and bind the export and table parameters to a record type (a `jco:RfcRecord`) or to `xml`"
+    difficulty: [intermediate]
+  - id: jco_send_idoc
+    text: "Send an IDoc XML document to SAP with `jcoClient->sendIDoc(iDoc)`, choosing a `jco:IDocType` (`DEFAULT`, `VERSION_2`, `VERSION_3`, or `VERSION_3_IN_QUEUE`/`VERSION_3_IN_QUEUE_VIA_QRFC` together with `queueName`) and optionally your own 24-character `tid`"
+    difficulty: [intermediate]
+  - id: jco_trfc_qrfc
+    text: "Make exactly-once calls with `createTid()`, `sendTRfc(functionName, parameters, tid, autoConfirm = false)` and `confirmTid(tid)`, or in-order queued calls with `sendQRfc(functionName, queueName, parameters)`"
+    difficulty: [advanced]
+  - id: jco_bgrfc
+    text: "Commit several calls as one bgRFC unit with `sendBgRfcUnit([{functionName, parameters}], {queueNames: [...]})`, which returns a `jco:BgRfcUnitInfo`, poll `getBgRfcUnitState(unit)` until it is `COMMITTED`, then call `confirmBgRfcUnit(unit)`"
+    difficulty: [advanced]
+  - id: jco_idoc_listener
+    text: "Receive IDocs with a `jco:Listener` created from `jco:ServerConfig` (`gwhost`, `gwserv`, `progid`, `connectionCount`, `repositoryDestination` as a client `destinationId` or inline `DestinationConfig`) and a `service jco:IDocService` with `remote function onReceive(xml iDoc)` and `onError(error err)`"
+    difficulty: [intermediate, advanced]
+  - id: jco_rfc_server
+    text: "Serve inbound RFC calls with a `service jco:RfcService` whose `onCall(string functionName, jco:RfcParameters parameters) returns jco:RfcRecord|xml|error?` returns export values as a map, or as `xml` whose child elements map to export and table parameters with table rows wrapped in `<row>` elements"
+    difficulty: [advanced]
+  - id: jco_errors
+    text: "Handle the distinct `jco:Error` members, such as `jco:LogonError`, `jco:ConnectionError`, `jco:AbapApplicationError` (detail fields `abapMsgClass`, `abapMsgNumber`, `abapMsgV1`...), `jco:IDocError`, `jco:ConfigurationError` and `jco:TransactionError`, with `is` checks"
+    difficulty: [intermediate]
+  - id: commerce_webservices
+    text: "Create a `sapcommerce:Client` from `ballerinax/sap.commerce.webservices` with OAuth2 `auth: {clientId, clientSecret, refreshToken}` and call operations such as `sapcommerceClient->createCostCenter(\"electronics\", newCostCenter)` with a `sapcommerce:B2BCostCenter` record"
+    difficulty: [intermediate]
+  - id: signavio
+    text: "Create a `signavio:Client` from `ballerinax/sap.signavio` with `{auth: {username, password}, region: \"eu\"}` and list the workspace root folders with `signavioClient->getRootDirectories()`, which returns `signavio:HyperMediaObject[]`"
+    difficulty: [beginner]
+  - id: fieldglass_approval
+    text: "Use the `ballerinax/sap.fieldglass.approval` client (OAuth2 client-credentials `auth`, `serviceUrl`) to list work items with `getItemListForApproval()`, approve or reject one with `approveOrRejectItem(moduleId, workItemId, action, comments = ..., reasonId = ...)`, and read reasons with `getRejectionReasons(moduleId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/sap.fieldglass.approval/latest", kind: central, note: "Package overview (approve or reject Fieldglass work items)"}
+out_of_scope:
+  - "The generated S/4HANA OData clients built on `sap:Client` (connector.sap_s4hana)"
+  - "The SuccessFactors Employee Central clients (connector.sap_successfactors)"
+  - "Generic `http:Client` configuration details (lib.http)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_init, resource_get, csrf_modifying_requests, connection_config], note: "sap:Client wraps http:Client; ConnectionConfig mirrors http:ClientConfiguration"}
+  - {to: lib.oauth2, rel: uses, via: [saml_bearer_auth, commerce_webservices, fieldglass_approval]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, jco_client_init, commerce_webservices, signavio]}
+  - {to: concept.resource_methods, rel: uses, via: [resource_get, csrf_modifying_requests]}
+  - {to: concept.services_listeners, rel: uses, via: [jco_idoc_listener, jco_rfc_server]}
+  - {to: concept.xml, rel: uses, via: [jco_send_idoc, jco_idoc_listener, jco_rfc_server]}
+  - {to: concept.errors, rel: uses, via: [jco_errors, connection_config]}
+  - {to: concept.records, rel: uses, via: [jco_execute_rfc, commerce_webservices]}
+  - {to: tool.ballerina_toml, rel: uses, via: [jco_setup]}
+  - {to: tool.config_toml, rel: uses, via: [jco_client_init, jco_idoc_listener]}
+  - {to: connector.sap_businessone, rel: related, via: [client_init, csrf_modifying_requests], note: "Both are generic SAP HTTP clients with built-in session/CSRF handling"}
+notes: "Verified against module-ballerinax-sap tag v1.4.0 (SAML Bearer support is in that tag) and module-ballerinax-sap.jco tag v2.1.2 (tRFC/qRFC/bgRFC methods are in that tag). The Fieldglass client was read from openapi-connectors main; its Central README has no code. Signavio and Commerce items use only the README quickstarts; their wider operation sets were not reviewed."

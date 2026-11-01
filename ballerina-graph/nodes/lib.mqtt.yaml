@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.mqtt
 type: library
 title: ballerina/mqtt
@@ -41,11 +41,12 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/mqtt-client-basic-authentication/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/mqtt-service-ssl/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/mqtt-client-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mqtt-service-basic-authentication/", kind: bbe}
   - id: connection_management
     text: "Manage client connections with `isConnected()`, `reconnect()`, `disconnect()` and `close()`"
     difficulty: [intermediate]
 out_of_scope:
-  - "Other messaging brokers (lib.kafka, lib.rabbitmq, lib.nats)"
+  - "Other messaging brokers (connector.kafka, connector.rabbitmq, connector.nats)"
   - "Event-driven architecture patterns (topic.event_driven)"
 edges:
   - {to: concept.client_objects, rel: uses, via: [publish, connection_management]}

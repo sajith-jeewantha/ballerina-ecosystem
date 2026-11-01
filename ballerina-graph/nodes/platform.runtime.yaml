@@ -1,0 +1,125 @@
+schema_version: "0.2"
+id: platform.runtime
+type: platform
+title: Ballerina runtime
+summary: How Ballerina programs run on jBallerina, the JVM-based implementation, covering the executable JAR and bundled Java version, strands on threads, the initialization and listening phases with signal-driven graceful shutdown, panics and stack traces, and how the runtime picks up configuration.
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.2", kind: spec, note: "8.2 Module and program execution"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec, note: "8.3 Listeners and services (listening phase, graceful/immediate stop)"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.2", kind: spec, note: "7.2 Threads and strands"}
+  - {url: "https://ballerina.io/learn/update-tool/", kind: docs, note: "jBallerina targets the JVM; distribution layout with bundled JRE"}
+  - {url: "https://ballerina.io/learn/deployment-guidelines-overview/", kind: docs, note: "Compatible Java versions per Swan Lake update"}
+  - {url: "https://ballerina.io/learn/strand-dump-tool/", kind: docs, note: "Strand dump, jps and the $_init main class"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "Update 11: Java 21, virtual threads, runtime Java API changes"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.14.0/", kind: docs, note: "Update 14: Java 25 runtime"}
+must_cover:
+  - id: jvm_implementation
+    text: "Explain that jBallerina, the only current implementation, compiles Ballerina to Java bytecode, so `bal build` produces an executable uber JAR in `target/bin/<package>.jar` that needs a JVM to run"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-specifications/", kind: docs, note: "jBallerina compiles Ballerina to Java bytecodes"}
+      - {url: "https://ballerina.io/learn/graalvm-executable-overview/", kind: docs, note: "GraalVM executable vs. uber JAR"}
+  - id: run_jar
+    text: "Run a built program with `bal run target/bin/app.jar` or `java -jar target/bin/app.jar`, and with `bal run` pass program arguments and `-Ckey=value` configurable values after `--`, e.g. `bal run app.jar -- -Cport=8080`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/cli-commands/", kind: docs, note: "bal run synopsis: [<package>|<source-file>|<jar-file>] [-- <args...> <(-Ckey=value)...>]"}
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github, note: "Rules apply when running with `java -jar` or `bal run`"}
+  - id: bundled_java
+    text: "Know that every distribution bundles its own JRE and which Java version each Swan Lake update runs on: Java 11 for 2201.0.0 to Update 7, Java 17 for Updates 8 to 10, Java 21 from Update 11 and Java 25 from Update 14, and that a ZIP install needs a matching JRE and `JAVA_HOME`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/deployment-guidelines-overview/", kind: docs, note: "Compatible Java versions table"}
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs, note: "ZIP install: JRE version per update and JAVA_HOME"}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.14.0/", kind: docs, note: "Distribution ships a Java 25 runtime"}
+  - id: java_upgrade_interop_impact
+    text: "Recognise that moving to Java 21 (Update 11) or Java 25 (Update 14) can break Java interop code, e.g. custom thread management that conflicts with the Java 21 threading model, and check the Java release notes when upgrading"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "Backward-incompatible runtime changes"}
+  - id: main_class
+    text: "Identify a running Ballerina program as the JVM main class `$_init` (e.g. in `jps` output, or as `'<org>/<package>/0/$_init'` in the `java -cp ... $_init` command of a generated Dockerfile), and `BTestMain` for `bal test`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/strand-dump-tool/", kind: docs, note: "jps shows $_init; BTestMain for bal test"}
+      - {url: "https://ballerina.io/learn/containerized-deployment/", kind: docs, note: "Generated Dockerfile CMD java -Xdiag -cp ... $_init on ballerina/jvm-runtime"}
+  - id: program_phases
+    text: "Trace what the runtime does on start: initialize every module in import order (running each module `init`), call the root module's `main` if present, then enter the listening phase by calling `start` on each module listener, or exit if there are no listeners"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/module-lifecycle/", kind: bbe}
+      - {url: "https://ballerina.io/learn/cli-commands/", kind: docs, note: "bal run help describes the two phases"}
+  - id: signal_shutdown
+    text: "Stop a service program with a signal such as `SIGINT` (Ctrl+C) or `SIGTERM`, knowing the runtime then calls `gracefulStop` (or `immediateStop`) on every registered listener and, for graceful termination, the handlers registered with `runtime:onGracefulStop`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec, note: "8.3 termination of the listening phase"}
+      - {url: "https://ballerina.io/learn/by-example/module-lifecycle/", kind: bbe, note: "The listening phase is terminated by signal (e.g. SIGINT, SIGTERM)"}
+      - {url: "https://ballerina.io/learn/by-example/dynamic-listener/", kind: bbe}
+  - id: init_failure_exit
+    text: "Explain that a missing required configurable value, an error from a module `init` function or an error from a listener's `start` method makes the program exit unsuccessfully before or at the start of the listening phase"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.2", kind: spec}
+      - {url: "https://ballerina.io/spec/lang/2024R1/#listeners_and_services", kind: spec}
+  - id: strands_threads
+    text: "Explain how the runtime schedules strands: strands are cooperatively multitasked and switch only at yield points, strands of isolated `start` calls and isolated named workers may run on separate threads, and from Update 11 (Java 21) each strand maps directly to a Java virtual thread"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/strands/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/run-strands-safely-on-separate-threads/", kind: bbe}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "Each strand is mapped to a Java virtual thread"}
+  - id: panic_stack_trace
+    text: "Read the output of an unhandled panic, which terminates the program and prints `error: <message>` followed by `at <module>:<function>(<file>.bal:<line>)` frames, and prevent termination with `trap` or inspect frames with `runtime:getStackTrace()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/panics/", kind: bbe, note: "panics.out shows the stack trace format"}
+  - id: configurable_sources
+    text: "Supply configurable values to a running program through `Config.toml` in the working directory, `BAL_CONFIG_FILES` (one or more TOML paths), `BAL_CONFIG_DATA` (TOML content), `-Ckey=value` arguments, or `BAL_CONFIG_VAR_<ORG>_<MODULE>_<VAR>` environment variables (Update 9+)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/provide-values-to-configurable-variables/", kind: docs}
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github, note: "Locating TOML files"}
+  - id: configurable_precedence
+    text: "Apply the precedence rules when the same configurable is set in several ways: environment variables, then command-line `-C` arguments, then TOML files, and among `BAL_CONFIG_FILES` entries the file listed first wins"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.9.0/", kind: docs, note: "Precedence: env vars, CLI args, TOML files"}
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/configurable/spec.md", kind: github, note: "BAL_CONFIG_FILES conflict resolution"}
+  - id: strand_dump
+    text: "Diagnose a hung or slow program by sending `kill -SIGTRAP <pid>` (POSIX only, not Windows) to get a strand dump on standard output, which since Update 11 lists isolated and non-isolated strands with their stack traces"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/strand-dump-tool/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "Strand dump updated for virtual threads"}
+  - id: graalvm_native
+    text: "Choose `bal build --graalvm` (Update 7+) to produce a GraalVM native executable that starts faster and uses less memory than running the uber JAR on a JVM"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/graalvm-executable-overview/", kind: docs}
+  - id: java_runtime_api
+    text: "Start and drive a Ballerina runtime from Java with `Runtime.from(module)`, `init()`, `start()` and `stop()`, call Ballerina code with `callFunction(module, name, metadata, args...)` and `callMethod(obj, name, metadata, args...)`, and run blocking native work with `env.yieldAndRun(...)` (Update 11 APIs)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.9.0/", kind: docs, note: "Runtime.from/init/start/stop"}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.11.0/", kind: docs, note: "callFunction, callMethod, yieldAndRun"}
+out_of_scope:
+  - "Language-level semantics of module initialization and init functions (concept.program_execution)"
+  - "Worker and strand language semantics (concept.strands_workers, concept.isolation)"
+  - "Strand dump report fields (tool.strand_dump), GraalVM build options (tool.graalvm), Config.toml syntax (tool.config_toml)"
+  - "Java interop declarations such as @java:Method (lib.jballerina.java, concept.external_functions)"
+edges:
+  - {to: concept.program_execution, rel: uses, via: [program_phases, init_failure_exit]}
+  - {to: concept.services_listeners, rel: uses, via: [program_phases, signal_shutdown]}
+  - {to: concept.strands_workers, rel: uses, via: [strands_threads]}
+  - {to: concept.isolation, rel: uses, via: [strands_threads]}
+  - {to: concept.errors, rel: uses, via: [panic_stack_trace]}
+  - {to: lib.lang.runtime, rel: uses, via: [signal_shutdown, panic_stack_trace]}
+  - {to: tool.bal, rel: uses, via: [jvm_implementation, run_jar]}
+  - {to: tool.config_toml, rel: uses, via: [configurable_sources, configurable_precedence]}
+  - {to: tool.strand_dump, rel: uses, via: [strand_dump]}
+  - {to: tool.graalvm, rel: uses, via: [graalvm_native]}
+  - {to: lib.jballerina.java, rel: uses, via: [java_runtime_api, java_upgrade_interop_impact]}
+notes: "No documented JVM options variable (e.g. JAVA_OPTS or BAL_JAVA_OPTS) was found in the Learn pages read, so JVM tuning flags are not listed; only `java -Xdiag` from the generated Dockerfile is shown. The Learn deployment table stops at Update 11 (Java 21) and the installation page says 'Update 11 and above: 21'; Java 25 for Update 14 comes from the 2201.14.0 release notes."

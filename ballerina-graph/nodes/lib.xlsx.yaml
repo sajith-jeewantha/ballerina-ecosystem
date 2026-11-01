@@ -1,0 +1,99 @@
+schema_version: "0.2"
+id: lib.xlsx
+type: library
+title: ballerina/xlsx
+summary: "The `ballerina/xlsx` module reads and writes Microsoft Excel XLSX files with type-safe binding to Ballerina records, through one-call functions (`parseSheet`, `writeSheet`, `parseTable`, `writeTable`) and a `Workbook` API for multi-sheet, byte-array and Excel Table work."
+priority: long_tail
+status: draft
+modules: [ballerina/xlsx]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central, note: "ballerina/xlsx 1.0.2 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-xlsx/blob/main/ballerina/types.bal", kind: github, note: "Option records and enums"}
+  - {url: "https://ballerina.io/learn/by-example/xlsx-to-records/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/records-to-xlsx/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/xlsx-tables/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/xlsx-to-records-advanced/", kind: bbe}
+must_cover:
+  - id: parse_sheet
+    text: "Parse a sheet into typed records with `Employee[] employees = check xlsx:parseSheet(\"employees.xlsx\");`, where columns are matched to record fields by the header row, choosing a sheet by name or index as the second argument (`xlsx:parseSheet(\"report.xlsx\", \"Sales\")`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xlsx-to-records/", kind: bbe}
+  - id: parse_untyped
+    text: "Read a sheet with an unknown layout as `map<xlsx:CellValue>[]` (a `CellValue` is `string`, `int`, `float`, `decimal`, `boolean`, a `time:*` value or nil) or as raw `string[][]`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: write_sheet
+    text: "Write records to a named sheet with `check xlsx:writeSheet(employees, \"output.xlsx\", \"Employees\");`, where field names become the header row and other sheets in an existing file are preserved"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/records-to-xlsx/", kind: bbe}
+  - id: sheet_write_mode
+    text: "Know that `writeSheet` fails by default if the sheet already exists, and pass `sheetWriteMode = xlsx:REPLACE` to replace its contents or `sheetWriteMode = xlsx:APPEND` to add rows below the existing data; the write is atomic, so a failure leaves the original file intact"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: name_annotation
+    text: "Map a column header that differs from the field name with `@xlsx:Name {value: \"Employee Name\"}` on a record field; the mapping applies to both parsing and writing"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xlsx-to-records-advanced/", kind: bbe}
+  - id: parse_options
+    text: "Pass `xlsx:ParseOptions` such as `{caseInsensitiveHeaders: true, rowCount: 2}`, `headerRowIndex` (0 by default; nil for no header row, naming columns `col0`, `col1`, ...), `dataStartRowIndex` and `formulaMode` (`xlsx:CACHED` values by default or `xlsx:TEXT` for the formula text)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xlsx-to-records-advanced/", kind: bbe}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xlsx/blob/main/ballerina/types.bal", kind: github}
+  - id: validation_projection
+    text: "Validate rows against `@constraint` annotations during parsing (`enableConstraintValidation`, on by default) and control data projection with `allowDataProjection`: `{}` ignores extra columns, `false` requires every record field to have a column, and `{nilAsOptionalField: true, absentAsNilableType: true}` relaxes nil handling"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xlsx/blob/main/ballerina/types.bal", kind: github}
+  - id: fail_safe
+    text: "Continue past row-level conversion or validation errors with `failSafe: {enableConsoleLogs: true, fileOutputMode: {filePath: \"./xlsx-errors.log\", contentType: xlsx:RAW_AND_METADATA}}` in the parse options, knowing that structural errors such as a corrupted file or a missing sheet still fail immediately"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: date_time_fields
+    text: "Bind date and time cells to `time:Civil` (date-time), `time:Date` (date only) or `time:TimeOfDay` record fields, which are written back as date-formatted cells, or to `string` fields to get ISO 8601 text"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: workbook_open
+    text: "Open or create an `xlsx:Workbook` with `xlsx:fromFile(\"report.xlsx\")`, `xlsx:fromBytes(bytes)` or `new` (in memory), and persist it with `wb.save()` (opened file) or `wb.saveAs(\"path.xlsx\")`, followed by `wb.close()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: workbook_sheets
+    text: "Work with several sheets through a workbook: `wb.getSheetNames()`, `wb.getSheet(\"Sales\")` or `wb.getSheet(0)` returning an `xlsx:Sheet`, `wb.createSheet(\"Summary\")`, and typed `sheet.getRows()` and `sheet.putRows(rows)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: bytes_pipeline
+    text: "Process XLSX entirely in memory, e.g. bytes from an SFTP `get` or an HTTP body, with `xlsx:fromBytes(inputBytes)`, read and update rows, and produce output bytes with `wb.toBytes()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+  - id: excel_tables
+    text: "Read and write Excel Tables by name with `xlsx:parseTable(\"sales.xlsx\", \"EmployeeTable\")` and `xlsx:writeTable(rows, \"sales.xlsx\", \"EmployeeTable\")`, which resizes the table to fit the data, and create one from records with `sheet.createTableFromData(\"OrdersTable\", orders)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+      - {url: "https://ballerina.io/learn/by-example/xlsx-tables/", kind: bbe}
+  - id: table_api
+    text: "Use `wb.getTable(name)` to get an `xlsx:Table` and call `getRows()`, `putRows(rows)`, `hasTotalRow()` and `getTotalRow()` (a `map<xlsx:CellValue>`), then save the workbook"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central}
+out_of_scope:
+  - "CSV files (lib.data.csv)"
+  - "Google Sheets and Microsoft Excel online APIs (connector.google_workspace, connector.microsoft_365)"
+edges:
+  - {to: concept.records, rel: uses, via: [parse_sheet, write_sheet, workbook_sheets]}
+  - {to: concept.annotations, rel: uses, via: [name_annotation]}
+  - {to: lib.constraint, rel: uses, via: [validation_projection]}
+  - {to: lib.time, rel: uses, via: [date_time_fields]}
+  - {to: concept.typedesc, rel: uses, via: [parse_sheet, parse_untyped]}
+  - {to: concept.classes, rel: uses, via: [workbook_open, workbook_sheets, table_api]}
+notes: "The README's fail-safe example writes `contentType: RAW_AND_METADATA` without a prefix; the enum member is `xlsx:RAW_AND_METADATA` (ErrorLogContentType in types.bal). `headerRowIndex`, `dataStartRowIndex`, `formulaMode` and the projection options come from types.bal of version 1.0.2."

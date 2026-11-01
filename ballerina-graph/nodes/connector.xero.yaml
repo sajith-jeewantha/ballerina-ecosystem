@@ -1,0 +1,73 @@
+schema_version: "0.2"
+id: connector.xero
+type: connector
+title: "Xero connectors"
+summary: "OpenAPI-generated Ballerina clients for the Xero accounting platform (Accounting, App Store, Assets, Bank Feeds, Files, Finance and Projects APIs), all OAuth2-authenticated and scoped to a Xero tenant."
+priority: long_tail
+status: draft
+modules: [ballerinax/xero.accounts, ballerinax/xero.appstore, ballerinax/xero.assets, ballerinax/xero.bankfeeds, ballerinax/xero.files, ballerinax/xero.finance, ballerinax/xero.projects]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/xero.accounts/latest", kind: central, note: "ballerinax/xero.accounts README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.appstore/latest", kind: central, note: "ballerinax/xero.appstore README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.assets/latest", kind: central, note: "ballerinax/xero.assets README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.bankfeeds/latest", kind: central, note: "ballerinax/xero.bankfeeds README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.files/latest", kind: central, note: "ballerinax/xero.files README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.finance/latest", kind: central, note: "ballerinax/xero.finance README"}
+  - {url: "https://central.ballerina.io/ballerinax/xero.projects/latest", kind: central, note: "ballerinax/xero.projects README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.accounts", kind: github, note: "xero.accounts generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.appstore", kind: github, note: "xero.appstore generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.assets", kind: github, note: "xero.assets generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.bankfeeds", kind: github, note: "xero.bankfeeds generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.files", kind: github, note: "xero.files generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.finance", kind: github, note: "xero.finance generated client.bal/types.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.projects", kind: github, note: "xero.projects generated client.bal/types.bal"}
+must_cover:
+  - id: client_init
+    text: "Create a Xero client such as `xero.accounts:Client` with `check new ({auth: {token}})` or an OAuth2 refresh-token config (`{auth: {clientId, clientSecret, refreshToken, refreshUrl}}`), keeping the default `serviceUrl` (e.g. `https://api.xero.com/api.xro/2.0`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.accounts", kind: github, note: "ConnectionConfig auth: http:BearerTokenConfig|OAuth2RefreshTokenGrantConfig"}
+  - id: tenant_id
+    text: "Pass the Xero organisation's `xeroTenantId` as the first argument of every tenant-scoped remote method (e.g. `accounts->getAccounts(xeroTenantId)`), with optional `ifModifiedSince`, `'where` and `'order` filters on list calls"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.accounts", kind: github, note: "xero.accounts generated client.bal/types.bal"}
+  - id: accounting_invoices_contacts
+    text: "Use `xero.accounts` to create and read contacts and invoices: `createContacts(xeroTenantId, Contacts)`, `getContacts(xeroTenantId)`, `createInvoices(xeroTenantId, Invoices)`, `getInvoices(xeroTenantId)`, `getInvoice(xeroTenantId, invoiceID)` and `updateInvoice(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.accounts", kind: github, note: "xero.accounts generated client.bal/types.bal"}
+  - id: accounting_payments_reports
+    text: "Record payments and bank transactions with `createPayment(xeroTenantId, Payment)` and `createBankTransactions(...)`, manage the chart of accounts with `createAccount`/`getAccount`, and run reports with `getReportBalanceSheet(xeroTenantId)`, `getReportProfitAndLoss(...)` and `getReportTrialBalance(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.accounts", kind: github, note: "xero.accounts generated client.bal/types.bal"}
+  - id: assets_projects
+    text: "Manage fixed assets with `xero.assets` (`getAssets(xeroTenantId, status)`, `createAsset(xeroTenantId, Asset)`, `getAssetTypes`, `createAssetType`) and projects with `xero.projects` (`createProject(xeroTenantId, ProjectCreateOrUpdate)`, `getProjects`, `getTasks(xeroTenantId, projectId)`, `createTimeEntry(xeroTenantId, projectId, TimeEntryCreateOrUpdate)`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.assets", kind: github, note: "xero.assets generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.projects", kind: github, note: "xero.projects generated client.bal/types.bal"}
+  - id: files_bankfeeds
+    text: "Upload documents with `xero.files` (`uploadFile(xeroTenantId, UploadObject)`, `uploadFileToFolder(...)`, `getFileContent(xeroTenantId, fileId)`, `createFileAssociation(...)`), and push bank statements with `xero.bankfeeds` (`createFeedConnections(xeroTenantId, FeedConnections)`, `createStatements(xeroTenantId, Statements)`, `getStatements(xeroTenantId)`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.files", kind: github, note: "xero.files generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.bankfeeds", kind: github, note: "xero.bankfeeds generated client.bal/types.bal"}
+  - id: finance_statements
+    text: "Read financial insights with `xero.finance`: `getFinancialStatementBalanceSheet(xeroTenantId)`, `getFinancialStatementProfitAndLoss(...)`, `getFinancialStatementCashflow(...)`, `getCashValidation(...)` and `getAccountUsage(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.finance", kind: github, note: "xero.finance generated client.bal/types.bal"}
+  - id: appstore_subscription
+    text: "Use `xero.appstore` (OAuth2 client-credentials auth, no tenant id) to read an app subscription with `getSubscription(subscriptionId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/xero.appstore", kind: github, note: "xero.appstore generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_init]}
+  - {to: lib.oauth2, rel: uses, via: [client_init, appstore_subscription]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, tenant_id]}
+  - {to: concept.records, rel: uses, via: [accounting_invoices_contacts, assets_projects]}
+  - {to: concept.errors, rel: uses, via: [tenant_id]}
+notes: "Central READMEs are stubs; operations come from openapi-connectors main client.bal/types.bal. No BBEs exist."

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.graphql
 type: library
 title: ballerina/graphql
@@ -11,12 +11,14 @@ sources:
   - {url: "https://github.com/ballerina-platform/module-ballerina-graphql/blob/master/ballerina/README.md", kind: github, note: "Module README"}
   - {url: "https://ballerina.io/spec/graphql/", kind: docs, note: "Ballerina GraphQL specification"}
   - {url: "https://ballerina.io/learn/by-example/graphql-hello-world/", kind: bbe, note: "GraphQL BBE series"}
+  - {url: "https://ballerina.io/learn/write-a-graphql-api-with-ballerina/", kind: docs, note: "Learn tutorial: write a GraphQL API"}
 must_cover:
   - id: listener_service
     text: "Create a `graphql:Listener` from a port (`new graphql:Listener(9090)`) or an existing `http:Listener`, and attach a `service graphql:Service /graphql on ...` whose schema is generated automatically"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/learn/by-example/graphql-hello-world/", kind: bbe}
+      - {url: "https://ballerina.io/learn/write-a-graphql-api-with-ballerina/", kind: docs}
   - id: query_fields
     text: "Define `Query` fields with `resource function get <name>(args) returns T`, use scalar arguments (`int`, `string`, `boolean`, `float`, `decimal`) as field arguments, and create nested object types with hierarchical resource paths such as `resource function get profile/name/first()`"
     difficulty: [beginner]
@@ -116,6 +118,9 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/graphql-service-ssl-tls/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/graphql-service-jwt-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/graphql-service-oauth2/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-basic-auth-file-user-store/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-service-basic-auth-ldap-user-store/", kind: bbe}
   - id: client_operations
     text: "Consume GraphQL APIs with `graphql:Client` using `query(document, variables)` and `mutate(document, variables)` with the response bound to a record containing `data` (include `*graphql:GenericResponseWithErrors` to also receive `errors` for partial responses), `subscribe(document)` returning a stream, and the `auth`/`secureSocket` client settings"
     difficulty: [intermediate]
@@ -124,6 +129,10 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/graphql-client-query-endpoint/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/graphql-client-handle-partial-response/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/graphql-client-security-basic-auth/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-security-ssl-tls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-security-mutual-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-security-jwt-authentication/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/graphql-client-security-oauth2-password-grant-type/", kind: bbe}
   - id: client_errors
     text: "Handle `graphql:ClientError` subtypes from client calls, such as `graphql:PayloadBindingError`, `graphql:InvalidDocumentError` (also returned when the document does not match the invoked method) and `graphql:HttpError`, using `do`/`on fail` and type tests"
     difficulty: [intermediate]

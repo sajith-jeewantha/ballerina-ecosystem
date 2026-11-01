@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.lang.regexp
 type: library
 title: ballerina/lang.regexp
@@ -12,36 +12,58 @@ must_cover:
   - id: regexp_type
     text: "Use `regexp:RegExp`, the built-in subtype naming the tagged data basic type for tag `re`, as the type of `re`...`` values and of function parameters that take regular expressions, importing `ballerina/lang.regexp` to refer to it"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: span_type
     text: "Use a `regexp:Span`, a readonly object with `startIndex`, `endIndex` (the index after the end, so the length is `endIndex - startIndex`) and a `substring()` method that returns the matched text"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
   - id: groups_type
     text: "Use `regexp:Groups` (`readonly & [Span, Span?...]`), where member 0 is the match of the whole regular expression and member i is the i-th capturing group (groups ordered by the position of their opening parenthesis), which is nil if the match did not use that group"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
   - id: find_first
     text: "Find the first match at or after `startIndex` (default 0) with `re.find(str, startIndex)` returning `Span?`, or with `findGroups` returning `Groups?`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/regexp-find-operations/", kind: bbe}
   - id: find_all
     text: "Find all matches with `findAll` (returns `Span[]`) and `findAllGroups` (returns `Groups[]`), knowing that each search continues where the previous match ended, so matches never overlap"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-find-operations/", kind: bbe}
   - id: match_at
     text: "Test for a match that starts exactly at an index with `matchAt(str, startIndex = 0)` (returns `Span?` whose `startIndex` equals the given index) or `matchGroupsAt` (returns `Groups?`)"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-match-operations/", kind: bbe}
   - id: full_match
     text: "Test whether a regular expression matches the whole string (from index 0 to its length) with `isFullMatch(str)`, or get the groups of such a match with `fullMatchGroups(str)`, which returns nil if there is no full match"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/regexp-match-operations/", kind: bbe}
   - id: replace
     text: "Replace the first match with `replace(str, replacement, startIndex = 0)` and every non-overlapping match with `replaceAll(str, replacement, startIndex = 0)`, where `replacement` is a `Replacement` (a fixed string or a `ReplacerFunction`)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-replace-operations/", kind: bbe}
   - id: replacer_function
     text: "Write a `ReplacerFunction` (`isolated function(Groups groups) returns string`) that builds each replacement from the match's groups, e.g. to reformat captured dates"
     difficulty: [advanced]
   - id: split
     text: "Split a string with `re.split(str)`, which returns the substrings before the first match, between matches and after the last match of the separator pattern, or `[str]` if nothing matches"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
   - id: from_string
     text: "Build a regular expression at runtime with `regexp:fromString(str)`, which accepts the same syntax as the `re` template and returns an error if `str` is not a valid regular expression"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: abstract_matcher
     text: "Explain that `matchGroupsAt` corresponds to the ECMAScript abstract matching function and that `matchAt`, `find`, `findGroups`, `findAll`, `findAllGroups`, the full-match functions and `isFullMatch` can be defined in terms of it"
     difficulty: [advanced]

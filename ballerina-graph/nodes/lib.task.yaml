@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.task
 type: library
 title: ballerina/task
@@ -74,7 +74,7 @@ must_cover:
 out_of_scope:
   - "Creating and converting `time:Civil` and `time:Utc` values (lib.time)"
   - "Sleeping with `runtime:sleep` (lib.lang.runtime)"
-  - "Database configuration for MySQL/PostgreSQL in general (lib.mysql, lib.postgresql)"
+  - "Database configuration for MySQL/PostgreSQL in general (connector.mysql, connector.postgresql)"
 edges:
   - {to: concept.classes, rel: uses, via: [job_class]}
   - {to: concept.objects, rel: uses, via: [job_class]}

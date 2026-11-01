@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.sql
 type: library
 title: ballerina/sql
@@ -94,7 +94,7 @@ must_cover:
     text: "Write database-agnostic code against the `sql:Client` object type, which every connector client (`mysql:Client`, `postgresql:Client`, `jdbc:Client`...) includes with `*sql:Client`"
     difficulty: [intermediate, advanced]
 out_of_scope:
-  - "Database-specific client construction, options, SSL and custom types (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb, lib.java.jdbc)"
+  - "Database-specific client construction, options, SSL and custom types (connector.mysql, connector.postgresql, connector.mssql, connector.oracledb, connector.java_jdbc)"
   - "ORM-style access through generated clients (lib.persist)"
   - "Transaction statement semantics in general (concept.transactions)"
   - "Stream and query-expression semantics (concept.streams, concept.query_expressions)"

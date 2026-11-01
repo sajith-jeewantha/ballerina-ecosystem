@@ -1,0 +1,87 @@
+schema_version: "0.2"
+id: connector.sap_successfactors
+type: connector
+title: ballerinax/sap.successfactors.*
+summary: "Generated OData V2 clients for SAP SuccessFactors Employee Central (time off, personal and employment data, organization, compensation, payroll, benefits, workflow and more), each built on `sap:Client` with Basic or SAML Bearer authentication, plus the API-key based SuccessFactors Litmos learning client."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/sap.successfactors.ecadvances
+  - ballerinax/sap.successfactors.ecalternativecostdistribution
+  - ballerinax/sap.successfactors.ecapprenticemanagement
+  - ballerinax/sap.successfactors.eccompensationinformation
+  - ballerinax/sap.successfactors.ecdismissalprotection
+  - ballerinax/sap.successfactors.ecemployeecentralpayroll
+  - ballerinax/sap.successfactors.ecemployeeprofile
+  - ballerinax/sap.successfactors.ecemploymentinformation
+  - ballerinax/sap.successfactors.ecfoundationorganization
+  - ballerinax/sap.successfactors.ecglobalassignment
+  - ballerinax/sap.successfactors.ecglobalbenefits
+  - ballerinax/sap.successfactors.ecincometaxdeclaration
+  - ballerinax/sap.successfactors.ecmasterdatareplication
+  - ballerinax/sap.successfactors.ecpaymentinformation
+  - ballerinax/sap.successfactors.ecpayrolltimesheets
+  - ballerinax/sap.successfactors.ecpersonalinformation
+  - ballerinax/sap.successfactors.ecpositionmanagement
+  - ballerinax/sap.successfactors.ecskillsmanagement
+  - ballerinax/sap.successfactors.ectimeoff
+  - ballerinax/sap.successfactors.ecworkflow
+  - ballerinax/sap.successfactors.employeecentralec
+  - ballerinax/sap.successfactors.litmos
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/sap.successfactors.ectimeoff/latest", kind: central, note: "Time Off 2.0.0 README: Basic and OAuth 2.0 SAML Bearer setup, quickstart"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.successfactors.employeecentral", kind: github, note: "client.bal and types.bal of each Employee Central module (main = 2.0.0)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/sap.successfactors.litmos/client.bal", kind: github, note: "Litmos generated client"}
+must_cover:
+  - id: client_init_basic
+    text: "Import a module with an alias (e.g. `import ballerinax/sap.successfactors.ectimeoff as timeoff;`) and create `timeoff:Client` with `check new ({auth: {username, password}}, hostname)`, where `hostname` is the regional API server such as `api12.successfactors.eu`; the client targets `https://{hostname}:{port}/odata/v2` through `sap:Client`"
+    difficulty: [beginner]
+  - id: saml_bearer_auth
+    text: "Authenticate with OAuth 2.0 SAML Bearer by passing a `sap:SamlBearerAuthConfig` (`apiKey` and `companyId` of an OAuth2 client application registered in Admin Center, `username`, `privateKey` file path, `certificate`, `tokenUrl` such as `https://<admin-center-host>/oauth/token`) as `auth`"
+    difficulty: [intermediate, advanced]
+  - id: odata_query_options
+    text: 'Pass OData query options to list methods, e.g. `timeoffClient->listEmployeeTimes(\$top = 20, \$skip = 0, \$filter = "approvalStatus eq ''PENDING''", \$orderby = ["startDate desc"], \$select = [...], \$expand = ["timeTypeNav"], \$count = true)`; note that `\$top` defaults to 5'
+    difficulty: [intermediate]
+  - id: get_by_key
+    text: "Read one entity with key-based `get...` methods that take every key property, e.g. `getTimeAccountPostingRule(TimeType_externalCode, externalCode)` or `ecaltcost:Client` `getEmpCostDistribution(effectiveStartDate, usersSysId)`"
+    difficulty: [beginner]
+  - id: time_off
+    text: "Manage absences with `sap.successfactors.ectimeoff`: `listEmployeeTimes()`, country-specific creates and updates such as `createEmployeeTimeUSA(payload)` and `updateEmployeeTimeUSA(EmployeeTime_externalCode, externalCode, payload)`, plus `listHolidayAssignments`, `listTimeAccountDetails` and `deleteTimeAccountDetail(...)` (with an optional `If-Match` ETag header)"
+    difficulty: [intermediate]
+  - id: personal_profile
+    text: "Read people data with `sap.successfactors.ecpersonalinformation` (`listPerPersons`, `listPerPersonals`, `listPerEmails`, `listPerPhones`, `listPerEmergencyContactss`, `creategenerateNextPersonID()`) and `sap.successfactors.ecemployeeprofile` (`listBackgroundOutsideWorkExperiences`, `listBackgroundCommunities`)"
+    difficulty: [beginner]
+  - id: employment
+    text: "Read employment data with `sap.successfactors.ecemploymentinformation` (`listEmpEmployments`, `listEmpJobs`, `listEmpEmploymentTerminations`, `listEmpWorkPermits`, `createHireDateChange`) and international assignments with `sap.successfactors.ecglobalassignment` (`listEmpGlobalAssignments`, `listRightToReturns`)"
+    difficulty: [beginner, intermediate]
+  - id: organization_positions
+    text: "Read foundation objects with `sap.successfactors.ecfoundationorganization` (`listFODepartments`, `listFOLegalEntityLocalUSAs`, `listFOPayGrades`, `listFOJobFunctions`) and manage positions with `sap.successfactors.ecpositionmanagement` (`listPositions`, `createPosition(payload)`, `updatePosition(...)`, `deletePosition(...)`, `listPositionMatrixRelationships`)"
+    difficulty: [intermediate]
+  - id: compensation_payroll
+    text: "Read pay data with `sap.successfactors.eccompensationinformation` (`listEmpCompensations`, `listEmpPayCompRecurrings`, `listOneTimeDeductions`), `sap.successfactors.ecemployeecentralpayroll` (`listEmployeePayrollRunResultss`, `listEmployeePayrollRunResultsItemss`), `sap.successfactors.ecpayrolltimesheets` (`listEmployeeTimeSheets`, `listTimeRecordings`, `listExternalTimeData`) and `sap.successfactors.ecadvances` (`listAdvances`, `listAdvancesInstallmentss`, `listAdvancesEligibilitys`)"
+    difficulty: [intermediate]
+  - id: payment_benefits_tax
+    text: "Read and maintain payment and benefits data with `sap.successfactors.ecpaymentinformation` (`listPaymentInformationV3s`, `listBanks`, `createPaymentMethodV3`), `sap.successfactors.ecglobalbenefits` (`listBenefitEmployeeClaims`, `listBenefitPrograms`, `listBenefitProgramEnrollments`), `sap.successfactors.ecincometaxdeclaration` (`listItDeclarations`, `listFiscalYearVariants`) and `sap.successfactors.ecalternativecostdistribution` (`listEmpCostDistributions`, `listEmpCostDistributionItems`)"
+    difficulty: [intermediate]
+  - id: workflow_actions
+    text: "Act on approvals with `sap.successfactors.ecworkflow`: list them with `listMyPendingWorkflows()` and `listWfRequests()`, then call `createapproveWfRequest(wfRequestId = \"...\", comment = \"...\")`, `createrejectWfRequest(...)`, `createwithdrawWfRequest(...)` or `createcommentWfRequest(...)`"
+    difficulty: [intermediate]
+  - id: talent_compliance_replication
+    text: "Use the remaining Employee Central APIs: `sap.successfactors.ecskillsmanagement` (`listCompetencyTypes`, `listRoleEntities`, `listCertificationEntities`), `sap.successfactors.ecapprenticemanagement` (`listApprentices`, `listApprenticeSchools`), `sap.successfactors.ecdismissalprotection` (`listEmployeeDismissalProtections`), `sap.successfactors.ecmasterdatareplication` (`listEmployeeDataReplicationNotifications`, `createEmployeeDataReplicationConfirmation`) and `sap.successfactors.employeecentralec` (`listPerGlobalInfoGBRs`, `listCurrencyExchangeRates`, `listNonRecurringPayments`)"
+    difficulty: [intermediate]
+  - id: litmos
+    text: "Create a `litmos:Client` from `ballerinax/sap.successfactors.litmos` with `check new ({aPIKey: apiKey}, serviceUrl)` (sent as the `APIKey` header) and call operations that take a `'source` argument, such as `getaListofCourses(\"MY-APP\", 'limit = 50, search = ...)`, `bulkImportUsers(...)` and `createaCollection(...)`"
+    difficulty: [intermediate]
+  - id: error_handling
+    text: "Handle the `error` returned by every remote method with `check` or `do`/`on fail`; update and delete methods return `error?`, and failed authentication or CSRF problems surface as `sap:ClientError` from the underlying `sap:Client`"
+    difficulty: [beginner]
+out_of_scope:
+  - "The generic `sap:Client` and `sap:SamlBearerAuthConfig` mechanics (connector.sap)"
+  - "Registering OAuth2 client applications and generating key pairs in SuccessFactors Admin Center (covered in the README setup guide)"
+edges:
+  - {to: connector.sap, rel: uses, via: [client_init_basic, saml_bearer_auth, error_handling], target_items: [saml_bearer_auth, csrf_modifying_requests]}
+  - {to: lib.http, rel: uses, via: [client_init_basic, litmos]}
+  - {to: concept.client_objects, rel: uses, via: [client_init_basic, litmos]}
+  - {to: concept.records, rel: uses, via: [odata_query_options, time_off, organization_positions]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+notes: "Method names come from the main-branch client.bal files (version 2.0.0). Several READMEs show `get...()` calls without arguments (e.g. `getEmpCostDistribution()`) and `listEmployeeTimes()` returning `EmployeeTimeWrapper`; the source requires key arguments and returns `json` for `listEmployeeTimes`, so this node uses list methods and the key-argument forms. Litmos was read from openapi-connectors main; its README has no code."

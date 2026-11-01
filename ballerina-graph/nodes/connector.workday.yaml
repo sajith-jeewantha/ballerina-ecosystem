@@ -1,0 +1,73 @@
+schema_version: "0.2"
+id: connector.workday
+type: connector
+title: Workday connectors
+summary: "Generated clients for the Workday REST APIs (absence management, common worker data, business processes, compensation, payroll, expense, accounts payable, customer accounts, core accounting and connect messaging). Every package exposes a `Client` initialized with a bearer token and the tenant's service URL, with one remote method per API operation."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/workday.absencemanagement
+  - ballerinax/workday.accountspayable
+  - ballerinax/workday.businessprocess
+  - ballerinax/workday.common
+  - ballerinax/workday.compensation
+  - ballerinax/workday.connect
+  - ballerinax/workday.coreaccounting
+  - ballerinax/workday.customeraccounts
+  - ballerinax/workday.expense
+  - ballerinax/workday.payroll
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/workday.common/latest", kind: central, note: "Package overview (same shape for all workday.* packages, 1.5.2)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "client.bal and types.bal of each workday.* package (init, ConnectionConfig, remote methods)"}
+  - {url: "https://community.workday.com/sites/default/files/file-hosting/restapi/index.html", kind: other, note: "Workday REST API directory the connectors are generated from"}
+must_cover:
+  - id: client_init
+    text: "Create a Workday client such as `absencemanagement:Client` with `check new ({auth: {token: accessToken}}, serviceUrl)`, where `auth` is an `http:BearerTokenConfig` holding a Workday OAuth access token and `serviceUrl` is the tenant's REST endpoint for that service"
+    difficulty: [beginner]
+  - id: paging_and_filters
+    text: "Page through collections with the optional `'limit` and `offset` arguments and narrow them with operation-specific filters, e.g. `commonClient->getCollectionOfWorkers('limit = 50, offset = 0, search = \"Smith\")`"
+    difficulty: [beginner]
+  - id: absence_management
+    text: "Read and request time off with `workday.absencemanagement`: `retrievesWorkerTimeOffDetails(id, fromDate = ..., toDate = ..., status = [...])`, `retrievesLeavesOfAbsenceByWorkerID(id)`, `retrievesCollectionOfAbsenceTypes(id)`, and `createsTimeOffRequest(id, payload)` with a `TimeOffRequestEventView`"
+    difficulty: [intermediate]
+  - id: common_workers
+    text: "Work with worker data through `workday.common`: `getCollectionOfWorkers`, `getWorkerInstance`, `getInboxTaskForWorker(id, subresourceID)`, `getPaySlipsForWorker(id)`, `getTimeOffEntriesForWorker(id)`, `getCollectionOfSupervisoryOrgs()`, `getWorkersOfSupervisoryOrg(id)` and `getAuditLogs()`"
+    difficulty: [beginner]
+  - id: common_changes
+    text: "Start worker changes with `workday.common` `createBusinessTitleChange(...)` and `createJobChange(id, payload)` with a `ChangeJobInput` record"
+    difficulty: [intermediate]
+  - id: business_process
+    text: "Drive approvals with `workday.businessprocess`: find events with `getBusinessProcessEvents(...)` and `getRemainingStepsBusinessProcessEvent(...)`, then act on a step with `approveBusinessProcess(id, payload)`, `deniesBusinessProcess(id, payload)` or `sendBackBusinessProcessEvent(id, payload)`"
+    difficulty: [intermediate]
+  - id: compensation
+    text: "Use `workday.compensation` to request a one-time payment with `requestOneTimePayment(id, payload)` (a `OneTimePaymentPlanEventInput`) and manage scorecards with `getCompensationScorecards()`, `createsCompensationScorecards(...)` and `getScorecardResults(...)`"
+    difficulty: [intermediate]
+  - id: payroll
+    text: "Manage payroll inputs with `workday.payroll`: `createPayrollInputs(payload)` with a `PayrollInputView`, `getCollectionOfPayroll(startDate = ..., endDate = ..., 'worker = [...])`, `updateAnExistingPayroll(id, payload)`, `deleteExistingPayroll(id)`, plus `getCollectionOfPayGroups()` and `getCompanySUIRates(...)`"
+    difficulty: [intermediate]
+  - id: expense
+    text: "Submit expenses with `workday.expense`: `createExpenseReport(payload)`, `createQuickExpenseInstance(payload)`, `createsNewAttachmentsForExpenseEntry(...)`, `getCollectionOfExpenseReports()` and `submitExpenseReportApproval(id, payload)`"
+    difficulty: [intermediate]
+  - id: accounts_payable
+    text: "Create supplier invoices with `workday.accountspayable` `createSupplierInvoice(payload)` (a `CreateInvoiceRequestSummary`), attach files with `createsNewAttachmentSupplierInvoice(...)`, submit them with `submitInvoiceInstance(id, payload)`, and list them with `getSupplierInvoiceRequests()`"
+    difficulty: [intermediate]
+  - id: customer_accounts
+    text: "Work with receivables in `workday.customeraccounts`: `getCustomerCollection(name = ...)`, `getCollectionOfInvoices()`, `getInvoicePDFInstance(id)` and `createInvoicePayment(payload)` with a `CreateCustomerPayment` record"
+    difficulty: [intermediate]
+  - id: core_accounting
+    text: "Read accounting reference data with `workday.coreaccounting`: `getAllCurrencies()`, `getCurrencyByID(id)` and `getLedgerAccountByPostingRule(accountPostingRuleSet = ..., accountPostingRuleType = ...)`"
+    difficulty: [beginner]
+  - id: connect_messaging
+    text: "Send notifications with `workday.connect` `sendMessage(payload)` using a `MessageDetail` record, and manage templates with `createMessageTemplate(payload)`, `getMessageTemplate()` and `getNotificationTypes()`"
+    difficulty: [intermediate]
+  - id: error_handling
+    text: "Handle the `error` returned by every remote method with `check` or `do`/`on fail`, e.g. when the bearer token has expired or the worker ID is unknown"
+    difficulty: [beginner]
+out_of_scope:
+  - "Obtaining Workday OAuth tokens and API client registration"
+edges:
+  - {to: lib.http, rel: uses, via: [client_init, error_handling]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, common_workers]}
+  - {to: concept.records, rel: uses, via: [absence_management, payroll, accounts_payable]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+notes: "The Central READMEs contain only an overview, so method names and signatures come from the openapi-connectors main branch client.bal files. All ten packages use `http:BearerTokenConfig` for `auth` and require an explicit `serviceUrl`; the exact tenant URL format is not documented in the packages."

@@ -1,0 +1,134 @@
+schema_version: "0.2"
+id: connector.health_fhir
+type: connector
+title: ballerinax/health.fhir (core)
+summary: "The core Ballerina Health FHIR packages: FHIR R4/R5 data types and resource records, the parser, validator, terminology, FHIRPath, de-identification and C-CDA-to-FHIR utilities, plus the generic and EHR-vendor FHIR client connectors."
+priority: important
+status: draft
+modules:
+  - ballerinax/health.base
+  - ballerinax/health.clients.fhir
+  - ballerinax/health.clients.fhir.athenahealth
+  - ballerinax/health.clients.fhir.cerner
+  - ballerinax/health.clients.fhir.epic
+  - ballerinax/health.fhir.r4
+  - ballerinax/health.fhir.r4.international401
+  - ballerinax/health.fhir.r4.parser
+  - ballerinax/health.fhir.r4.terminology
+  - ballerinax/health.fhir.r4.validator
+  - ballerinax/health.fhir.r4utils
+  - ballerinax/health.fhir.r4utils.ccdatofhir
+  - ballerinax/health.fhir.r4utils.deidentify
+  - ballerinax/health.fhir.r4utils.fhirpath
+  - ballerinax/health.fhir.r5
+  - ballerinax/health.fhir.r5.international500
+  - ballerinax/health.fhir.r5.parser
+  - ballerinax/health.fhir.r5.validator
+  - ballerinax/health.fhir.r5utils.fhirpath
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4/latest", kind: central, note: "FHIR R4 base package README (6.3.3)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4", kind: github, note: "Source of r4, parser, validator, terminology and utils packages (r4/core.bal, r4/fhir_context.bal, r4/errors.bal, r4/utils.bal)"}
+  - {url: "https://central.ballerina.io/ballerinax/health.clients.fhir/latest", kind: central, note: "Generic FHIR client connector README (3.0.6)"}
+  - {url: "https://github.com/ballerina-guides/healthcare-samples", kind: github, note: "Official healthcare samples (working-with-fhir, fhirpath, working-with-fhir-connector)"}
+must_cover:
+  - id: r4_base_types
+    text: "Model FHIR R4 data with the `health.fhir.r4` base package (`r4:`): data types such as `r4:HumanName`, `r4:Identifier`, `r4:CodeableConcept`, `r4:Coding` and `r4:Reference`, and base resources `r4:Bundle`, `r4:OperationOutcome`, `r4:CodeSystem` and `r4:ValueSet`, e.g. building a search-set bundle as `r4:Bundle bundle = {'type: \"searchset\", entry: [...]}` or with `r4:createFhirBundle(t, resources)`"
+    difficulty: [beginner]
+  - id: international_records
+    text: "Construct standard FHIR R4 resources with the typed records of `health.fhir.r4.international401` (e.g. `international401:Patient`, `international401:Observation`, `international401:Encounter`, `international401:AllergyIntolerance`), filling `resourceType`, `meta`, `name`, `gender` and `birthDate` fields"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.international401/latest", kind: central, note: "179 base resource records"}
+  - id: serialize_resource
+    text: "Serialize a FHIR resource record by wrapping it in `r4:FHIRResourceEntity entity = new(patient);` and calling `entity.toJson()` (returns `json|r4:FHIRSerializerError`) or `entity.toXml()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.uscore501/latest", kind: central, note: "Creating FHIR resource models and serializing to JSON"}
+  - id: parse_resource
+    text: "Parse a raw FHIR JSON payload with `parser:parse(payload)` from `health.fhir.r4.parser` (picks the base profile from `resourceType`) and cast the `anydata` result, e.g. `international401:Patient p = <international401:Patient> check parser:parse(payload);`, or parse to a specific profile with `parser:parse(payload, uscore501:USCorePatientProfile)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.parser/latest", kind: central, note: "Parse to base and profile models"}
+  - id: parse_with_validation
+    text: "Parse and validate in one step with `parser:parseWithValidation(payload, international401:Patient).ensureType()`, handling the validation error (e.g. an invalid `birthDate`) in an `on fail` block"
+    difficulty: [intermediate]
+  - id: validate_resource
+    text: "Validate a FHIR JSON payload against its base profile with `validator:validate(body)` or against a given model with `validator:validate(body, international401:Patient)` from `health.fhir.r4.validator`, which returns `r4:FHIRValidationError?` describing structure, cardinality and value-domain violations"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.validator/latest", kind: central, note: "Validate against base or profile model"}
+  - id: terminology_validation_config
+    text: "Enable terminology binding validation during parsing/validation in `Config.toml` under `[ballerinax.health.fhir.r4.parser.terminologyConfig]` with `isTerminologyValidationEnabled = true`, `terminologyServiceApi` and optional `tokenUrl`, `clientId`, `clientSecret`"
+    difficulty: [intermediate]
+  - id: fhir_errors
+    text: "Create FHIR errors with `r4:createFHIRError(message, r4:ERROR, r4:INFORMATIONAL, diagnostic = ..., cause = e, httpStatusCode = http:STATUS_NOT_FOUND)` (an `r4:FHIRError`) and convert any error into an `r4:OperationOutcome` with `r4:handleErrorResponse(err)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4/blob/main/r4/errors.bal", kind: github, note: "createFHIRError signature"}
+  - id: terminology_ops
+    text: "Work with terminologies through `health.fhir.r4.terminology`: read with `terminology:readCodeSystemByUrl` / `readValueSetById`, look up codes with `codeSystemLookUp`, expand with `valueSetExpansion`, test with `subsumes`, build codes with `createCodeableConcept(system, code)`, and map codes between value sets with `terminology:translate(sourceValueSetUrl, targetValueSetUrl, codeableConcept)`, which returns `r4:Parameters|r4:OperationOutcome`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.terminology/latest", kind: central, note: "Translate operation sample"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4/blob/main/terminology/terminology.bal", kind: github, note: "Public terminology functions"}
+  - id: fhirpath_query
+    text: "Query FHIR JSON with FHIRPath using `fhirpath:getValuesFromFhirPath(patient, \"Patient.name.where(use = 'official').family\")` from `health.fhir.r4utils.fhirpath` (returns `json[]|fhirpath:FHIRPathError`), passing runtime values for `%name` constants via `variables = {\"name_use\": \"official\"}`; the older `health.fhir.r4utils` package offers `evaluateFhirPath(fhirResource, expression)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4utils.fhirpath/latest", kind: central, note: "FHIRPath README"}
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4utils/latest", kind: central, note: "Legacy FHIRPath utilities (evaluateFhirPath, getFhirPathResult)"}
+  - id: fhirpath_modify
+    text: "Modify FHIR JSON with `fhirpath:setValuesToFhirPath(resource, \"Patient.active\", false)`, remove elements by passing `()`, transform values with an `isolated function (json) returns json|error` (e.g. masking a phone number), and skip input validation with `validateInputFHIRResource = false`"
+    difficulty: [intermediate]
+  - id: deidentify
+    text: "De-identify a FHIR resource or Bundle with `deidentify:deIdentify(resource)` from `health.fhir.r4utils.deidentify`, defining rules as `[[ballerinax.health.fhir.r4utils.deidentify.rules]]` (`fhirPaths`, `operation` = `mask`, `encrypt`, `hash` or `redact`) in `Config.toml` or as `deidentify:DeIdentifyRule[]` via `deIdentifyRules = rules`, with `encryptKey`/`cryptoHashKey` and `skipOnError` settings"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4utils.deidentify/latest", kind: central, note: "De-identification README"}
+  - id: deidentify_custom
+    text: "Register custom de-identification operations as `map<deidentify:DeIdentificationFunction>` (each an `isolated function (json value) returns json|error`, e.g. pseudonymize or remove the day from a date) and pass them with `deidentify:deIdentify(patient, operations = customOperations)`, referencing them by name in rules"
+    difficulty: [advanced]
+  - id: ccda_to_fhir
+    text: "Transform a C-CDA `ClinicalDocument` XML into an `r4:Bundle` with `ccdatofhir:ccdaToFhir(msg)` from `health.fhir.r4utils.ccdatofhir`, which maps allergies, problems, results, immunizations, medications, patient role, author and procedures to US Core profiles"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4utils.ccdatofhir/latest", kind: central, note: "C-CDA to FHIR README"}
+  - id: fhir_client_config
+    text: "Configure the generic FHIR client from `health.clients.fhir` (`import ballerinax/health.clients.fhir as fhir_client;`): `fhir_client:FHIRConnectorConfig` with `baseURL`, `mimeType: fhir_client:FHIR_JSON` and `authConfig` (e.g. `http:OAuth2ClientCredentialsGrantConfig`, or the private-key JWT `PKJWTAuthConfig` with `clientId`, `tokenEndpoint`, `keyFile` from the `health.base` auth module), then `fhir_client:FHIRConnector c = check new (config)`, which validates the server CapabilityStatement unless `enableCapabilityStatementValidation = false`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.base/blob/main/base/modules/auth/pkjwt_auth_provider.bal", kind: github, note: "PKJWTAuthConfig"}
+  - id: fhir_client_crud
+    text: "Call FHIR interactions on `fhir_client:FHIRConnector`: `->getById(\"Patient\", \"123\")`, `->search(\"Patient\", searchParameters = {\"name\": [\"John\"]})` (add `mode = fhir_client:POST` for POST search), `->create`, `->update`, `->patch` and `->delete` (conditional variants with `onCondition = {\"identifier\": [\"12345\"]}`), `->'transaction(bundle)` and `->callOperation(\"Patient\", operationName = \"everything\", mode = http:GET, id = \"123\")`, reading `fhir_client:FHIRResponse.'resource` and `httpStatusCode`"
+    difficulty: [beginner, intermediate]
+  - id: fhir_client_bulk
+    text: "Run FHIR bulk data export with `fhirConnector->bulkExport(fhir_client:EXPORT_PATIENT)` and poll with `->bulkStatus(exportId = id)` after setting `bulkExportConfig` (`fhir_client:BulkExportConfig` with `fileServerType` `fhir_client:LOCAL`/FTP, `tempDirectory`, `tempFileExpiryTime`, `pollingInterval`); rewrite server URLs in responses with `urlRewrite` and `replacementURL`"
+    difficulty: [advanced]
+  - id: ehr_vendor_clients
+    text: "Use the EHR-specific clients `health.clients.fhir.epic`, `health.clients.fhir.cerner` and `health.clients.fhir.athenahealth`: create a `FHIRClientConnector` from a `FHIRConnectorConfig` (Epic with `tokenEndpoint`, `clientId`, `keyFile`; Cerner/athenahealth with `tokenUrl`, `clientId`, `clientSecret`, `scopes`) and call generated per-resource functions such as `getPatientById(id)`, `searchEncounter(patient = id)`, `create{ResourceType}` and `{Operation}{ResourceType}Operation`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.clients.fhir.epic/latest", kind: central, note: "Epic connector README"}
+      - {url: "https://central.ballerina.io/ballerinax/health.clients.fhir.cerner/latest", kind: central, note: "Cerner connector README"}
+      - {url: "https://central.ballerina.io/ballerinax/health.clients.fhir.athenahealth/latest", kind: central, note: "athenahealth connector README"}
+  - id: fhir_r5
+    text: "Work with FHIR R5 using `health.fhir.r5` (base types), `health.fhir.r5.international500` (R5 resource records), `health.fhir.r5.parser` (`parser:parse`, `parser:parseWithValidation`), `health.fhir.r5.validator` (`validator:validate(data, targetType)`) and `health.fhir.r5utils.fhirpath` (`fhirpath:getValuesFromFhirPath`/`setValuesToFhirPath`, returning `json|error`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r5.parser/latest", kind: central, note: "R5 parser"}
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r5utils.fhirpath/latest", kind: central, note: "R5 FHIRPath"}
+out_of_scope:
+  - "Implementation-guide profile packages (connector.health_fhir_igs)"
+  - "FHIR service type `health.fhirr4`/`health.fhirr5`, CDS Hooks, DICOM and C-CDA records (connector.health_other)"
+  - "Generating packages and templates with `bal health` (tool.bal_health)"
+edges:
+  - {to: concept.records, rel: uses, via: [r4_base_types, international_records]}
+  - {to: concept.json_anydata, rel: uses, via: [parse_resource, fhirpath_query, fhirpath_modify]}
+  - {to: concept.errors, rel: uses, via: [fhir_errors, parse_with_validation]}
+  - {to: concept.client_objects, rel: uses, via: [fhir_client_config, fhir_client_crud, ehr_vendor_clients]}
+  - {to: concept.function_values, rel: uses, via: [fhirpath_modify, deidentify_custom]}
+  - {to: concept.xml, rel: uses, via: [ccda_to_fhir, serialize_resource]}
+  - {to: lib.http, rel: uses, via: [fhir_client_config, fhir_client_crud, fhir_errors]}
+  - {to: lib.oauth2, rel: uses, via: [fhir_client_config]}
+  - {to: tool.config_toml, rel: uses, via: [terminology_validation_config, deidentify]}
+notes: "Package versions from Central data (health.fhir.r4 6.3.3, parser 7.1.1, validator 6.0.1, clients.fhir 3.0.6). The CCDA README passes an `xml` value to `ccdaToFhir`. The vendor-client READMEs import the connector as a placeholder `<package>/epic.fhir.connector`; the published class name `FHIRClientConnector` was confirmed from the Central API docs of health.clients.fhir.epic. health.base has no default-module API; its README lists auth, error and message submodules only."

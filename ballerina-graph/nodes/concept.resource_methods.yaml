@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.resource_methods
 type: concept
 title: Resource methods
@@ -8,19 +8,28 @@ status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.3.5", kind: spec, note: "5.5.3.5 Resources"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#resources_defn", kind: spec, note: "6.8.1.4 Resources"}
+  - {url: "https://ballerina.io/learn/network-interaction/", kind: docs, note: "Learn: Network interaction"}
 must_cover:
   - id: resource_decl
     text: "Declare resource methods such as `resource function get users/[string id]() returns User|error`, allowed only in client or service objects, where a resource method is identified by its method name together with its resource path"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/resource-methods/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/client-class/", kind: bbe}
   - id: path_segments
     text: "Write resource paths from segment names, path parameters `[T name]`, an optional final rest parameter `[T... name]`, or `.` for the empty path"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/hierarchical-resources/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/resource-path-parameters/", kind: bbe}
   - id: path_as_tuple
     text: "Explain that path segments may be any `anydata` value (most commonly strings) and that a resource path maps to a tuple type: segment names to singleton strings, path parameters to their types, a rest parameter to a rest descriptor, and `.` to `[]`"
     difficulty: [advanced]
   - id: get_convention
     text: "Use the method name `get` for a resource method that just fetches the resource, knowing that for service objects the listener decides which method names are supported but should always support `get`"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/resource-methods/", kind: bbe}
   - id: duplicate_error
     text: "Know it is a compile error for an object to declare two resource methods with the same method name whose paths map to the same tuple type"
     difficulty: [intermediate]
@@ -33,6 +42,9 @@ must_cover:
   - id: param_binding
     text: "Use path parameters in the method body: a segment parameter is bound to the path value at its position and a rest parameter to a list of all values from its position onwards"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/resource-path-parameters/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/resource-method-typing/", kind: bbe}
   - id: resource_access_operation
     text: "Explain the resource access operation: given a method name, a list of path values and an argument list, it looks up the matching resource method, binds the path parameters and invokes the function"
     difficulty: [intermediate]
@@ -42,6 +54,8 @@ must_cover:
   - id: return_restrictions
     text: "Know that a resource method's return type must not allow function values or client object types"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/resource-method-typing/", kind: bbe}
 out_of_scope:
   - "Calling client resources with resource access actions (concept.client_objects)"
   - "Service declarations and listeners (concept.services_listeners)"

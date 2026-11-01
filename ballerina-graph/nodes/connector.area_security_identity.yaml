@@ -1,0 +1,86 @@
+schema_version: "0.2"
+id: connector.area_security_identity
+type: connector
+title: "Security & Identity connectors"
+summary: "Ballerina connectors for security and identity services: the SCIM 2.0 user and group provisioning client plus OpenAPI-generated clients for threat detection, virus scanning, validation, barcodes, fraud screening, secrets (1Password Connect), Siemens identity management and Sinch verification."
+priority: long_tail
+status: draft
+modules: [ballerinax/cloudmersive.barcode, ballerinax/cloudmersive.security, ballerinax/cloudmersive.validate, ballerinax/cloudmersive.virusscan, ballerinax/fraudlabspro.frauddetection, ballerinax/fraudlabspro.smsverification, ballerinax/fungenerators.barcode, ballerinax/onepassword, ballerinax/scim, ballerinax/siemens.platformcore.identitymanagement, ballerinax/sinch.verification]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/cloudmersive.barcode/latest", kind: central, note: "ballerinax/cloudmersive.barcode README"}
+  - {url: "https://central.ballerina.io/ballerinax/cloudmersive.security/latest", kind: central, note: "ballerinax/cloudmersive.security README"}
+  - {url: "https://central.ballerina.io/ballerinax/cloudmersive.validate/latest", kind: central, note: "ballerinax/cloudmersive.validate README"}
+  - {url: "https://central.ballerina.io/ballerinax/cloudmersive.virusscan/latest", kind: central, note: "ballerinax/cloudmersive.virusscan README"}
+  - {url: "https://central.ballerina.io/ballerinax/fraudlabspro.frauddetection/latest", kind: central, note: "ballerinax/fraudlabspro.frauddetection README"}
+  - {url: "https://central.ballerina.io/ballerinax/fraudlabspro.smsverification/latest", kind: central, note: "ballerinax/fraudlabspro.smsverification README"}
+  - {url: "https://central.ballerina.io/ballerinax/fungenerators.barcode/latest", kind: central, note: "ballerinax/fungenerators.barcode README"}
+  - {url: "https://central.ballerina.io/ballerinax/onepassword/latest", kind: central, note: "ballerinax/onepassword README"}
+  - {url: "https://central.ballerina.io/ballerinax/scim/latest", kind: central, note: "ballerinax/scim README"}
+  - {url: "https://central.ballerina.io/ballerinax/siemens.platformcore.identitymanagement/latest", kind: central, note: "ballerinax/siemens.platformcore.identitymanagement README"}
+  - {url: "https://central.ballerina.io/ballerinax/sinch.verification/latest", kind: central, note: "ballerinax/sinch.verification README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-scim", kind: github, note: "SCIM 1.0.2 client.bal"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for the other packages"}
+must_cover:
+  - id: scim_client
+    text: "Create a `scim:Client` for a SCIM 2.0 provider such as Asgardeo with `check new (serviceUrl = ..., config = {auth: {tokenUrl, clientId, clientSecret, scopes: [\"internal_user_mgt_list\", ...]}})` (service URL `https://api.asgardeo.io/t/<org>/scim2`, token URL `https://api.asgardeo.io/t/<org>/oauth2/token`) (OAuth2 client credentials) and list users with `scim->/Users()` returning `scim:UserObjectListResponseObject`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/scim/latest", kind: central, note: "Quickstart"}
+  - id: scim_users
+    text: "Provision SCIM users: create with `scim->/Users.post(payload)`, search with `/Users/\\.search.post(UserSearchRequestObject)`, and read, replace, patch or delete one via `/Users/[id]` (`get`, `put`, `patch` with `PatchOperationInput`, `delete`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-scim/blob/main/ballerina/client.bal", kind: github, note: "Users resources"}
+  - id: scim_groups_bulk
+    text: "Manage SCIM groups with `scim->/Groups.post(GroupRequestObject)`, `/Groups/\\.search.post(...)` and `/Groups/[id]` (`get`, `put`, `patch`, `delete`), run batched changes with `/Bulk.post(...)`, and discover server capabilities with `/ServiceProviderConfig` and `/ResourceTypes`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-scim/blob/main/ballerina/client.bal", kind: github, note: "Groups, Bulk, ServiceProviderConfig resources"}
+  - id: generated_auth
+    text: "Initialize the generated clients: an `ApiKeysConfig` first argument for the `cloudmersive.*` packages (`apikey`) and `fungenerators.barcode` (`xFungeneratorsApiSecret`); a bearer token for `onepassword` (with `serviceUrl` pointing at your Connect server, default `http://localhost:8080/v1`) and bearer or OAuth2 refresh-token auth for `siemens.platformcore.identitymanagement`; `http:CredentialsConfig` for `sinch.verification`; and no config for `fraudlabspro.*`, which take the license `'key` on each call"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "ConnectionConfig/ApiKeysConfig in each types.bal"}
+  - id: threat_detection
+    text: "Screen input with `cloudmersive.security`: `contentThreatDetectionAutomaticThreatDetectionString(input)`, `contentThreatDetectionCheckSqlInjectionString(...)`, `contentThreatDetectionProtectXss(...)`, `contentThreatDetectionCheckXxe(...)`, `networkThreatDetectionDetectSsrfUrl(...)` and `networkThreatDetectionIsBot(ip)`/`networkThreatDetectionIsTorNode(ip)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/cloudmersive.security", kind: github, note: "cloudmersive.security generated client.bal/types.bal"}
+  - id: virus_scan_validate
+    text: "Scan content with `cloudmersive.virusscan` (`scanWebsite(WebsiteScanRequest)`, `scanCloudStorageScanAwsS3file(accessKey, secretKey, bucketRegion, bucketName, keyName)`, `scanCloudStorageScanAzureBlob(...)`) and validate data with `cloudmersive.validate` (`addressValidateAddress(ValidateAddressRequest)`, `addressParseString(...)`, `addressValidatePostalCode(...)`, `addressCountryList()`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/cloudmersive.virusscan", kind: github, note: "cloudmersive.virusscan generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/cloudmersive.validate", kind: github, note: "cloudmersive.validate generated client.bal/types.bal"}
+  - id: barcodes
+    text: "Generate and read barcodes: `cloudmersive.barcode` `generateBarcodeQrcode(value)`, `generateBarcodeEan13(...)`, `generateBarcodeUpca(...)` (PNG) and `barcodeEanLookup(...)`; `fungenerators.barcode` `encode(number, barcodeformat = ...)`, `decode(BarcodeDecodeBody)` and `getSupportedTypesForEncode()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/cloudmersive.barcode", kind: github, note: "cloudmersive.barcode generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/fungenerators.barcode", kind: github, note: "fungenerators.barcode generated client.bal/types.bal"}
+  - id: fraud_and_otp
+    text: "Screen orders with `fraudlabspro.frauddetection` `screenOrder(ip, 'key, email = ..., amount = ..., ...)` and report outcomes with `sendFeedback(id, 'key, action)`, and verify phones with `fraudlabspro.smsverification` `sendSMSVerification(tel, 'key)` followed by `verifyOTP(tranId, 'key, otp)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/fraudlabspro.frauddetection", kind: github, note: "fraudlabspro.frauddetection generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/fraudlabspro.smsverification", kind: github, note: "fraudlabspro.smsverification generated client.bal/types.bal"}
+  - id: sinch_verification
+    text: "Verify users with `sinch.verification`: `startVerification(InitiateVerificationResource)`, `reportVerificationById(id, VerificationReportRequestResource)` and `verificationStatusById(id)`/`verificationStatusByIdentity('type, endpoint, method)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sinch.verification", kind: github, note: "sinch.verification generated client.bal/types.bal"}
+  - id: secrets_and_identity
+    text: "Read secrets from 1Password Connect with `onepassword` `getVaults()`, `getVaultItems(vaultUuid)`, `getVaultItemById(vaultUuid, itemUuid)`, `createVaultItem(vaultUuid, FullItem)` and `patchVaultItem(...)`; manage Siemens tenant identities with `siemens.platformcore.identitymanagement` `list()`, `create(ScimUserPost)`, `createGroup(ScimGroupPost)` and `addMemberToGroup(id, ScimGroupMember)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/onepassword", kind: github, note: "onepassword generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/siemens.platformcore.identitymanagement", kind: github, note: "siemens.platformcore.identitymanagement generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [generated_auth, scim_client]}
+  - {to: lib.oauth2, rel: uses, via: [scim_client, generated_auth]}
+  - {to: concept.client_objects, rel: uses, via: [generated_auth, threat_detection]}
+  - {to: concept.resource_methods, rel: uses, via: [scim_client, scim_users, scim_groups_bulk]}
+  - {to: concept.records, rel: uses, via: [scim_users, virus_scan_validate]}
+  - {to: concept.errors, rel: uses, via: [generated_auth]}
+  - {to: topic.security, rel: uses, via: [threat_detection, secrets_and_identity, scim_users]}
+notes: "scim 1.0.2 verified against its module repo (matches Central). Generated packages verified against openapi-connectors main. No BBEs exist."

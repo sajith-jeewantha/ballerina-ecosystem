@@ -1,0 +1,70 @@
+schema_version: "0.2"
+id: connector.ai_knowledge_sources
+type: connector
+title: AI knowledge sources
+summary: "The `ballerinax/ai.*` packages that feed `ballerina/ai` RAG from external content: a SharePoint `ai:DataLoader` that reads document libraries and site pages through Microsoft Graph, and a read-only `ai:KnowledgeBase` for WSO2 Integration cloud knowledge bases."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.microsoft.sharepoint, ballerinax/ai.wso2.integration]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "ballerinax/ai.microsoft.sharepoint 1.0.2 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.wso2.integration/latest", kind: central, note: "ballerinax/ai.wso2.integration 1.1.1 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.wso2.integration/blob/v1.1.1/ballerina/knowledgebase.bal", kind: github, note: "CloudKnowledgeBase at the released tag"}
+must_cover:
+  - id: sharepoint_loader_init
+    text: "Create a SharePoint loader from `ballerinax/ai.microsoft.sharepoint` with `final sharepoint:TextDataLoader loader = check new ({auth: {...}}, {siteId: \"contoso.sharepoint.com:/sites/HR\", libraries: [...]}, ...);`, a `ConnectionConfig` followed by one `Source` per site, where `siteId` is the path form or the composite `{hostname},{spsite-guid},{spweb-guid}` id"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Initialization; Source"}
+  - id: sharepoint_auth
+    text: "Authenticate the SharePoint loader through Microsoft Graph with an `OAuth2ClientCredentialsGrantConfig` (`tokenUrl: \"https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token\"`, `clientId`, `clientSecret`, `scopes: [\"https://graph.microsoft.com/.default\"]`, needing `Sites.Read.All` or `Sites.Selected`), an `OAuth2RefreshTokenGrantConfig` for delegated access, or an `http:BearerTokenConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Authentication"}
+  - id: sharepoint_libraries
+    text: "Select document libraries per `Source` with `libraries: [{name: \"Documents\", paths: [\"/Reports\"], recursive: true}, {name: \"Specs\", paths: [\"/api-design.md\"]}]`, knowing `name` defaults to the English `\"Documents\"` (set it on localized tenants), `name: \"*\"` reads every library, `paths` defaults to `[\"/\"]`, and `libraries: []` loads no library content"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Reading from multiple libraries; Library"}
+  - id: sharepoint_filtering
+    text: "Restrict which files a `Library` loads from its folders with `includeExtensions: [\"pdf\", \".md\", \"TXT\"]` (case-insensitive, optional leading dot), knowing that files named explicitly in `paths` are always loaded"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Filtering by file type"}
+  - id: sharepoint_pages
+    text: "Load SharePoint modern site pages as text by setting `pages: [\"*\"]` (all pages) or `pages: [\"Home\", \"Q3-Update\"]` (matched by name, title or id) on a `Source`; each page becomes one `ai:TextDocument` with its title and web-part text"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Loading site pages"}
+  - id: sharepoint_load
+    text: "Call `ai:Document[]|ai:Document documents = check loader.load();` and pass the result to `knowledgeBase.ingest(documents)`; textual files (`txt`, `md`, `html`, `json`, `csv`, `xml`) are decoded directly, PDFs are extracted with Apache Tika, and other files are skipped with a warning (an error when named explicitly)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Overview; Loading documents"}
+  - id: sharepoint_connection_config
+    text: "Tune the SharePoint loader's `ConnectionConfig` with `serviceUrl` (default `https://graph.microsoft.com/v1.0`), `timeout` (default 30 s), `followRedirects` (enabled so Graph download redirects work), `retryConfig`, `proxy` and `secureSocket`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.microsoft.sharepoint/latest", kind: central, note: "Configuration reference: ConnectionConfig"}
+  - id: wso2_cloud_knowledge_base
+    text: "Retrieve from a WSO2 Integration knowledge base with `integration:CloudKnowledgeBase knowledgeBase = check new (serviceUrl, {auth: {token: accessToken}});` (`ballerinax/ai.wso2.integration`) and `ai:QueryMatch[] matches = check knowledgeBase.retrieve(\"How do I configure the integration?\");` (optional `maxLimit`, default 10, and `ai:MetadataFilters`), knowing `ingest` and `deleteByFilter` return an `ai:Error` because only retrieval is supported"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.wso2.integration/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.wso2.integration/blob/v1.1.1/ballerina/knowledgebase.bal", kind: github, note: "retrieve, ingest, deleteByFilter"}
+  - id: wso2_retrieval_tuning
+    text: "Configure `integration:CloudKnowledgeBase` with `auth` as a bearer token or `http:OAuth2ClientCredentialsGrantConfig` plus an optional `timeout` in `KnowledgeBaseAuthConfig`, a `minSimilarityThreshold` (default 0.7), and Cohere reranking via `cohereRerankerApiKey`, `cohereRerankerModel` and `rerankerTopN` (default 5)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-ai.wso2.integration/blob/v1.1.1/ballerina/knowledgebase.bal", kind: github, note: "KnowledgeBaseAuthConfig, init parameters"}
+out_of_scope:
+  - "Knowledge base, chunking and embedding APIs (lib.ai)"
+  - "Vector stores the loaded documents are ingested into (connector.ai_vector_stores)"
+  - "Microsoft Graph SharePoint connectors (connector.microsoft_365)"
+edges:
+  - {to: lib.ai, rel: implements, via: [sharepoint_load, wso2_cloud_knowledge_base], target_items: [ingest_documents, retrieve_augment, metadata_filters]}
+  - {to: lib.oauth2, rel: uses, via: [sharepoint_auth, wso2_retrieval_tuning]}
+  - {to: lib.http, rel: uses, via: [sharepoint_connection_config]}
+  - {to: concept.records, rel: uses, via: [sharepoint_loader_init, sharepoint_libraries]}
+  - {to: connector.ai_vector_stores, rel: related, note: "Loaders feed ai:VectorKnowledgeBase over these stores"}
+notes: "SharePoint items come from the Central README. The WSO2 Integration README shows only the quickstart; the auth, threshold and reranker options are from knowledgebase.bal at v1.1.1 (identical to main). Its doc comment says the similarity threshold defaults to 0.0 but the code default is 0.7; the code value is used. The repository main branch also has voice-agent listener files that are not in the README and were left out."

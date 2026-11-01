@@ -1,0 +1,134 @@
+schema_version: "0.2"
+id: trigger.other
+type: trigger
+title: Other triggers
+summary: "Event listeners for other external systems: MFT Gateway AS2 messages, Azure Service Bus queues and topics, Asgardeo and WSO2 Identity Server user events, QuickBooks Online entity changes and Twilio SMS and call status callbacks."
+priority: long_tail
+status: draft
+modules: [ballerinax/trigger.aayu.mftg.as2, ballerinax/trigger.asb, ballerinax/trigger.asgardeo, ballerinax/trigger.identityserver, ballerinax/trigger.quickbooks, ballerinax/trigger.twilio]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.aayu.mftg.as2/latest", kind: central, note: "trigger.aayu.mftg.as2 0.10.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.asb/latest", kind: central, note: "trigger.asb 1.2.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.asgardeo/latest", kind: central, note: "trigger.asgardeo 0.8.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.identityserver/latest", kind: central, note: "trigger.identityserver 0.9.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.quickbooks/latest", kind: central, note: "trigger.quickbooks 1.3.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.twilio/latest", kind: central, note: "trigger.twilio 0.10.1"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi", kind: github, note: "Trigger sources"}
+must_cover:
+  - id: as2_listener
+    text: "Import `ballerinax/trigger.aayu.mftg.as2` and create `listener as2:Listener webhookListener = new (listenOn = 8090);` (or just `new;` for the default port 8090); the listener takes no credentials"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.aayu.mftg.as2/latest", kind: central, note: "Step 2"}
+  - id: as2_services
+    text: "Handle MFT Gateway AS2 message events with `as2:ReceivedMessageService` (`onMessageReceivedSuccess`; payload `as2:MessageReceivedEvent`); `as2:SentMessageService` (`onMessageSendSuccess`; payload `as2:MessageSentEvent`); `as2:FailedMessageService` (`onMessageSendFailed`; payload `as2:MessageFailedEvent`), reading fields such as `stationName`, `partnerName`, `messageSubject`, `attachments` and `failureReason`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.aayu.mftg.as2/latest", kind: central, note: "Steps 3-4"}
+  - id: as2_webhook_setup
+    text: "Enable webhooks in the MFT Gateway console's webhook integrations, add the service's public URL (ngrok locally, with a trailing `/`) as the Webhook URL and select the AS2 stations to report"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.aayu.mftg.as2/latest", kind: central, note: "Configure MFTG webhook"}
+  - id: asb_listener
+    text: "Import `ballerinax/trigger.asb` and create `listener asb:Listener asbListener = new (configuration);` from an `asb:ListenerConfig` holding the Service Bus SAS `connectionString`; turn on Azure SDK logs with the `ASB_CLOUD_LOGS=ACTIVE` environment variable and internal logs with `[ballerinax.trigger.asb.options] logLevel` in Config.toml"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/asb/README.md", kind: github, note: "Quickstart"}
+  - id: asb_service_config
+    text: "Choose the entity and receive behaviour with `@asb:ServiceConfig {queueName: \"MyQueue\", peekLockModeEnabled: true, maxConcurrency: 1, prefetchCount: 10, maxAutoLockRenewDuration: 300}` (or `topicName` with `subscriptionName`, and `logLevel`), where peek-lock mode is `PEEK_LOCK` and the default is `RECEIVE_AND_DELETE`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/asb/README.md", kind: github, note: "ServiceConfig fields"}
+  - id: asb_message_service
+    text: "Implement `asb:MessageService` with `isolated remote function onMessage(asb:Message message, asb:Caller caller) returns error?` and `isolated remote function onError(asb:ErrorContext context, error 'error) returns error?`, settling peek-locked messages with `caller.complete(message)`, `abandon`, `deadLetter` or `defer`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/asb/README.md", kind: github, note: "Complete example"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/asb/service_types.bal", kind: github, note: "MessageService"}
+  - id: asgardeo_setup
+    text: "Prepare Asgardeo events: enable event publishing in the Asgardeo organization, create a webhook with `Asgardeo` as the trigger type in a Choreo organization of the same name, and deploy it from the Choreo `Deploy` tab"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.asgardeo/latest", kind: central, note: "Prerequisites, steps 1 and 3"}
+  - id: asgardeo_listener
+    text: "Create `listener asgardeo:Listener webhookListener = new (config, httpListener);` from `configurable asgardeo:ListenerConfig config = ?;` (`clientId`, `clientSecret`, `organization`, `tokenEndpointHost`, `callbackURL`, `hubURL`, `keyServiceURL`) and a shared `http:Listener`, adding an empty `service /ignore on httpListener {}` as in the sample"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.asgardeo/latest", kind: central, note: "Step 2 sample"}
+  - id: asgardeo_services
+    text: "Handle Asgardeo events with `asgardeo:RegistrationService` (`onAddUser(asgardeo:AddUserEvent)`, `onConfirmSelfSignup(asgardeo:GenericEvent)`, `onAcceptUserInvite(asgardeo:GenericEvent)`); `asgardeo:UserOperationService` (`onLockUser(asgardeo:GenericEvent)`, `onUnlockUser(asgardeo:GenericEvent)`, `onUpdateUserCredentials(asgardeo:GenericEvent)`, `onDeleteUser(asgardeo:GenericEvent)`, `onUpdateUserGroup(asgardeo:UserGroupUpdateEvent)`); `asgardeo:LoginService` (`onLoginSuccess(asgardeo:LoginSuccessEvent)`, `onLoginFailed(asgardeo:LoginFailedEvent)`); `asgardeo:NotificationService` (`onSmsOtp`; payload `asgardeo:SmsOtpNotificationEvent`), each payload carrying `eventData` and `securityData`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/asgardeo/service_types.bal", kind: github, note: "Service types"}
+  - id: identityserver_listener
+    text: "Import `ballerinax/trigger.identityserver` and create an `identityserver:Listener` with an `identityserver:ListenerConfig` holding the `webhookSecret` configured in WSO2 Identity Server (optional `listenOn`, default 8090); requests whose `x-wso2-event-signature` HMAC-SHA256 does not match are answered with `401 Unauthorized`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/identityserver/dispatcher_service.bal", kind: github, note: "Signature validation"}
+  - id: identityserver_service
+    text: "Handle WSO2 Identity Server user account events with `identityserver:UserOperationService` (`onCreateUser(identityserver:GenericUserOperationEvent)`, `onUpdateUser(identityserver:UserProfileUpdateOperationEvent)`, `onDeleteUser(identityserver:GenericUserOperationEvent)`, `onEnableUser(identityserver:GenericUserOperationEvent)`, `onDisableUser(identityserver:GenericUserOperationEvent)`, `onUserAccountLock(identityserver:GenericUserOperationEvent)`, `onUserAccountUnlock(identityserver:GenericUserOperationEvent)`), each payload carrying `eventData` and `securityData`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.identityserver/latest", kind: central, note: "Event list"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/identityserver/service_types.bal", kind: github, note: "UserOperationService"}
+  - id: quickbooks_listener
+    text: "Import `ballerinax/trigger.quickbooks` and create `new (listenerConfig = {verificationToken: \"<VERIFIER_TOKEN>\", realmIds: [\"<COMPANY_ID_01>\"]}, listenOn = 8090)`; the listener checks the `Intuit-Signature` HMAC with the verifier token and only dispatches entities whose `realmId` is listed"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.quickbooks/latest", kind: central, note: "Step 2"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/quickbooks/dispatcher_service.bal", kind: github, note: "Intuit-Signature check, realmId filter"}
+  - id: quickbooks_setup
+    text: "Add the listener's public URL (ngrok or Choreo Invoke URL, with a trailing `/`) as the webhook endpoint of the Intuit developer app, select the entities and operations to receive, and read each change from `quickbooks:QuickBookEvent` fields `id`, `name`, `operation`, `lastUpdated` and `deletedID`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.quickbooks/latest", kind: central, note: "Step 4"}
+      - {url: "https://developer.intuit.com/app/developer/qbo/docs/develop/webhooks", kind: other, note: "Intuit webhooks"}
+  - id: quickbooks_list_events
+    text: "Handle QuickBooks list-entity events with `quickbooks:CustomerService` (`onCustomerCreate`, `onCustomerUpdate`, `onCustomerDelete`, `onCustomerMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:VendorService` (`onVendorCreate`, `onVendorUpdate`, `onVendorDelete`, `onVendorMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:EmployeeService` (`onEmployeeCreate`, `onEmployeeUpdate`, `onEmployeeDelete`, `onEmployeeMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:ItemService` (`onItemCreate`, `onItemUpdate`, `onItemDelete`, `onItemMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:DepartmentService` (`onDepartmentCreate`, `onDepartmentUpdate`, `onDepartmentMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:ClassService` (`onClassCreate`, `onClassUpdate`, `onClassDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:TermService` (`onTermCreate`, `onTermUpdate`; payload `quickbooks:QuickBookEvent`); `quickbooks:CurrencyService` (`onCurrencyCreate`, `onCurrencyUpdate`; payload `quickbooks:QuickBookEvent`); `quickbooks:TaxAgencyService` (`onTaxagencyCreate`, `onTaxagencyUpdate`; payload `quickbooks:QuickBookEvent`); `quickbooks:PaymentMethodService` (`onPaymentmethodCreate`, `onPaymentmethodUpdate`, `onPaymentmethodMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:PreferencesService` (`onPreferencesUpdate`; payload `quickbooks:QuickBookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.quickbooks/latest", kind: central, note: "CustomerService sample"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/quickbooks/service_types.bal", kind: github, note: "Service types"}
+  - id: quickbooks_sales_events
+    text: "Handle QuickBooks sales transaction events with `quickbooks:InvoiceService` (`onInvoiceCreate`, `onInvoiceUpdate`, `onInvoiceDelete`, `onInvoiceVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:EstimateService` (`onEstimateCreate`, `onEstimateUpdate`, `onEstimateDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:PaymentService` (`onPaymentCreate`, `onPaymentUpdate`, `onPaymentDelete`, `onPaymentVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:CreditMemoService` (`onCreditmemoCreate`, `onCreditmemoUpdate`, `onCreditmemoDelete`, `onCreditmemoVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:SalesReceiptService` (`onRefundreceiptCreate`, `onRefundreceiptUpdate`, `onRefundreceiptDelete`, `onRefundreceiptVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:RefundReceiptService` (`onRefundreceiptCreate`, `onRefundreceiptUpdate`, `onRefundreceiptDelete`, `onRefundreceiptVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:DepositService` (`onDepositCreate`, `onDepositUpdate`, `onDepositDelete`; payload `quickbooks:QuickBookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/quickbooks/service_types.bal", kind: github, note: "Service types"}
+  - id: quickbooks_expense_events
+    text: "Handle QuickBooks purchase and accounting events with `quickbooks:BillService` (`onBillCreate`, `onBillUpdate`, `onBillDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:BillPaymentService` (`onBillpaymentCreate`, `onBillpaymentUpdate`, `onBillpaymentDelete`, `onBillpaymentVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:PurchaseService` (`onPurchaseCreate`, `onPurchaseUpdate`, `onPurchaseDelete`, `onPurchaseVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:PurchaseOrderService` (`onPurchaseorderCreate`, `onPurchaseorderUpdate`, `onPurchaseorderDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:VendorCreditService` (`onVendorcreditCreate`, `onVendorcreditUpdate`, `onVendorcreditDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:AccountService` (`onAccountCreate`, `onAccountUpdate`, `onAccountDelete`, `onAccountMerge`; payload `quickbooks:QuickBookEvent`); `quickbooks:JournalEntryService` (`onJournalentryCreate`, `onJournalentryUpdate`, `onJournalentryDelete`; payload `quickbooks:QuickBookEvent`); `quickbooks:JournalCodeService` (`onJournalcodeCreate`, `onJournalcodeUpdate`; payload `quickbooks:QuickBookEvent`); `quickbooks:BudgetService` (`onBudgetCreate`, `onBudgetUpdate`; payload `quickbooks:QuickBookEvent`); `quickbooks:TransferService` (`onTransferCreate`, `onTransferUpdate`, `onTransferDelete`, `onTransferVoid`; payload `quickbooks:QuickBookEvent`); `quickbooks:TimeActivityService` (`onTimeactivityCreate`, `onTimeactivityUpdate`, `onTimeactivityDelete`; payload `quickbooks:QuickBookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/quickbooks/service_types.bal", kind: github, note: "Service types"}
+  - id: twilio_setup
+    text: "Prepare Twilio: buy a phone number, run `ngrok http 8090`, paste the Forwarding URL as a `WEBHOOK` with `HTTP POST` under `A CALL COMES IN` for the number, and create a Messaging Service whose incoming messages `Send a webhook` to the same URL"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.twilio/latest", kind: central, note: "Prerequisites"}
+  - id: twilio_listener
+    text: "Import `ballerinax/trigger.twilio` and create `listener twilio:Listener twilioListener = new (8090);`; the listener takes only the port or an `http:Listener`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.twilio/latest", kind: central, note: "Step 2"}
+  - id: twilio_sms_events
+    text: "Handle SMS status changes with `twilio:SmsStatusService` (`onAccepted`, `onQueued`, `onSending`, `onSent`, `onFailed`, `onDelivered`, `onUndelivered`, `onReceiving`, `onReceived`; payload `twilio:SmsStatusChangeEventWrapper`), reading `MessageSid`, `MessageStatus`, `From`, `To` and `Body`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.twilio/latest", kind: central, note: "SmsStatus sample"}
+  - id: twilio_call_events
+    text: "Handle call status changes with `twilio:CallStatusService` (`onQueued`, `onRinging`, `onInProgress`, `onCompleted`, `onBusy`, `onFailed`, `onNoAnswer`, `onCanceled`; payload `twilio:CallStatusEventWrapper`), reading `CallSid`, `CallStatus`, `From`, `To`, `Direction` and `CallDuration`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.twilio/latest", kind: central, note: "CallStatus sample"}
+out_of_scope:
+  - "Sending messages or calling the vendor APIs (connector.asb, connector.b2b, connector.area_communication_2, connector.area_finance_accounting_2)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [as2_services, asb_message_service, asgardeo_services, identityserver_service, quickbooks_list_events, twilio_sms_events]}
+  - {to: concept.annotations, rel: uses, via: [asb_service_config]}
+  - {to: connector.asb, rel: uses, via: [asb_listener, asb_message_service], note: "Same Azure Service Bus entities; ballerinax/asb also offers sender/receiver clients"}
+  - {to: connector.b2b, rel: uses, via: [as2_services], note: "ballerinax/aayu.mftg.as2 client for sending AS2 messages"}
+  - {to: connector.area_finance_accounting_2, rel: uses, via: [quickbooks_setup], note: "ballerinax/quickbooks.online client to read changed entities"}
+  - {to: connector.area_communication_2, rel: uses, via: [twilio_sms_events], note: "ballerinax/twilio client to send SMS and calls"}
+  - {to: lib.http, rel: uses, via: [asgardeo_listener, twilio_listener]}
+  - {to: tool.config_toml, rel: uses, via: [asgardeo_listener, asb_listener]}
+notes: "Names follow the Central API docs of each version. The AS2 README shows `as2:MessageReceivedEventWrapper`, but 0.10.0's payload record is `as2:MessageReceivedEvent`. The ASB README shows `asb:Service` in one snippet; the published service type is `asb:MessageService`, and its mention of `renewLock` and a `MessageServiceErrorHandling` type is not reflected in the API docs (Caller has `complete`, `abandon`, `deadLetter`, `defer`), so those are left out. In trigger.quickbooks 1.3.0 `SalesReceiptService` declares `onRefundreceipt*` methods (a generator quirk), reproduced as published. Identity Server-side webhook setup is only linked, not documented, in the README and is omitted."

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.client_objects
 type: concept
 title: Client objects
@@ -11,13 +11,18 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9", kind: spec, note: "7.9 Outbound network interaction"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9.1", kind: spec, note: "7.9.1 Remote methods"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.9.2", kind: spec, note: "7.9.2 Resources"}
+  - {url: "https://ballerina.io/learn/network-interaction/", kind: docs, note: "Learn: Network interaction"}
 must_cover:
   - id: client_vs_service
     text: "Distinguish client objects (network interaction originated by the program) from service objects (interaction originated by the remote system), knowing an object can be one, the other or neither, but not both"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/consuming-services/", kind: bbe}
   - id: client_qual
     text: "Declare client object types and classes with the `client` qualifier, e.g. `client class Api { ... }`, knowing only client objects belong to an object type that has the `client` qualifier"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/client-class/", kind: bbe}
   - id: remote_decl
     text: "Declare remote methods with `remote function send(string msg) returns error?`, allowed only in client or service objects and kept in a symbol space separate from fields and ordinary methods, so a remote method may share a name with a non-remote method"
     difficulty: [intermediate]
@@ -29,6 +34,8 @@ must_cover:
   - id: remote_call_action
     text: "Call a client's remote method with the action `clientObj->send(\"hi\")`, knowing a remote method cannot be called with `.` method-call syntax and `->` has the same precedence as `.`"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/consuming-services/", kind: bbe}
   - id: remote_return_not_never
     text: "Know that the return type of a client object's remote method must not be `never`"
     difficulty: [advanced]
@@ -40,15 +47,21 @@ must_cover:
   - id: resource_access_action
     text: "Access a client's resources with the resource access action, e.g. `check c->/users/[id].get()` or `c->/users.post(user)`, where an omitted method name defaults to `get` and omitted parentheses default to an empty argument list"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/client-class/", kind: bbe}
   - id: computed_and_rest_segments
     text: "Use computed path segments `[expr]` and a rest segment `[...segments]` in a resource access path, and `c->/` for the empty path; evaluation builds a list of path values from names, computed values and the members of the rest list"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/client-class/", kind: bbe}
   - id: resource_access_typing
     text: "Explain that the client's static type must contain a resource with the given method name for every path the access could construct, and that arguments and the result are typed using the intersection of the function types of the matching resource methods"
     difficulty: [advanced]
   - id: sequence_diagram
     text: "Explain that a local variable of client object type is shown as a lifeline in the function's sequence diagram, and a remote method call as a horizontal arrow from the worker to that lifeline"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sequence-diagrams/", kind: bbe}
 out_of_scope:
   - "Resource method declarations and resource paths (concept.resource_methods)"
   - "Service objects and listeners (concept.services_listeners)"

@@ -1,0 +1,96 @@
+schema_version: "0.2"
+id: connector.ai_memory_stores
+type: connector
+title: AI memory stores
+summary: "The `ballerinax/ai.*` packages that implement `ai:ShortTermMemoryStore` on persistent backends (DynamoDB, MS SQL, PostgreSQL, Redis, SQLite), so agent conversation memory is kept outside the process."
+priority: long_tail
+status: draft
+modules: [ballerinax/ai.aws.dynamodb, ballerinax/ai.memory.mssql, ballerinax/ai.memory.postgresql, ballerinax/ai.memory.redis, ballerinax/ai.sqlite]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ai.aws.dynamodb/latest", kind: central, note: "ballerinax/ai.aws.dynamodb 1.1.0 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.memory.mssql/latest", kind: central, note: "ballerinax/ai.memory.mssql 1.4.1 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.memory.postgresql/latest", kind: central, note: "ballerinax/ai.memory.postgresql 1.1.0 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.memory.redis/latest", kind: central, note: "ballerinax/ai.memory.redis 1.2.0 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.sqlite/latest", kind: central, note: "ballerinax/ai.sqlite 1.1.0 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "ballerina/ai README 2.5 Define the Memory"}
+must_cover:
+  - id: memory_store_usage
+    text: "Plug a persistent store into agent memory by typing it as `ai:ShortTermMemoryStore` and passing `new ai:ShortTermMemory(store)` as the `memory` of an `ai:Agent`, so each `sessionId`'s history is kept in the database instead of `ai:InMemoryShortTermMemoryStore`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "2.5 Define the Memory"}
+  - id: dynamodb_store
+    text: "Create a DynamoDB-backed store from `ballerinax/ai.aws.dynamodb` with `ai:ShortTermMemoryStore store = check new dynamodb:ShortTermMemoryStore({awsCredentials: {accessKeyId, secretAccessKey}, region});` using `configurable` credentials, or pass an existing `ballerinax/aws.dynamodb` client (imported with an alias such as `dynamodbStore`) instead of the config"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.dynamodb/latest", kind: central, note: "Quickstart step 2"}
+  - id: dynamodb_table_config
+    text: "Set `maxMessagesPerKey` (default 20) and `tableConfig = {tableName: \"my_app_memory\"}` on `dynamodb:ShortTermMemoryStore`, where `tableConfig` also takes `billingMode` (`dynamodb:PAY_PER_REQUEST` default or `dynamodb:PROVISIONED` with `readCapacityUnits`/`writeCapacityUnits`), `consistentReads`, `tags` and `sseSpecification` used when the table is auto-created"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.dynamodb/latest", kind: central, note: "Quickstart: tableConfig"}
+  - id: dynamodb_storage_model
+    text: "Explain the DynamoDB storage model: one item per message keyed by `MemoryKey` (partition) and `MessageId` (sort: `system`, `counter`, `msg#<seq>`), the table created on init via `DescribeTable`/`CreateTable`, and the IAM actions the credentials need (`DescribeTable`, `CreateTable`, `GetItem`, `PutItem`, `UpdateItem`, `DeleteItem`, `Query`, `BatchWriteItem`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.aws.dynamodb/latest", kind: central, note: "Prerequisites; Storage model"}
+  - id: mssql_store
+    text: "Create an MS SQL-backed store from `ballerinax/ai.memory.mssql` with `check new mssql:ShortTermMemoryStore({host, user, password, database})`, or from an existing `mssql:Client` (importing the store module as `mssqlStore`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.mssql/latest", kind: central, note: "Quickstart step 2"}
+  - id: mssql_options
+    text: "Pass `maxMessagesPerKey` (default 20) and an in-memory `cacheConfig` such as `{capacity: 10}` positionally, e.g. `check new mssql:ShortTermMemoryStore({host, user, password, database}, 10, {capacity: 10})`, and provision the `ChatMessages` table (`Id`, `MessageKey`, `MessageRole`, `MessageJson`, `CreatedAt`) up front in production"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.mssql/latest", kind: central, note: "Database tables; Quickstart options"}
+  - id: postgresql_store
+    text: "Create a PostgreSQL-backed store from `ballerinax/ai.memory.postgresql` with `check new postgresql:ShortTermMemoryStore({host, username, password, database})`, or from an existing `postgresql:Client` (importing the store module as `postgresqlStore`), optionally passing `maxMessagesPerKey` and `tableName` (default `\"chat_messages\"`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.postgresql/latest", kind: central, note: "Quickstart step 2"}
+  - id: postgresql_capacity_tables
+    text: "Explain that the PostgreSQL store's `maxMessagesPerKey` is advisory, reported through `getCapacity()`/`isFull()` while trimming is done by the `ai:ShortTermMemory` overflow handler, and that its `chat_messages` table orders by an identity `id` with a partial unique index enforcing one system message per key (unquoted table names are lower-cased)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.postgresql/latest", kind: central, note: "Database tables; Note on maxMessagesPerKey"}
+  - id: redis_store
+    text: "Create a Redis-backed store from `ballerinax/ai.memory.redis` with `check new redis:ShortTermMemoryStore({host, port})`, or from an existing `redis:Client` created with `new redis:Client(connection = {host, port})` (importing the store module as `redisStore`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.redis/latest", kind: central, note: "Quickstart step 2"}
+  - id: redis_options
+    text: "Pass `maxMessagesPerKey`, `cacheConfig` and a `keyPrefix` (default `\"chat_memory\"`) for multi-tenant isolation, e.g. `check new redis:ShortTermMemoryStore({host, port}, 10, {capacity: 10}, \"my_app_memory\")`; system messages are kept with `SET`/`GET` and interactive ones with `RPUSH`/`LRANGE`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.redis/latest", kind: central, note: "Key Features; Quickstart options"}
+  - id: sqlite_store
+    text: "Create a SQLite-backed store from `ballerinax/ai.sqlite` with `check new sqlite:ShortTermMemoryStore({url})` where `url` is `jdbc:sqlite:./chat_memory.db` or `jdbc:sqlite::memory:`, or from an existing `jdbc:Client` (importing the store module as `sqliteStore`); the SQLite JDBC driver is bundled, and `maxMessagesPerKey` and a table name can follow, e.g. `({url}, 10, \"my_chat_messages\")`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.sqlite/latest", kind: central, note: "Quickstart; Note on database URLs"}
+  - id: sqlite_options
+    text: "Configure the SQLite store's `DatabaseConfiguration` with `options: {journalMode: \"WAL\", busyTimeout: 5000}` (`PRAGMA journal_mode` and `busy_timeout`) and `connectionTimeout` (seconds, default 30), choosing `WAL` when several connections or processes share the file"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.sqlite/latest", kind: central, note: "Configuration"}
+  - id: checkpoint_tables
+    text: "Provision the human-in-the-loop checkpoint table named by `checkpointTableName` (`Checkpoints` for MS SQL, `checkpoints` for PostgreSQL and SQLite) before running an agent with approval-gated tools; the SQL stores create only the chat-history table (`tableName`) themselves"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.mssql/latest", kind: central, note: "Database tables"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.memory.postgresql/latest", kind: central, note: "Database tables"}
+      - {url: "https://central.ballerina.io/ballerinax/ai.sqlite/latest", kind: central, note: "Database tables"}
+out_of_scope:
+  - "Agent memory semantics, overflow handling and the in-memory store (lib.ai)"
+  - "The underlying database clients (connector.aws, connector.mssql, connector.postgresql, connector.redis, connector.java_jdbc)"
+edges:
+  - {to: lib.ai, rel: implements, via: [memory_store_usage, dynamodb_store, mssql_store, postgresql_store, redis_store, sqlite_store], target_items: [agent_memory, agent_run]}
+  - {to: concept.records, rel: uses, via: [dynamodb_table_config, sqlite_options]}
+  - {to: tool.config_toml, rel: uses, via: [dynamodb_store, mssql_store, postgresql_store, redis_store, sqlite_store], note: "Connection values read from configurables"}
+  - {to: connector.aws, rel: uses, via: [dynamodb_store, dynamodb_table_config], note: "ballerinax/aws.dynamodb client and TableConfig"}
+  - {to: connector.mssql, rel: uses, via: [mssql_store]}
+  - {to: connector.postgresql, rel: uses, via: [postgresql_store]}
+  - {to: connector.redis, rel: uses, via: [redis_store]}
+  - {to: connector.java_jdbc, rel: uses, via: [sqlite_store]}
+notes: "Items come from each package's Central README. The exact parameter names of the optional positional arguments (beyond `maxMessagesPerKey`, `cacheConfig`, `keyPrefix`, `tableName`, `tableConfig`, `checkpointTableName` as the READMEs name them) were not checked against source. The MS SQL README does not say whether `tableName` is positional after `cacheConfig`, so no example with it was written."

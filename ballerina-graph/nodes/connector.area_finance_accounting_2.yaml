@@ -1,0 +1,111 @@
+schema_version: "0.2"
+id: connector.area_finance_accounting_2
+type: connector
+title: "Finance & Accounting connectors (P–Z)"
+summary: "Ballerina connectors for finance and accounting APIs from PocketSmith to Zuora: the Stripe resource-method client, the QuickBooks webhook listener, and OpenAPI-generated clients for QuickBooks Online, budgeting, billing, e-invoicing and accounting services."
+priority: long_tail
+status: draft
+modules: [ballerinax/pocketsmith, ballerinax/quickbooks.online, ballerinax/quickbooks.trigger, ballerinax/reckon.one, ballerinax/recurly, ballerinax/ronin, ballerinax/storecove, ballerinax/stripe, ballerinax/ynab, ballerinax/yodlee, ballerinax/zoho.books, ballerinax/zuora.collection, ballerinax/zuora.revenue]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/pocketsmith/latest", kind: central, note: "ballerinax/pocketsmith README"}
+  - {url: "https://central.ballerina.io/ballerinax/quickbooks.online/latest", kind: central, note: "ballerinax/quickbooks.online README"}
+  - {url: "https://central.ballerina.io/ballerinax/quickbooks.trigger/latest", kind: central, note: "ballerinax/quickbooks.trigger README"}
+  - {url: "https://central.ballerina.io/ballerinax/reckon.one/latest", kind: central, note: "ballerinax/reckon.one README"}
+  - {url: "https://central.ballerina.io/ballerinax/recurly/latest", kind: central, note: "ballerinax/recurly README"}
+  - {url: "https://central.ballerina.io/ballerinax/ronin/latest", kind: central, note: "ballerinax/ronin README"}
+  - {url: "https://central.ballerina.io/ballerinax/storecove/latest", kind: central, note: "ballerinax/storecove README"}
+  - {url: "https://central.ballerina.io/ballerinax/stripe/latest", kind: central, note: "ballerinax/stripe README"}
+  - {url: "https://central.ballerina.io/ballerinax/ynab/latest", kind: central, note: "ballerinax/ynab README"}
+  - {url: "https://central.ballerina.io/ballerinax/yodlee/latest", kind: central, note: "ballerinax/yodlee README"}
+  - {url: "https://central.ballerina.io/ballerinax/zoho.books/latest", kind: central, note: "ballerinax/zoho.books README"}
+  - {url: "https://central.ballerina.io/ballerinax/zuora.collection/latest", kind: central, note: "ballerinax/zuora.collection README"}
+  - {url: "https://central.ballerina.io/ballerinax/zuora.revenue/latest", kind: central, note: "ballerinax/zuora.revenue README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/blob/v2.0.1/ballerina/client.bal", kind: github, note: "Stripe 2.0.1 client.bal (resource paths)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-quickbooks.trigger", kind: github, note: "quickbooks.trigger 0.1.0 listener and types"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal (ConnectionConfig, ApiKeysConfig, remote methods)"}
+must_cover:
+  - id: stripe_client
+    text: "Create a `stripe:Client` from `stripe:ConnectionConfig {auth: {token: secretKey}}`, create a customer with `stripe->/customers.post(newCustomer)` where `newCustomer` is a `stripe:customers_body` (`name`, `email`, `address`), and list customers with `stripe->/customers` returning `stripe:CustomerResourceCustomerList`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/stripe/latest", kind: central, note: "Quickstart"}
+  - id: stripe_customers
+    text: "Retrieve, update and delete a Stripe customer through `stripe->/customers/[customerId]` (`get`, `post` with `stripe:customers_customer_body`, `delete` returning `stripe:Deleted_customer`), and attach payment methods with `/payment_methods/[paymentMethodId]/attach.post(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/blob/v2.0.1/ballerina/client.bal", kind: github, note: "Stripe 2.0.1 client.bal (resource paths)"}
+  - id: stripe_payment_intents
+    text: "Accept payments with Stripe payment intents: `stripe->/payment_intents.post(...)` returning `stripe:Payment_intent`, then `/payment_intents/[intentId]/confirm.post(...)`, `/capture.post(...)` or `/cancel.post(...)`, and list them with `/payment_intents`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/blob/v2.0.1/ballerina/client.bal", kind: github, note: "Stripe 2.0.1 client.bal (resource paths)"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/tree/main/examples", kind: github, note: "examples/manage-payments"}
+  - id: stripe_charges_refunds
+    text: "Create one-time charges with `stripe->/charges.post(...)`, capture with `/charges/[chargeId]/capture.post(...)`, refund with `/refunds.post(...)`, and read the account `/balance`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/blob/v2.0.1/ballerina/client.bal", kind: github, note: "Stripe 2.0.1 client.bal (resource paths)"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/tree/main/examples", kind: github, note: "examples/manage-one-time-charges"}
+  - id: stripe_billing
+    text: "Build Stripe billing flows: `stripe->/products.post(...)` and `/prices.post(...)`, `/subscriptions.post(...)`, invoices via `/invoices.post(...)` then `/invoices/[invoiceId]/finalize.post(...)`, `/pay.post(...)` and `/send.post(...)`, and hosted checkout with `/checkout/sessions.post(...)`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-stripe/blob/v2.0.1/ballerina/client.bal", kind: github, note: "Stripe 2.0.1 client.bal (resource paths)"}
+  - id: quickbooks_listener
+    text: "Listen to QuickBooks Online webhooks with `import ballerinax/quickbooks.trigger as quickbooks;` and `listener quickbooks:Listener quickbooksWebhook = new ({webhookSecret}, 8090)`, where `webhookSecret` is the app's Webhook Verifier Token used to verify each delivery"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/quickbooks.trigger/latest", kind: central, note: "Setup guide and Quickstart"}
+  - id: quickbooks_services
+    text: "Attach a per-entity service such as `service quickbooks:InvoiceService on quickbooksWebhook` implementing all of its remote functions (`onInvoiceCreated`, `onInvoiceUpdated`, `onInvoiceDeleted`, `onInvoiceVoided`, `onInvoiceEmailed`), each receiving a `quickbooks:QuickBookEvent` whose `intuitentityid` and `intuitaccountid` identify the changed entity (other service types include `CustomerService`, `PaymentService`, `BillService`, `VendorService`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/quickbooks.trigger/latest", kind: central, note: "Overview and Quickstart"}
+  - id: quickbooks_online
+    text: "Use the generated `quickbooks.online` client (bearer or OAuth2 refresh-token auth) with a company `realmId`: `createOrUpdateInvoice(realmId, InvoiceCreateObject)`, `readInvoice(realmId, invoiceId)`, `createOrUpdateCustomer`, `createOrUpdatePayment`, `createOrUpdateBill`, `readVendor` and `queryEntity(realmId, \"select * from Customer\")`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/quickbooks.online", kind: github, note: "quickbooks.online generated client.bal/types.bal"}
+  - id: generated_auth
+    text: "Initialize the other generated clients with their declared auth: a bearer token `{auth: {token}}` for `reckon.one`, `storecove`, `ynab` and `yodlee`; bearer or OAuth2 refresh-token config for `pocketsmith` and `zoho.books`; `http:CredentialsConfig` `{auth: {username, password}}` for `recurly`, `ronin` and `zuora.collection`; and `ApiKeysConfig {token}` for `zuora.revenue`; supply `serviceUrl` explicitly for `ronin`, `yodlee`, `zuora.collection` and `zuora.revenue`, which have no default"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal (ConnectionConfig, ApiKeysConfig, remote methods)"}
+  - id: budgeting_apps
+    text: "Read and write personal-finance data: `ynab` `getBudgets()`, `getAccounts(budgetId)`, `getTransactions(budgetId)` and `createTransaction(budgetId, payload)`; `pocketsmith` `getAuthorizedUser()`, `listAccounts(id)`, `listTransactionsUser(id)` and `createTransactionForTransactionAccount(...)`; `yodlee` `getAllAccounts()`, `getHistoricalBalances()` and `getNetworth()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ynab", kind: github, note: "ynab generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/pocketsmith", kind: github, note: "pocketsmith generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/yodlee", kind: github, note: "yodlee generated client.bal/types.bal"}
+  - id: accounting_invoicing
+    text: "Manage small-business accounting: `zoho.books` `listContacts(organizationId)`, `addInvoice(organizationId, Invoice)` and `listInvoices(organizationId)`; `reckon.one` `getBooks()`, `createCustomer(bookId, ...)` and `createCreditNote(bookId, CreditNoteInput)`; `ronin` `createClient(...)`, `createInvoice(...)` and `createEstimate(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/zoho.books", kind: github, note: "zoho.books generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/reckon.one", kind: github, note: "reckon.one generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ronin", kind: github, note: "ronin generated client.bal/types.bal"}
+  - id: billing_einvoicing
+    text: "Run subscription billing and e-invoicing: `recurly` `createAccount(AccountCreate)`, `getAccount(accountId)`, `listAccountSubscriptions(...)` and `createCoupon(...)`; `storecove` `createLegalEntity(LegalEntityCreate)`, `discoveryReceives(DiscoverableParticipant)` and `createInvoiceSubmission(InvoiceSubmission)` to send an invoice over the network"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/recurly", kind: github, note: "recurly generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/storecove", kind: github, note: "storecove generated client.bal/types.bal"}
+  - id: zuora_ops
+    text: "Use the Zuora clients: `zuora.collection` `createPaymentRun(POSTPaymentRun)`, `getPaymentRun(paymentRunId)`, `getStatements(accountId, count)` and `getCollectionsInfo()`; `zuora.revenue` `postUpload(templatename, filename, payload)`, `getUploadstatus(id)`, `getBiviews(...)` and `getReportlist()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/zuora.collection", kind: github, note: "zuora.collection generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/zuora.revenue", kind: github, note: "zuora.revenue generated client.bal/types.bal"}
+out_of_scope:
+  - "Fetching full QuickBooks entity data from a webhook event (use the QuickBooks Accounting API client)"
+edges:
+  - {to: lib.http, rel: uses, via: [stripe_client, generated_auth, quickbooks_listener]}
+  - {to: lib.oauth2, rel: uses, via: [generated_auth, quickbooks_online]}
+  - {to: concept.client_objects, rel: uses, via: [generated_auth, quickbooks_online]}
+  - {to: concept.resource_methods, rel: uses, via: [stripe_client, stripe_customers, stripe_payment_intents, stripe_billing]}
+  - {to: concept.services_listeners, rel: uses, via: [quickbooks_listener, quickbooks_services]}
+  - {to: concept.records, rel: uses, via: [stripe_client, quickbooks_services]}
+  - {to: concept.errors, rel: uses, via: [stripe_client]}
+  - {to: topic.event_driven, rel: uses, via: [quickbooks_services]}
+notes: "Stripe verified against tag v2.0.1 (Central version; main is 3.0.0). quickbooks.trigger 0.1.0 is a CloudEvents webhook listener assigned here rather than to a trigger node. Generated packages checked against openapi-connectors main. No BBEs exist for these connectors."

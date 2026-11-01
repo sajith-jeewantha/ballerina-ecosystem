@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.lang.error
 type: library
 title: ballerina/lang.error
@@ -12,18 +12,26 @@ must_cover:
   - id: message
     text: "Get an error's message string with `e.message()`, e.g. when logging or returning a failure description"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-reporting/", kind: bbe}
   - id: cause
     text: "Get the error that caused an error with `e.cause()`, which returns `error?`, and walk a chain of causes"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-reporting/", kind: bbe}
   - id: detail
     text: "Get an error's detail record with `e.detail()`, which returns an immutable value typed `readonly & D` for an `error<D>`, and read its fields, e.g. `e.detail().code` for `error<record {| int code; |}>`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-reporting/", kind: bbe}
   - id: detail_type
     text: "Explain that every error detail record must belong to `error:Detail` (`record {| error:Cloneable...; |}`), where `error:Cloneable` is `readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>`"
     difficulty: [intermediate, advanced]
   - id: stack_trace
     text: "Use `e.stackTrace()` to get the error's stack trace as `error:StackFrame[]`, whose first member is the top of the call stack, and call `toString()` on each frame (a single line without newlines)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-reporting/", kind: bbe}
   - id: to_string
     text: "Convert an error to a string with `e.toString()` (direct style) or `e.toBalString()` (expression style, in Ballerina syntax), both defined by the ToString abstract operation"
     difficulty: [beginner, intermediate]

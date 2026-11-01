@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.regexp
 type: concept
 title: Regular expressions
@@ -20,14 +20,19 @@ must_cover:
   - id: re_template
     text: 'Write regular expressions as `re `[a-z]+\d*``, which are parsed at compile time (a syntax error is a compile-time error) so evaluating them cannot fail'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: re_interpolation
     text: 'Interpolate other regular expressions with `${r}`, which must have type `regexp:RegExp` and behaves as if `(?:r)` were inserted at that point'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: regexp_type
     text: 'Use the type `regexp:RegExp` (also `string:RegExp`), which is part of `anydata` and has filler value `re```'
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#anydata", kind: spec, note: "5.6.10 Anydata type"}
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: atoms_and_escapes
     text: 'Use literal characters, `.`, character classes `[a-z]` and `[^...]`, the escapes `\d \D \s \S \w \W`, `\r \n \t`, `\u{...}`, and backslash-quoted syntax characters such as `\.` and `\(`'
     difficulty: [beginner, intermediate]
@@ -40,9 +45,13 @@ must_cover:
   - id: inline_flags
     text: 'Set flags inside a group with `(?i:...)` or `(?m-s:...)`, using flags `m` (multiline), `s` (dot-all), `i` (ignore case) and `x` (ignore white space outside character sets, with `#` comments), each at most once'
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: unicode_properties
     text: 'Match Unicode properties with `\p{L}`, `\p{gc=Lu}`, `\p{sc=Latin}` and their negation `\P{...}` (general category `Cs` is not supported)'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
   - id: semantics
     text: 'Explain that matching follows ECMAScript 2022 Unicode-mode semantics with Unicode 10, except that `.` matches any character other than 0xA and 0xD and `\s` matches Ballerina white space characters'
     difficulty: [advanced]
@@ -51,6 +60,7 @@ must_cover:
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec, note: "11.3.11 lang.regexp module (preview)"}
+      - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
 out_of_scope:
   - "Detailed lang.regexp function semantics (lib.lang.regexp)"
   - "Lookahead/lookbehind and backreferences, which the 2024R1 RegExp grammar does not include"

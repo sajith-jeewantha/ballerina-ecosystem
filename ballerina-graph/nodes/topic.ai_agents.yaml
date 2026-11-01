@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.ai_agents
 type: topic
 title: AI agents
@@ -95,12 +95,12 @@ must_cover:
 out_of_scope:
   - "Full ai module API surface (lib.ai)"
   - "MCP protocol details and client API (lib.mcp)"
-  - "Provider-specific options (lib.ai.openai, lib.ai.anthropic, lib.ai.azure, lib.ai.ollama)"
+  - "Provider-specific options (connector.ai_model_providers, connector.ai_vector_stores)"
 edges:
   - {to: lib.ai, rel: uses, via: [model_providers, typed_generate, chat_with_history, natural_expressions, agent_tools, define_agent, tool_kit, connector_tools, mcp_toolkit, chat_agent_service, agent_memory, rag_ingestion, rag_query, external_vector_store]}
   - {to: lib.mcp, rel: uses, via: [mcp_server, mcp_advanced_server]}
-  - {to: lib.ai.openai, rel: uses, via: [model_providers]}
-  - {to: lib.ai.pinecone, rel: uses, via: [external_vector_store]}
+  - {to: connector.ai_model_providers, rel: uses, via: [model_providers]}
+  - {to: connector.ai_vector_stores, rel: uses, via: [external_vector_store]}
   - {to: lib.http, rel: uses, via: [chat_agent_service]}
   - {to: concept.isolation, rel: uses, via: [agent_tools, tool_kit]}
   - {to: concept.annotations, rel: uses, via: [agent_tools]}

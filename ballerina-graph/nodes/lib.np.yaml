@@ -1,0 +1,70 @@
+schema_version: "0.2"
+id: lib.np
+type: library
+title: ballerina/np
+summary: "Natural programming support libraries: `ballerina/np` backs runtime natural expressions with `np:callLlm`, `np:ModelProvider` and a configurable default model, and `ballerina/ai.np` adds compile-time code generation (`const natural` expressions and `@natural:code` functions) plus JSON schema generation for the types used with natural expressions."
+priority: important
+status: draft
+modules: [ballerina/np, ballerina/ai.np]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "ballerina/np 0.3.0 README"}
+  - {url: "https://central.ballerina.io/ballerina/ai.np/latest", kind: central, note: "ballerina/ai.np 0.5.1 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-np/tree/v0.3.0/ballerina", kind: github, note: "np 0.3.0 source (api.bal, main.bal)"}
+  - {url: "https://blog.ballerina.io/posts/2025-04-26-introducing-natural-programming/", kind: other, note: "Natural Language is Code: introducing natural programming"}
+must_cover:
+  - id: natural_expression_call
+    text: "Write a runtime natural expression such as `Review review = check natural { ... ${blog.title} ... };`, which the `np` module turns into an LLM call whose prompt is the text, with a JSON schema derived from the expected type and the response parsed into that type"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "The natural expression"}
+  - id: natural_function
+    text: "Define a reusable natural function as an expression-bodied function, for example `isolated function reviewBlog(Blog blog) returns Review|error => natural { ... };`, and call it like any other function"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "natural function"}
+  - id: default_model_config
+    text: "Configure the default model through the `np` module's `defaultModelConfig` configurable in `Config.toml` (`[ballerina.np.defaultModelConfig]` with `serviceUrl`, `deploymentId`, `apiVersion`, `connectionConfig.auth.apiKey` for Azure OpenAI)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "Configuring the model: Configuration"}
+  - id: model_provider_param
+    text: "Pass an explicit model with `natural (model) { ... }`, taking an `np:ModelProvider` parameter (an isolated client object with remote method `call(np:Prompt prompt, typedesc<anydata> expectedResponseTypedesc)`) and initialising it from `ballerinax/np.openai` or `ballerinax/np.azure.openai`, e.g. `check new azureOpenAI:Model({serviceUrl, connectionConfig: {auth: {apiKey}}}, deploymentId, apiVersion)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "Model in a parameter"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-np/blob/v0.3.0/ballerina/api.bal", kind: github, note: "ModelProvider"}
+  - id: call_llm
+    text: "Call `np:callLlm` directly with an `np:Prompt` (a raw template with `${...}` insertions) and an optional `np:Context` such as `{model: azureOpenAIModel}`, relying on the inferred `typedesc` to bind the response to the expected type (the compiler lowers natural expressions to this call)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "The np:callLlm function"}
+  - id: response_binding_errors
+    text: "Handle the `error` returned by a natural expression or `np:callLlm` when the LLM call fails or the response cannot be parsed as the expected type (bind to `T|error` or use `check`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-np/blob/v0.3.0/ballerina/main.bal", kind: github, note: "Response parsing and ensureType; conversion error"}
+  - id: const_natural
+    text: "Generate a value at compile time with a `const natural { ... }` expression (for example `Employee[] employees = const natural { Give me a list of ${COUNT} employees. ... };`), the compile-time code generation provided by `ballerina/ai.np`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.np/latest", kind: central, note: "Sample of compile-time code generation"}
+  - id: natural_code_annotation
+    text: "Have a function body generated at compile time with `function printEmployeeDataByDepartment(Employee[] employees) = @natural:code {prompt: ...} external;`, where `prompt` is a string template describing the code (ai.np code generation)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.np/latest", kind: central, note: "Sample of compile-time code generation"}
+  - id: codegen_env
+    text: "Set the `BAL_CODEGEN_URL` and `BAL_CODEGEN_TOKEN` environment variables (values from the VS Code command `Ballerina: Configure default WSO2 model provider`) before building code that uses `ai.np` compile-time code generation"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.np/latest", kind: central, note: "Configuring the Copilot for compile-time code generation"}
+out_of_scope:
+  - "The `natural` expression syntax and semantics on current distributions with `ai:ModelProvider` (concept.natural_expressions)"
+  - "The `ballerinax/np.*` provider packages themselves"
+edges:
+  - {to: concept.natural_expressions, rel: uses, via: [natural_expression_call, natural_function, model_provider_param, const_natural, natural_code_annotation]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_param]}
+  - {to: concept.typedesc, rel: uses, via: [call_llm]}
+  - {to: concept.errors, rel: uses, via: [response_binding_errors]}
+  - {to: tool.config_toml, rel: uses, via: [default_model_config]}
+notes: "`ballerina/np` 0.3.0 targets 2201.13.0-m1 (milestone); its GitHub repo now hosts `ballerina/ai.np`, and the 2201.13.x BBE and Learn tutorial use `ai:ModelProvider` from `ballerina/ai` instead of `np:ModelProvider`. The np README spells the context type `np:Conext` (typo); source is `np:Context`. The source also defines a `@np:JsonSchema` annotation on types, which the README does not describe, so it is not an item. The ai.np README does not show an import for the `natural:` prefix used by `@natural:code` (the annotation is defined in `lang.natural`)."

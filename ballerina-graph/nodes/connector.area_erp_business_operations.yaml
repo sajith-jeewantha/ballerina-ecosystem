@@ -1,0 +1,63 @@
+schema_version: "0.2"
+id: connector.area_erp_business_operations
+type: connector
+title: ERP & Business Operations connectors
+summary: "Connectors for ERP and business-operations platforms not covered by the SAP and Workday nodes: Ardoq enterprise architecture, Guidewire InsuranceNow, and Oracle Fusion Cloud (the ESS Scheduler and the ERP Integrations bulk-import service)."
+priority: long_tail
+status: draft
+modules: [ballerinax/ardoq, ballerinax/guidewire.insnow, ballerinax/oraclefusion.common.scheduler, ballerinax/oraclefusion.erp.integrations]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ardoq/latest", kind: central, note: "Ardoq 1.0.0 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-ardoq/blob/main/ballerina/client.bal", kind: github, note: "Ardoq client methods and init(orgLabel)"}
+  - {url: "https://central.ballerina.io/ballerinax/guidewire.insnow/latest", kind: central, note: "Guidewire InsuranceNow 0.2.0 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-guidewire.insnow/blob/main/ballerina/client.bal", kind: github, note: "InsuranceNow resource methods"}
+  - {url: "https://central.ballerina.io/ballerinax/oraclefusion.common.scheduler/latest", kind: central, note: "Oracle Fusion Scheduler 0.1.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/oraclefusion.erp.integrations/latest", kind: central, note: "Oracle Fusion ERP Integrations 0.2.0 README"}
+must_cover:
+  - id: ardoq_client
+    text: "Create an `ardoq:Client` with `check new ({auth: {token: token}}, serviceUrl = serviceUrl)` (default `https://app.ardoq.com/api/v2`), adding `orgLabel = \"<your-org-label>\"` when not using a custom domain"
+    difficulty: [beginner]
+  - id: ardoq_workspaces
+    text: "List Ardoq workspaces with `ardoqClient->listWorkspaces()` and iterate `foreach ardoq:Workspace workspace in workspaces.values`, then read one with `getWorkspace(id)` or its model with `getWorkspaceContext(id)`"
+    difficulty: [beginner]
+  - id: ardoq_components_references
+    text: "Create Ardoq components with `createComponent({name, rootWorkspace, typeId})`, find them with `listComponents(rootWorkspace = ..., typeId = ..., name = ...)`, change or remove them with `updateComponent(id, payload)` and `deleteComponent(id)`, and link two components with `createReference({'source, target, 'type})`"
+    difficulty: [intermediate]
+  - id: ardoq_reports_batch
+    text: "Run Ardoq reports with `listReports()`, `getReport(id)`, `runReportTabular(id)` and `runReportObjects(id)`, and apply many component and reference changes in one transactional call with `executeBatch(payload)` using an `ardoq:BatchRequest` (`components`, `references`, `aliases`, `options`)"
+    difficulty: [intermediate, advanced]
+  - id: insnow_client
+    text: "Create an `insnow:Client` from `ballerinax/guidewire.insnow` with an `insnow:ConnectionConfig` whose `auth` is `{username, password}` (or a bearer token) and the domain URL `https://<your-domain>/coreapi/v5`"
+    difficulty: [beginner]
+  - id: insnow_applications
+    text: "Work with InsuranceNow applications through resource methods: list them with `insuranceNow->/applications()` (an `insnow:ListApplication`), attach documents with `insuranceNow->/applications/[\"123\"]/documents.post(attachment)` using an `insnow:Attachment`, manage drivers under `/applications/[systemId]/drivers`, and progress them with `/applications/[systemId]/convertToQuoteRequest.post(...)` or `/bindRequest.post(...)`"
+    difficulty: [intermediate]
+  - id: insnow_policies_claims
+    text: "Read policies with `insuranceNow->/policies()` and `/policies/[systemId]`, add claim notes and documents with `/claims/[systemId]/notes.post(...)` and `/claims/[systemId]/documents.post(...)`, and verify addresses with `/addresses/verificationRequest.post(...)`"
+    difficulty: [intermediate]
+  - id: fusion_auth
+    text: "Authenticate an Oracle Fusion client (`scheduler:Client` or `erp:Client`) with HTTP Basic `{auth: {username, password}}` or OAuth2 client credentials `{auth: {clientId, clientSecret, tokenUrl: \"https://<your-idcs-host>.identity.oraclecloud.com/oauth2/v1/token\"}}`; `ConnectionConfig.auth` is a union, so switching is a configuration change"
+    difficulty: [beginner, intermediate]
+  - id: scheduler_submit
+    text: "Submit an ESS scheduled process with `oraclefusion.common.scheduler` `schedulerClient->submitJobRequest({jobDefinitionId: \"oracle/apps/ess/financials/payables/invoices/transactions/ImportPayablesInvoicesJob\", requestParameters: [...], priority: 5, retries: 1})`, optionally with a `schedule` for recurring runs, against the base URL `https://{fusionHost}/ess/rest/scheduler/v1`"
+    difficulty: [intermediate]
+  - id: scheduler_query_poll
+    text: "Query job requests with SCIM-style filters, e.g. `schedulerClient->queryJobRequests(queries = {q: \"state eq \\\"RUNNING\\\"\", orderBy: \"submissionTime:desc\"})` (also `fields`, `excludeFields`, `id`), and poll one request's state with `getJobRequest(requestId)` until it is terminal"
+    difficulty: [intermediate]
+  - id: erp_import_bulk_data
+    text: "Load an FBDI file into Oracle Fusion ERP in one call with `oraclefusion.erp.integrations` `erpClient->importBulkData({documentContent, contentType, fileName, documentAccount, jobName, parameterList})`, where `documentContent` is the Base64-encoded zip, against `https://{fusionHost}/fscmRestApi/resources/11.13.18.05`"
+    difficulty: [intermediate, advanced]
+  - id: erp_upload_and_submit
+    text: "Upload a file to WebCenter Content with `erpClient->uploadFileToUcm({documentContent, documentAccount, contentType, fileName})`, submit the import job separately with `submitEssJobRequest({jobPackageName, jobDefName, documentId, essParameters})`, and check it with `erpClient->getEssJobStatus(\"14557\")`, which returns an `erp:EssJobStatusResponse`"
+    difficulty: [intermediate, advanced]
+  - id: error_handling
+    text: "Handle the `error` returned by every operation of these clients with `check` or `do`/`on fail`, e.g. when a Fusion pod rejects Basic auth or a job request ends in the `ERROR` state"
+    difficulty: [beginner]
+edges:
+  - {to: lib.http, rel: uses, via: [ardoq_client, insnow_client, fusion_auth]}
+  - {to: lib.oauth2, rel: uses, via: [fusion_auth]}
+  - {to: concept.client_objects, rel: uses, via: [ardoq_client, insnow_client, fusion_auth]}
+  - {to: concept.resource_methods, rel: uses, via: [insnow_applications, insnow_policies_claims]}
+  - {to: concept.records, rel: uses, via: [ardoq_components_references, scheduler_submit, erp_import_bulk_data]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+notes: "Ardoq, Scheduler and ERP Integrations method names come from the READMEs and main-branch client.bal/types.bal. Guidewire resource paths come from main-branch client.bal; its request record types beyond `insnow:Attachment` were not reviewed."

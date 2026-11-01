@@ -1,0 +1,60 @@
+schema_version: "0.2"
+id: tool.profiler
+type: tool
+title: bal profile
+summary: "`bal profile` (experimental) compiles a package or file, runs it with the Ballerina Profiler using offline instrumentation, and writes a CPU-time flame graph to an HTML file in `target/bin`. It profiles both `main` programs and services."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/ballerina-profiler/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-profile.help", kind: github, note: "bal profile help text"}
+must_cover:
+  - id: profile_package
+    text: "Profile a package by running `bal profile` in its root directory, which builds `target/bin/<package>.jar`, instruments it ([1/6] to [6/6] steps with instrumented module and function counts), runs it and prints the execution time and output file"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/ballerina-profiler/", kind: docs}
+  - id: profile_file
+    text: "Profile the `main` function and services of a single file with `bal profile app.bal`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-profile.help", kind: github}
+  - id: output_file
+    text: "Open the generated HTML report (`target/bin/ProfilerOutput.html` per the profiler guide; the CLI help names it `ProfilerReport.html`) in a browser to view the flame graph"
+    difficulty: [beginner]
+  - id: flame_graph
+    text: "Read the flame graph: the function call stack and, for each function, its execution time and percentage of the total, to find the slowest functions"
+    difficulty: [beginner, intermediate]
+  - id: flame_graph_navigation
+    text: "Navigate the flame graph by searching for a function, clearing the search, clicking a function call to zoom in, and resetting the view"
+    difficulty: [beginner]
+  - id: optimize_loop
+    text: "Find and fix a bottleneck: profile a program, spot the dominant function (e.g. `bubbleSort` taking most of the time), replace it with a faster algorithm (e.g. `mergeSort`) and run `bal profile` again to compare"
+    difficulty: [intermediate]
+  - id: profile_service
+    text: "Profile an HTTP service with `bal profile`, send requests to its resources (e.g. `curl localhost:8080/covid19/countries/summary`), then stop it with `Ctrl+C` (`SIGINT`) to end profiling and generate the output, comparing the time of each resource function"
+    difficulty: [intermediate]
+  - id: profile_debug
+    text: "Run the profiler in remote debugging mode with `bal profile --debug 5005`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-profile.help", kind: github}
+  - id: build_options
+    text: "Pass build options to `bal profile`: `--show-dependency-diagnostics` to print dependency diagnostics and `--optimize-dependency-compilation` (experimental) to compile dependencies in separate processes and avoid out-of-memory errors"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-profile.help", kind: github}
+  - id: limitations
+    text: "Know the profiler's limits: it is experimental with a limited feature set, profiles only a local session through offline instrumentation, does CPU profiling only, and adds heavy overhead that slows the application"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Runtime metrics and tracing of deployed services (topic.observability)"
+  - "Other `bal` build and run options (tool.bal)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: platform.runtime, rel: uses, via: [profile_package, limitations]}
+  - {to: tool.debugger, rel: uses, via: [profile_debug]}
+  - {to: concept.services_listeners, rel: uses, via: [profile_service]}
+  - {to: lib.http, rel: uses, via: [profile_service]}
+  - {to: topic.observability, rel: related}
+notes: "The profiler guide says the output is `target/bin/ProfilerOutput.html`; the `bal profile` help text says `ProfilerReport.html` in the target directory (tool.bal item `bal_profile` uses the help text name). Both are given; reviewers may want to confirm against a current distribution. Profiling options beyond those in the help text (e.g. selecting functions, memory profiling) are not documented and are left out."

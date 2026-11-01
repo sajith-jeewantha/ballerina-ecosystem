@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.ftp
 type: library
 title: ballerina/ftp
@@ -35,6 +35,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/learn/by-example/sftp-client-read-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/sftp-client-write-file/", kind: bbe}
   - id: ftps
     text: "Connect over FTPS with `protocol: ftp:FTPS` and `auth.secureSocket` holding `key`/`cert` keystores, `mode: ftp:EXPLICIT` (port 21) or `ftp:IMPLICIT` (port 990) and `dataChannelProtection: ftp:PRIVATE`"
     difficulty: [advanced]
@@ -62,6 +63,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/learn/by-example/ftp-caller/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/sftp-caller/", kind: bbe}
   - id: binding_errors
     text: "Handle content binding failures in `remote function onError(ftp:Error err, ftp:Caller caller)`, checking for `ftp:ContentBindingError` and reading `err.detail().filePath`, and use `csvFailSafe: {contentType: ftp:RAW_AND_METADATA}` to skip malformed CSV rows"
     difficulty: [advanced]

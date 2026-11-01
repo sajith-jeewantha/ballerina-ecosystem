@@ -1,0 +1,67 @@
+schema_version: "0.2"
+id: connector.area_crm_sales
+type: connector
+title: "CRM & Sales connectors"
+summary: "Generated `ballerinax/*` clients for CRM, sales, service-desk and travel-booking APIs (Pipedrive, Zoho CRM, SugarCRM, Keap, Capsule, Insightly, Orbit, Apideck, Freshdesk, ServiceNow, Jira Service Management, atSpoke, SupportBee, PagerDuty, Brex, Pricefx, Amadeus, Impala). They share one shape: a `ConnectionConfig` or `ApiKeysConfig`, a `Client`, and remote methods named after API operations."
+priority: long_tail
+status: draft
+modules: [ballerinax/amadeus.flightcreateorders, ballerinax/amadeus.flightoffersprice, ballerinax/amadeus.flightofferssearch, ballerinax/apideck.lead, ballerinax/atspoke, ballerinax/brex.onboarding, ballerinax/capsulecrm, ballerinax/freshdesk, ballerinax/impala, ballerinax/insightly.custom, ballerinax/jira.servicemanagement, ballerinax/keap, ballerinax/orbitcrm, ballerinax/pagerduty, ballerinax/pipedrive, ballerinax/pricefx, ballerinax/servicenow, ballerinax/sugarcrm, ballerinax/supportbee, ballerinax/zoho.crm.rest]
+sources:
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package here except pricefx"}
+  - {url: "https://central.ballerina.io/ballerinax/pricefx/latest", kind: central, note: "pricefx 0.2.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/pipedrive/latest", kind: central, note: "Representative generated-connector README"}
+must_cover:
+  - id: generated_shape
+    text: "Use a generated connector the common way: `import ballerinax/zoho.crm.rest as zoho;`, build the `ConnectionConfig` (`auth` plus optional HTTP settings), create `zoho:Client` with `check new (config, serviceUrl)` and call remote methods with `check client->listRecords(...)`, handling the returned `error`"
+    difficulty: [beginner]
+  - id: api_key_clients
+    text: "Construct API-key clients whose first argument is an `ApiKeysConfig`: `pipedrive:Client` with `{apiToken}`, `pagerduty:Client` and `apideck.lead` with `{authorization}`, `atspoke` with `{apiKey}`, `impala` with `{xApiKey}`, and `supportbee:Client` with `{authToken}` plus a required `serviceUrl`"
+    difficulty: [beginner]
+  - id: pipedrive
+    text: "Work with Pipedrive through `pipedrive:Client` remote methods such as `getActivities`, `addActivity`, `updateActivity`, `deleteActivity` and `addCallLog`"
+    difficulty: [beginner]
+  - id: zoho_crm
+    text: "Use `zoho.crm.rest` (OAuth2 client-credentials or bearer `auth`) to `listRecords`, `getRecord`, `addRecord`, `updateRecord`, `deleteRecord` and `searchRecords` in a module, and `convertLead` into a contact or account"
+    difficulty: [intermediate]
+  - id: sugarcrm_keap
+    text: "Call SugarCRM with `sugarcrm:Client` (OAuth2 password grant) using `listRecords`, `createRecord`, `retrieveRecord`, `updateRecord` and `globalSearch`, and Keap with `keap:Client` (bearer or refresh-token OAuth2) using e.g. `listAffiliates`, `createAffiliate`, `listAppointments`, `createAppointment`"
+    difficulty: [intermediate]
+  - id: small_crms
+    text: "Manage parties and opportunities with `capsulecrm` (`listParties`, `createParty`, `createOpportunity`, `searchOpportunities`), custom records with `insightly.custom` (basic-auth `getEntities`, `addEntity`, `getCustomObjects`), community members with `orbitcrm` (`getMembers`, `postMembers`, `postActivitiesById`) and leads with `apideck.lead` (`leadsAll`, `leadsAdd`, `leadsOne`, `leadsUpdate`, `leadsDelete`)"
+    difficulty: [intermediate]
+  - id: helpdesk
+    text: "Handle support tickets with `freshdesk` (basic auth, `listTickets`, `addTicket`, `getTicket`, `listContacts`), `supportbee` (`listTickets`, `createTicket`, `createReply`, `assignUser`, `archiveTicket`) and `atspoke` (`getRequests`, `addRequest`, `updateRequest`, `postRequestMessage`)"
+    difficulty: [intermediate]
+  - id: servicenow
+    text: "Read and write ServiceNow tables with `servicenow:Client` (bearer, refresh-token or basic `auth`, required `serviceUrl`): `getRecordList`, `createRecord`, `getRecordById`, `patchRecordById`, `deleteRecord`, `aggregate`, and import sets with `createImportSet`"
+    difficulty: [intermediate]
+  - id: jira_service_management
+    text: "Use `jira.servicemanagement` (basic, bearer or OAuth2 `auth`, site `serviceUrl`) to `createCustomer`, `getOrganizations`, `createOrganization` and `addUsersToOrganization` in Jira Service Management Cloud"
+    difficulty: [intermediate]
+  - id: pagerduty
+    text: "Automate incident tooling with `pagerduty:Client` (`ApiKeysConfig {authorization}`) remote methods such as `listAddon`, `createAddon`, `getAnalyticsIncidents` and `getAnalyticsMetricsIncidentsAll`"
+    difficulty: [intermediate]
+  - id: pricefx
+    text: "Connect to Pricefx with `pricefx:Client` created as `new ({auth: {username, password, partition}}, serviceUrl)` or `new ({auth: {jwt}}, serviceUrl)`, and list price lists with `pricefxClient->listPriceLists(payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/pricefx/latest", kind: central, note: "Quickstart"}
+  - id: brex_onboarding
+    text: "Create Brex referrals with `brex.onboarding` (OAuth2 client-credentials `auth`): `createReferralRequestPost`, `listReferralsGet`, `getReferralGet` and `createDocumentPost`"
+    difficulty: [intermediate]
+  - id: amadeus_flights
+    text: "Book flights with the Amadeus packages (OAuth2 client-credentials `auth`, test base URL `https://test.api.amadeus.com`): search with `amadeus.flightofferssearch` `getFlightOffers`/`searchFlightOffers`, confirm price with `amadeus.flightoffersprice` `quoteAirOffers`, and book with `amadeus.flightcreateorders` `createFlightOrders`"
+    difficulty: [intermediate, advanced]
+  - id: impala_hotels
+    text: "Search and book hotels with `impala:Client` (`ApiKeysConfig {xApiKey}`): `listHotels`, `getHotel`, `createBooking`, `getBooking`, `updateBooking` and `cancelBooking`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Salesforce and HubSpot CRM connectors (connector.salesforce, connector.hubspot_crm)"
+edges:
+  - {to: lib.http, rel: uses, via: [generated_shape, api_key_clients]}
+  - {to: lib.oauth2, rel: uses, via: [zoho_crm, amadeus_flights, brex_onboarding]}
+  - {to: lib.auth, rel: uses, via: [helpdesk, servicenow], note: "Basic auth via http:CredentialsConfig"}
+  - {to: concept.client_objects, rel: uses, via: [generated_shape]}
+  - {to: concept.errors, rel: uses, via: [generated_shape]}
+  - {to: concept.records, rel: uses, via: [generated_shape]}
+notes: "All packages except pricefx are openapi-connectors packages whose Central README has no code; operation names and auth types come from openapi-connectors main client.bal/types.bal, which may be slightly newer than the published version. Package versions 1.3.2-1.5.2, almost all with 1-3 pulls."

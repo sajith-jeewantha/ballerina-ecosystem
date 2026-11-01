@@ -1,0 +1,62 @@
+schema_version: "0.2"
+id: trigger.shopify
+type: trigger
+title: ballerinax/trigger.shopify
+summary: "The Shopify trigger: a `shopify:Listener` that verifies Shopify webhook notifications with the API secret key and dispatches order, customer, product and fulfillment topics to `shopify:*Service` remote methods."
+priority: important
+status: draft
+modules: [ballerinax/trigger.shopify]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.shopify/latest", kind: central, note: "ballerinax/trigger.shopify 1.6.1 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi/shopify", kind: github, note: "Trigger source"}
+  - {url: "https://shopify.dev/apps/webhooks", kind: other, note: "Shopify webhooks"}
+must_cover:
+  - id: listener_init
+    text: "Import `ballerinax/trigger.shopify` and create `listener shopify:Listener shopifyListener = new (listenerConfig, 8090);` with a `shopify:ListenerConfig` holding `apiSecretKey`; omit the port to use 8090 or pass an `http:Listener` instead"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.shopify/latest", kind: central, note: "Step 2"}
+  - id: api_secret_key
+    text: "Find the Shopify API secret key under `Webhooks` in the Shopify admin (dashboard-created webhooks) or under `API credentials` of the Shopify app (programmatic webhooks); the listener uses it to check each request's `X-Shopify-Hmac-SHA256` header and rejects mismatches"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.shopify/latest", kind: central, note: "Step 2"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/dispatcher_service.bal", kind: github, note: "x-shopify-topic dispatch and HMAC check"}
+  - id: webhook_subscription
+    text: "Subscribe to webhook topics in the Shopify admin (`Settings > Notifications > Webhooks`) or programmatically with the `createWebhook` operation of `ballerinax/shopify.admin`, using the service's public URL with a trailing `/` (ngrok locally, or Choreo's Invoke URL)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.shopify/latest", kind: central, note: "Step 4"}
+  - id: topic_mapping
+    text: "Know how Shopify topics in the `x-shopify-topic` header map to methods, e.g. `orders/create` to `onOrdersCreate`, `orders/partially_fulfilled` to `onOrdersPartiallyFulfilled`, `customers_marketing_consent/update` to `onCustomersMarketingConsentUpdate` and `fulfillments/update` to `onFulfillmentsUpdate`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/dispatcher_service.bal", kind: github, note: "x-shopify-topic dispatch and HMAC check"}
+  - id: orders_events
+    text: "Handle order events with `shopify:OrdersService` (`onOrdersCreate`, `onOrdersCancelled`, `onOrdersFulfilled`, `onOrdersPaid`, `onOrdersPartiallyFulfilled`, `onOrdersUpdated`; payload `shopify:OrderEvent`), reading fields such as `id`, `number`, `line_items`, `subtotal_price`, `total_tax`, `fulfillment_status`, `cancelled_at` and `tags`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.shopify/latest", kind: central, note: "Step 3"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/service_types.bal", kind: github, note: "Service types"}
+  - id: customers_events
+    text: "Handle customer events with `shopify:CustomersService` (`onCustomersCreate`, `onCustomersDisable`, `onCustomersEnable`, `onCustomersUpdate`, `onCustomersMarketingConsentUpdate`; payload `shopify:CustomerEvent`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/service_types.bal", kind: github, note: "Service types"}
+  - id: products_events
+    text: "Handle product events with `shopify:ProductsService` (`onProductsCreate`, `onProductsUpdate`; payload `shopify:ProductEvent`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/service_types.bal", kind: github, note: "Service types"}
+  - id: fulfillments_events
+    text: "Handle fulfillment events with `shopify:FulfillmentsService` (`onFulfillmentsCreate`, `onFulfillmentsUpdate`; payload `shopify:FulfillmentEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/shopify/service_types.bal", kind: github, note: "Service types"}
+out_of_scope:
+  - "Shopify Admin API operations (connector.area_e_commerce)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [listener_init, orders_events]}
+  - {to: connector.area_e_commerce, rel: uses, via: [webhook_subscription], note: "shopify.admin createWebhook"}
+  - {to: lib.http, rel: uses, via: [listener_init]}
+notes: "Verified against the trigger.shopify 1.6.1 README, API docs and dispatcher source (Shopify Webhook API 2021-10)."

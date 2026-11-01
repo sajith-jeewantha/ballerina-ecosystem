@@ -1,0 +1,121 @@
+schema_version: "0.2"
+id: connector.aws
+type: connector
+title: ballerinax/aws.*
+summary: "The Amazon Web Services connectors: the shared `ballerinax/aws` auth and region library, typed clients for S3, SQS, SNS, SES, DynamoDB, DynamoDB Streams, Redshift, Secrets Manager, SimpleDB and AWS Marketplace, and the `aws.lambda` package for writing AWS Lambda functions in Ballerina."
+priority: important
+status: draft
+modules: [ballerinax/aws, ballerinax/aws.dynamodb, ballerinax/aws.dynamodbstreams, ballerinax/aws.lambda, ballerinax/aws.marketplace.mpe, ballerinax/aws.marketplace.mpm, ballerinax/aws.redshift, ballerinax/aws.redshift.driver, ballerinax/aws.redshiftdata, ballerinax/aws.s3, ballerinax/aws.secretmanager, ballerinax/aws.ses, ballerinax/aws.simpledb, ballerinax/aws.sns, ballerinax/aws.sqs]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/aws/latest", kind: central, note: "ballerinax/aws 1.1.1: auth:CredentialProvider, credential sources, aws:Region, resolveEndpoint, getSignedHeaders"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.s3/latest", kind: central, note: "aws.s3 4.1.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.sqs/latest", kind: central, note: "aws.sqs 5.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.sns/latest", kind: central, note: "aws.sns 4.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.ses/latest", kind: central, note: "aws.ses 3.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.dynamodb/latest", kind: central, note: "aws.dynamodb 3.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.dynamodbstreams/latest", kind: central, note: "aws.dynamodbstreams 2.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.redshift/latest", kind: central, note: "aws.redshift 1.2.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.redshiftdata/latest", kind: central, note: "aws.redshiftdata 2.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.secretmanager/latest", kind: central, note: "aws.secretmanager 1.0.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.simpledb/latest", kind: central, note: "aws.simpledb 3.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.marketplace.mpe/latest", kind: central, note: "aws.marketplace.mpe 1.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.marketplace.mpm/latest", kind: central, note: "aws.marketplace.mpm 1.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/aws.lambda/latest", kind: central, note: "aws.lambda 3.3.1 README"}
+  - {url: "https://ballerina.io/learn/by-example/aws-lambda-hello-world/", kind: bbe, note: "AWS Lambda BBE series (hello world, execution context, S3 and DynamoDB triggers)"}
+must_cover:
+  - id: aws_credentials
+    text: "Configure the `auth` field of an AWS client config with static keys (`{accessKeyId, secretAccessKey}` read from `configurable` variables), a profile (`{profileName, credentialsFilePath}`) or `auth:DEFAULT_CREDENTIALS` from `ballerinax/aws.auth`, together with `region: aws:US_EAST_1`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/aws.sqs/latest", kind: central, note: "Static, profile and default-chain auth"}
+  - id: aws_temporary_credentials
+    text: "Use temporary credentials with `auth:AssumeRoleConfig` (`roleArn`, `sourceCredentials`), `auth:WebIdentityConfig` (`roleArn`, `webIdentityTokenFile`), `auth:SsoAuthConfig` (`ssoStartUrl`, `ssoRegion`, `accountId`, `roleName`) or `auth:ProcessAuthConfig` (`command`), and call `auth:CredentialProvider` `getCredentials()` / `close()` directly"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/aws/latest", kind: central, note: "Credential sources"}
+  - id: aws_sigv4_signing
+    text: "Call an AWS service without a dedicated connector by resolving its host with `aws:resolveEndpointHost(\"events\", aws:US_EAST_1)` (or `aws:resolveEndpoint` with `{customEndpoint: ...}` / `{fips: true}`), signing the request with `auth:getSignedHeaders({method, host, headers, payload}, credentials, region, service)` and sending it through an `http:Client`; handle `auth:CredentialResolutionError` and `auth:SigningError`"
+    difficulty: [advanced]
+  - id: s3_objects
+    text: "Create an `s3:Client` and manage buckets and objects with `createBucket`, `listBuckets`, `putObject(bucket, key, content)` (bytes, string, JSON/XML records or CSV record arrays serialised by key extension), `getObject(bucket, key)` bound to a target type, `listObjects`, `copyObject`, `deleteObject` and `deleteBucket`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.s3/blob/master/ballerina/client.bal", kind: github, note: "S3 client remote methods"}
+  - id: s3_multipart_presigned
+    text: "Upload large objects with `createMultipartUpload`, `uploadPart`/`uploadPartAsStream` (collecting ETags) and `completeMultipartUpload` or `abortMultipartUpload`, stream uploads with `putObjectAsStream`/`putObjectFromFile`, and share objects with `createPresignedUrl`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.s3/blob/master/ballerina/client.bal", kind: github, note: "Multipart and presigned URL methods"}
+  - id: sqs_messages
+    text: "Use an `sqs:Client` to `createQueue`, `sendMessage(queueUrl, body)`, `receiveMessage(queueUrl)` returning `sqs:Message[]`, `deleteMessage(queueUrl, receiptHandle)`, the batch forms `sendMessageBatch`/`deleteMessageBatch`, and `listQueues`, `getQueueAttributes`, `setQueueAttributes` and `deleteQueue`"
+    difficulty: [beginner, intermediate]
+  - id: sqs_fifo
+    text: "Create a FIFO queue with `queueAttributes = {fifoQueue: true, contentBasedDeduplication: true}` on a `.fifo` queue name and send with `messageGroupId` and `messageDeduplicationId`"
+    difficulty: [intermediate]
+  - id: sqs_listener
+    text: "Consume a queue with `listener sqs:Listener` (a `ConnectionConfig` and `sqs:PollingConfig {pollInterval, waitTime, visibilityTimeout}`) and a service annotated `@sqs:ServiceConfig {queueUrl, autoDelete}` that implements `remote function onMessage(sqs:Message message)` and `onError(sqs:Error err)`, deleting messages manually through `sqs:Caller` `delete()` when `autoDelete` is false"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.sqs/blob/master/examples/basic-queue-consumer/service.bal", kind: github, note: "Listener example"}
+  - id: sns_publish_subscribe
+    text: "Use an `sns:Client` to `createTopic`, `subscribe(topicArn, endpoint, sns:EMAIL)` (protocols `HTTP`, `HTTPS`, `EMAIL`, `SMS`, `SQS`, `LAMBDA`, ...), `publish(target, message)` to a topic, ARN or phone number (`targetType = sns:PHONE_NUMBER`), `publishBatch`, `listTopics`, `listSubscriptions`, `unsubscribe` and `deleteTopic`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.sns/blob/main/ballerina/client.bal", kind: github, note: "SNS remote methods, TargetType and SubscriptionProtocol"}
+  - id: ses_send_email
+    text: "Send mail with `ses:Client` `sendEmail({fromEmailAddress, destination: {toAddresses}, content: {simple: {subject, body: {html, text}}}})` from a verified identity, use `sendBulkEmail` with templates created by `createEmailTemplate`, and verify senders with `createEmailIdentity`"
+    difficulty: [beginner, intermediate]
+  - id: ses_contacts
+    text: "Manage SES contact lists with `createContactList`, `createContact`, `updateContact` and iterate the auto-paginating `stream<ses:Contact, ses:Error?>` returned by `listContacts(\"Newsletter\", {filter: {filteredStatus: ses:OPT_IN}})`, then `close()` the client"
+    difficulty: [intermediate]
+  - id: dynamodb_tables_items
+    text: "Create a table with `dynamodb:Client` `createTable({TableName, AttributeDefinitions, KeySchema: [{AttributeName, KeyType: dynamodb:HASH}], BillingMode: dynamodb:PAY_PER_REQUEST})`, poll `describeTable` until `dynamodb:ACTIVE`, then `createItem`, `getItem`, `updateItem` and `deleteItem` with `AttributeValue` maps such as `{S: \"...\"}` and `{N: \"500\"}`"
+    difficulty: [intermediate]
+  - id: dynamodb_query_scan
+    text: "Read many items with the auto-paginating streams of `query({TableName, KeyConditionExpression, ExpressionAttributeValues})`, `scan`, `listTables` and `getBatchItems`, write in bulk with `writeBatchItems`, and use `createBackup`, `getTTL` and `describeLimits`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.dynamodb/blob/main/ballerina/client.bal", kind: github, note: "DynamoDB remote methods"}
+  - id: dynamodb_streams
+    text: "Read item-level changes with `dynamodbstreams:Client`: `describeStream({streamArn})` to find shards, `getShardIterator({streamArn, shardId, shardIteratorType: dynamodbstreams:TRIM_HORIZON})`, `getRecords({shardIterator})` with `nextShardIterator` as a checkpoint, `pollRecords` to tail a shard and `listStreams`"
+    difficulty: [advanced]
+  - id: redshift_jdbc
+    text: "Query a Redshift cluster over JDBC by importing `ballerinax/aws.redshift.driver as _`, creating `redshift:Client` with `new (jdbcUrl, user, password)` and using the `sql:Client` methods `query` (into a `stream<User, error?>`) and `execute`"
+    difficulty: [intermediate]
+  - id: redshift_data_api
+    text: "Run SQL through the Redshift Data API with `redshiftdata:Client` configured with a `dbAccessConfig` (`redshiftdata:Cluster` or WorkGroup), calling `execute(`SELECT ...`)`, `batchExecute`, `describe(statementId)` and `getResultAsStream(statementId)`"
+    difficulty: [intermediate]
+  - id: secrets_manager
+    text: "Read secrets with `secretmanager:Client` `getSecretValue(\"<secret-id>\")` (optionally selecting `versionId` or `versionStage`), `describeSecret` for rotation and tag metadata, and `batchGetSecretValue` for up to 20 secrets"
+    difficulty: [beginner, intermediate]
+  - id: simpledb_marketplace
+    text: "Use the smaller AWS clients: `simpledb:Client` (`createDomain`, `putAttributes`, `getAttributes`, `'select`, `listDomains`, `deleteDomain`), `mpe:Client` from `aws.marketplace.mpe` (`getEntitlements(productCode = ...)`) and `mpm:Client` from `aws.marketplace.mpm` (`resolveCustomer(registrationToken)`, `batchMeterUsage`)"
+    difficulty: [intermediate]
+  - id: lambda_function
+    text: "Write an AWS Lambda function with `ballerinax/aws.lambda`: annotate a public function with `@lambda:Function` taking `(lambda:Context ctx, json input)` and returning `json|error`, read `ctx.getRequestId()`, `getDeadlineMs()`, `getInvokedFunctionArn()`, `getTraceId()` and `getRemainingExecutionTime()`, and route async results with `@lambda:Function {destinations: {onSuccess, onFailure}}`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/aws-lambda-execution-context/", kind: bbe, note: "Execution context"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/blob/master/ballerina/annotation.bal", kind: github, note: "FunctionConfig destinations"}
+  - id: lambda_event_triggers
+    text: "Handle AWS service events by typing the second Lambda parameter as `lambda:S3Event`, `lambda:DynamoDBEvent`, `lambda:SQSEvent`, `lambda:SNSEvent`, `lambda:SESEvent`, `lambda:KinesisEvent`, `lambda:EventBridgeEvent` or `lambda:APIGatewayProxyRequest` (e.g. `event.Records[0].s3.'object.key`), then build with `bal build` and deploy `aws-ballerina-lambda-functions.zip` with `aws lambda create-function`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/aws-lambda-s3-trigger/", kind: bbe, note: "S3 trigger"}
+      - {url: "https://ballerina.io/learn/by-example/aws-lambda-dynamodb-trigger/", kind: bbe, note: "DynamoDB trigger"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-aws.lambda/blob/master/ballerina/events.bal", kind: github, note: "Event record types"}
+out_of_scope:
+  - "Generic SQL query/execute semantics (lib.sql)"
+  - "Cloud build options and artifact generation for serverless deployment (tool.code_to_cloud)"
+edges:
+  - {to: lib.http, rel: uses, via: [aws_sigv4_signing]}
+  - {to: lib.sql, rel: implements, via: [redshift_jdbc]}
+  - {to: concept.client_objects, rel: uses, via: [s3_objects, sqs_messages, sns_publish_subscribe, dynamodb_tables_items]}
+  - {to: concept.services_listeners, rel: uses, via: [sqs_listener]}
+  - {to: concept.streams, rel: uses, via: [dynamodb_query_scan, ses_contacts, redshift_data_api]}
+  - {to: concept.records, rel: uses, via: [aws_credentials, dynamodb_tables_items, lambda_event_triggers]}
+  - {to: concept.errors, rel: uses, via: [aws_sigv4_signing]}
+  - {to: concept.annotations, rel: uses, via: [lambda_function, sqs_listener]}
+  - {to: tool.config_toml, rel: uses, via: [aws_credentials]}
+  - {to: tool.code_to_cloud, rel: uses, via: [lambda_event_triggers]}
+notes: "Operation names verified against each repo's ballerina/client.bal (main/master, Nov 2026). The S3 README mentions bucket/object ACLs and tagging, but no ACL or tagging methods were found in client.bal, so they are left out. The SQS client also has purgeQueue, tagQueue, changeMessageVisibility and message-move tasks; SNS has many SMS/platform-endpoint methods not itemised here."

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.cache
 type: library
 title: ballerina/cache
@@ -67,7 +67,7 @@ must_cover:
 out_of_scope:
   - "HTTP response caching and cache-control headers (lib.http)"
   - "GraphQL field-level caching and cache invalidation (lib.graphql)"
-  - "Distributed caches such as Redis (lib.redis)"
+  - "Distributed caches such as Redis (connector.redis)"
 edges:
   - {to: concept.classes, rel: uses, via: [create_cache]}
   - {to: concept.records, rel: uses, via: [cache_config]}
@@ -75,4 +75,3 @@ edges:
   - {to: concept.errors, rel: uses, via: [cache_errors, invalidate]}
   - {to: concept.objects, rel: uses, via: [abstract_cache]}
   - {to: concept.isolation, rel: uses, via: [abstract_cache]}
-  - {to: lib.redis, rel: alternative_to, note: "Remote/distributed cache versus in-process cache"}

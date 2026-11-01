@@ -1,0 +1,75 @@
+schema_version: "0.2"
+id: connector.health_fhir_templates
+type: connector
+title: ballerinax/health.fhir.templates.*
+summary: "Ballerina Central project templates (`bal new -t`) that scaffold FHIR R4 APIs: per-resource services with source-connect classes, US Core variants, Epic proxying, the metadata (CapabilityStatement) and SMART configuration endpoints, and a scheduled FHIR repository sync."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/health.fhir.templates.r4.diagnosticreport
+  - ballerinax/health.fhir.templates.r4.encounter
+  - ballerinax/health.fhir.templates.r4.epicconnect
+  - ballerinax/health.fhir.templates.r4.metadata
+  - ballerinax/health.fhir.templates.r4.observation
+  - ballerinax/health.fhir.templates.r4.organization
+  - ballerinax/health.fhir.templates.r4.patient
+  - ballerinax/health.fhir.templates.r4.practitioner
+  - ballerinax/health.fhir.templates.r4.repositorysync
+  - ballerinax/health.fhir.templates.r4.servicerequest
+  - ballerinax/health.fhir.templates.r4.smartconfiguration
+  - ballerinax/health.fhir.templates.r4.uscore501.encounter
+  - ballerinax/health.fhir.templates.r4.uscore501.patient
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/health.fhir.templates.r4.patient/latest", kind: central, note: "Patient template README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.templates", kind: github, note: "Template sources"}
+must_cover:
+  - id: create_from_template
+    text: "Create a FHIR API project from a Central template with `bal new -t ballerinax/health.fhir.templates.r4.patient PatientAPI`, run it with `bal run` and call `curl http://localhost:9090/fhir/r4/Patient`, which returns a FHIR `Bundle`"
+    difficulty: [beginner]
+  - id: resource_templates
+    text: "Scaffold per-resource FHIR R4 services offering search, read and create from `health.fhir.templates.r4.patient`, `health.fhir.templates.r4.encounter`, `health.fhir.templates.r4.observation`, `health.fhir.templates.r4.diagnosticreport`, `health.fhir.templates.r4.organization`, `health.fhir.templates.r4.practitioner` and `health.fhir.templates.r4.servicerequest` (e.g. `bal new -t ballerinax/health.fhir.templates.r4.observation ObservationAPI`)"
+    difficulty: [beginner]
+  - id: source_connect
+    text: "Connect a generated template to a source system by implementing the template's source-connect object type (e.g. `PatientSourceConnect`, `ObservationSourceConnect`) in a new class and registering it in `service.bal` in the `profileImpl` map as `\"http://hl7.org/fhir/StructureDefinition/Patient\": new InternationalPatientSourceConnect()`"
+    difficulty: [intermediate]
+  - id: add_profile
+    text: "Support an additional profile in a template by widening the aggregated type (e.g. `public type Patient r4:Patient|<Other_Patient_Profile>;`) and adding the profile URL to the `profiles` array in `api_config.bal`"
+    difficulty: [intermediate]
+  - id: uscore_templates
+    text: "Scaffold US Core 5.0.1 APIs with `health.fhir.templates.r4.uscore501.patient` and `health.fhir.templates.r4.uscore501.encounter` (`bal new -t ballerinax/health.fhir.templates.r4.uscore501.encounter EncounterAPI`), which depend on `health.fhir.r4.uscore501` and use the `us-core-patient`/`us-core-encounter` profile URLs"
+    difficulty: [intermediate]
+  - id: epic_connect
+    text: "Expose Epic as a managed FHIR API with `bal new -t ballerinax/health.fhir.templates.r4.epicconnect <PROJECT_NAME>`, configuring `base`, `tokenUrl`, `clientId`, `keyFile` and `customDomain` (URL rewrite) in `Config.toml`, then `curl https://<host>:<port>/fhir/r4/Patient/123456`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.templates.r4.epicconnect/latest", kind: central, note: "Epic FHIR API template"}
+  - id: metadata_api
+    text: "Implement the FHIR `capabilities` interaction with `bal new -t ballerinax/health.fhir.templates.r4.metadata <PROJECT_NAME>`: describe deployed resources in `resources/resources.json`, set `version`, `name`, `title`, `status`, `kind`, `fhir_version`, `format`, `implementation_url` and `interactions` in `Config.toml`, and serve the CapabilityStatement at `/fhir/r4/metadata/`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.templates.r4.metadata/latest", kind: central, note: "Metadata API template"}
+  - id: smart_configuration
+    text: "Serve the SMART App Launch discovery document at `/fhir/r4/.well-known/smart-configuration` with `bal new -t ballerinax/health.fhir.templates.r4.smartconfiguration <PROJECT_NAME>`, configuring `authorization_endpoint`, `token_endpoint`, `grant_types_supported`, `scopes_supported`, `capabilities` and `code_challenge_methods_supported` (e.g. `[S256]`) under `[smart_configuration]` in `Config.toml`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.templates.r4.smartconfiguration/latest", kind: central, note: "SMART configuration template"}
+  - id: repository_sync
+    text: "Sync a FHIR repository from source systems with the `health.fhir.templates.r4.repositorysync` template: implement fetching resources updated in `[lastInvocation, now]` in `sync_update.bal` (returning `r4:FHIRResourceEntity[]`), `fetchLastInvocationTime() returns time:Utc|error` and `pushCurrentInvocationTime(time:Utc now) returns error?` in `client_util.bal`, set the FHIR server `baseUrl`, and run it as a scheduled task"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.templates.r4.repositorysync/latest", kind: central, note: "Repository sync template"}
+  - id: repository_sync_bundles
+    text: "Split the synced `r4:BundleEntry[]` into several FHIR transaction bundles by implementing `processAndReturnBundleEntries(r4:BundleEntry[] bundleEntry) returns map<r4:BundleEntry[]>|error` in the repository sync template"
+    difficulty: [advanced]
+out_of_scope:
+  - "Generating new templates from an IG with `bal health fhir -m template` (tool.bal_health)"
+  - "Deploying to Choreo"
+edges:
+  - {to: connector.health_fhir, rel: part_of}
+  - {to: connector.health_other, rel: uses, via: [resource_templates, uscore_templates, metadata_api], target_items: [fhir_service_listener, resource_api_config]}
+  - {to: connector.health_fhir, rel: uses, via: [epic_connect, repository_sync], target_items: [fhir_client_config, fhir_client_crud]}
+  - {to: tool.bal, rel: uses, via: [create_from_template, resource_templates, epic_connect]}
+  - {to: tool.config_toml, rel: uses, via: [epic_connect, metadata_api, smart_configuration]}
+  - {to: lib.time, rel: uses, via: [repository_sync]}
+  - {to: tool.bal_health, rel: related, note: "bal health fhir -m template generates projects of the same shape"}
+notes: "The Patient README still shows the old template name `ballerinax/health.fhir.templates.patient` (and the uscore501 Patient README shows `...templates.r4.patient`); items use the current package names from Central, which the other templates' READMEs follow (e.g. `bal new -t ballerinax/health.fhir.templates.r4.observation ObservationAPI`). The repositorysync README shows an older name `ballerinax/health.fhir.r4.sync.repository`, so no exact `bal new` line is given for it."

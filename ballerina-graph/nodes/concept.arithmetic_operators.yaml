@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.arithmetic_operators
 type: concept
 title: Arithmetic operators
@@ -12,13 +12,19 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.25", kind: spec, note: "6.25 Shift expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.30", kind: spec, note: "6.30 Binary bitwise expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#nil_lifting", kind: spec, note: "6.2.5 Nil lifting"}
+  - {url: "https://ballerina.io/learn/by-example/binary-operators/", kind: bbe}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: unary_operators
     text: Use unary `+`, `-` (negation) and `~` (bitwise complement, int only), knowing int negation panics on overflow for `int:MIN_VALUE` and float/decimal negation is the IEEE negate operation, not subtraction from zero
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/unary-operators/", kind: bbe}
   - id: int_arithmetic_overflow
     text: Explain that int `+`, `-` and `*` panic on overflow instead of wrapping around
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/integers/", kind: bbe}
   - id: int_division
     text: Explain that int `/` truncates toward zero and panics on division by zero and on `int:MIN_VALUE / -1`
     difficulty: [intermediate]
@@ -52,6 +58,8 @@ must_cover:
   - id: bitwise_operators
     text: Use `&`, `^` and `|` on ints, knowing `&` yields `int:UnsignedN` if either operand is an unsigned subtype while `^` and `|` need both operands unsigned to do so
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/built-in-integer-subtypes/", kind: bbe}
   - id: nil_lifting
     text: Apply nil lifting so arithmetic, shift and bitwise operators accept optional operands (e.g. `int? a; a + 1`), returning nil if any operand is nil and giving a result of type `T?`
     difficulty: [intermediate]

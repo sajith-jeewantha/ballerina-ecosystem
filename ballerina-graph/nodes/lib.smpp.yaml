@@ -1,0 +1,89 @@
+schema_version: "0.2"
+id: lib.smpp
+type: library
+title: ballerina/smpp
+summary: "The `ballerina/smpp` module provides an SMPP v3.4 `smpp:Client` for sending SMS to an SMSC (submit, multi-submit, data, query, cancel, replace) and an `smpp:Listener` that dispatches inbound messages and delivery receipts to a service, with TLS and a retry-aware error type."
+priority: long_tail
+status: draft
+modules: [ballerina/smpp]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central, note: "ballerina/smpp 1.0.0 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/client.bal", kind: github, note: "Client and ClientConfig"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/types.bal", kind: github, note: "Message, result, receipt and error types"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/listener.bal", kind: github, note: "Listener and ListenerConfig"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/docs/spec/spec.md", kind: github, note: "Module specification"}
+must_cover:
+  - id: client_bind
+    text: "Create an `smpp:Client` with `check new (\"localhost\", systemId, password, port = 2775, bindType = smpp:TRANSMITTER)` using `configurable` credentials; it binds once at init (`bindType` is `smpp:TRANSMITTER`, `smpp:RECEIVER` or the default `smpp:TRANSCEIVER`) and `check smppClient.close();` unbinds"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: client_config
+    text: "Set `smpp:ClientConfig` options as named arguments: `systemType`, `bindTimeout` (seconds, default 60) and `transactionTimeout` (seconds, default 30, how long submit-family calls wait for the SMSC)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/client.bal", kind: github}
+  - id: submit_text
+    text: "Send a text message with `smpp:SubmitResult result = check smppClient->submit({destinationAddress: \"94771234567\", shortMessage: \"Hello\"});` (an `smpp:TextSms`), optionally setting `sourceAddress`, `registeredDelivery: smpp:ON_SUCCESS_OR_FAILURE` to request a receipt and `encoding` (`smpp:LATIN1` by default, `smpp:ASCII` or `smpp:UCS2`), and keep `result.messageId`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/types.bal", kind: github}
+  - id: binary_sms
+    text: "Send a pre-encoded payload as an `smpp:BinarySms` with `shortMessageBytes`, a required `dataCoding` byte and `udhi: true` when the payload starts with a User Data Header"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/types.bal", kind: github}
+  - id: submit_multi_data
+    text: "Send one message to several numbers with `smppClient->submitMulti({destinationAddress: \"\", shortMessage: \"...\"}, [\"94771234567\", \"94777654321\"])`, which returns an `smpp:MultiSubmitResult` (`messageId`, `unsuccessfulAddresses`), and use `submitData` (`data_sm`) like `submit` when the SMSC prefers it"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: query_cancel_replace
+    text: "Manage a submitted message with `queryStatus(messageId, sourceAddress)` (returns `smpp:QueryResult` with `messageState`, `finalDate`, `errorCode`), `cancel(messageId, sourceAddress, destinationAddress)` and `replace(messageId, sourceAddress, sms)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: listener_service
+    text: "Receive inbound SMS with `listener smpp:Listener smsListener = check new (\"localhost\", systemId, password, port = 2775, bindType = smpp:RECEIVER);` and a `service on smsListener` implementing `remote function onDeliverSm(smpp:Sms sms) returns error?`, `onDataSm(smpp:Sms sms)` and `onError(error err)` for unexpected session drops"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: listener_config
+    text: "Configure the listener with `smpp:ListenerConfig` named arguments such as `rebindPolicy` (`initialRebindDelay`, `maxRebindDelay` for automatic rebinding with backoff), `enquireLinkInterval`, `maxConcurrentDispatch` and `gracefulStopTimeout`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/listener.bal", kind: github}
+  - id: delivery_receipts
+    text: "Distinguish delivery receipts from mobile-originated messages with `sms.deliveryReceipt`, read the parsed `sms.receipt` (`id`, `finalStatus`, `submitDate`, `doneDate`, `errorCode`, `text`) and correlate it with the earlier `SubmitResult.messageId` through `sms.receiptedMessageId`, the only field SMPP guarantees for this"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: caller_reply
+    text: "Reply on the same session from a `smpp:TRANSCEIVER`-bound listener by declaring an `smpp:Caller` parameter, e.g. `remote function onDeliverSm(smpp:Sms sms, smpp:Caller caller)` calling `caller->submit({destinationAddress: sms.sourceAddress, shortMessage: \"Thanks!\"})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: tls
+    text: "Wrap the session in TLS on the client or listener with `secureSocket = {cert: {path: \"./truststore.p12\", password: trustStorePass}}` (a truststore or PEM CA path; TLS 1.2/1.3 only), add `key` (a `crypto:KeyStore`) for mutual TLS, and keep `smpp:InsecureSocket` for development only"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+  - id: error_retry
+    text: "Branch retry logic on `smpp:Error` details: `failureMode` (`smpp:REJECTED`, `TIMEOUT_DELIVERY_UNKNOWN`, `LINK_DOWN`, `LINK_ABANDONED`, `INVALID_REQUEST`, `PROTOCOL_ERROR`) and, for submit operations, `possiblySubmitted`, where `false` means a retry cannot duplicate the message"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smpp/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smpp/blob/main/ballerina/types.bal", kind: github}
+out_of_scope:
+  - "SMS through HTTP-based providers such as Twilio (connector nodes)"
+  - "GSM 03.38 7-bit packing, which the module does not provide"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_bind, submit_text, submit_multi_data, query_cancel_replace]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, caller_reply]}
+  - {to: concept.errors, rel: uses, via: [error_retry]}
+  - {to: concept.retry, rel: uses, via: [error_retry]}
+  - {to: lib.crypto, rel: uses, via: [tls]}
+  - {to: tool.config_toml, rel: uses, via: [client_bind]}
+  - {to: concept.records, rel: uses, via: [submit_text, binary_sms, delivery_receipts]}
+notes: "The README shows client options as named arguments (`port = 2775, bindType = ...`) because `init` takes `*ClientConfig`. `ListenerConfig` field names and the `QueryResult` fields come from the 1.0.0 source. The listener's `ResponseMode` option was not documented in the README and is left out."

@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.resiliency
 type: topic
 title: Resiliency
@@ -91,7 +91,7 @@ out_of_scope:
   - "Full retry statement and RetryManager semantics (concept.retry)"
   - "Transaction semantics (concept.transactions)"
   - "HTTP client configuration beyond resiliency settings (lib.http)"
-  - "Kafka and RabbitMQ APIs in general (lib.kafka, lib.rabbitmq)"
+  - "Kafka and RabbitMQ APIs in general (connector.kafka, connector.rabbitmq)"
 edges:
   - {to: lib.http, rel: uses, via: [client_timeout, client_retry_backoff, retry_status_codes, circuit_breaker, load_balancer, failover]}
   - {to: concept.retry, rel: uses, via: [retry_statement, custom_retry_manager, retry_transaction]}
@@ -99,8 +99,8 @@ edges:
   - {to: concept.errors, rel: uses, via: [on_fail_recovery, retry_statement]}
   - {to: concept.classes, rel: uses, via: [custom_retry_manager]}
   - {to: lib.websocket, rel: uses, via: [websocket_retry]}
-  - {to: lib.kafka, rel: uses, via: [kafka_poison_messages]}
-  - {to: lib.rabbitmq, rel: uses, via: [manual_ack]}
+  - {to: connector.kafka, rel: uses, via: [kafka_poison_messages]}
+  - {to: connector.rabbitmq, rel: uses, via: [manual_ack]}
   - {to: lib.lang.runtime, rel: uses, via: [bounded_polling, graceful_stop]}
   - {to: topic.rest_api, rel: related}
 notes: "The spec's retry statement wording is `retry-spec := [type-parameter] [ ( arg-list ) ]`; `retry(5)` passes 5 to `DefaultRetryManager.init(int count = 3)`. `retryConfig.statusCodes` is confirmed from http source (client_config.bal), not from a BBE."

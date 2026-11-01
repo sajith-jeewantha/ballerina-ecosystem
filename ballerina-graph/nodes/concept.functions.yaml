@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.functions
 type: concept
 title: Functions
@@ -10,18 +10,24 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.1", kind: spec, note: "7.3.1 Function parameters"}
+  - {url: "https://ballerina.io/learn/advanced-general-purpose-language-features/", kind: docs, note: "Learn: Advanced general-purpose language features"}
 must_cover:
   - id: function_defn
     text: "Define module-level functions such as `function add(int a, int b) returns int { return a + b; }`, optionally qualified with `public`, `isolated` and/or `transactional`"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/functions/", kind: bbe}
   - id: return_nil
     text: "Explain that a function always returns exactly one value: an omitted return type means `returns ()`, and `return;` or falling off the end of the body returns `()`"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.26", kind: spec, note: "7.26 Return statement"}
+      - {url: "https://ballerina.io/learn/by-example/functions/", kind: bbe}
   - id: never_return
     text: "Declare `returns never` for a function that never returns normally, and know a call to it has static type `never`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/trap-expression/", kind: bbe}
   - id: expr_bodied
     text: "Write expression-bodied functions such as `function square(int x) returns int => x * x;`, which is short for a body `{ return x * x; }`"
     difficulty: [beginner]
@@ -36,18 +42,30 @@ must_cover:
   - id: defaultable_params
     text: "Declare defaultable parameters such as `int retries = 3`, whose default expression may refer to earlier parameters and is evaluated by the caller each time the argument is omitted, in parameter declaration order"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/functions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/default-values-for-function-parameters/", kind: bbe}
   - id: rest_param
     text: "Declare a rest parameter `string... names`, which receives the remaining arguments as a newly created list whose inherent type is `string[]`"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rest-parameters/", kind: bbe}
   - id: named_args
     text: "Call functions with named arguments after positional ones, e.g. `connect(\"host\", port = 8080)`, knowing every argument name must be distinct and it is an error to supply the same parameter both positionally and by name"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/functions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/provide-function-arguments-by-name/", kind: bbe}
   - id: spread_args
     text: "Pass a list's members as positional arguments with a spread rest argument `f(...values)`, or a mapping's fields as named arguments with `f(...options)`, where the spread's static type must make the equivalent arguments valid"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rest-arguments/", kind: bbe}
   - id: included_record_params
     text: "Declare included record parameters such as `*Options opts` so callers can pass the record's fields as named arguments (e.g. `send(msg, timeout = 5)`), with unspecified fields defaulted from the record type, and know field names must be distinct from each other and from parameter names"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/included-record-parameters/", kind: bbe}
   - id: included_record_conflicts
     text: "Explain that if an argument is given for an included record parameter itself, its fields cannot also be passed as named arguments, and that a non-optional field without a default must be supplied"
     difficulty: [advanced]

@@ -1,0 +1,76 @@
+schema_version: "0.2"
+id: lib.regex
+type: library
+title: ballerina/regex
+summary: "The deprecated `ballerina/regex` package matched, searched, split and replaced strings using regular expressions given as plain `string` values (Java regex syntax); new code uses the `re` template and `ballerina/lang.regexp` instead."
+priority: long_tail
+status: deprecated
+replaced_by: lib.lang.regexp
+modules: [ballerina/regex]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/regex/latest", kind: central, note: "ballerina/regex 1.4.3, deprecated; README deprecation notice"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/natives.bal", kind: github, note: "Public functions with doc examples"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/types.bal", kind: github, note: "Match, PartMatch, Groups, Replacement"}
+  - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec, note: "11.3.11 lang.regexp module (replacement)"}
+  - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/regexp-operations-overview/", kind: bbe}
+must_cover:
+  - id: legacy_string_patterns
+    text: 'Read legacy `regex:` calls whose pattern is an ordinary string, so backslashes are doubled (`"\\s+"`) and the special characters `.`, `+`, `*`, `?`, `^`, `$`, `(`, `)`, `[`, `]`, `{`, `}` must be escaped to be matched literally'
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/natives.bal", kind: github}
+  - id: matches
+    text: "Recognise `regex:matches(stringToMatch, regex)`, which returns `true` only when the whole string matches (e.g. `regex:matches(\"Ballerina is great\", \"Ba[a-z ]+\")`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/natives.bal", kind: github}
+  - id: replace_functions
+    text: "Recognise `regex:replace(original, regex, replacement, startIndex = 0)` (first match), `regex:replaceAll(original, regex, replacement)` (every match) and the older `regex:replaceFirst`, which is itself marked `@deprecated` in favour of `replace`; the replacement is a `string` or an isolated function taking a `regex:Match` and returning a `string`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/natives.bal", kind: github}
+  - id: split
+    text: "Recognise `regex:split(receiver, delimiter)`, which returns the `string[]` parts around each match of the delimiter pattern, e.g. `regex:split(\"Ballerina is great\", \" \")`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/natives.bal", kind: github}
+  - id: search_groups
+    text: "Recognise `regex:search(str, regex, startIndex = 0)` returning `regex:Match?` and `regex:searchAll(str, regex)` returning `regex:Match[]`, where a `Match` has `matched`, `startIndex`, `endIndex` and `groups`, and `groups.get(i)` returns a `regex:PartMatch?` (group 0 is the whole match, `groups.count` the number of capturing groups)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-regex/blob/main/ballerina/types.bal", kind: github}
+  - id: migrate_patterns
+    text: "Migrate to `ballerina/lang.regexp` by removing `import ballerina/regex;` and writing each pattern as a `re` template value of type `regexp:RegExp` (importing `ballerina/lang.regexp` only to name that type), which is checked at compile time and needs no doubled backslashes"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/regex/latest", kind: central, note: "Deprecation notice"}
+      - {url: "https://ballerina.io/learn/by-example/regexp-type/", kind: bbe}
+  - id: migrate_matches_split
+    text: "Replace `regex:matches(s, p)` with `isFullMatch(s)` called on the `re` pattern, and `regex:split(s, d)` with `split(s)` called on the delimiter pattern"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec}
+  - id: migrate_replace
+    text: "Replace `regex:replace` and `regex:replaceAll` (and `replaceFirst`) with the pattern's `replace(str, replacement)` and `replaceAll(str, replacement)` methods, rewriting replacer functions to take `regexp:Groups` instead of `regex:Match`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec}
+  - id: migrate_search
+    text: "Replace `regex:search` with `find` (a `regexp:Span` whose `substring()` gives the matched text) or `findGroups` (a `regexp:Groups`), and `regex:searchAll` with `findAll` or `findAllGroups`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec}
+  - id: migrate_dynamic
+    text: "Replace patterns that were assembled at runtime as strings with `regexp:RegExp re = check regexp:fromString(patternString);`, which returns an error for an invalid pattern"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.regexp", kind: spec}
+out_of_scope:
+  - "Regular expression syntax of the `re` template (concept.regexp)"
+  - "Full lang.regexp API (lib.lang.regexp)"
+edges:
+  - {to: lib.lang.regexp, rel: uses, via: [migrate_patterns, migrate_matches_split, migrate_replace, migrate_search, migrate_dynamic]}
+  - {to: concept.regexp, rel: uses, via: [migrate_patterns]}
+  - {to: concept.strings, rel: uses, via: [legacy_string_patterns]}
+notes: "Deprecated on Central (1.4.3): 'use the ballerina/lang.regexp'. There is no official function-by-function migration guide; the migrate_* mappings come from comparing the documented regex functions with the lang.regexp functions in the spec. `regex:matches` and `regex:split` delegate to Java `String.matches`/`String.split`, so `matches` is a whole-string match; edge-case differences of `split` (e.g. trailing empty strings) were not compared."

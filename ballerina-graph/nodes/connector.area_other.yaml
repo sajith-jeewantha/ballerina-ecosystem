@@ -1,0 +1,121 @@
+schema_version: "0.2"
+id: connector.area_other
+type: connector
+title: Other connectors
+summary: "`ballerinax` packages with no other area: SaaS clients (DocuSign Admin, Zendesk, NetSuite, Dayforce, PeopleHR, Ellucian, legacy Box and Interzoid), the CData Connect JDBC client, mainframe tools (COBOL copybook conversion, IBM CICS Transaction Gateway), `ballerina/np` model providers, and build-time extensions imported as `_` (metrics logs, WSO2 control plane, transformer services)."
+priority: long_tail
+status: draft
+modules: [ballerinax/boxapi, ballerinax/cdata.connect, ballerinax/copybook, ballerinax/dayforce, ballerinax/docusign.dsadmin, ballerinax/ellucian.student, ballerinax/ellucian.studentcharges, ballerinax/ibm.ctg, ballerinax/interzoid.currencyexchange, ballerinax/metrics.logs, ballerinax/netsuite, ballerinax/np, ballerinax/peoplehr, ballerinax/transformer, ballerinax/wso2.controlplane, ballerinax/zendesk]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/docusign.dsadmin/latest", kind: central, note: "ballerinax/docusign.dsadmin 2.0.0 README and API docs"}
+  - {url: "https://central.ballerina.io/ballerinax/zendesk/latest", kind: central, note: "ballerinax/zendesk 2.0.0 README and API docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-netsuite/blob/master/ballerina/Module.md", kind: github, note: "NetSuite module quickstart"}
+  - {url: "https://central.ballerina.io/ballerinax/cdata.connect/latest", kind: central, note: "ballerinax/cdata.connect 1.2.0 API docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-copybook/blob/main/docs/spec/spec.md", kind: github, note: "Copybook library specification"}
+  - {url: "https://central.ballerina.io/ballerinax/ibm.ctg/latest", kind: central, note: "ballerinax/ibm.ctg 0.1.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/np/latest", kind: central, note: "ballerinax/np 0.9.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/metrics.logs/latest", kind: central, note: "ballerinax/metrics.logs 1.2.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/transformer/latest", kind: central, note: "ballerinax/transformer 0.1.0 README"}
+must_cover:
+  - id: docusign_admin_client
+    text: "Create a `dsadmin:Client` (`import ballerinax/docusign.dsadmin;`) with an OAuth2 refresh-token config, `check new ({auth: {clientId, clientSecret, refreshToken, refreshUrl}})` from `configurable` values (developer refresh URL `https://account-d.docusign.com/oauth/token`), and list organizations with `dsadmin:OrganizationsResponse orgs = check docuSignClient->/v2/organizations();`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/docusign.dsadmin/latest", kind: central, note: "Setup guide and Quickstart"}
+  - id: docusign_admin_users
+    text: "Manage DocuSign users across an organization: create one with `docuSignClient->/v2/organizations/[orgId]/users.post({user_name, first_name, email, accounts: [{id: accountId, company_name}]})` returning `dsadmin:NewUserResponse`, look users up with `/v2/organizations/[orgId]/users(accountId = ..., email = ...)`, list account permission profiles and groups with `/v2/organizations/[orgId]/accounts/[accountId]/permissions` and `/groups`, and request a user export with `/v2/organizations/[orgId]/exports/user_list.post(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/docusign.dsadmin/latest", kind: central, note: "Quickstart and resource methods"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-docusign.dsadmin/tree/main/examples", kind: github, note: "manage-user-information and permissions-in-organizations examples"}
+  - id: zendesk_tickets
+    text: "Create a `zendesk:Client` with `zendesk:ConnectionConfig zendeskConfig = {auth: {username, password}}` and `check new (zendeskConfig, \"https://<your-domain>.zendesk.com\")`, create a ticket with `zendesk->/api/v2/tickets.post(ticket)` where `zendesk:TicketCreateRequest` is `{ticket: {subject, comment: {body}}}` (returns `zendesk:TicketResponse`), and list tickets with `zendesk:TicketsResponse tickets = check zendesk->/api/v2/tickets;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/zendesk/latest", kind: central, note: "Quickstart"}
+  - id: zendesk_support_ops
+    text: "Run Zendesk Support operations with resource methods: show, update or delete a ticket via `zendesk->/api/v2/tickets/[ticketId]` (`get`, `put` with `zendesk:TicketUpdateRequest`, `delete`), list its comments with `/api/v2/tickets/[ticketId]/comments`, create and manage users with `/api/v2/users.post(zendesk:UserRequest)` and `/api/v2/users/[userId]`, list organizations and groups, search with `/api/v2/search(query = ...)` and read `/api/v2/satisfaction_ratings`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/zendesk/latest", kind: central, note: "zendesk:Client resource methods"}
+  - id: netsuite_client
+    text: "Create a `netsuite:Client` for the SuiteTalk SOAP API with token-based authentication, `check new ({accountId, consumerId, consumerSecret, token, tokenSecret, baseURL})` (`netsuite:ConnectionConfig`, `baseURL` such as `https://<ACCOUNT_ID>.suitetalk.api.netsuite.com`), and add a record, e.g. `netsuiteClient->addNewAccount(account)` with a `netsuite:NewAccount` (`acctNumber`, `acctName`, `currency: <netsuite:RecordInputRef>{internalId: \"1\", 'type: \"currency\"}`) returning `netsuite:RecordAddResponse`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-netsuite/blob/master/ballerina/Module.md", kind: github, note: "Quickstart"}
+      - {url: "https://central.ballerina.io/ballerinax/netsuite/latest", kind: central, note: "3.3.0 API docs (ConnectionConfig fields)"}
+  - id: netsuite_records
+    text: "Work with NetSuite records through remote methods: `addNewCustomer`, `addNewInvoice`, `addNewSalesOrder` and other `addNew...` methods; `getCustomerRecord(recordInfo)` and other `get...Record` methods; `update...Record` methods such as `updateCustomerRecord(customer)`; `searchCustomerRecords(searchElements)` with `netsuite:SearchElement[]`; `deleteRecord(info)`; and saved searches with `getSavedSearchIDs` and `performSavedSearchById(savedSearchId, advancedSearchType)`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/netsuite/latest", kind: central, note: "netsuite:Client remote methods"}
+  - id: cdata_connect
+    text: "Query CData Connect data sources over JDBC: import `ballerinax/cdata.connect as cdata` and `ballerinax/cdata.connect.driver as _`, create `cdata:Client cdataClient = check new (user, password)` for Connect Cloud (or pass `url = \"jdbc:cdata:connect:URL=http://<hostname>:<port>/rest.rsc;\"` for Connect Server), then run `cdataClient->query(sqlQuery)` with a `sql:ParameterizedQuery` such as SELECT * FROM Salesforce1.Salesforce.Lead LIMIT 10 (connection name, data source name, table) to get a `stream<record {}, error?>` and use `execute`, `batchExecute`, `queryRow` and `call` like any `sql:Client`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-cdata.connect", kind: github, note: "Module.md quickstart"}
+  - id: copybook_conversion
+    text: "Convert COBOL copybook data with `copybook:Converter converter = check new (\"resources/copybook.cpy\")`: decode mainframe bytes with `converter.fromBytes(bytes, targetRecordName = ..., encoding = copybook:EBCDIC)` to a `map<json>` (default encoding `copybook:ASCII`), encode a record or `map<json>` back with `converter.toBytes(input, targetRecordName = ...)`, and handle `copybook:Error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-copybook/blob/main/docs/spec/spec.md", kind: github, note: "init, fromBytes, toBytes, encoding"}
+  - id: ibm_ctg
+    text: "Call IBM CICS programs through the CICS Transaction Gateway: add the `ccf2`, `cicsjee` and `ctgclient` 9.3 JARs as `[[platform.java17.dependency]]` entries in `Ballerina.toml`, create `ctg:Client ctg = check new ({host, port, cicsServer, auth: {userId, password}})`, and run `byte[]? out = check ctg->execute(programName = programName, commArea = inputPayload);`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ibm.ctg/latest", kind: central, note: "Quickstart"}
+  - id: np_model_providers
+    text: "Create a model for natural expressions with `ballerinax/np`: `openai:ModelProvider` (`import ballerinax/np.openai;`) via `check new ({connectionConfig: {auth: {token}}, serviceUrl}, model)`, or `azureOpenAI:ModelProvider` (`import ballerinax/np.azure.openai as azureOpenAI;`) via `check new ({serviceUrl, connectionConfig: {auth: {apiKey}}}, deploymentId, apiVersion)`, then pass it to a function such as `returns Author|error => natural (model) { ... }` taking an `np:ModelProvider`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/np/latest", kind: central, note: "README"}
+  - id: metrics_logs
+    text: "Publish Ballerina metrics as logs for OpenSearch: add `import ballerinax/metrics.logs as _;`, set `observabilityIncluded=true` under `[build-options]` in `Ballerina.toml`, enable with `metricsLogsEnabled=true` under `[ballerina.observe]` in `Config.toml`, and tune `[ballerinax.metrics.logs]` (`logFilePath`, `logLevel`, `logFormat` `\"logfmt\"`/`\"json\"`, `enableLogRotation`) and `[ballerinax.metrics.logs.rotation]` (`policy`, `maxFileSize`, `maxAge`, `maxBackupFiles`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/metrics.logs/latest", kind: central, note: "README"}
+  - id: wso2_controlplane
+    text: "Expose a Ballerina runtime's artifacts to the WSO2 Integration Control Plane: add `import ballerinax/wso2.controlplane as _;`, set `remoteManagement=true` under `[build-options]`, and configure `[ballerinax.wso2.controlplane.dashboard]` in `Config.toml` with `url`, `heartbeatInterval`, `groupId` and `mgtApiUrl` (optionally `nodeId`, `serviceAccount`, `serviceAccountPassword`, and `icpServicePort`/`keyStorePath`/`trustStorePath` under `[ballerinax.wso2.controlplane]`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-wso2.controlplane", kind: github, note: "Repository README"}
+  - id: transformer_package
+    text: "Build a transformer package with `import ballerinax/transformer as _;` and `public isolated` expression-bodied functions such as `public isolated function transform(Person person, string school) returns Student => {...};` (no `main`, services, classes, listeners or annotations; serializable parameter and return types); on build each function is exposed as a generated REST resource (e.g. `POST /transform` with a JSON body `{\"person\": {...}, \"school\": \"...\"}`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/transformer/latest", kind: central, note: "README"}
+  - id: hr_clients
+    text: "Call HR systems: `dayforce:Client` with `check new ({auth: {username, password}}, \"https://www.dayforcehcm.com/Api/ddn/V1/\")` and resource methods under the client namespace, e.g. `dayforce:Payload_Employee e = check dayforce->/ddn/V1/Employees/'42199;`; and `peoplehr:Client` with `check new ({apiKey, baseURL: \"https://api.peoplehr.net\"})` and remote methods `getQueryByName({QueryName: ...})`, `getAllEmployees`, `getEmployeeById`, `createNewEmployee`, `addNewHoliday` and `getSalaryDetail`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/dayforce/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-peoplehr/blob/master/ballerina/Module.md", kind: github, note: "PeopleHR quickstart"}
+  - id: legacy_generated_clients
+    text: "Use older generated clients: `boxapi:Client` with `ClientConfig` `{authConfig: {token}}` (`getFilesId(file_id, xRepHints)`, `getFoldersIdItems(folder_id)`, `postFolders`, `postFilesContent`); `ellucian.student` and `ellucian.studentcharges` with `ClientConfig` `{auth: {token}}` (`getStudents(accept)`, `getStudent(id, accept)`, `getStudentCharges(accept)`, `getStudentChargesById`); and `interzoid.currencyexchange` with `ApiKeysConfig` `{apiKeys: {\"license\": \"...\"}}` and `getCurrencyRate(symbol)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/boxapi/latest", kind: central, note: "boxapi 0.1.1 API docs"}
+      - {url: "https://central.ballerina.io/ballerinax/ellucian.student/latest", kind: central, note: "ellucian.student 1.0.0 API docs"}
+      - {url: "https://central.ballerina.io/ballerinax/ellucian.studentcharges/latest", kind: central, note: "ellucian.studentcharges 1.0.0 API docs"}
+      - {url: "https://central.ballerina.io/ballerinax/interzoid.currencyexchange/latest", kind: central, note: "interzoid.currencyexchange 0.1.0 API docs"}
+out_of_scope:
+  - "DocuSign eSignature, Click and other DocuSign APIs (connector.docusign)"
+  - "Natural expression syntax itself (concept.natural_expressions) and the ballerina/np module (lib.np)"
+  - "Observability configuration in general (lib.observe, topic.observability)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [docusign_admin_client, zendesk_tickets, netsuite_client, ibm_ctg]}
+  - {to: concept.resource_methods, rel: uses, via: [docusign_admin_users, zendesk_support_ops, hr_clients]}
+  - {to: concept.records, rel: uses, via: [zendesk_tickets, netsuite_client, transformer_package]}
+  - {to: lib.oauth2, rel: uses, via: [docusign_admin_client]}
+  - {to: lib.http, rel: uses, via: [zendesk_tickets, legacy_generated_clients]}
+  - {to: lib.sql, rel: implements, via: [cdata_connect], note: "cdata:Client provides the sql:Client operations"}
+  - {to: lib.np, rel: implements, via: [np_model_providers], note: "Implementations of np:ModelProvider"}
+  - {to: concept.natural_expressions, rel: uses, via: [np_model_providers]}
+  - {to: lib.observe, rel: uses, via: [metrics_logs]}
+  - {to: concept.query_expressions, rel: uses, via: [cdata_connect]}
+  - {to: tool.ballerina_toml, rel: uses, via: [ibm_ctg, metrics_logs, wso2_controlplane]}
+  - {to: tool.config_toml, rel: uses, via: [metrics_logs, wso2_controlplane, docusign_admin_client]}
+  - {to: concept.functions, rel: uses, via: [transformer_package], note: "Expression-bodied public isolated functions"}
+  - {to: connector.docusign, rel: related, note: "docusign.dsadmin is the DocuSign Admin API; other DocuSign APIs live on connector.docusign"}
+  - {to: connector.interzoid, rel: related, note: "Other Interzoid connectors"}
+notes: "DocuSign Admin and Zendesk items come from their Central READMEs and API docs. The DocuSign 2.0.0 README creates the client with only the config; the main-branch example also passes a serviceUrl, and the 2.0.0 API docs list `serviceUrl` before `config`, so the item follows the README. The README payload uses snake_case fields (`user_name`); the main-branch example uses camelCase. NetSuite items use the master-branch Module.md (which names the config record `NetsuiteConfiguration`) and the 3.3.0 API docs (`ConnectionConfig` with the same fields). Copybook, CData and PeopleHR use GitHub docs because their Central READMEs are stubs. The legacy boxapi, ellucian.* and interzoid.currencyexchange items come only from Central API docs (sources no longer on GitHub). ballerinax/wso2.controlplane's Central README only says it exposes runtime artifacts to the control plane; configuration comes from the repository README."

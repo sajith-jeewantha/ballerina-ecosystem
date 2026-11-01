@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.filler_values
 type: concept
 title: Filler values
@@ -31,6 +31,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.1", kind: spec, note: "6.7.1 List constructor"}
+      - {url: "https://ballerina.io/learn/by-example/filler-values-of-a-list/", kind: bbe}
   - id: store_beyond_length
     text: Explain that storing to index k beyond a list's length fills indices in between with FillMember, and panics if filling fails, for example on a fixed-length array
     difficulty: [intermediate, advanced]

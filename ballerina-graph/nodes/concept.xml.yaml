@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.xml
 type: concept
 title: XML
@@ -17,40 +17,57 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.1", kind: spec, note: "6.36.1 XML name pattern"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.2", kind: spec, note: "6.36.2 XML filter expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.36.3", kind: spec, note: "6.36.3 XML step expression"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: xml_sequence
     text: 'Explain that an xml value is a sequence of element, processing instruction, comment and text items, that a single item is itself a sequence, that the empty xml value is distinct from `""` and `()`, and that consecutive text items are merged when an xml value is constructed, so an xml value never contains two adjacent text items'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-data-model/", kind: bbe}
   - id: builtin_subtypes
     text: 'Use the built-in subtypes `xml:Element`, `xml:ProcessingInstruction`, `xml:Comment` and `xml:Text` (which also includes the empty xml value), and `xml<T>` for sequences whose items all belong to `T` (e.g. `xml<xml:Element>`), knowing that `xml<xml<T>>` equals `xml<T>`, `xml<xml:Text>` equals `xml:Text`, and `xml<never>` is just the empty value'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-subtyping/", kind: bbe}
   - id: element_structure
     text: 'Describe an element as a name string, an attributes map of type `map<string>` and children of type `xml`, where the attributes map also holds the element''s namespace declarations, whose keys start with `{http://www.w3.org/2000/xmlns/}`'
     difficulty: [beginner, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-data-model/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-namespaces/", kind: bbe}
   - id: storage_identity
     text: 'Explain that element, processing instruction and comment singletons have storage identity while text items and longer sequences do not, and that a sequence compares with `===` item by item'
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.29", kind: spec, note: "6.29 Equality expression"}
+      - {url: "https://ballerina.io/learn/by-example/xml-data-model/", kind: bbe}
   - id: xml_mutability
     text: 'Explain that `xml:Text` is inherently immutable, elements, processing instructions and comments are selectively immutable, a multi-item sequence is read-only only if all its items are, and a read-only element has read-only attributes and children; mutable items can be mutated but the number and identity of an xml value''s constituents, and the identity of an element attributes map, are fixed at construction'
     difficulty: [advanced]
   - id: xml_template
     text: 'Construct xml with templates such as `xml `<book id="${id}">${title}</book>``, which are parsed as XML content with interpolations allowed only in character data and attribute values (not namespace attributes), knowing that an xml template inside a constant expression constructs a read-only xml value'
     difficulty: [beginner, intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-templates/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-templates-and-query/", kind: bbe}
   - id: template_interpolation_types
     text: 'Explain that attribute interpolations must be non-nil simple types (expected type `string`), content interpolations may be `xml` or a non-nil simple type converted to a string, and each evaluation makes a new copy with interpolations evaluated in order'
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-templates/", kind: bbe}
   - id: xml_concatenation
     text: 'Concatenate xml with `x1 + x2` (no copying of constituents), and with strings, where a non-empty string acts as a text item and an empty string yields the xml operand unchanged'
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.24", kind: spec, note: "6.24 Additive expression"}
+      - {url: "https://ballerina.io/learn/by-example/xml-operations/", kind: bbe}
   - id: xml_iteration
     text: 'Iterate over the items of an `xml<T>` value with `foreach`, each iteration value being a singleton of type `T`'
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.6", kind: spec, note: "5.1.6 Iterability"}
+      - {url: "https://ballerina.io/learn/by-example/iterating-over-xml-with-query/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-iteration/", kind: bbe}
   - id: xml_langlib
     text: 'Use `lang.xml` functions such as `elements`, `children`, `getName`, `getAttributes`, `getChildren`, `data`, `createElement` and `fromString` through method-call syntax, and the constants `xml:XML_NAMESPACE_URI`, `xml:XMLNS_NAMESPACE_URI` and the expanded-name constants `xml:lang`, `xml:space` and `xml:base`'
     difficulty: [intermediate]
@@ -61,35 +78,51 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.9", kind: spec, note: "6.9 Variable reference expression"}
+      - {url: "https://ballerina.io/learn/by-example/xml-namespaces/", kind: bbe}
   - id: xmlns_declarations
     text: 'Declare namespace prefixes in a block with `xmlns "http://example.com/ns" as ex;`, or a default namespace by omitting `as`, where the URI is a simple constant expression of type string, or at module level, where an `xmlns` declaration applies only to the source part in which it occurs (like imports); the declared prefixes and default namespace are the in-scope namespaces used when xml templates are processed'
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.10", kind: spec, note: "8.10 Module XML namespace declaration"}
+      - {url: "https://ballerina.io/learn/by-example/xmlns-declarations/", kind: bbe}
   - id: prefix_symbol_space
     text: 'Explain that xmlns prefixes share a symbol space with import module prefixes, separate from the main symbol space, and that `xmlns` is predeclared as `http://www.w3.org/2000/xmlns/` and cannot be redeclared'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xmlns-declarations/", kind: bbe}
   - id: namespace_serialization
     text: 'Explain that namespace attributes are synthesized for prefixes (other than `xml` and the default namespace) that are used by an element or its attributes but not declared on it, so prefixes survive when the element is extracted, and that converting xml to an infoset for serialization prunes redundant namespace declarations, uses the `xml` prefix for the XML namespace, reuses or generates prefixes and adds `xmlns=""` to undeclare an inherited default namespace'
     difficulty: [advanced]
   - id: attribute_access
     text: 'Read an attribute with `e.id`, of static type `string|error`, which returns an error when the value is not a singleton element (including when it is empty) or the attribute is missing, or with `e?.id`, of static type `string|error|()`, which returns `()` for an empty xml value or a missing attribute and an error when the value is not a singleton element'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-data-model/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-access/", kind: bbe}
   - id: attribute_names
     text: 'Name attributes with a plain identifier, an xmlns-prefixed name expanded at compile time to `{uri}local`, or a module-qualified string constant such as `xml:lang`'
     difficulty: [intermediate, advanced]
   - id: name_patterns
     text: 'Write xml name patterns `*`, `name`, `ns:name`, `ns:*` and alternatives `a|b`, where an unprefixed name means a name in the in-scope default namespace if one is declared'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-navigation/", kind: bbe}
   - id: filter_expression
     text: 'Select element items whose name matches a pattern with `x.<book>`, of static type `xml<xml:Element>`'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-navigation/", kind: bbe}
   - id: step_expressions
     text: 'Use step expressions `x/*` to get the children of every element in `x` (equivalent to mapping `xml:getChildren` over `xml:elements(x)`), `x/<title>` to get the element children matching a name pattern, and `x/**/<title>` to get the matching element descendants (based on `xml:getDescendants`)'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/iterating-over-xml-with-query/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-navigation/", kind: bbe}
   - id: step_extensions
     text: 'Extend steps with `.<p>`, `[i]` and `.method(args)`, which apply to the result for each element, e.g. `x/<item>[0]`, knowing that ambiguity with member access and method calls is resolved by including as much as possible in the xml step expression and that navigation needs an operand whose static type is a subtype of xml'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-navigation/", kind: bbe}
 out_of_scope:
   - "Indexing x[i] (concept.field_member_access)"
   - "Per-function lang.xml semantics (lib.lang.xml)"

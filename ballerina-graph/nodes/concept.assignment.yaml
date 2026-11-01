@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.assignment
 type: concept
 title: Assignment
@@ -23,6 +23,8 @@ must_cover:
   - id: nil_removes_member
     text: 'Explain that assigning `()` to an optional mapping member whose type excludes nil (e.g. `r.f = ();` for `int f?`) removes the member, and removing an absent member has no effect'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/optional-fields/", kind: bbe}
   - id: runtime_store_checks
     text: 'Explain why stores into structure members are checked at runtime and panic when they would violate the inherent type, add a key a closed record or fixed-length list disallows, or mutate an immutable value'
     difficulty: [intermediate, advanced]

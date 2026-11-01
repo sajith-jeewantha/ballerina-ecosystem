@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.transactions
 type: concept
 title: Transactions
@@ -16,32 +16,45 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.1", kind: spec, note: "7.24.1.1 Begin operation"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.2", kind: spec, note: "7.24.1.2 Commit operation"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.24.1.3", kind: spec, note: "7.24.1.3 Rollback operation"}
+  - {url: "https://ballerina.io/learn/concurrency/", kind: docs, note: "Learn: Concurrency"}
 must_cover:
   - id: transaction_stmt
     text: "Write `transaction { ...; check commit; }`, knowing the block must contain a `commit` action and the compiler must verify that every exit other than a panic or fail has executed `commit` or `rollback`"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/transaction-statement/", kind: bbe}
   - id: commit_action
     text: "Use the `commit` action, whose result type is `transaction:Error?` (an error when the transaction manager decided to roll back) and which does not change control flow; it is allowed only lexically inside a transaction statement"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/transaction-statement/", kind: bbe}
   - id: rollback_stmt
     text: "Use `rollback;` or `rollback e;` inside a transaction statement to roll back explicitly, passing the optional error to rollback handlers, without changing control flow"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rollback/", kind: bbe}
   - id: automatic_rollback
     text: "Explain that if the transaction block fails or panics before commit or rollback, the transaction statement rolls back with that error and then continues the fail or panic (a panic in the block does not immediately terminate the worker)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rollback/", kind: bbe}
   - id: transactional_scope
     text: "Explain transactional scope: the part of a transaction block before commit or rollback, and the body of a `transactional` function; a `transactional` function can be called (including with `start`) only in a transactional scope"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/transactional-qualifier/", kind: bbe}
   - id: transactional_qualifier
     text: "Declare `transactional` functions and remote or resource methods, and know a function type without `transactional` is a subtype of the same function type with `transactional` (the opposite direction from `isolated`)"
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions"}
+      - {url: "https://ballerina.io/learn/by-example/transactional-qualifier/", kind: bbe}
   - id: transactional_expr
-    text: "Use the `transactional` expression to test at runtime whether the current strand is in transaction mode"
+    text: "Use the `transactional` expression to test at runtime whether the current strand is in transaction mode, knowing a block guarded by `if transactional { ... }` is a transactional context in which `transactional` functions can be called"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.37", kind: spec, note: "6.37 Transactional expression"}
+      - {url: "https://ballerina.io/learn/by-example/transactional-qualifier/", kind: bbe}
   - id: nested_transactions
     text: "Know that a transaction statement inside a transactional scope is a compile-time error, but running one while the strand is already in transaction mode begins a new, independent transaction"
     difficulty: [advanced]
@@ -56,15 +69,21 @@ must_cover:
   - id: commit_rollback_handlers
     text: "Register handlers with `transaction:onCommit(handler)` and `transaction:onRollback(handler)`, where a `CommitHandler` takes `Info` and a `RollbackHandler` takes `(Info info, error? cause, boolean willRetry)`"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/commit-rollback-handlers/", kind: bbe}
   - id: storage_not_transactional
     text: "Know that in-memory Ballerina state is not transactional: rolling back does not restore variables or values, so undo such changes in rollback handlers"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/rollback/", kind: bbe}
   - id: transaction_langlib
     text: "Use the transactional lang.transaction functions `transaction:info()`, `setRollbackOnly(e)`, `getRollbackOnly()`, `setData(d)` and `getData()`, and `transaction:getInfo(xid)` to look up a transaction by XID"
     difficulty: [advanced]
   - id: transactional_strands
     text: "Know that a `transactional` named worker, or `start` of a transactional function, creates a new transaction branch joined to the current global transaction"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/transactional-named-workers/", kind: bbe}
   - id: global_transactions
     text: "Explain global transactions: one or more transaction branches, each the work of a single strand and identified by an XID combining the global transaction id and a branch id, and that each strand has a transaction stack, is in transaction mode when the stack is non-empty, and has the top entry as its current transaction branch"
     difficulty: [advanced]

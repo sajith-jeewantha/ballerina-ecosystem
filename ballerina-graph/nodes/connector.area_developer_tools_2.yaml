@@ -1,0 +1,97 @@
+schema_version: "0.2"
+id: connector.area_developer_tools_2
+type: connector
+title: Developer Tools connectors (G–W)
+summary: "Developer-tool connectors from G to W: the WSO2 API Manager service-catalog publisher (`import ballerinax/wso2.apim.catalog as _;`) and its catalog client, plus OpenAPI-generated clients (remote methods) for GitLab, WordPress, Power BI, Quickbase, Kinto, LeanIX, Optimizely, journy.io, Thinkific, text and anomaly analytics, web scraping, phone/SMS verification and company, World Bank and sensor data APIs."
+priority: long_tail
+status: draft
+modules: [ballerinax/gitlab, ballerinax/journey.io, ballerinax/kinto, ballerinax/leanix.integrationapi, ballerinax/neutrino, ballerinax/optimizely, ballerinax/optirtc.public, ballerinax/owler, ballerinax/power.bi, ballerinax/quickbase, ballerinax/siemens.analytics.anomalydetection, ballerinax/text2data, ballerinax/thinkific, ballerinax/webscraping.ai, ballerinax/wordpress, ballerinax/worldbank, ballerinax/wso2.apim.catalog]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/wso2.apim.catalog/latest", kind: central, note: "ballerinax/wso2.apim.catalog 1.3.0 README and API docs"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal of the 1.x OpenAPI connectors in this group"}
+  - {url: "https://central.ballerina.io/ballerinax/power.bi/latest", kind: central, note: "ballerinax/power.bi 1.5.2 API docs"}
+must_cover:
+  - id: apim_catalog_publish
+    text: "Publish a Ballerina service's metadata to the WSO2 API Manager service catalog: add `import ballerinax/wso2.apim.catalog as _;` to the default module, set `remoteManagement=true` under `[build-options]` in `Ballerina.toml`, and configure `[ballerinax.wso2.apim.catalog]` in `Config.toml` with `serviceUrl`, `tokenUrl`, `username`, `password`, `clientId` and `clientSecret`; services such as `service /sales0 on new http:Listener(9000)` are then published on `bal run`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/wso2.apim.catalog/latest", kind: central, note: "Quickstart and example"}
+  - id: apim_catalog_client
+    text: "Call the service-catalog REST API directly with `wso2.apim.catalog:Client` (`ConnectionConfig` with an OAuth2 password-grant `auth`, plus the catalog `serviceUrl`): list or search services with `catalogClient->/services(name = ...)`, add one with `/services.post(ServiceSchema)`, get, update or delete one via `/services/[serviceId]` (`get`, `put`, `delete`), read its definition with `/services/[serviceId]/definition` and bulk-import with `/services/'import.post(...)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/wso2.apim.catalog/latest", kind: central, note: "Client resource methods (API docs)"}
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated 1.x clients in this group: import the package (e.g. `import ballerinax/power.bi;`), create its `Client` with a `ConnectionConfig` holding `auth` (bearer `{token}`, OAuth2 refresh-token or client-credentials config) or an `ApiKeysConfig` first argument for API-key services, and call remote methods such as `powerBiClient->datasetsGetdatasets()` with `check`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/power.bi", kind: github, note: "power.bi client.bal"}
+  - id: power_bi_datasets
+    text: "Use `power.bi:Client` (bearer token) to list datasets with `datasetsGetdatasets()`, create a push dataset with `datasetsPostdataset(power.bi:CreateDatasetRequest)`, add rows with `datasetsPostrows(datasetId, tableName, payload)`, trigger a refresh with `datasetsRefreshdataset(datasetId, payload)`, list reports with `reportsGetreports()`, and use the `...ingroup` variants (e.g. `datasetsGetdatasetsingroup(groupId)`) for workspaces"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/power.bi", kind: github, note: "power.bi client.bal"}
+  - id: quickbase_records
+    text: "Create a `quickbase:Client` with an `http:ClientConfiguration` and pass the `qbRealmHostname` and `authorization` header values to each call: `createApp(qbRealmHostname, authorization, payload)`, `getApp(appId, qbRealmHostname, authorization)`, `runQuery(qbRealmHostname, authorization, quickbase:RecordsQueryBody)` and `upsert(qbRealmHostname, authorization, quickbase:RecordsBody)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/quickbase", kind: github, note: "quickbase client.bal"}
+  - id: gitlab_wordpress
+    text: "Use `gitlab:Client` (`ApiKeysConfig` `{privateToken}`) to `getVersion()`, list project access requests with `accessrequestsprojectsGet(id)` and request access with `accessrequestsprojectsPost(id)`; and `wordpress:Client` (bearer/OAuth2, site `serviceUrl`) to `getPosts()`, `createPosts(wordpress:PostsBody)`, `updateSinglePost(id, payload)` and `deleteSinglePost`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/gitlab", kind: github, note: "gitlab client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/wordpress", kind: github, note: "wordpress client.bal"}
+  - id: kinto_storage
+    text: "Read a Kinto JSON store with `kinto:Client` (no auth config; default `serviceUrl` is Mozilla's Firefox settings server): `getBuckets()`, `getCollections(bucketId)`, `getRecords(bucketId, collectionId)`, `getRecord(bucketId, collectionId, id)` and multi-request `batch(payload)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/kinto", kind: github, note: "kinto client.bal"}
+  - id: leanix_sync
+    text: "Use `leanix.integrationapi:Client` (OAuth2 client-credentials `auth`) to register a processor with `upsertProcessorConfiguration(payload)`, list them with `getProcessorConfigurations()`, start an import with `createSynchronizationRun(input, 'start, test)` or `startSynchronizationRun(id, test)`, and poll `getSynchronizationRunStatus(id)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/leanix.integrationapi", kind: github, note: "leanix.integrationapi client.bal"}
+  - id: experimentation_analytics
+    text: "Run experiments and product analytics: `optimizely` (bearer/OAuth2) `listProjects(perPage, page)`, `listExperiments(perPage, page, projectId = ...)`, `createExperiment(optimizely:Experiment)` and `listAttributes(projectId, perPage, page)`; and `journey.io` (`ApiKeysConfig` `{xApiKey}`) `upsertUser(payload)`, `upsertAccount(payload)`, `trackJourneyEvent(payload)` and `link(payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/optimizely", kind: github, note: "optimizely client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/journey.io", kind: github, note: "journey.io client.bal"}
+  - id: text_anomaly_analytics
+    text: "Analyse text and sensor data: `text2data` (`ApiKeysConfig` `{privateKey}`) `analyzePost(text2data:Document)` for sentiment, `categorizePost` and `extractPost`; and `siemens.analytics.anomalydetection` (bearer/OAuth2, required `serviceUrl`) `detectAnomalyBatchModelTraining(payload)`, `detectAnomaliesbatchreasoning(payload)` and `getJobStatus(id)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/text2data", kind: github, note: "text2data client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/siemens.analytics.anomalydetection", kind: github, note: "anomalydetection client.bal"}
+  - id: scraping_verification
+    text: "Scrape pages and verify contacts: `webscraping.ai` (`{apiKey}`) `getHTML(url, ...)`, `getSelected(url, selector = ...)`, `getSelectedMultiple` and `account()`; and `neutrino` (`ApiKeysConfig` `{userId, apiKey}`) `sendSMS(payload)`, `verifyPhone(payload)`, `verifySMS` and `lookupHLR`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/webscraping.ai", kind: github, note: "webscraping.ai client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/neutrino", kind: github, note: "neutrino client.bal"}
+  - id: company_world_data
+    text: "Fetch company, economic and sensor data: `owler` (`{userKey}`) `basicCompanySearch(q, format = ...)` and `getCompetitorInformationByUrl(website, format)`; no-auth `worldbank` `getPopulationByCountry(countryCode)`, `getGDPByCountry(countryCode)` and `getGDP()`; and `optirtc.public` (`{'key}`) `datastream()` and `datapointGetRange(dataStreamId)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/owler", kind: github, note: "owler client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/worldbank", kind: github, note: "worldbank client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/optirtc.public", kind: github, note: "optirtc.public client.bal"}
+  - id: thinkific_courses
+    text: "Use `thinkific:Client` with a bearer token or an `ApiKeysConfig` `{xAuthApiKey, xAuthSubdomain}` in `auth` to create users with `createUser(thinkific:CreateUserRequest)`, enroll them with `createEnrollment(thinkific:CreateEnrollmentRequest)`, and work with bundles via `getBundleByID`, `listCoursesByBundleId(id, page, 'limit)` and `createEnrollmentInBundle(id, payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/thinkific", kind: github, note: "thinkific client.bal"}
+out_of_scope:
+  - "The `wso2.apim.catalog:Listener` type (not documented in the README)"
+  - "WSO2 Integration Control Plane support (connector.area_other, ballerinax/wso2.controlplane)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [generated_client_shape, power_bi_datasets, quickbase_records]}
+  - {to: concept.resource_methods, rel: uses, via: [apim_catalog_client]}
+  - {to: concept.modules_imports, rel: uses, via: [apim_catalog_publish], note: "import ... as _ to include the publisher"}
+  - {to: concept.services_listeners, rel: uses, via: [apim_catalog_publish]}
+  - {to: lib.http, rel: uses, via: [generated_client_shape, quickbase_records, apim_catalog_publish]}
+  - {to: lib.oauth2, rel: uses, via: [apim_catalog_client, leanix_sync], note: "OAuth2 password and client-credentials grants"}
+  - {to: tool.ballerina_toml, rel: uses, via: [apim_catalog_publish], note: "remoteManagement build option"}
+  - {to: tool.config_toml, rel: uses, via: [apim_catalog_publish]}
+notes: "wso2.apim.catalog items come from its Central README and API docs (1.3.0); it has no sourceCodeLocation on Central. All other packages have stub READMEs; their items come from openapi-connectors client.bal and the Central API docs for the listed version. Thinkific's ConnectionConfig `auth` accepts `BearerTokenConfig|ApiKeysConfig` per the API docs."

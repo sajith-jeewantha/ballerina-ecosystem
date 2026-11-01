@@ -1,0 +1,67 @@
+schema_version: "0.2"
+id: lib.messaging
+type: library
+title: ballerina/messaging
+summary: "A message store abstraction for guaranteed delivery: the `messaging:Store` client object interface, an in-memory implementation, and a polling `messaging:StoreListener` that dispatches stored messages to a service with retries and an optional dead-letter store."
+priority: important
+status: draft
+modules: [ballerina/messaging]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "ballerina/messaging 1.0.1 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-messaging/tree/main/ballerina", kind: github, note: "msg_store.bal, msg_listener.bal, msg_store_service.bal, inmemory_msg_store.bal"}
+must_cover:
+  - id: store_interface
+    text: "Use the `messaging:Store` client object interface with remote methods `store(anydata payload) returns error?`, `retrieve() returns messaging:Message|error?` (a `{id, payload}` record, or `()` when empty) and `acknowledge(string id, boolean success = true) returns error?`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "Message Store Interface"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-messaging/blob/main/ballerina/msg_store.bal", kind: github}
+  - id: in_memory_store
+    text: "Create an in-memory store with `messaging:Store msgStore = new messaging:InMemoryMessageStore();` and produce messages with `check msgStore->store(payload)`, for example from an HTTP resource that returns `http:ACCEPTED`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "Example"}
+      - {url: "https://ballerina.io/learn/by-example/in-memory-message-store/", kind: bbe}
+  - id: custom_store
+    text: "Implement a custom message store as an `isolated client class` that includes `*messaging:Store` and implements `store`, `retrieve` and `acknowledge`, marking retrieved messages in flight until acknowledged"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-messaging/blob/main/ballerina/inmemory_msg_store.bal", kind: github, note: "InMemoryMessageStore implements *Store"}
+      - {url: "https://ballerina.io/learn/by-example/message-store-type/", kind: bbe}
+  - id: store_listener
+    text: "Declare `listener messaging:StoreListener msgStoreListener = new (msgStore, pollingInterval = 10, maxRetries = 2, retryInterval = 2);` to poll a store and dispatch messages"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-messaging/blob/main/ballerina/msg_listener.bal", kind: github, note: "StoreListener init(Store messageStore, *StoreListenerConfiguration config)"}
+      - {url: "https://ballerina.io/learn/by-example/message-store-listener/", kind: bbe}
+  - id: store_service
+    text: "Attach a `messaging:StoreService` with `service on msgStoreListener { isolated remote function onMessage(anydata payload) returns error? { ... } }`, where returning nil acknowledges the message and returning an error triggers retries"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "Message Store Service"}
+  - id: retry_config
+    text: "Tune processing retries with `messaging:StoreListenerConfiguration` fields `pollingInterval`, `maxRetries` (0 disables retry), `retryInterval` and `ackWithFailureAfterMaxRetries`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "Store Listener configuration"}
+  - id: dead_letter_store
+    text: "Configure `deadLetterStore` with another `messaging:Store` so a message that still fails after `maxRetries` is stored there and acknowledged with success"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/messaging/latest", kind: central, note: "Store Listener configuration; Message Store Service"}
+      - {url: "https://ballerina.io/learn/by-example/message-store-listener/", kind: bbe}
+  - id: listener_errors
+    text: "Handle `messaging:Error` from `StoreListener` initialisation (for example a negative `maxRetries` or a non-positive `pollingInterval`) and from `attach`, `start`, `gracefulStop` and `immediateStop`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-messaging/blob/main/ballerina/msg_listener.bal", kind: github}
+out_of_scope:
+  - "Message store implementations backed by external brokers (connector nodes)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [store_interface, custom_store]}
+  - {to: concept.services_listeners, rel: uses, via: [store_listener, store_service]}
+  - {to: concept.classes, rel: uses, via: [custom_store]}
+  - {to: concept.isolation, rel: uses, via: [custom_store, store_service]}
+  - {to: lib.http, rel: uses, via: [in_memory_store]}
+  - {to: lib.workflow, rel: related, note: "Store-and-forward delivery vs durable per-step workflows; the workflow docs compare the two"}
+notes: "The README is inconsistent with the source: it names the interface `MessageStore`, the listener `messaging:Listener` and the service type `Service`, and calls `msgStore.store(payload)`; the 1.0.1 source names them `messaging:Store`, `messaging:StoreListener` and `messaging:StoreService`, and `store` is a remote method (`->`). Items use the source names. `InMemoryMessageStore->store` returns nothing (no error) in the source."

@@ -1,0 +1,145 @@
+schema_version: "0.2"
+id: topic.data_services
+type: topic
+title: Data services
+summary: "Building data services in Ballerina: exposing relational tables over HTTP with the `mysql`/`sql` clients or with `bal persist` generated clients, and shaping the data with record types, query expressions and transactions."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs, note: "Build a data service in Ballerina (MySQL Employees CRUD service)"}
+  - {url: "https://ballerina.io/learn/manage-data-persistence-with-bal-persist/", kind: docs, note: "Manage data persistence with bal persist (rainier store data service)"}
+  - {url: "https://ballerina.io/learn/supported-data-stores/", kind: docs, note: "bal persist data stores"}
+  - {url: "https://ballerina.io/learn/work-with-data-using-queries-in-ballerina/", kind: docs, note: "Work with data using queries"}
+  - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe, note: "Database access BBE category"}
+must_cover:
+  - id: mysql_rest_crud
+    text: "Expose a MySQL `Employees` table as a REST resource: declare `service /employees on new http:Listener(8080)` with `resource function post .(@http:Payload Employee emp)`, `get [int id]()`, `get .()`, `put .(...)` and `delete [int id]()` that call functions backed by a module-level `final mysql:Client dbClient`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs}
+  - id: db_config_and_driver
+    text: "Connect to the database with `final mysql:Client dbClient = check new (host = HOST, user = USER, password = PASSWORD, port = PORT, database = \"Company\")` from `configurable` variables set in `Config.toml`, bundling the JDBC driver with `import ballerinax/mysql.driver as _;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs}
+  - id: row_record_type
+    text: "Model a table row as a closed record such as `type Employee record {| int employee_id?; string first_name; time:Date hire_date; int? manager_id; ... |};`, using an optional field for the auto-increment key and `time:Date` for a `DATE` column"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs}
+  - id: service_owned_client
+    text: "Hold the database client in the service itself with `private final mysql:Client db;` initialized in the service's `function init() returns error?` via `self.db = check new (\"localhost\", \"root\", \"Test@123\", \"MUSIC_STORE\", 3306);`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe}
+  - id: query_to_json_array
+    text: "Return all rows from a resource with `resource function get albums() returns Album[]|error` by running `self.db->query(...)` with a `SELECT * FROM albums` raw template into a `stream<Album, sql:Error?>` and collecting it with `from Album album in albumStream select album`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-operation/", kind: bbe}
+  - id: query_row_not_found
+    text: "Look up one row by path parameter with `self.db->queryRow(...)` on a `SELECT * FROM albums WHERE id = ${id}` raw template and map `sql:NoRowsError` to `http:NOT_FOUND` in a resource returning `Album|http:NotFound|error`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-row-operation/", kind: bbe}
+  - id: column_mapping
+    text: "Map snake_case columns to camelCase record fields with `@sql:Column {name: \"artist_id\"}` on the fields of the row record returned by a resource"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-query-column-mapping/", kind: bbe}
+  - id: write_execution_result
+    text: "Insert, update and delete rows with `dbClient->execute(...)` on parameterized raw templates such as `INSERT INTO Employees (...) VALUES (${emp.first_name}, ...)` and return the generated key from `sql:ExecutionResult.lastInsertId` or the count from `affectedRowCount`, erroring when they are not `int`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs}
+      - {url: "https://ballerina.io/learn/by-example/mysql-execute-operation/", kind: bbe}
+  - id: batch_insert_endpoint
+    text: "Accept an `Album[]` payload in a `post` resource, build `sql:ParameterizedQuery[] insertQueries` with a query expression `from Album album in albums select` an `INSERT INTO albums ... VALUES (${album.id}, ...)` template, run `self.db->batchExecute(insertQueries)` and return `http:CREATED`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-batch-execute-operation/", kind: bbe}
+  - id: transactional_order
+    text: "Place an order atomically in a `transaction` block that inserts into `sales_order` and decrements `inventory`, calling `rollback` when `affectedRowCount == 0` and `check commit` otherwise, and inspecting `sql:DatabaseError` (e.g. `errorCode` 3819) in `on fail error e`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-atomic-transaction/", kind: bbe}
+  - id: stored_procedure_resource
+    text: "Serve a stored-procedure result from a resource: pass `sql:DateValue` and `sql:IntegerOutParameter` to `self.db->call(...)` with a `{CALL get_sales_order(${filterDate}, ${total})}` template and `[Order]` as the row types, read `total.get()`, iterate `result.queryResult` and `result.close()` the `sql:ProcedureCallResult`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/mysql-call-stored-procedures/", kind: bbe}
+  - id: other_relational_dbs
+    text: "Apply the same data-service code to PostgreSQL, SQL Server or Oracle by replacing `mysql:Client` with `postgresql:Client`, `mssql:Client` or `oracledb:Client`, since they share the `sql` client API (`query`, `queryRow`, `execute`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/build-a-data-service-in-ballerina/", kind: docs}
+  - id: persist_setup
+    text: "Set up `bal persist` in a package with `bal persist init` (creates `persist/model.bal`), define entities such as `public type Employee record {| readonly string id; ... |};` importing `ballerina/persist as _`, and generate the `store` module with `bal persist generate --datastore inmemory --module store` or integrate generation into `bal build` with `bal persist add`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-data-persistence-with-bal-persist/", kind: docs}
+      - {url: "https://ballerina.io/learn/supported-data-stores/", kind: docs}
+  - id: persist_rest_service
+    text: "Expose a `bal persist` entity over HTTP with a `final store:Client sClient = check new ();` and resources that call `sClient->/employees.post([emp])` (with `store:EmployeeInsert`), `sClient->/employees/[id]`, `sClient->/employees` (a stream collected with a query), `sClient->/employees/[id].put(emp)` (with `store:EmployeeUpdate`) and `sClient->/employees/[id].delete()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-data-persistence-with-bal-persist/", kind: docs}
+  - id: persist_projection_filter
+    text: "Fetch a subset of fields by targeting a smaller record such as `EmployeeName` in `stream<EmployeeName, persist:Error?> s = sClient->/employees;`, and filter, sort and limit the stream with `where`, `order by e.firstName ascending` and `limit 2` in a query"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-select-fields/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/persist-filtering/", kind: bbe}
+  - id: persist_relations_not_found
+    text: "Return related entities as nested records (e.g. `record {| ...; record {| string id; string workspaceType; |} workspace; |}` for one-to-one or an array field for one-to-many) and detect a missing key by testing the result for `persist:NotFoundError`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/persist-relation-queries/", kind: bbe}
+      - {url: "https://ballerina.io/learn/manage-data-persistence-with-bal-persist/", kind: docs}
+  - id: persist_sql_datastore
+    text: "Back the persist client with a relational database using `bal persist generate --datastore mysql` (or `mssql`, `postgresql`, `h2`), set `host`, `port`, `user`, `password` and `database` under `[<packageName>.<moduleName>]` in `Config.toml`, and create the tables by running the generated `script.sql`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/supported-data-stores/", kind: docs}
+  - id: persist_sheets_redis
+    text: "Use the experimental `googlesheets` data store (configure `spreadsheetId`, `clientId`, `clientSecret`, `refreshToken` and run the generated `script.gs`) or the `redis` data store (configure `connectionConfig.connection = \"redis://localhost:6379\"` and `cacheConfig.maxAge`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/supported-data-stores/", kind: docs}
+  - id: persist_native_sql
+    text: "Run hand-written SQL that the generated resource methods cannot express through the extra remote methods generated for SQL data stores, `sClient->queryNativeSQL(...)` and `sClient->executeNativeSQL(...)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-data-persistence-with-bal-persist/", kind: docs, note: "Mentions two additional remote functions for SQL data stores"}
+  - id: in_memory_table_queries
+    text: "Query an in-memory dataset `table<CovidEntry> key(iso_code)` with query expressions: filter with `where entry.cases > noOfCases`, rank with `order by entry.deaths descending limit n`, combine with `join string country in countries on entry.country equals country` and compute with `let decimal sum = ...`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-data-using-queries-in-ballerina/", kind: docs}
+out_of_scope:
+  - "Full `sql` client API and connection pool tuning (lib.sql)"
+  - "Data model definition rules and relation annotations for `bal persist` (lib.persist, tool.bal_persist)"
+  - "Change data capture services (connector.cdc, topic.event_driven)"
+  - "REST API design details such as status-code records and interceptors (topic.rest_api)"
+edges:
+  - {to: connector.mysql, rel: uses, via: [mysql_rest_crud, db_config_and_driver, service_owned_client, query_to_json_array, query_row_not_found, column_mapping, write_execution_result, batch_insert_endpoint, transactional_order, stored_procedure_resource]}
+  - {to: lib.sql, rel: uses, via: [query_to_json_array, query_row_not_found, column_mapping, write_execution_result, batch_insert_endpoint, transactional_order, stored_procedure_resource, other_relational_dbs]}
+  - {to: lib.http, rel: uses, via: [mysql_rest_crud, service_owned_client, query_to_json_array, query_row_not_found, batch_insert_endpoint, persist_rest_service]}
+  - {to: lib.persist, rel: uses, via: [persist_setup, persist_rest_service, persist_projection_filter, persist_relations_not_found, persist_sql_datastore, persist_sheets_redis, persist_native_sql]}
+  - {to: tool.bal_persist, rel: uses, via: [persist_setup, persist_sql_datastore, persist_sheets_redis]}
+  - {to: connector.postgresql, rel: uses, via: [other_relational_dbs, persist_sql_datastore]}
+  - {to: connector.mssql, rel: uses, via: [other_relational_dbs, persist_sql_datastore]}
+  - {to: connector.oracledb, rel: uses, via: [other_relational_dbs]}
+  - {to: connector.redis, rel: uses, via: [persist_sheets_redis]}
+  - {to: tool.config_toml, rel: uses, via: [db_config_and_driver, persist_sql_datastore, persist_sheets_redis]}
+  - {to: lib.time, rel: uses, via: [row_record_type]}
+  - {to: concept.records, rel: uses, via: [row_record_type, persist_projection_filter, persist_relations_not_found]}
+  - {to: concept.annotations, rel: uses, via: [column_mapping]}
+  - {to: concept.query_expressions, rel: uses, via: [query_to_json_array, batch_insert_endpoint, persist_projection_filter, in_memory_table_queries]}
+  - {to: concept.streams, rel: uses, via: [query_to_json_array, persist_rest_service, persist_projection_filter]}
+  - {to: concept.tables, rel: uses, via: [in_memory_table_queries]}
+  - {to: concept.transactions, rel: uses, via: [transactional_order]}
+  - {to: concept.errors, rel: uses, via: [query_row_not_found, transactional_order, persist_relations_not_found]}
+  - {to: concept.resource_methods, rel: uses, via: [mysql_rest_crud, persist_rest_service]}
+  - {to: topic.rest_api, rel: related}
+notes: "The data-service tutorial also shows adding the MySQL driver through `[[platform.java11.dependency]]` in Ballerina.toml; that form targets an old Java platform and is left out. The native-SQL item relies on the tutorial's note about two extra remote methods and on the method names recorded in lib.persist (`queryNativeSQL`, `executeNativeSQL`). The `other_relational_dbs` item follows the tutorial's statement that the methodology applies to PostgreSQL, SQL Server and Oracle; client-specific constructor parameters are not covered here."

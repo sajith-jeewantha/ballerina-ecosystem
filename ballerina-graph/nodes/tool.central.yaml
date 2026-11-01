@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: tool.central
 type: tool
 title: Ballerina Central
@@ -57,11 +57,20 @@ must_cover:
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs}
+      - {url: "https://ballerina.io/learn/custom-repositories/set-up-artifactory/", kind: docs}
+      - {url: "https://ballerina.io/learn/custom-repositories/set-up-nexus/", kind: docs}
   - id: proxy_central
-    text: "Send all Central traffic through a Maven proxy repository with a single `[[repository.maven]]` entry marked `proxyCentral = true` (more than one such entry is an error)"
+    text: "Send all Central traffic through a Maven proxy repository with a single `[[repository.maven]]` entry marked `proxyCentral = true` (more than one such entry is an error), where the Nexus or Artifactory proxy repository points at `https://api.central.ballerina.io/2.0/maven`"
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Proxy Ballerina Central with a Maven repository"}
+      - {url: "https://ballerina.io/learn/custom-repositories/set-up-nexus/", kind: docs}
+      - {url: "https://ballerina.io/learn/custom-repositories/set-up-artifactory/", kind: docs}
+  - id: sbom_publish
+    text: "Publish a CycloneDX SBOM with a package: from distribution 2201.13.6 `bal pack` writes the SBOM next to the `.bala`, and `bal push --repository <id>` uploads it as `<package-name>-<version>.cdx.json` so a scanner such as JFrog Xray can scan a private repository"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/custom-repositories/set-up-artifactory/", kind: docs}
   - id: network_proxy
     text: "Reach Central through an HTTP proxy by adding `[proxy]` with `host`, `port`, `username` and `password` to `Settings.toml`"
     difficulty: [intermediate]

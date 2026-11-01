@@ -1,0 +1,89 @@
+schema_version: "0.2"
+id: connector.area_messaging
+type: connector
+title: "Messaging connectors"
+summary: "Ballerina connectors for message brokers outside the dedicated broker nodes: Google Cloud Pub/Sub (publisher and pull listener) and Solace PubSub+ through the native JCSMP API (`ballerinax/solace`) or JMS (`ballerinax/solace.jms`)."
+priority: long_tail
+status: draft
+modules: [ballerinax/gcloud.pubsub, ballerinax/solace, ballerinax/solace.jms]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/gcloud.pubsub/latest", kind: central, note: "ballerinax/gcloud.pubsub README"}
+  - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "ballerinax/solace README"}
+  - {url: "https://central.ballerina.io/ballerinax/solace.jms/latest", kind: central, note: "ballerinax/solace.jms README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-gcloud.pubsub/tree/main/ballerina", kind: github, note: "gcloud.pubsub 1.0.0 publisher, listener, caller, types"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-solace/tree/main/ballerina", kind: github, note: "solace 1.2.0 message_producer, message_consumer, caller, types"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-solace.jms/tree/main/ballerina", kind: github, note: "solace.jms 1.1.0 producer, consumer, listener, types"}
+must_cover:
+  - id: pubsub_publisher
+    text: "Create a `pubsub:Publisher` with `check new (project, topic, auth = {path: gcpCredentialsFilePath})` (service-account JSON) and publish with `publisher->publish({data: \"Hello\".toBytes()})`, which returns the message id; close it with `publisher->close()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/gcloud.pubsub/latest", kind: central, note: "Quickstart steps 2-4"}
+  - id: pubsub_publish_options
+    text: "Publish Pub/Sub messages with `attributes` (`map<string>`) and an `orderingKey` (with `enableMessageOrdering: true`), and tune the publisher with `batchConfig` (`maxDelay`, `maxMessageCount`, `maxBytes`), `compression` and `retryConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/gcloud.pubsub/latest", kind: central, note: "Publish with attributes / ordering key"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-gcloud.pubsub/tree/main/ballerina/types.bal", kind: github, note: "PublisherConfiguration, BatchConfig"}
+  - id: pubsub_listener
+    text: "Consume a subscription with `listener pubsub:Listener l = check new (project, auth = {path: ...})` and a service annotated `@pubsub:ServiceConfig {subscription}` whose `remote function onMessage(pubsub:Message message, pubsub:Caller caller)` decodes `message.data` and calls `caller->ack()` or `caller->nack()` on failure; tune `flowControlSettings` and `parallelPullCount` in the annotation"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/gcloud.pubsub/latest", kind: central, note: "Quickstart steps 5-6"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-gcloud.pubsub/tree/main/ballerina/types.bal", kind: github, note: "ServiceConfiguration, FlowControlConfig"}
+  - id: solace_producer
+    text: "Create a `solace:MessageProducer` with `check new (brokerUrl, messageVpn = vpnName, auth = {username, password})` and send with `producer->send({payload: \"...\"}, {queueName})` or to a topic with `{topicName}`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "Quickstart"}
+  - id: solace_guaranteed
+    text: "Send a guaranteed message with `producer->sendAwaitAcknowledgement({payload, deliveryMode: solace:PERSISTENT}, {queueName}, timeout = 10)` and distinguish `solace:PublishRejectedError` (broker rejected) from other `solace:Error` values; choose `solace:DIRECT` for at-most-once delivery"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "Produce a guaranteed message"}
+  - id: solace_consumer
+    text: "Pull messages with a `solace:MessageConsumer` created with `subscriptionConfig = {queueName}` (or a `topicName` with `durability`), calling `consumer->receive(5.0)` or `receiveNoWait()`, and with `ackMode: solace:CLIENT_ACK` acknowledge each message with `consumer->ack(message)` or `consumer->nack(message, requeue = false)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "Retrieve a message"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace/tree/main/ballerina/message_consumer.bal", kind: github, note: "receive, ack, nack"}
+  - id: solace_listener
+    text: "Push-consume with `listener solace:Listener l = check new (brokerUrl, messageVpn = ..., auth = {...})` and a service annotated `@solace:ServiceConfig {queueName}` (or `topicName`) implementing `remote function onMessage(solace:Message message) returns error?`, acknowledging through `solace:Caller` when `ackMode` is `CLIENT_ACK`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "Initialize a solace:Listener"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace/tree/main/examples", kind: github, note: "examples (order-fulfillment, live-price-alerts)"}
+  - id: solace_transactions_security
+    text: "Use a transacted Solace session with `transacted: true` and `producer->'commit()`/`'rollback()` (also on consumers and `Caller`), and secure connections with `secureSocket` (`TrustStore`/`KeyStore`, `Protocol`, cipher suites) and Kerberos or OAuth2/OIDC `auth` configurations"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace/tree/main/ballerina/types.bal", kind: github, note: "CommonConnectionConfiguration, AuthConfiguration, SecureSocket"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace/tree/main/examples", kind: github, note: "examples/transactional-inventory-sync"}
+  - id: solace_message_properties
+    text: "Read message metadata on `solace:Message` such as `properties`, and the HTTP content type and encoding of REST-published messages via `properties[solace:HTTP_CONTENT_TYPE_PROP]` and `properties[solace:HTTP_CONTENT_ENCODING_PROP]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace/latest", kind: central, note: "Advanced usage"}
+  - id: solace_jms_producer_consumer
+    text: "Use `ballerinax/solace.jms`: create `jms:MessageProducer` and `jms:MessageConsumer` with `check new (brokerUrl, destination = {queueName}, messageVpn = ..., auth = {username, password})`, send with `producer->send({payload: \"...\"})` and receive with `consumer->receive(5.0)` returning `jms:Message?`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/solace.jms/latest", kind: central, note: "Quickstart"}
+  - id: solace_jms_listener_ack
+    text: "Consume with a `jms:Listener` and `@jms:ServiceConfig {queueName}` service `remote function onMessage(jms:Message message)`, choosing a `jms:AcknowledgementMode` (`AUTO_ACKNOWLEDGE`, `CLIENT_ACKNOWLEDGE`, `DUPS_OK_ACKNOWLEDGE`, `SESSION_TRANSACTED`) and calling `caller->ack(message)` or `'commit()`/`'rollback()`; set JMS fields such as `deliveryMode`, `priority`, `timeToLive`, `correlationId` and `replyTo` on `jms:Message`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace.jms/tree/main/ballerina/types.bal", kind: github, note: "AcknowledgementMode, Message"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-solace.jms/tree/main/examples", kind: github, note: "examples"}
+out_of_scope:
+  - "Creating Solace queues (done in PubSub+ Manager; the connector does not create durable queues)"
+  - "Pub/Sub topic and subscription administration"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [pubsub_publisher, solace_producer, solace_consumer, solace_jms_producer_consumer]}
+  - {to: concept.services_listeners, rel: uses, via: [pubsub_listener, solace_listener, solace_jms_listener_ack]}
+  - {to: concept.annotations, rel: uses, via: [pubsub_listener, solace_listener]}
+  - {to: concept.errors, rel: uses, via: [solace_guaranteed]}
+  - {to: lib.crypto, rel: uses, via: [solace_transactions_security]}
+  - {to: topic.event_driven, rel: uses, via: [pubsub_listener, solace_listener]}
+  - {to: connector.java_jms, rel: related, note: "solace.jms follows the JMS model"}
+notes: "Versions verified against module repos: gcloud.pubsub 1.0.0, solace 1.2.0, solace.jms 1.1.0. The pubsub README listener snippet passes `projectId = projectId`; the source signature is `init(string project, *ListenerConfiguration config)` with only `auth`, so items use that. No BBEs exist."

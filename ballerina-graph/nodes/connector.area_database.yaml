@@ -1,0 +1,64 @@
+schema_version: "0.2"
+id: connector.area_database
+type: connector
+title: "Database connectors"
+summary: "The Snowflake connector (`ballerinax/snowflake`) and its JDBC driver package: `snowflake:Client` and `snowflake:AdvancedClient` implement the `sql:Client` API against a Snowflake warehouse with password or key-pair authentication."
+priority: long_tail
+status: draft
+modules: [ballerinax/snowflake, ballerinax/snowflake.driver]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "ballerinax/snowflake README"}
+  - {url: "https://central.ballerina.io/ballerinax/snowflake.driver/latest", kind: central, note: "ballerinax/snowflake.driver README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-snowflake/blob/main/ballerina/client.bal", kind: github, note: "Client init, Options, BasicAuth, KeyBasedAuth"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-snowflake/blob/main/ballerina/advanced_client.bal", kind: github, note: "AdvancedClient init"}
+must_cover:
+  - id: driver_import
+    text: "Add the Snowflake JDBC driver with `import ballerinax/snowflake.driver as _;` next to `import ballerinax/snowflake;` and `import ballerina/sql;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake.driver/latest", kind: central, note: "Usage"}
+  - id: client_init
+    text: "Create a `snowflake:Client` with `check new (accountIdentifier, user, password)` (optionally `options` and a `sql:ConnectionPool`), which connects to `jdbc:snowflake://<accountIdentifier>.snowflakecomputing.com/`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Quickstart step 3"}
+  - id: key_pair_auth
+    text: "Use key-pair authentication with `snowflake:AdvancedClient` `check new (accountIdentifier, authConfig, options)` where `authConfig` is a `snowflake:KeyBasedAuth` (`user`, `privateKeyPath` to a PKCS#8 `.p8` key encrypted with `-v2 aes256`, `privateKeyPassphrase`) or `snowflake:BasicAuth` (`user`, `password`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Configure key-pair authentication"}
+  - id: options_jdk
+    text: "Set Snowflake JDBC properties through `snowflake:Options {properties: {\"JDBC_QUERY_RESULT_FORMAT\": \"JSON\"}}` (and optional `datasourceName`), needed on Java 16+ together with `JDK_JAVA_OPTIONS=\"--add-opens java.base/java.nio=ALL-UNNAMED\"`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Quickstart note"}
+  - id: ddl_dml
+    text: "Run DDL and DML with `snowflakeClient->execute(`CREATE TABLE COMPANY_DB.PUBLIC.EMPLOYEES (...)`)` and `execute(`INSERT INTO ...`)`, reading the `sql:ExecutionResult`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Execute a DDL/DML command"}
+  - id: query_rows
+    text: "Query into records with `stream<Employee, error?> s = snowflakeClient->query(`SELECT * FROM COMPANY_DB.PUBLIC.EMPLOYEES`)` and fetch a single row with `snowflakeClient->queryRow(`SELECT ... WHERE ID = ${id}`)`, using parameterized query interpolation"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Execute a query"}
+  - id: batch_and_procedures
+    text: "Execute several inserts with `snowflakeClient->batchExecute([...])` returning `sql:ExecutionResult[]`, and call a stored procedure with `snowflakeClient->call(`{call PROCEDURES_DB.PUBLIC.SELECT_EMPLOYEE_DATA(1)}`, [Employee])`, reading `ret.queryResult`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/snowflake/latest", kind: central, note: "Batch DML, stored procedure"}
+  - id: http_service
+    text: "Expose Snowflake data through an HTTP service that holds a `final snowflake:Client` and maps `query` results to JSON responses, as in the employees-db example"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-snowflake/tree/master/examples/employees-db", kind: github, note: "examples/employees-db"}
+out_of_scope:
+  - "Generic sql:Client semantics, typed parameters and errors (lib.sql)"
+edges:
+  - {to: lib.sql, rel: implements, via: [ddl_dml, query_rows, batch_and_procedures, client_init]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, key_pair_auth]}
+  - {to: concept.streams, rel: uses, via: [query_rows]}
+  - {to: concept.records, rel: uses, via: [query_rows]}
+  - {to: lib.http, rel: uses, via: [http_service]}
+  - {to: concept.modules_imports, rel: uses, via: [driver_import]}
+notes: "snowflake 2.2.2 verified against module source (matches Central); snowflake.driver 2.8.1 bundles Snowflake JDBC 3.14.4. No BBEs exist."

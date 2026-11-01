@@ -1,0 +1,133 @@
+schema_version: "0.2"
+id: lib.workflow
+type: library
+title: ballerina/workflow
+summary: "Durable, long-running workflows written as plain Ballerina functions: `@workflow:Workflow` functions orchestrate `@workflow:Activity` functions through a `workflow:Context`, and the engine (Temporal, or an in-memory engine for development) records every step so a crashed or redeployed program replays history and resumes without re-running completed activities."
+priority: important
+status: draft
+modules: [ballerina/workflow]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/workflow/latest", kind: central, note: "ballerina/workflow 1.0.2 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/tree/v1.0.2", kind: github, note: "Source and docs at the v1.0.2 tag (context.bal, functions.bal, types.bal, config.bal, docs/*.md)"}
+  - {url: "https://ballerina.io/learn/write-a-workflow-with-ballerina/", kind: docs}
+  - {url: "https://ballerina.io/learn/write-a-workflow-with-a-human-task/", kind: docs}
+  - {url: "https://ballerina.io/learn/handle-errors-and-replay-failed-activities-in-workflows/", kind: docs}
+must_cover:
+  - id: workflow_function
+    text: "Declare a workflow with `@workflow:Workflow` on a function whose first parameter is `workflow:Context ctx`, optionally followed by an `anydata` input and an events record, returning an `anydata` subtype or `error` (at most 3 parameters; missing context is `WORKFLOW_100`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-workflow-functions.md", kind: github, note: "Function Signature"}
+  - id: activity_function
+    text: "Declare an activity with `@workflow:Activity` on a function whose parameters are `anydata` subtypes and whose return type is an `anydata` subtype or `error` (or `error?`), keeping all I/O, API calls and database work in activities rather than in the workflow"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-activity-functions.md", kind: github, note: "Define an Activity; Parameter and Return Type Rules"}
+  - id: call_activity
+    text: "Call an activity only through `ctx->callActivity(checkInventory, {\"item\": request.item})` with an args map keyed by the activity's parameter names, binding the inferred result type (use `() _ = check ctx->callActivity(...)` for `error?` activities); a direct call inside a workflow is compile error `WORKFLOW_108`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-activity-functions.md", kind: github, note: "Calling an activity that returns error?; Compile-Time Validation"}
+  - id: start_workflow
+    text: "Start an instance with `string workflowId = check workflow:run(processOrder, input);` from `main`, an HTTP resource or any other entry point, returning the workflow ID to the caller instead of blocking"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/write-a-workflow-with-ballerina/", kind: docs, note: "Start the workflow"}
+  - id: run_with_id
+    text: "Start an instance under a business key with `workflow:runWithId(processOrder, order.orderId, order, ifRunning = workflow:USE_EXISTING, ifClosed = workflow:REJECT_DUPLICATE)` and handle `workflow:InstanceAlreadyExistsError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-workflow-functions.md", kind: github, note: "Start Under Your Own Id"}
+  - id: read_results
+    text: "Read an instance's outcome with `workflow:getResult(id)` (returns `workflow:WorkflowInProgressError` while running), `workflow:waitForResult(id, timeout = {seconds: 5})` and `workflow:getStatus(id)`, handling `workflow:InstanceFailedError` and `workflow:InstanceNotFoundError` (the older `workflow:getWorkflowResult(id, timeoutSeconds)` is a deprecated blocking alias)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-workflow-functions.md", kind: github, note: "Get Workflow Results"}
+  - id: determinism_replay
+    text: "Keep workflow code deterministic so the engine can replay its event history after a crash: use `ctx.currentTime()` instead of `time:utcNow()` (`WORKFLOW_113`), wrap random values and external calls in activities, check `ctx.isReplaying()` before side effects such as logging, and read `ctx.getWorkflowId()`/`ctx.getWorkflowType()` for correlation"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-workflow-functions.md", kind: github, note: "Determinism Rules; Check Replay Status; Get Workflow Metadata"}
+  - id: unsupported_concurrency
+    text: "Avoid `worker`, `fork` and `start` inside a workflow function (compile errors `WORKFLOW_118`, `WORKFLOW_119`, `WORKFLOW_120`) and call activities sequentially instead"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-workflow-functions.md", kind: github, note: "Unsupported Language Features"}
+  - id: durable_sleep
+    text: "Pause durably with `check ctx.sleep({hours: 24});` (a timer that survives restarts) instead of `runtime:sleep()`, for reminders and timeouts"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/key-concepts.md", kind: github, note: "Timer Events"}
+  - id: external_data
+    text: "Receive external data by declaring an events parameter `record {| future<ApprovalDecision> approval; |} events`, waiting with `check wait events.approval`, and delivering it with `workflow:sendData(orderWithApproval, workflowId, \"approval\", data)` where the data name matches the field name"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/handle-data.md", kind: github, note: "Add an Events Parameter; Send Data to a Running Workflow"}
+  - id: multi_future_await
+    text: "Wait on several event futures with `ctx->await([events.a, events.b])` (all), `ctx->await([f1, f2], 1)` (first wins), `ctx->await([f1, f2, f3], 2)` (quorum) or `ctx->await([...], timeout = {hours: 48})`, binding the positional tuple result (nilable members for partial waits)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/handle-data.md", kind: github, note: "ctx->await — Full API Reference"}
+  - id: human_task
+    text: "Pause for a person with `ApprovalDecision decision = check ctx->awaitHumanTask(\"approveClaim\", {claimId: claim.claimId}, userRoles = \"MANAGER\", title = ..., description = ..., timeout = {days: 3});`, where the bound type drives the task's form schema and validation"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/patterns/human-in-the-loop.md", kind: github, note: "Pause for Human Approval"}
+      - {url: "https://ballerina.io/learn/write-a-workflow-with-a-human-task/", kind: docs}
+  - id: human_task_errors
+    text: "Handle human task outcomes in a `do { ... } on fail workflow:HumanTaskError e` block, distinguishing `workflow:HumanTaskTimeoutError`, `workflow:HumanTaskRejectedError` and `workflow:HumanTaskFailedError` (for example to escalate on timeout)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/patterns/human-in-the-loop.md", kind: github, note: "Handling Rejection and Timeout"}
+  - id: complete_human_task
+    text: "Complete a pending task from code with `workflow:completeHumanTask(taskId, decision)` and list tasks with `management:listPendingHumanTasks(workflowId)` from `ballerina/workflow.management`, or over the management API with `GET /workflow/human-tasks?status=PENDING` and `POST /workflow/human-tasks/{taskId}/complete` carrying `x-user-id` and `x-user-roles` headers"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/patterns/human-in-the-loop.md", kind: github, note: "List and Complete Tasks"}
+      - {url: "https://ballerina.io/learn/write-a-workflow-with-a-human-task/", kind: docs, note: "Enable the management API"}
+  - id: activity_errors
+    text: "Handle activity failures as values: capture `string|error result = ctx->callActivity(...)` to fall back to another activity or run compensating activities (saga), or propagate with `check` so the workflow run is marked failed"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/handle-errors.md", kind: github, note: "Error Handling Patterns"}
+  - id: auto_retry
+    text: "Enable engine retries for transient failures with `retryPolicy = {maxRetries: 3, retryDelay: 2.0, retryBackoff: 2.0}` (a `workflow:AutoRetry`, optional `maxRetryDelay`) on `ctx->callActivity`, knowing the default `workflow:NoRetry` returns the first error immediately"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/handle-errors.md", kind: github, note: "Controlling Retries"}
+      - {url: "https://ballerina.io/learn/handle-errors-and-replay-failed-activities-in-workflows/", kind: docs, note: "Retry transient failures automatically"}
+  - id: review_on_failure
+    text: "Escalate a failed activity to a person with `retryPolicy = {userRoles: \"OPS\", title: \"...\"}` (a `workflow:ReviewTaskDefinition`) or `{maxRetries: 2, userRoles: \"OPS\"}` (`workflow:RetryBeforeReview`), so an operator answers `proceed`, `proceed-with-input` (corrected arguments) or `reject` (a `workflow:ReviewRejectedError`) through `/workflow/review-activities/{taskId}/...`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/recover-workflows.md", kind: github, note: "Retry — Retries decided by a person"}
+      - {url: "https://ballerina.io/learn/handle-errors-and-replay-failed-activities-in-workflows/", kind: docs, note: "Suspend for manual review and replay"}
+  - id: idempotency_step_id
+    text: "Make activities idempotent (for example pass an idempotency key such as the claim ID) because an activity can run more than once for one call, and give steps stable names with `stepId = \"sendConfirmation\"` on `ctx->callActivity`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/write-activity-functions.md", kind: github, note: "Idempotency; Naming a step"}
+  - id: engine_config
+    text: "Configure the engine in `Config.toml` under `[ballerina.workflow]` with `mode` = `IN_MEMORY`, `LOCAL` (default, `temporal server start-dev`), `CLOUD` (`authApiKey`) or `SELF_HOSTED` (`authMtlsCert`, `authMtlsKey`, `authCaCert`), plus `url`, `namespace`, a per-deployment unique `taskQueue`, `maxConcurrentWorkflows` and `maxConcurrentActivities`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/docs/configure-the-module.md", kind: github}
+      - {url: "https://ballerina.io/learn/write-a-workflow-with-ballerina/", kind: docs, note: "Configure the engine and run; Make it durable"}
+  - id: child_workflows
+    text: "Compose workflows from inside a workflow with `ctx->callWorkflow(child, input)`, or `ctx->runChildWorkflow(child, input)` followed by `ctx->waitForChildWorkflow(id)` / `ctx->getChildWorkflowResult(id)`, and signal a child with `ctx->sendDataToChildWorkflow(id, dataName, data)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-workflow/blob/v1.0.2/ballerina/context.bal", kind: github, note: "Context remote methods"}
+out_of_scope:
+  - "Durable AI agents (`workflow:DurableAgent`) built on ballerina/ai"
+  - "The full `ballerina/workflow.management` operations API (reset, suspend/resume, instance listing) and the `workflow.observe` module"
+edges:
+  - {to: concept.annotations, rel: uses, via: [workflow_function, activity_function]}
+  - {to: concept.client_objects, rel: uses, via: [call_activity, multi_future_await, child_workflows]}
+  - {to: concept.function_values, rel: uses, via: [call_activity, start_workflow, external_data]}
+  - {to: concept.futures_wait, rel: uses, via: [external_data, multi_future_await]}
+  - {to: concept.errors, rel: uses, via: [activity_errors, human_task_errors, read_results]}
+  - {to: concept.json_anydata, rel: uses, via: [workflow_function, activity_function]}
+  - {to: lib.http, rel: uses, via: [start_workflow, complete_human_task]}
+  - {to: tool.config_toml, rel: uses, via: [engine_config]}
+notes: "Items follow the v1.0.2 source (= Central latest). The three Learn tutorials pin `ballerina/workflow` 0.8.3 (integration-samples Dependencies.toml) and show older signatures not in 1.0.2: `ctx->awaitHumanTask(\"approveClaim\", \"MANAGER\", payload = {...})` (1.0.2: second argument is the `map<json>` task input and the role is `userRoles = \"MANAGER\"`), `retryPolicy = \"OPS\"` (1.0.2: a `ReviewTaskDefinition` record), and `[ballerina.workflow.management] enableManagementApi` (1.0.2 source scopes the REST API config to `[ballerina.workflow.management.rest]`, default port 8234). `management:getWorkflowInfo(workflowId)` exists in both. Human-task REST endpoint paths are taken from the Learn tutorial."

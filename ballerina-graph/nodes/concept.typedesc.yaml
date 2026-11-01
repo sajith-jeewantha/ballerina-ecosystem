@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.typedesc
 type: concept
 title: Typedesc
@@ -13,9 +13,13 @@ must_cover:
   - id: typedesc_type
     text: Use `typedesc<T>` for immutable values representing resolved type descriptors, where a typedesc belongs to `typedesc<T>` iff the type it describes is a subtype of T (so typedesc is covariant), and plain `typedesc` contains all of them
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/typedesc-type/", kind: bbe}
   - id: type_name_as_value
     text: Obtain a typedesc value by referencing a type or class name in an expression, e.g. `typedesc<Person> td = Person;`
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/typedesc-type/", kind: bbe}
   - id: resolved_type_descriptors
     text: Explain that a type descriptor may carry value-construction information (such as default values) and annotations that are resolved at runtime, which a typedesc value represents
     difficulty: [advanced]
@@ -24,6 +28,8 @@ must_cover:
   - id: typeof_expr
     text: Use `typeof expr` to get a typedesc for the runtime type of a value, whose static type is `typedesc<T>` for an expression of static type T
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/typedesc-type/", kind: bbe}
   - id: typeof_simple_values
     text: Explain that `typeof` on a simple value yields a singleton type of that value, with no annotations, and a new typedesc value on each evaluation
     difficulty: [advanced]
@@ -35,11 +41,13 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#functions", kind: spec, note: "5.5.2 Functions (dependently-typed signatures)"}
+      - {url: "https://ballerina.io/learn/by-example/dependent-types/", kind: bbe}
   - id: inferred_typedesc_default
     text: Rely on an inferred typedesc default `typedesc<anydata> t = <>`, where the caller infers the argument from the contextually expected type, e.g. `Person p = check v.cloneWithType();`
     difficulty: [intermediate, advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#function_call", kind: spec, note: "6.15 Function call expression (<> default)"}
+      - {url: "https://ballerina.io/learn/by-example/dependent-types/", kind: bbe}
   - id: type_ids_function
     text: Use `typedesc:typeIds(t, primaryOnly)` to get the readonly array of `typedesc:TypeId` records (module id and local id) induced by a typedesc, or nil if the type is not definite
     difficulty: [advanced]

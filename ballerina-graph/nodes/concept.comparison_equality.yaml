@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.comparison_equality
 type: concept
 title: Comparison and logic
@@ -13,13 +13,23 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.22.2", kind: spec, note: "6.22.2 Unary logical expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.31", kind: spec, note: "6.31 Logical expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.32", kind: spec, note: "6.32 Conditional expression"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: deep_equality
     text: Use `==` and `!=` for deep equality of values, knowing at least one operand must have a static type that is a subtype of `anydata`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/anydata-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/expression-equality/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/list-equality/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-operations/", kind: bbe}
   - id: exact_equality
     text: Use `===` and `!==` for exact equality, which compares storage identity for structured and behavioral values and identical values for simple values
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/expression-equality/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/list-equality/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/identity/", kind: bbe}
   - id: equality_compile_check
     text: Explain that all four equality operators give a compile error when the intersection of the operands' static types is empty
     difficulty: [intermediate]
@@ -29,9 +39,13 @@ must_cover:
   - id: float_equality
     text: Explain float equality edge cases, that `==` treats `0.0` and `-0.0` as equal while `===` does not, and both treat NaN as equal to NaN, unlike IEEE comparison
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/identity/", kind: bbe}
   - id: decimal_equality
     text: Explain that `==` on decimals ignores precision while `===` does not, so `1.0d == 1.00d` is true but `1.0d === 1.00d` is false
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/expression-equality/", kind: bbe}
   - id: sequence_exact_equality
     text: Explain exact equality for strings and xml, where sequences are exactly equal if they have the same length and corresponding constituents are exactly equal (singletons compare storage identity when they have it)
     difficulty: [advanced]
@@ -40,6 +54,8 @@ must_cover:
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.27", kind: spec, note: "6.27 Relational expression"}
+      - {url: "https://ballerina.io/learn/by-example/boolean/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/binary-operators/", kind: bbe}
   - id: ordered_types
     text: Identify ordered types, namely nil, boolean (false < true), int, float, decimal, string (by Unicode code point), optional versions `T?` of ordered types, and lists whose member types are ordered
     difficulty: [intermediate]
@@ -58,9 +74,15 @@ must_cover:
   - id: logical_not
     text: 'Use `!` on a boolean operand to negate it, with result type boolean (singleton when the operand is singleton)'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/boolean/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/unary-operators/", kind: bbe}
   - id: logical_and_or
     text: 'Combine boolean expressions with `&&` and `||`, whose operands must be subtypes of boolean, using short-circuit evaluation: the right operand of `&&` is not evaluated when the left is false and the right operand of `||` is not evaluated when the left is true'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/boolean/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/binary-operators/", kind: bbe}
   - id: logical_singleton_types
     text: 'Explain that `&&` with a left operand of singleton type `false` has static type `false`, and `||` with a left operand of singleton type `true` has static type `true`, regardless of the right operand'
     difficulty: [advanced]
@@ -70,6 +92,8 @@ must_cover:
   - id: elvis
     text: 'Use the nil-conditional operator `x ?: d` to supply a default when x evaluates to nil, with the right operand evaluated only when needed'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nil/", kind: bbe}
   - id: elvis_static_type
     text: 'Explain that `L ?: R` has static type R when L''s type is nil, L''s type when it cannot be nil, and otherwise the union of L''s type without nil and R''s type'
     difficulty: [intermediate]

@@ -1,4 +1,4 @@
-"""Pydantic models for the Ballerina Knowledge Graph (schema v0.1).
+"""Pydantic models for the Ballerina Knowledge Graph (schema v0.2).
 
 These models are the source of truth for the node file format.
 `schema/node.schema.json` is generated from them; never edit it by hand.
@@ -9,9 +9,9 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-SCHEMA_VERSION = "0.1"
+SCHEMA_VERSION = "0.2"
 
-NodeType = Literal["concept", "library", "tool", "topic"]
+NodeType = Literal["concept", "library", "connector", "trigger", "tool", "platform", "topic"]
 Priority = Literal["core", "important", "long_tail"]
 Status = Literal["draft", "in_review", "approved", "deprecated"]
 Difficulty = Literal["beginner", "intermediate", "advanced"]
@@ -27,11 +27,16 @@ SYMMETRIC_RELATIONS: frozenset[str] = frozenset({"counterpart_of", "alternative_
 ID_PREFIX: dict[str, str] = {
     "concept": "concept",
     "library": "lib",
+    "connector": "connector",
+    "trigger": "trigger",
     "tool": "tool",
+    "platform": "platform",
     "topic": "topic",
 }
+# Types whose nodes describe Ballerina packages and must list them in `modules`.
+PACKAGE_TYPES: frozenset[str] = frozenset({"library", "connector", "trigger"})
 
-NODE_ID_PATTERN = r"^(concept|lib|tool|topic)(\.[a-z0-9_]+)+$"
+NODE_ID_PATTERN = r"^(concept|lib|connector|trigger|tool|platform|topic)(\.[a-z0-9_]+)+$"
 ITEM_ID_PATTERN = r"^[a-z0-9_]+(\.[a-z0-9_]+)*$"
 
 
@@ -86,8 +91,8 @@ class Node(_Strict):
         prefix = ID_PREFIX[self.type]
         if not self.id.startswith(prefix + "."):
             raise ValueError(f"id '{self.id}' must start with '{prefix}.' for type '{self.type}'")
-        if self.type == "library" and not self.modules:
-            raise ValueError("library nodes must list at least one module")
+        if self.type in PACKAGE_TYPES and not self.modules:
+            raise ValueError(f"{self.type} nodes must list at least one module")
         seen: set[str] = set()
         for item in self.must_cover:
             if item.id in seen:

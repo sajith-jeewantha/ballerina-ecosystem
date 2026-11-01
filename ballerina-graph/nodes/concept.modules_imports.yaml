@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.modules_imports
 type: concept
 title: Modules
@@ -18,6 +18,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lexical_structure", kind: spec, note: "4 Lexical structure (RestrictedIdentifier)"}
+      - {url: "https://ballerina.io/learn/by-example/programs-and-modules/", kind: bbe}
   - id: packages_versions
     text: "Explain that the platform combines modules into a package whose name is the first part of each module name, that binary packages live in repositories organized by organization, package name and SemVer version, and that a package's `Ballerina.toml` controls the versions used for referenced modules"
     difficulty: [intermediate]
@@ -28,11 +29,15 @@ must_cover:
     text: "Explain that each source module can be compiled separately into a binary module and that compiling it needs only the binary form of the modules it references"
     difficulty: [advanced]
   - id: import_syntax
-    text: "Write import declarations such as `import ballerina/http;` and `import myorg/util.strings as str;`, knowing the organization name defaults to the importing module's organization when omitted"
+    text: "Write import declarations such as `import ballerina/http;` and `import myorg/util.strings as str;`, knowing the organization name defaults to the importing module's organization when omitted and that without `as` the prefix comes from the last part of the module name (so `import ballerina/io;` binds `io`)"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/programs-and-modules/", kind: bbe}
   - id: underscore_import
     text: "Use `import org/mod as _;` to include a module in the program and run its initialization without binding a module prefix"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/module-lifecycle/", kind: bbe}
   - id: unused_prefix_error
     text: "Explain that it is a compile error for a source part to import a module with a module prefix and then never use that prefix"
     difficulty: [beginner, intermediate]
@@ -44,11 +49,13 @@ must_cover:
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+      - {url: "https://ballerina.io/learn/by-example/programs-and-modules/", kind: bbe}
   - id: public_visibility
     text: "Mark module-level declarations `public` so they can be referenced from other modules; without `public` a module-scope identifier can be referenced only within its own module"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.9.3", kind: spec, note: "5.9.3 Variable and identifier scoping"}
+      - {url: "https://ballerina.io/learn/by-example/programs-and-modules/", kind: bbe}
   - id: prefix_symbol_space
     text: "Explain that module prefixes declared by imports are in the same prefix symbol space as XML namespace prefixes declared by `xmlns`, that this symbol space is distinct from the module's main symbol space, and that it belongs to a source part rather than to the whole module"
     difficulty: [advanced]
@@ -70,4 +77,4 @@ edges:
   - {to: lib.lang.xml, rel: uses, via: [predeclared_prefixes]}
   - {to: lib.lang.error, rel: uses, via: [predeclared_prefixes]}
   - {to: concept.program_execution, rel: related, via: [acyclic_imports], target_items: [module_init_order]}
-notes: "The spec does not state the default module prefix when `as` is omitted; no item claims one. Package layout, Ballerina.toml contents and repositories are platform-defined and only mentioned at the level of detail in section 3."
+notes: "The spec does not state the default module prefix when `as` is omitted; import_syntax takes it from the programs-and-modules BBE. Package layout, Ballerina.toml contents and repositories are platform-defined and only mentioned at the level of detail in section 3."

@@ -1,0 +1,93 @@
+schema_version: "0.2"
+id: connector.google_workspace
+type: connector
+title: ballerinax/googleapis.* (Workspace)
+summary: "Connectors for Google Workspace APIs: Gmail, Google Calendar (`googleapis.gcalendar` and the older `googleapis.calendar`), Sheets, Drive, Chat (client and event listener), People, Docs, Slides, Tasks and Classroom, authenticated with Google OAuth2 refresh tokens."
+priority: important
+status: draft
+modules: [ballerinax/googleapis.calendar, ballerinax/googleapis.chat, ballerinax/googleapis.classroom, ballerinax/googleapis.docs, ballerinax/googleapis.drive, ballerinax/googleapis.gcalendar, ballerinax/googleapis.gmail, ballerinax/googleapis.people, ballerinax/googleapis.sheets, ballerinax/googleapis.slides, ballerinax/googleapis.tasks]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.gmail/latest", kind: central, note: "googleapis.gmail 4.2.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.gcalendar/latest", kind: central, note: "googleapis.gcalendar 4.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.sheets/latest", kind: central, note: "googleapis.sheets 4.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.drive/latest", kind: central, note: "googleapis.drive 3.5.0"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.chat/latest", kind: central, note: "googleapis.chat 0.1.1 README (client and listener)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.gmail/blob/master/ballerina/client.bal", kind: github, note: "Gmail resource paths"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.sheets/blob/master/ballerina/client.bal", kind: github, note: "Sheets remote methods"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.drive/blob/main/ballerina/client.bal", kind: github, note: "Drive remote methods"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated googleapis.docs, slides, tasks and classroom clients"}
+must_cover:
+  - id: google_oauth_setup
+    text: "Create OAuth client credentials in the Google Cloud console, obtain a refresh token (e.g. via the OAuth 2.0 Playground) and initialise a connector with `{auth: {clientId, clientSecret, refreshToken, refreshUrl}}` from `configurable` variables, e.g. `gmail:Client gmail = check new gmail:Client(config = {auth: {refreshToken, clientId, clientSecret}})`"
+    difficulty: [beginner]
+  - id: gmail_read
+    text: "Read Gmail with resource methods: `gmail->/users/me/messages(q = \"label:INBOX is:unread\")` returning `gmail:MessageListPage`, `/users/me/messages/[id]` to fetch a message, `/users/me/messages/[messageId]/attachments/[id]` for attachments and `/users/me/threads(...)` / `/users/me/threads/[id]` to search and read threads"
+    difficulty: [beginner, intermediate]
+  - id: gmail_send
+    text: "Send mail with `gmail->/users/me/messages/send.post(message)` using a `gmail:MessageRequest` (`to`, `cc`, `bcc`, `subject`, `bodyInText`, `bodyInHtml`, `inlineImages`, `attachments`, and `threadId`/`initialMessageId`/`references` to reply in a thread), and manage drafts with `/users/me/drafts.post` and `/users/me/drafts/send.post`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.gmail/blob/master/ballerina/types.bal", kind: github, note: "MessageRequest fields"}
+  - id: gmail_labels_modify
+    text: "Organise Gmail with `/users/me/labels.post`, `/users/me/labels` listing, `/users/me/messages/[id]/modify.post` (add/remove label IDs, e.g. mark read by removing `UNREAD`), `/users/me/messages/[id]/trash.post`, `/users/me/messages/batchModify.post` and `/users/me/history`"
+    difficulty: [intermediate]
+  - id: gcalendar_events
+    text: "Use `googleapis.gcalendar` (`gcalendar:Client`): create a calendar with `calendar->/calendars.post({summary: \"Work Schedule\"})`, quick-add an event with `/calendars/[calendarId]/events/quickAdd.post`, insert with `/calendars/[calendarId]/events.post(event)`, list with `/calendars/[calendarId]/events`, update/delete `/calendars/[calendarId]/events/[eventId]`, and query `/freeBusy.post`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.calendar/blob/main/ballerina/client.bal", kind: github, note: "gcalendar resource paths"}
+  - id: gcalendar_acl_lists
+    text: "Share calendars and manage the user's calendar list with `/calendars/[calendarId]/acl.post`, `/calendars/[calendarId]/acl/[ruleId]`, `/users/me/calendarList` and `/calendars/[calendarId]/events/[eventId]/instances` for recurring events"
+    difficulty: [intermediate]
+  - id: calendar_legacy
+    text: "Maintain code on the older `googleapis.calendar` 3.x connector (`calendar:Client`), whose remote methods are `createCalendar`, `getCalendars`, `createEvent`, `quickAddEvent(calendarId, title)`, `getEvents`, `getEvent`, `updateEvent` and `deleteEvent`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.calendar/blob/v3.2.0/calendar/endpoints.bal", kind: github, note: "3.2.0 tag remote methods (3.2.1 on Central)"}
+  - id: sheets_spreadsheets
+    text: "Create a `sheets:Client` and manage spreadsheets and worksheets with `createSpreadsheet(\"NewSpreadsheet\")`, `openSpreadsheetById`, `openSpreadsheetByUrl`, `renameSpreadsheet`, `addSheet(spreadsheetId, \"NewWorksheet\")`, `getSheets`, `getSheetByName`, `renameSheet` and `removeSheet`"
+    difficulty: [beginner]
+  - id: sheets_values
+    text: "Read and write Sheets values with `setRange(spreadsheetId, sheetName, {a1Notation: \"A1:D5\", values: [[...]]})`, `getRange(spreadsheetId, sheetName, \"A1:D5\")`, `setCell`/`getCell`, `getRow`/`createOrUpdateRow`, `appendValue(spreadsheetId, values, {sheetName})` and `appendValues`, and `clearRange`/`clearAll`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.sheets/blob/master/ballerina/types.bal", kind: github, note: "Range and A1Range records"}
+  - id: sheets_rows_filters
+    text: "Restructure sheets with `addRowsBefore`/`addRowsAfter`, `deleteRows`, `addColumnsBefore`/`deleteColumns` and `copyTo`, and target rows by metadata with `setRowMetaData`, `getRowByDataFilter`, `updateRowByDataFilter` and `deleteRowByDataFilter`"
+    difficulty: [intermediate, advanced]
+  - id: drive_files
+    text: "Manage Google Drive files with `drive:Client`: `uploadFile(localPath, fileName, parentFolderId)`, `uploadFileUsingByteArray`, `createFolder(name, parentFolderId)`, `createFile(name, mime, folderId)`, `getFile(fileId)`, `downloadFile` (download link), `getFileContent`, `copyFile`, `moveFile`, `renameFile` and `deleteFile`"
+    difficulty: [beginner, intermediate]
+  - id: drive_search_changes
+    text: "Search Drive with the `stream<drive:File>` results of `getFilesByName`, `getAllFiles`, `getAllSpreadsheets`, `getDocumentsByName` and `getFoldersByName`, and track changes with `getStartPageToken` and `listChanges`"
+    difficulty: [intermediate]
+  - id: chat_client
+    text: "Create a `chat:Client` with `{auth: oauthAuth}` (OAuth2, service account or bearer token) and call `chatClient->/spaces()` (`chat:ListSpacesResponse`), `/spaces/[\"space-id\"]/messages.post({text: \"...\"})`, `/spaces/[spaceId]/members` and `/spaces/[spaceId]/messages/[messageId]/reactions.post`"
+    difficulty: [beginner, intermediate]
+  - id: chat_listener
+    text: "Build a Google Chat app with `listener chat:Listener chatListener = new (8000, {auth: {path: \"./service-account-key.json\"}})`, `@chat:ServiceConfig {endpointUrl: ...}` (or `projectNumber`) and `service chat:ChatService` handlers `onMessage(chat:MessageEvent event, chat:MessageCaller caller)` replying with `caller->respond({text: ...})`, plus `onAddedToSpace`, `onRemovedFromSpace`, `onCardClicked`, `onSubmitForm`, `onAppHome` and `onWidgetUpdated`"
+    difficulty: [intermediate, advanced]
+  - id: people_contacts
+    text: "Manage contacts with `googleapis.people`: `createContact`, `getContact`, `listContacts`, `searchContacts`, `updateContact`, `deleteContact`, `getBatchContacts`, and contact groups via `createContactGroup`, `listContactGroup` and `modifyContactGroup`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-googleapis.people/blob/main/ballerina/endpoint.bal", kind: github, note: "People remote methods"}
+  - id: docs_slides
+    text: "Create and edit documents with the generated `googleapis.docs` client (`createDocument`, `getDocument`, `batchUpdateDocuments`) and presentations with `googleapis.slides` (`createPresentation`, `getPresentation`, `getPresentationPage`, `getPresentationPageThumbnail`, `batchUpdatePresentations`)"
+    difficulty: [intermediate]
+  - id: tasks_classroom
+    text: "Manage to-dos with `googleapis.tasks` (`listTasklists`, `insertTasklists`, `listTasks`, `insertTasks`, `patchTasks`, `moveTasks`, `clearTasks`) and courses with `googleapis.classroom` (`listCourses`, `createCourses`, `createCoursesCoursework`, `listCoursesCourseworkStudentsubmissions`, `createCoursesAnnouncements`)"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Push notifications for Gmail, Calendar, Drive and Sheets (trigger.google)"
+  - "Google Cloud Platform APIs (connector.google_cloud)"
+edges:
+  - {to: lib.http, rel: uses, via: [google_oauth_setup, chat_listener]}
+  - {to: lib.oauth2, rel: uses, via: [google_oauth_setup]}
+  - {to: concept.resource_methods, rel: uses, via: [gmail_read, gmail_send, gcalendar_events, chat_client]}
+  - {to: concept.client_objects, rel: uses, via: [sheets_spreadsheets, drive_files]}
+  - {to: concept.services_listeners, rel: uses, via: [chat_listener]}
+  - {to: concept.streams, rel: uses, via: [drive_search_changes]}
+  - {to: concept.records, rel: uses, via: [gmail_send, sheets_values]}
+  - {to: tool.config_toml, rel: uses, via: [google_oauth_setup]}
+notes: "googleapis.gcalendar resource paths were read from the googleapis.calendar repo main branch (now versioned 5.0.0 as googleapis.gcalendar); the exact quickAdd argument form differs between the 4.0.2 README and main, so it is left unspecified. googleapis.calendar 3.2.1 operations were taken from the v3.2.0 tag."

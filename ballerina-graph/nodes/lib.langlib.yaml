@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.langlib
 type: library
 title: langlib
@@ -25,6 +25,7 @@ modules:
   - ballerina/lang.transaction
   - ballerina/lang.runtime
   - ballerina/lang.value
+  - ballerina/lang.query
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#lang_library", kind: spec, note: "11 Lang library"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_11.1", kind: spec, note: "11.1 Generic types"}
@@ -124,16 +125,17 @@ must_cover:
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
-  - id: transaction_rollback_data
-    text: "Call `transaction:setRollbackOnly(e)` to make the transaction manager decide to roll back, `transaction:getRollbackOnly()` to test whether a rollback is already known, and `transaction:setData(data)`/`getData()` to attach `readonly` data to the current transaction branch"
+  - id: transaction_rollback_handlers
+    text: "Call `transaction:setRollbackOnly(e)` to make the transaction manager decide to roll back, `transaction:getRollbackOnly()` to test whether a rollback is already known and `transaction:setData(data)`/`getData()` to attach `readonly` data to the current branch, and register `transaction:onCommit(handler)` with a `CommitHandler` (`isolated function(Info info)`) and `transaction:onRollback(handler)` with a `RollbackHandler` (`isolated function(Info info, error? cause, boolean willRetry)`) to run code when the global transaction commits or rolls back"
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
-  - id: transaction_handlers
-    text: "Register `transaction:onCommit(handler)` with a `CommitHandler` (`isolated function(Info info)`) and `transaction:onRollback(handler)` with a `RollbackHandler` (`isolated function(Info info, error? cause, boolean willRetry)`) to run code when the global transaction commits or rolls back"
+  - id: lang_query
+    text: "Know that `ballerina/lang.query` provides the lang library operations behind query expressions and query actions; its public API is the query pipeline's support code (helpers such as `prepareQueryBodyError`, `prepareCompleteEarlyError` and `getQueryErrorRootCause`) and the distinct error types `query:Error` and `query:CompleteEarlyError` (union `query:QueryErrorTypes`), so application code writes `from ... select` and `from ... do` rather than calling it"
     difficulty: [advanced]
     sources:
-      - {url: "https://ballerina.io/spec/lang/2024R1/#lang.transaction", kind: spec, note: "11.3.17 lang.transaction module"}
+      - {url: "https://central.ballerina.io/ballerina/lang.query/latest", kind: central, note: "ballerina/lang.query 2201.13.2 README and API docs"}
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/tree/master/langlib/lang.query/src/main/ballerina", kind: github, note: "helpers.bal, types.bal"}
 out_of_scope:
   - "The Ballerina standard library (ballerina/http, ballerina/io, ...), which the spec explicitly does not specify"
   - "Detailed functions of the larger modules (lib.lang.array, lib.lang.string, lib.lang.int, lib.lang.float, lib.lang.decimal, lib.lang.map, lib.lang.table, lib.lang.value, lib.lang.error, lib.lang.xml, lib.lang.regexp, lib.lang.stream, lib.lang.runtime)"
@@ -145,7 +147,7 @@ edges:
   - {to: concept.modules_imports, rel: uses, via: [predeclared_prefixes, override_predeclared, builtin_subtype_reference]}
   - {to: concept.functions, rel: uses, via: [method_call_dispatch, method_call_constraints]}
   - {to: concept.numeric_types, rel: uses, via: [builtin_subtypes, builtin_subtype_reference]}
-  - {to: concept.query_expressions, rel: uses, via: [aggregated_rest_dispatch]}
+  - {to: concept.query_expressions, rel: uses, via: [aggregated_rest_dispatch, lang_query]}
   - {to: concept.isolation, rel: uses, via: [isolated_param, method_call_constraints]}
   - {to: concept.comparison_equality, rel: uses, via: [lang_boolean]}
   - {to: concept.function_values, rel: uses, via: [lang_function]}
@@ -155,5 +157,5 @@ edges:
   - {to: concept.strings, rel: uses, via: [object_raw_template]}
   - {to: concept.typedesc, rel: uses, via: [lang_typedesc]}
   - {to: concept.type_ids_distinct, rel: uses, via: [lang_typedesc]}
-  - {to: concept.transactions, rel: uses, via: [transaction_info, transaction_rollback_data, transaction_handlers]}
-notes: "Content merged from the removed concept.langlib and concept.langlib_conventions nodes (see langlib_map.json). Spec 11.1 says generic types are planned for a future version. The lang.int doc comments for Signed16 and Signed8 say 'non-negative integers' but then give signed ranges; the 11.2 table is taken as authoritative. Saying that `lang.array`, `lang.value`, `lang.regexp` and `lang.runtime` are not predeclared is derived from the predeclared-prefix list in 8.1, which omits them; the spec does not say this explicitly. In lang.transaction, the types `Error` and `Info` are written without `public` in the spec text even though the commit action's type is `transaction:Error?`; treat them as part of the module's API. `f.cancel()` method form follows from the method-call rule in 6.16."
+  - {to: concept.transactions, rel: uses, via: [transaction_info, transaction_rollback_handlers]}
+notes: "Content merged from the removed concept.langlib and concept.langlib_conventions nodes (see langlib_map.json). Spec 11.1 says generic types are planned for a future version. The lang.int doc comments for Signed16 and Signed8 say 'non-negative integers' but then give signed ranges; the 11.2 table is taken as authoritative. Saying that `lang.array`, `lang.value`, `lang.regexp` and `lang.runtime` are not predeclared is derived from the predeclared-prefix list in 8.1, which omits them; the spec does not say this explicitly. In lang.transaction, the types `Error` and `Info` are written without `public` in the spec text even though the commit action's type is `transaction:Error?`; treat them as part of the module's API. `f.cancel()` method form follows from the method-call rule in 6.16. `ballerina/lang.query` is not part of the 2024R1 specification (newer than the spec; covered from its Central README, API docs and source for 2201.13.2); its README says only that it provides lang library operations on query actions and expressions, and the statement that application code does not call it is inferred from its API, which consists of pipeline helpers. The transaction_rollback_data and transaction_handlers items were combined into transaction_rollback_handlers to stay within 20 items."

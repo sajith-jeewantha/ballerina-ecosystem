@@ -38,4 +38,4 @@ Point the VS Code YAML extension at the schema by adding this to `.vscode/settin
 
 ## Status
 
-v2: 159 draft nodes (50 concept, 79 library, 20 tool, 10 topic), schema v0.1. All nodes are `status: draft` and await domain-expert review.
+v3: 242 nodes (51 concept, 71 library, 69 connector, 6 trigger, 27 tool, 4 platform, 14 topic), 3,257 `must_cover` items and 1,704 edges, schema v0.2. Every Ballerina Central package (856), every Ballerina by Example program (592) and every Learn page (77) is covered. All nodes are `status: draft` and await domain-expert review, except the three deprecated packages (`lib.regex`, `lib.xmldata`, `lib.yaml`).
