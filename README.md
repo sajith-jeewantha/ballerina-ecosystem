@@ -20,7 +20,11 @@ Every node cites the pages it was built from in its `sources`.
 **View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/viewer.html
 (raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/graph.json))
 
-![The graph viewer showing the nodes, the filters and the coverage summary](docs/images/ballerina-knowledge-graph.png)
+![The graph viewer showing all 242 nodes, the filters for the 7 node types and the coverage summary](docs/images/ballerina-knowledge-graph-v3.png)
+
+**How it works:** [Ballerina Graph Architecture](https://sajith-jeewantha.github.io/ballerina-ecosystem/docs/pages/Ballerina%20Graph%20Architecture.html)
+explains the architecture, the node format, validation, the viewer and how the graph was built
+(source: [docs/pages/](docs/pages/Ballerina%20Graph%20Architecture.html)).
 
 ## Repository layout
 
@@ -29,6 +33,7 @@ Every node cites the pages it was built from in its `sources`.
 ├── README.md                 # this file
 ├── prompt.md                 # task brief used to build the spec-derived nodes
 ├── docs/images/              # images used in this README
+├── docs/pages/               # architecture explainer page
 └── ballerina-graph/          # Python package: schema, loader, CLI and node data
     ├── ballerina_graph/      # Pydantic models, loader/validator, export and viewer
     ├── nodes/                # one YAML file per node (<id>.yaml)

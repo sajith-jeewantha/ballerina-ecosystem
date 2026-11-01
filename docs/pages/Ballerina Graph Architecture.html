@@ -1,0 +1,617 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ballerina Graph Architecture</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: a technical field guide. Sticky contents rail on wide screens, one reading column, diagrams break out wider. */
+:root {
+  --bg: #F3F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #E9EDF1;
+  --ink: #16202A;
+  --ink-2: #4A5866;
+  --ink-3: #75828F;
+  --line: #D5DCE3;
+  --accent: #1C7C9C;
+  --c-concept: #148F86;
+  --c-library: #4A5CCF;
+  --c-tool: #B7791F;
+  --c-topic: #B83F72;
+  --c-connector: #5E8A1E;
+  --c-trigger: #C9512B;
+  --c-platform: #64727F;
+  --edge: #9AA6B2;
+  --code-bg: #EEF2F5;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161C; --surface: #172029; --surface-2: #1E2832; --ink: #E4EAEF; --ink-2: #A8B3BE; --ink-3: #7C8893;
+    --line: #2B3641; --accent: #5CC3D8; --c-concept: #3CC2B6; --c-library: #8293F2; --c-tool: #E2A64A; --c-topic: #E77AA6;
+    --c-connector: #9BC45A; --c-trigger: #EE8A66; --c-platform: #A2AEBA;
+    --edge: #55626F; --code-bg: #1B242D; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10161C; --surface: #172029; --surface-2: #1E2832; --ink: #E4EAEF; --ink-2: #A8B3BE; --ink-3: #7C8893;
+  --line: #2B3641; --accent: #5CC3D8; --c-concept: #3CC2B6; --c-library: #8293F2; --c-tool: #E2A64A; --c-topic: #E77AA6;
+  --c-connector: #9BC45A; --c-trigger: #EE8A66; --c-platform: #A2AEBA;
+  --edge: #55626F; --code-bg: #1B242D; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; font-size: 14px; }
+nav.toc p { font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; counter-reset: toc; }
+nav.toc a { display: flex; gap: 10px; color: var(--ink-2); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+nav.toc a::before { counter-increment: toc; content: counter(toc, upper-alpha); font-family: var(--f-mono); font-size: 12px; color: var(--ink-3); width: 12px; padding-top: 2px; }
+nav.toc a:hover { background: var(--surface-2); color: var(--ink); }
+main { min-width: 0; }
+header.hero { margin-bottom: 40px; }
+.eyebrow { font-family: var(--f-mono); font-size: 13px; color: var(--accent); margin: 0 0 8px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(34px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.01em; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 19px; color: var(--ink-2); max-width: 66ch; margin: 0 0 24px; }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-width: 120px; }
+.stat b { display: block; font-family: var(--f-display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 13px; color: var(--ink-3); }
+section { padding-top: 28px; margin-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 30px; line-height: 1.15; margin: 0 0 12px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .k { font-family: var(--f-mono); font-size: 15px; font-weight: 500; color: var(--accent); }
+h3 { font-family: var(--f-display); font-weight: 600; font-size: 20px; margin: 28px 0 8px; }
+p, li { max-width: 70ch; }
+p { margin: 0 0 14px; }
+ul, ol { padding-left: 22px; margin: 0 0 14px; }
+li { margin-bottom: 6px; }
+a { color: var(--accent); }
+code { font-family: var(--f-mono); font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { font-family: var(--f-mono); font-size: 13.5px; line-height: 1.55; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 0 0 16px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.muted { color: var(--ink-3); }
+.figure { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 8px 0 18px; overflow-x: auto; }
+.figure svg { display: block; width: 100%; height: auto; }
+.figure.wide svg { min-width: 820px; }
+.caption { font-size: 14px; color: var(--ink-3); margin: 8px 0 0; }
+/* SVG tokens */
+.box { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.2; }
+.box.hi { fill: var(--surface); stroke: var(--accent); stroke-width: 1.6; }
+.t { fill: var(--ink); font-family: var(--f-body); font-size: 13.5px; font-weight: 600; }
+.ts { fill: var(--ink-2); font-family: var(--f-body); font-size: 12px; }
+.tm { fill: var(--ink-2); font-family: var(--f-mono); font-size: 11.5px; }
+.th { fill: var(--ink-3); font-family: var(--f-display); font-size: 12.5px; font-weight: 600; letter-spacing: .08em; }
+.flow { stroke: var(--edge); stroke-width: 1.6; fill: none; }
+.flow.back { stroke: var(--accent); stroke-dasharray: 5 4; }
+.ah { fill: var(--edge); }
+.ah.dark { fill: var(--ink); }
+.ah.acc { fill: var(--accent); }
+.e { stroke: var(--edge); stroke-width: 1.6; }
+.e.requires { stroke: var(--ink); }
+.e.part_of { stroke-dasharray: 2 3; }
+.el { fill: var(--ink-3); font-family: var(--f-mono); font-size: 11px; text-anchor: middle; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+.nl { fill: var(--ink); font-family: var(--f-body); font-size: 12.5px; font-weight: 500; text-anchor: middle; }
+.n-concept { fill: var(--c-concept); } .n-library { fill: var(--c-library); } .n-tool { fill: var(--c-tool); } .n-topic { fill: var(--c-topic); }
+.n-connector { fill: var(--c-connector); } .n-trigger { fill: var(--c-trigger); } .n-platform { fill: var(--c-platform); }
+.lane { stroke: var(--line); stroke-width: 6; stroke-linecap: round; }
+.lane.main { stroke: var(--accent); }
+.dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 2; }
+.dot.main { stroke: var(--accent); }
+.dot.future { stroke-dasharray: 3 3; }
+.join { stroke: var(--ink-3); stroke-width: 1.6; fill: none; }
+.join.future { stroke-dasharray: 5 4; stroke: var(--accent); }
+/* type cards */
+.types { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 8px 0 18px; }
+.type { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.type .head { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 600; font-size: 18px; }
+.type .sw { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.type .count { margin-left: auto; font-family: var(--f-mono); font-size: 13px; color: var(--ink-3); }
+.type p { font-size: 14px; color: var(--ink-2); margin: 6px 0 8px; }
+.type code { font-size: 12px; }
+/* tables */
+.tbl { overflow-x: auto; margin: 6px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { white-space: nowrap; }
+/* annotated yaml */
+.anno { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; margin: 8px 0 18px; }
+.anno pre { margin: 0; }
+.anno dl { margin: 0; display: grid; gap: 10px; font-size: 14.5px; }
+.anno dt { font-family: var(--f-mono); font-size: 13px; color: var(--accent); }
+.anno dd { margin: 2px 0 0; color: var(--ink-2); }
+.y-k { color: var(--accent); }
+.y-c { color: var(--ink-3); }
+/* steps */
+.steps { list-style: none; padding: 0; margin: 8px 0 18px; display: grid; gap: 10px; counter-reset: st; }
+.steps li { max-width: none; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 0; }
+.steps li::before { counter-increment: st; content: counter(st); font-family: var(--f-display); font-weight: 600; font-size: 18px; color: var(--accent); width: 30px; height: 30px; border: 1.5px solid var(--accent); border-radius: 50%; display: grid; place-items: center; }
+.steps b { display: block; }
+.steps span { color: var(--ink-2); font-size: 14.5px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.cols > div { min-width: 0; }
+.callout { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 6px; padding: 12px 16px; margin: 8px 0 18px; color: var(--ink-2); }
+.callout p { margin: 0; }
+@media (max-width: 960px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  nav.toc { position: static; margin-bottom: 28px; }
+  nav.toc ol { flex-direction: row; flex-wrap: wrap; }
+  .anno { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#what">What it is</a></li>
+      <li><a href="#big-picture">Big picture</a></li>
+      <li><a href="#node">A node</a></li>
+      <li><a href="#types">Node types</a></li>
+      <li><a href="#edges">Edges</a></li>
+      <li><a href="#rules">Validation</a></li>
+      <li><a href="#code">The code</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#viewer">The viewer</a></li>
+      <li><a href="#built">How it was built</a></li>
+      <li><a href="#sft">Training data</a></li>
+      <li><a href="#git">Git and hosting</a></li>
+      <li><a href="#workflow">Daily workflow</a></li>
+      <li><a href="#next">Limits and next</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">ballerina-ecosystem · branch ballerina-graph.v3/complete</p>
+      <h1>How the Ballerina knowledge graph works</h1>
+      <p class="lede">A map of everything a model should know about Ballerina, stored as small YAML files, checked by a Python package, and turned into a viewer, a JSON export and the checklist that drives training-data generation.</p>
+      <div class="stats" aria-label="Graph size">
+        <div class="stat"><b>242</b><span>nodes</span></div>
+        <div class="stat"><b>3,257</b><span>checklist items</span></div>
+        <div class="stat"><b>1,704</b><span>edges</span></div>
+        <div class="stat"><b>7</b><span>node types</span></div>
+        <div class="stat"><b>856</b><span>Central packages covered</span></div>
+        <div class="stat"><b>0</b><span>validation warnings</span></div>
+      </div>
+    </header>
+
+    <section id="what">
+      <h2><span class="k">A</span>What it is</h2>
+      <p>You want a model that writes good Ballerina code. To train it with supervised fine-tuning (SFT), you need thousands of examples, and they have to cover the whole language and ecosystem. This project is the <b>coverage map</b> for that dataset.</p>
+      <ul>
+        <li>Each <b>node</b> is one subject: a language feature (<code>Transactions</code>), a library (<code>ballerina/http</code>), a connector to an external system (<code>ballerinax/salesforce</code>), a webhook trigger (<code>ballerinax/trigger.github</code>), a tool (<code>bal persist</code>), a part of the platform (the runtime) or a cross-cutting topic (<code>REST APIs</code>).</li>
+        <li>Each node has a <b>checklist</b> (<code>must_cover</code>) of 5 to 20 concrete things a developer does with it. Every checklist item becomes one or more training samples.</li>
+        <li><b>Edges</b> connect nodes: <code>lib.http</code> <i>requires</i> services and listeners, <code>ballerinax/mysql</code> <i>implements</i> <code>ballerina/sql</code>.</li>
+      </ul>
+      <div class="callout"><p>The rule that shapes everything: if a feature is missing from the graph, the model never sees training data for it. So coverage and accuracy come first, and every item cites the page it came from.</p></div>
+    </section>
+
+    <section id="big-picture">
+      <h2><span class="k">B</span>The big picture</h2>
+      <p>Knowledge flows left to right. Sources are read, turned into YAML node files, loaded and validated by the Python package, and then published in several forms. Editing a title in the local viewer writes back into the YAML files.</p>
+      <div class="figure wide">
+        <svg viewBox="0 0 1000 372" role="img" aria-label="Pipeline: five sources feed authoring, which writes YAML node files; the Python package loads and validates them and produces five outputs">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ar-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <text class="th" x="10" y="22">SOURCES</text>
+          <text class="th" x="225" y="22">AUTHORING</text>
+          <text class="th" x="430" y="22">GRAPH DATA</text>
+          <text class="th" x="625" y="22">PYTHON PACKAGE</text>
+          <text class="th" x="830" y="22">OUTPUTS</text>
+
+          <g>
+            <rect class="box" x="10" y="40" width="170" height="48" rx="7"/><text class="t" x="22" y="61">Language spec</text><text class="ts" x="22" y="78">2024R1</text>
+            <rect class="box" x="10" y="100" width="170" height="48" rx="7"/><text class="t" x="22" y="121">GitHub modules</text><text class="ts" x="22" y="138">READMEs, .bal sources</text>
+            <rect class="box" x="10" y="160" width="170" height="48" rx="7"/><text class="t" x="22" y="181">Ballerina by Example</text><text class="ts" x="22" y="198">592 example programs</text>
+            <rect class="box" x="10" y="220" width="170" height="48" rx="7"/><text class="t" x="22" y="241">Ballerina Central</text><text class="ts" x="22" y="258">856 packages</text>
+            <rect class="box" x="10" y="280" width="170" height="48" rx="7"/><text class="t" x="22" y="301">Learn docs</text><text class="ts" x="22" y="318">77 pages, release notes</text>
+          </g>
+          <path class="flow" d="M180,64 H200 M180,124 H200 M180,184 H200 M180,244 H200 M180,304 H200 M200,64 V304"/>
+          <path class="flow" d="M200,125 H223" marker-end="url(#ar)"/>
+
+          <rect class="box" x="225" y="70" width="160" height="110" rx="7"/>
+          <text class="t" x="237" y="93">Research agents</text>
+          <text class="ts" x="237" y="114">read the sources</text>
+          <text class="ts" x="237" y="132">write node YAML</text>
+          <text class="tm" x="237" y="152">check_v3.py</text>
+          <text class="ts" x="237" y="169">per-file checks</text>
+          <rect class="box" x="225" y="210" width="160" height="90" rx="7"/>
+          <text class="t" x="237" y="233">You</text>
+          <text class="ts" x="237" y="254">edit YAML in an editor</text>
+          <text class="ts" x="237" y="272">or Edit title in the</text>
+          <text class="ts" x="237" y="289">local viewer</text>
+          <path class="flow" d="M385,125 H428" marker-end="url(#ar)"/>
+          <path class="flow" d="M385,255 H428" marker-end="url(#ar)"/>
+
+          <rect class="box hi" x="430" y="40" width="150" height="288" rx="8"/>
+          <text class="t" x="444" y="64">nodes/</text>
+          <text class="ts" x="444" y="84">one YAML file per node</text>
+          <text class="tm" x="444" y="104">&lt;id&gt;.yaml</text>
+          <circle class="n-concept" cx="450" cy="126" r="6"/><text class="ts" x="464" y="130">51 concept</text>
+          <circle class="n-library" cx="450" cy="146" r="6"/><text class="ts" x="464" y="150">71 library</text>
+          <circle class="n-connector" cx="450" cy="166" r="6"/><text class="ts" x="464" y="170">69 connector</text>
+          <circle class="n-trigger" cx="450" cy="186" r="6"/><text class="ts" x="464" y="190">6 trigger</text>
+          <circle class="n-tool" cx="450" cy="206" r="6"/><text class="ts" x="464" y="210">27 tool</text>
+          <circle class="n-platform" cx="450" cy="226" r="6"/><text class="ts" x="464" y="230">4 platform</text>
+          <circle class="n-topic" cx="450" cy="246" r="6"/><text class="ts" x="464" y="250">14 topic</text>
+          <text class="ts" x="444" y="284">3,257 items</text>
+          <text class="ts" x="444" y="302">1,704 edges</text>
+
+          <path class="flow" d="M580,110 H623" marker-end="url(#ar)"/>
+          <text class="tm" x="586" y="102">schema</text>
+          <path class="flow" d="M580,250 H623" marker-end="url(#ar)"/>
+          <text class="tm" x="590" y="242">load</text>
+
+          <rect class="box" x="625" y="60" width="160" height="100" rx="7"/>
+          <text class="t" x="637" y="83">models.py</text>
+          <text class="ts" x="637" y="103">Pydantic schema</text>
+          <text class="tm" x="637" y="123">Node · Item</text>
+          <text class="tm" x="637" y="141">Edge · Source</text>
+          <path class="flow" d="M705,160 V188" marker-end="url(#ar)"/>
+          <rect class="box" x="625" y="190" width="160" height="120" rx="7"/>
+          <text class="t" x="637" y="213">loader.py</text>
+          <text class="tm" x="637" y="235">load_graph()</text>
+          <text class="tm" x="637" y="254">validate_graph()</text>
+          <text class="ts" x="637" y="276">returns a Graph</text>
+          <text class="ts" x="637" y="294">or a list of errors</text>
+
+          <path class="flow" d="M785,250 H807 M807,64 V304 M807,64 H828 M807,124 H828 M807,184 H828 M807,244 H828 M807,304 H828"/>
+          <rect class="box" x="830" y="40" width="160" height="48" rx="7"/><text class="tm" x="842" y="61">validate · stats</text><text class="ts" x="842" y="78">report in the terminal</text>
+          <rect class="box" x="830" y="100" width="160" height="48" rx="7"/><text class="tm" x="842" y="121">build/graph.json</text><text class="ts" x="842" y="138">export</text>
+          <rect class="box" x="830" y="160" width="160" height="48" rx="7"/><text class="tm" x="842" y="181">build/viewer.html</text><text class="ts" x="842" y="198">view → GitHub Pages</text>
+          <rect class="box" x="830" y="220" width="160" height="48" rx="7"/><text class="tm" x="842" y="241">127.0.0.1:8000</text><text class="ts" x="842" y="258">serve, with editing</text>
+          <rect class="box" x="830" y="280" width="160" height="48" rx="7"/><text class="t" x="842" y="301">SFT harness</text><text class="ts" x="842" y="318">load_graph() in Python</text>
+
+          <path class="flow back" d="M910,268 V352 H505 V330" marker-end="url(#ar-acc)"/>
+          <text class="tm" x="560" y="346" style="fill: var(--accent)">Edit title rewrites the node's title: line</text>
+        </svg>
+      </div>
+      <p class="caption">Everything starts and ends with the YAML files in <code>nodes/</code>. They are the single source of truth; every output can be regenerated from them.</p>
+    </section>
+
+    <section id="node">
+      <h2><span class="k">C</span>The building block: a node</h2>
+      <p>A node is one YAML file named after its id. Here is a real one, <code>lib.uuid</code>, shortened to two of its eight items.</p>
+      <div class="anno">
+<pre><code><span class="y-k">schema_version</span>: "0.2"
+<span class="y-k">id</span>: lib.uuid
+<span class="y-k">type</span>: library
+<span class="y-k">title</span>: ballerina/uuid
+<span class="y-k">summary</span>: "Generates RFC 4122 UUIDs ..."
+<span class="y-k">priority</span>: important
+<span class="y-k">status</span>: draft
+<span class="y-k">modules</span>: [ballerina/uuid]
+<span class="y-k">sources</span>:
+  - {url: "https://ballerina.io/learn/by-example/uuid-generation/", kind: bbe}
+<span class="y-k">must_cover</span>:
+  - id: random_uuid
+    text: "Generate a random (version 4) UUID string with
+      `uuid:createType4AsString()` ..."
+    difficulty: [beginner]
+  - id: time_based_uuid
+    text: "Generate a version 1 UUID ... with
+      `uuid:createType1AsString()` ..."
+  <span class="y-c"># ... 6 more items</span>
+<span class="y-k">edges</span>:
+  - {to: concept.strings, rel: uses, via: [random_uuid, validate_uuid]}
+  - {to: concept.errors, rel: uses, via: [name_based_uuid, uuid_version, uuid_conversions]}</code></pre>
+        <dl>
+          <div><dt>id</dt><dd>Unique name, prefixed by type: <code>concept.</code>, <code>lib.</code>, <code>connector.</code>, <code>trigger.</code>, <code>tool.</code>, <code>platform.</code>, <code>topic.</code>. The file must be called <code>&lt;id&gt;.yaml</code>.</dd></div>
+          <div><dt>title</dt><dd>What people see in the viewer: the real name, such as <code>ballerina/uuid</code> or <code>Transactions</code>.</dd></div>
+          <div><dt>priority</dt><dd><code>core</code>, <code>important</code> or <code>long_tail</code>: how much training weight the subject deserves.</dd></div>
+          <div><dt>modules</dt><dd>Required for package nodes (library, connector, trigger): the Ballerina Central packages the node covers. Every package on Central is listed in exactly one node.</dd></div>
+          <div><dt>sources</dt><dd>Where the content came from: <code>spec</code>, <code>bbe</code>, <code>central</code>, <code>docs</code>, <code>github</code> or <code>other</code>.</dd></div>
+          <div><dt>must_cover</dt><dd>The checklist. Each item starts with a verb, names real syntax, and has a difficulty level.</dd></div>
+          <div><dt>edges</dt><dd>Links to other nodes. <code>via</code> says which of this node's items the link is about.</dd></div>
+        </dl>
+      </div>
+      <p>Nodes can also carry <code>out_of_scope</code> (things deliberately left to another node), <code>notes</code> (for reviewers, never sent to the generator) and <code>replaced_by</code> (for retired nodes or items). The three deprecated packages, <code>lib.regex</code>, <code>lib.xmldata</code> and <code>lib.yaml</code>, have <code>status: deprecated</code> and point to their replacements.</p>
+    </section>
+
+    <section id="types">
+      <h2><span class="k">D</span>Seven node types</h2>
+      <p>The schema (version 0.2) allows exactly seven types. They are this graph's way of sorting the ecosystem, and each has its own colour in the viewer. Version 3 added <code>connector</code>, <code>trigger</code> and <code>platform</code>.</p>
+      <div class="types">
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-concept)"></span>concept<span class="count">51</span></div><p>Language features from the 2024R1 spec: types, expressions, statements, concurrency, XML, queries, transactions, plus natural expressions from Update 13.</p><code>concept.query_expressions</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-library)"></span>library<span class="count">71</span></div><p>The lang library and the <code>ballerina/*</code> standard library: HTTP, gRPC, SQL, data.*, security, AI, workflow, file formats.</p><code>lib.http</code> · <code>lib.lang.array</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-connector)"></span>connector<span class="count">69</span></div><p>Every <code>ballerinax/*</code> package that talks to an outside system: databases, brokers, AI providers, Salesforce, SAP, Microsoft, AWS, Google, FHIR. The long tail is grouped by business area.</p><code>connector.mysql</code> · <code>connector.salesforce</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-trigger)"></span>trigger<span class="count">6</span></div><p>The <code>ballerinax/trigger.*</code> listeners that receive webhook events from GitHub, Google, HubSpot, Shopify, Slack and others.</p><code>trigger.github</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-tool)"></span>tool<span class="count">27</span></div><p>The <code>bal</code> CLI, packages and TOML files, Ballerina Central, code generators, Code to Cloud, GraalVM, debugger, profiler, IDEs, CI/CD.</p><code>tool.bal_persist</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-platform)"></span>platform<span class="count">4</span></div><p>What the code runs on: the runtime, Swan Lake distributions, the release history and the specifications.</p><code>platform.runtime</code></div>
+        <div class="type"><div class="head"><span class="sw" style="background: var(--c-topic)"></span>topic<span class="count">14</span></div><p>Tasks that combine many pieces: REST APIs, security, observability, AI agents, integration patterns, deployment, healthcare.</p><code>topic.resiliency</code></div>
+      </div>
+    </section>
+
+    <section id="edges">
+      <h2><span class="k">E</span>Edges: how nodes connect</h2>
+      <p>A small, real slice of the graph. Every edge drawn here exists in the node files.</p>
+      <div class="figure wide">
+        <svg viewBox="0 0 960 404" role="img" aria-label="Example slice of the graph: REST APIs uses ballerina/http and bal openapi; bal openapi requires bal; ballerina/http requires Services and listeners and uses Resource methods; ballerinax/mysql implements ballerina/sql, which uses Query expressions, which requires Loops; ballerina/lang.array is part of langlib">
+          <defs>
+            <marker id="eg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah dark" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <line class="e uses" x1="123" y1="85" x2="214" y2="191" marker-end="url(#eg)"/>
+          <line class="e uses" x1="130" y1="70" x2="315" y2="70" marker-end="url(#eg)"/>
+          <line class="e uses" x1="328" y1="86" x2="245" y2="190" marker-end="url(#eg)"/>
+          <line class="e requires" x1="360" y1="70" x2="535" y2="70" marker-end="url(#ed)"/>
+          <line class="e requires" x1="217" y1="225" x2="126" y2="331" marker-end="url(#ed)"/>
+          <line class="e uses" x1="243" y1="225" x2="334" y2="331" marker-end="url(#eg)"/>
+          <line class="e implements" x1="580" y1="210" x2="745" y2="210" marker-end="url(#eg)"/>
+          <line class="e uses" x1="758" y1="226" x2="675" y2="330" marker-end="url(#eg)"/>
+          <line class="e requires" x1="680" y1="350" x2="855" y2="350" marker-end="url(#ed)"/>
+          <line class="e part_of" x1="760" y1="70" x2="875" y2="70" marker-end="url(#eg)"/>
+          <text class="el" x="170" y="134">uses</text>
+          <text class="el" x="225" y="64">uses</text>
+          <text class="el" x="285" y="134">uses</text>
+          <text class="el" x="450" y="64">requires</text>
+          <text class="el" x="170" y="274">requires</text>
+          <text class="el" x="290" y="274">uses</text>
+          <text class="el" x="665" y="204">implements</text>
+          <text class="el" x="715" y="274">uses</text>
+          <text class="el" x="770" y="344">requires</text>
+          <text class="el" x="818" y="64">part of</text>
+          <circle class="n-topic" cx="110" cy="70" r="18"/><text class="nl" x="110" y="106">REST APIs</text>
+          <circle class="n-tool" cx="340" cy="70" r="18"/><text class="nl" x="340" y="106">bal openapi</text>
+          <circle class="n-tool" cx="560" cy="70" r="18"/><text class="nl" x="560" y="106">bal</text>
+          <circle class="n-library" cx="740" cy="70" r="18"/><text class="nl" x="740" y="106">ballerina/lang.array</text>
+          <circle class="n-library" cx="900" cy="70" r="18"/><text class="nl" x="900" y="106">langlib</text>
+          <circle class="n-library" cx="230" cy="210" r="18"/><text class="nl" x="230" y="246">ballerina/http</text>
+          <circle class="n-connector" cx="560" cy="210" r="18"/><text class="nl" x="560" y="246">ballerinax/mysql</text>
+          <circle class="n-library" cx="770" cy="210" r="18"/><text class="nl" x="770" y="246">ballerina/sql</text>
+          <circle class="n-concept" cx="110" cy="350" r="18"/><text class="nl" x="110" y="386">Services and listeners</text>
+          <circle class="n-concept" cx="350" cy="350" r="18"/><text class="nl" x="350" y="386">Resource methods</text>
+          <circle class="n-concept" cx="660" cy="350" r="18"/><text class="nl" x="660" y="386">Query expressions</text>
+          <circle class="n-concept" cx="880" cy="350" r="18"/><text class="nl" x="880" y="386">Loops</text>
+        </svg>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Relation</th><th>Meaning</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td><code>requires</code></td><td>Learn the target first. A hard prerequisite.</td><td>Must never form a cycle.</td></tr>
+          <tr><td><code>uses</code></td><td>Builds on the target. The most common edge (1,487 of them).</td><td>Should name the items involved with <code>via</code>.</td></tr>
+          <tr><td><code>implements</code></td><td>Provides a concrete version of the target (a database connector for <code>ballerina/sql</code>, an AI model provider or vector store for <code>ballerina/ai</code>).</td><td>Same as <code>uses</code>.</td></tr>
+          <tr><td><code>part_of</code></td><td>A piece of a bigger node (each <code>ballerina/lang.*</code> module is part of <code>langlib</code>; the FHIR implementation guides are part of the FHIR connector).</td><td>Directed: child to parent.</td></tr>
+          <tr><td><code>related</code></td><td>Closely connected, no direction.</td><td rowspan="3">Symmetric: write it on one of the two nodes only.</td></tr>
+          <tr><td><code>alternative_to</code></td><td>Can be used instead (<code>ballerina/cache</code> and <code>ballerinax/redis</code>).</td></tr>
+          <tr><td><code>counterpart_of</code></td><td>The other side of a pair (client objects and services with listeners).</td></tr>
+        </tbody>
+      </table></div>
+      <p><code>via</code> and <code>target_items</code> make an edge precise. Instead of "uuid uses strings" in general, the edge says which uuid items rely on strings. The viewer uses this when you click a checklist item: it shows only the links that concern that item.</p>
+    </section>
+
+    <section id="rules">
+      <h2><span class="k">F</span>Validation: what keeps the graph correct</h2>
+      <p><code>loader.py</code> reads every file, checks it against the schema in <code>models.py</code>, then checks the graph as a whole. Errors stop the load. Warnings are reported but allowed.</p>
+      <div class="cols">
+        <div>
+          <h3>Errors</h3>
+          <ul>
+            <li>YAML that does not parse, or a file that is not one node</li>
+            <li>Fields that break the schema (wrong type, bad id pattern, a library, connector or trigger with no <code>modules</code>, duplicate item ids)</li>
+            <li>File name not matching the id, or two nodes with the same id</li>
+            <li>An edge to a node that does not exist, or to itself</li>
+            <li>The same edge twice, or a symmetric edge written on both nodes</li>
+            <li><code>via</code> or <code>target_items</code> naming an item that does not exist</li>
+            <li>A cycle of <code>requires</code> edges (A needs B needs A)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Warnings</h3>
+          <ul>
+            <li>A <code>uses</code> or <code>implements</code> edge with no <code>via</code> or <code>target_items</code></li>
+            <li>An orphan node with no edges in or out</li>
+            <li>More than 20 items (consider splitting)</li>
+            <li>No sources on the node or its items</li>
+          </ul>
+          <p class="muted">Today: 0 errors, 0 warnings.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="code">
+      <h2><span class="k">G</span>The code</h2>
+      <p>The repository is small. The Python package is about 600 lines; most of the project is data.</p>
+<pre><code>ballerina-ecosystem/
+├── README.md               project overview and commands
+├── prompt.md               the original task brief
+├── docs/images/            README screenshots
+├── docs/pages/             this page
+└── ballerina-graph/
+    ├── ballerina_graph/
+    │   ├── models.py        the schema: Node, Item, Edge, Source (Pydantic)
+    │   ├── loader.py        read nodes/, validate, build the Graph object
+    │   ├── export.py        write build/graph.json and schema/node.schema.json
+    │   ├── viewer.py        fill the HTML template with the graph data
+    │   ├── viewer_template.html   the interactive viewer (Cytoscape.js)
+    │   ├── server.py        local server: viewer + title-editing API
+    │   └── __main__.py      the command line: validate, stats, export, view, serve
+    ├── nodes/               242 node files (the data)
+    ├── schema/              node.schema.json, for YAML checking in VS Code
+    ├── build/               graph.json and viewer.html (published)
+    └── pyproject.toml       package metadata: pydantic, pyyaml</code></pre>
+      <h3>What happens when you run a command</h3>
+      <ol class="steps">
+        <li><div><b><code>__main__.py</code> parses the command</b><span>For example <code>validate nodes/</code>.</span></div></li>
+        <li><div><b><code>load_graph()</code> reads every <code>*.yaml</code></b><span>Each file is parsed with PyYAML and turned into a <code>Node</code> object. Pydantic rejects anything that breaks the schema.</span></div></li>
+        <li><div><b><code>validate_graph()</code> checks the whole graph</b><span>Edges, item references, duplicates, symmetric edges, the <code>requires</code> cycle check (a depth-first search), orphans and size warnings.</span></div></li>
+        <li><div><b>A <code>Graph</code> object comes back</b><span>It holds all nodes and offers <code>iter_items()</code>, <code>edges(rel)</code>, <code>neighbors()</code>, <code>resolve(ref)</code> and <code>to_json()</code>.</span></div></li>
+        <li><div><b>The command uses it</b><span><code>stats</code> counts, <code>export</code> writes JSON, <code>view</code> embeds the JSON into the HTML template, <code>serve</code> renders the viewer on each request.</span></div></li>
+      </ol>
+    </section>
+
+    <section id="commands">
+      <h2><span class="k">H</span>Commands</h2>
+      <p>Run from <code>ballerina-graph/</code> after <code>pip install -e .</code> (or with <code>.venv/bin/python</code>).</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Command</th><th>What it does</th><th>Writes</th></tr></thead>
+        <tbody>
+          <tr><td><code>python -m ballerina_graph validate nodes/</code></td><td>Runs every rule and prints <code>OK: 242 nodes, 3257 items, 1704 edges, 0 warning(s)</code> or the errors.</td><td class="muted">nothing</td></tr>
+          <tr><td><code>python -m ballerina_graph stats nodes/</code></td><td>Counts by type, priority and relation.</td><td class="muted">nothing</td></tr>
+          <tr><td><code>python -m ballerina_graph export nodes/ --out build/</code></td><td>Exports the full graph as JSON and regenerates the JSON Schema.</td><td><code>build/graph.json</code>, <code>schema/</code></td></tr>
+          <tr><td><code>python -m ballerina_graph view nodes/</code></td><td>Builds the self-contained viewer page.</td><td><code>build/viewer.html</code></td></tr>
+          <tr><td><code>python -m ballerina_graph serve nodes/</code></td><td>Runs the viewer at <code>http://127.0.0.1:8000/</code> with title editing turned on.</td><td>node YAML (titles only)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="viewer">
+      <h2><span class="k">I</span>The viewer</h2>
+      <p><code>viewer.html</code> is one file with the whole graph embedded as JSON. It needs no server: open it from disk or from GitHub Pages. It draws the graph with Cytoscape.js.</p>
+      <div class="cols">
+        <div>
+          <h3>Explore</h3>
+          <ul>
+            <li>Filter by node type, priority and relation</li>
+            <li>Three layouts: force-directed, rings by type, prerequisite tree</li>
+            <li>Search: matching node titles first, then checklist items</li>
+            <li>Click a node to see its checklist, links, sources and notes</li>
+            <li>Click a checklist item to see only the links about it</li>
+            <li>Link to a node directly: <code>viewer.html#lib.http</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Controls</h3>
+          <ul>
+            <li>Spacing: 0.5× to 3×, default 2.0×</li>
+            <li>Download PNG of the whole graph</li>
+            <li>Full screen for the graph canvas</li>
+            <li>Light and dark theme</li>
+            <li>With <code>serve</code> only: Edit title, saved to YAML</li>
+          </ul>
+        </div>
+      </div>
+      <h3>How title editing reaches the file</h3>
+      <ol class="steps">
+        <li><div><b>You click Edit title and save</b><span>The page sends <code>POST /api/nodes/lib.uuid/title</code> with <code>{"title": "..."}</code>.</span></div></li>
+        <li><div><b><code>server.py</code> checks the request</b><span>Only from your own machine (<code>127.0.0.1</code>), only JSON, one non-empty line, and only for a node file that exists.</span></div></li>
+        <li><div><b>It rewrites only the <code>title:</code> line</b><span>The rest of the file stays exactly as written. The result is validated against the schema before it is saved.</span></div></li>
+        <li><div><b>The viewer updates in place</b><span>The panel, the graph label and search all show the new title.</span></div></li>
+      </ol>
+    </section>
+
+    <section id="built">
+      <h2><span class="k">J</span>How the graph was built</h2>
+      <h3>Version 1: the language spec</h3>
+      <p>The first version covered only the Ballerina Language Specification 2024R1: 69 concept nodes and 849 items, each citing a spec section. That is on branch <code>feature/spec-2024r1-concept-graph</code>.</p>
+      <h3>Version 2: the whole ecosystem</h3>
+      <p>Version 2 merged related concepts, moved the lang library into library nodes, and added libraries, tools and topics. The work was split across ten research agents running in parallel, coordinated by a shared plan.</p>
+      <ol class="steps">
+        <li><div><b>Write a registry</b><span>A plan file fixed all 159 ids, types, titles and priorities up front, so agents could link to each other's nodes before those nodes existed. It also set the rules: 5 to 20 items, cite every source, no invented APIs.</span></div></li>
+        <li><div><b>Run ten agents in parallel</b><span>One merged concepts (69 → 50), one rebuilt the lang library (14 nodes), five wrote libraries (network, databases, data and IO, security and utilities, messaging and AI), two wrote tools, one wrote topics.</span></div></li>
+        <li><div><b>Check every file</b><span>A per-file checker compared each node with the registry: id, type, title, item count, valid spec anchors, edge rules.</span></div></li>
+        <li><div><b>Repoint old links</b><span>The merge and langlib agents produced maps from every old item to its new home. A script used them to rewrite edges in all files that pointed at removed nodes.</span></div></li>
+        <li><div><b>Validate and publish</b><span>The whole graph validated with no errors or warnings, then <code>view</code> and <code>export</code> rebuilt <code>build/</code>.</span></div></li>
+      </ol>
+      <h3>Version 3: every package, example and page</h3>
+      <p>Version 3 set out to leave nothing out. It is on branch <code>ballerina-graph.v3/complete</code>.</p>
+      <ol class="steps">
+        <li><div><b>Download the whole catalogue</b><span>The Central API listed 856 <code>ballerina/*</code> and <code>ballerinax/*</code> packages. Each one was saved with its README and assigned to exactly one node.</span></div></li>
+        <li><div><b>Add three node types</b><span>Schema 0.2 added <code>connector</code>, <code>trigger</code> and <code>platform</code>. The 14 <code>ballerinax</code> library nodes from v2 became connectors.</span></div></li>
+        <li><div><b>Merge before adding</b><span>Four AI provider nodes became one model-provider connector, Pinecone moved into the vector-store connector, and protobuf, UDP and WebSubHub were folded into gRPC, TCP and WebSub.</span></div></li>
+        <li><div><b>Run thirteen agent groups</b><span>Seven connector groups (AI, healthcare and B2B, SAP and HR, Microsoft, Google and AWS, CRM and commerce, productivity and devtools, communication and finance), plus triggers, new libraries, deprecated packages, tools, platform and topics. 83 nodes were added.</span></div></li>
+        <li><div><b>Measure coverage, fill the gaps</b><span>A coverage script checked three lists: every Central package is in some node's <code>modules</code>, and every Ballerina by Example program and Learn page is cited. All three reached 100%.</span></div></li>
+      </ol>
+      <p>Where a README disagreed with the module's source code, the agents followed the released source code and noted the difference in the node's <code>notes</code>. This happened often with generated connectors, whose READMEs sometimes show wrong method names, paths or config fields.</p>
+    </section>
+
+    <section id="sft">
+      <h2><span class="k">K</span>From graph to training data</h2>
+      <p>The graph does not generate samples itself. A separate dataset generator (the "harness") loads it as a Python library and walks the checklist.</p>
+<pre><code>from ballerina_graph import load_graph
+
+g = load_graph("nodes/")
+for node, item in g.iter_items():
+    ref = g.ref(node, item)        # "lib.uuid#random_uuid"
+    # generate samples for item.text, tag each sample with covers=[ref]
+
+for edge in g.edges(rel="uses"):
+    edge.source_items, edge.target_items   # items on both ends of the link</code></pre>
+      <ul>
+        <li><b>Item → samples.</b> Each item's text is concrete enough to write a code example for, such as "Generate a random UUID string with <code>uuid:createType4AsString()</code>".</li>
+        <li><b>References.</b> Every sample records the items it covers (<code>lib.uuid#random_uuid</code>), so you can measure which items have samples and which do not.</li>
+        <li><b>Priority and difficulty.</b> <code>core</code> nodes can get more samples than <code>long_tail</code> ones, and difficulty levels let the generator vary beginner and advanced examples.</li>
+        <li><b>Edges.</b> A generator can combine the items on both ends of an edge into one sample that uses several features together, such as an HTTP service that reads from MySQL.</li>
+        <li><b>Sources.</b> <code>sources_for(node, item)</code> returns the pages behind an item, so a generator or reviewer can check a sample against the real docs.</li>
+      </ul>
+    </section>
+
+    <section id="git">
+      <h2><span class="k">L</span>Git, branches and hosting</h2>
+      <p>The repository is <code>sajith-jeewantha/ballerina-ecosystem</code>. Work happens on branches and reaches <code>main</code> through pull requests. GitHub Pages publishes <code>main</code>, so the hosted viewer always shows what is on <code>main</code>.</p>
+      <div class="figure wide">
+        <svg viewBox="0 0 920 306" role="img" aria-label="Simplified branch history: main; feature/spec-2024r1-concept-graph merged into main as pull request 1; ballerina-graph.v2/ecosystem merged into main; ballerina-graph.v3/complete branched from main after v2 and will reach main through a pull request; GitHub Pages publishes main">
+          <defs><marker id="ga" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+          <text class="tm" x="10" y="54">main</text>
+          <text class="tm" x="10" y="124">feature/spec-2024r1-…</text>
+          <text class="tm" x="10" y="194">ballerina-graph.v2/…</text>
+          <text class="tm" x="10" y="264">ballerina-graph.v3/…</text>
+          <line class="lane main" x1="170" y1="50" x2="840" y2="50"/>
+          <line class="lane" x1="250" y1="120" x2="560" y2="120"/>
+          <line class="lane" x1="560" y1="190" x2="660" y2="190"/>
+          <line class="lane" x1="745" y1="260" x2="805" y2="260"/>
+          <path class="join" d="M190,50 C230,50 230,120 250,120"/>
+          <path class="join" d="M420,120 C450,120 450,50 470,50"/>
+          <path class="join" d="M540,120 C560,120 550,190 570,190"/>
+          <path class="join" d="M660,190 C690,190 680,50 700,50"/>
+          <path class="join" d="M715,50 C745,50 725,260 755,260"/>
+          <path class="join future" d="M800,260 C825,260 810,50 830,50"/>
+          <circle class="dot main" cx="190" cy="50" r="7"/><text class="ts" x="176" y="30">initial</text>
+          <circle class="dot main" cx="470" cy="50" r="7"/><text class="ts" x="440" y="30">PR #1 merged</text>
+          <circle class="dot main" cx="560" cy="50" r="7"/><text class="ts" x="534" y="30">Pages setup</text>
+          <circle class="dot main" cx="700" cy="50" r="7"/><text class="ts" x="660" y="30">v2 merged</text>
+          <circle class="dot main dot future" cx="830" cy="50" r="8"/><text class="ts" x="760" y="30" style="fill: var(--accent)">next: v3 merged</text>
+          <circle class="dot" cx="290" cy="120" r="7"/><circle class="dot" cx="350" cy="120" r="7"/><circle class="dot" cx="400" cy="120" r="7"/>
+          <text class="ts" x="270" y="150">v1 spec graph</text>
+          <circle class="dot" cx="490" cy="120" r="7"/><circle class="dot" cx="540" cy="120" r="7"/>
+          <text class="ts" x="470" y="150">titles, viewer</text>
+          <circle class="dot" cx="590" cy="190" r="7"/><circle class="dot" cx="630" cy="190" r="7"/>
+          <text class="ts" x="570" y="222">v2 ecosystem</text>
+          <circle class="dot" cx="765" cy="260" r="7"/><circle class="dot" cx="795" cy="260" r="7"/>
+          <text class="ts" x="728" y="292">v3 complete (now)</text>
+          <path class="flow back" d="M846,50 H852" marker-end="url(#ga)"/>
+          <text class="t" x="856" y="46">GitHub</text><text class="t" x="856" y="62">Pages</text>
+        </svg>
+      </div>
+      <p class="caption">Simplified: dots stand for groups of commits, not single commits.</p>
+      <ul>
+        <li><b>Live viewer:</b> <code>sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/viewer.html</code></li>
+        <li><b>Versions:</b> mark finished versions with tags on <code>main</code> (<code>v1.0.0</code>, <code>v2.0.0</code>, <code>v3.0.0</code>) rather than long-lived version branches. A tag never moves; a branch does.</li>
+        <li><b>Other branches do not update themselves.</b> After a merge, run <code>git pull</code> on <code>main</code>, and start new work from a fresh <code>main</code>.</li>
+      </ul>
+    </section>
+
+    <section id="workflow">
+      <h2><span class="k">M</span>Daily workflow: changing the graph</h2>
+      <ol class="steps">
+        <li><div><b>Start a branch from <code>main</code></b><span><code>git checkout main && git pull && git checkout -b feature/&lt;topic&gt;</code></span></div></li>
+        <li><div><b>Edit or add node files</b><span>Copy a similar node as a template. Use the real names, cite sources, keep 5 to 20 items, and link with edges.</span></div></li>
+        <li><div><b>Validate</b><span><code>python -m ballerina_graph validate nodes/</code> until it prints OK with 0 warnings.</span></div></li>
+        <li><div><b>Rebuild the outputs</b><span><code>view</code> and <code>export</code>, so <code>build/</code> matches the nodes.</span></div></li>
+        <li><div><b>Commit, push, open a pull request</b><span>Merge into <code>main</code>; GitHub Pages republishes the viewer. Tag it if it is a release.</span></div></li>
+      </ol>
+    </section>
+
+    <section id="next">
+      <h2><span class="k">N</span>Limits and what could come next</h2>
+      <ul>
+        <li><b>Everything is a draft.</b> 239 of the 242 nodes are <code>status: draft</code> (the other three are deprecated packages). Domain experts should review them, starting with the fast-moving AI, workflow and messaging libraries.</li>
+        <li><b>Depth varies.</b> Every Central package is named in at least one item, but the hundreds of small generated connectors share grouped items, so they get fewer samples than popular packages such as Salesforce or GitHub.</li>
+        <li><b>Left out on purpose:</b> features the agents could not confirm in the docs or source, such as S3 ACL methods or Bedrock guardrails. Each node's notes list what was skipped.</li>
+        <li><b>New packages appear.</b> Central grows every week. Re-run the catalogue download and the coverage script to find packages that are not yet in any node.</li>
+        <li><b>Versions move.</b> Library items follow the releases that were current when they were written. Re-check them when a new Ballerina release ships.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+</body></html>
