@@ -5,7 +5,7 @@
       "properties": {
         "to": {
           "description": "Target node id.",
-          "pattern": "^(concept|lib|tool|topic)(\\.[a-z0-9_]+)+$",
+          "pattern": "^(concept|lib|connector|trigger|tool|platform|topic)(\\.[a-z0-9_]+)+$",
           "title": "To",
           "type": "string"
         },
@@ -162,7 +162,7 @@
       "type": "string"
     },
     "id": {
-      "pattern": "^(concept|lib|tool|topic)(\\.[a-z0-9_]+)+$",
+      "pattern": "^(concept|lib|connector|trigger|tool|platform|topic)(\\.[a-z0-9_]+)+$",
       "title": "Id",
       "type": "string"
     },
@@ -170,7 +170,10 @@
       "enum": [
         "concept",
         "library",
+        "connector",
+        "trigger",
         "tool",
+        "platform",
         "topic"
       ],
       "title": "Type",
@@ -281,5 +284,5 @@
   "title": "Ballerina Knowledge Graph node",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "ballerina-graph/node.schema.v0.1.json"
+  "$id": "ballerina-graph/node.schema.v0.2.json"
 }
