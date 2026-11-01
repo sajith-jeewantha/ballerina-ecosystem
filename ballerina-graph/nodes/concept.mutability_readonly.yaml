@@ -10,6 +10,7 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.5", kind: spec, note: "5.6.5 Readonly type"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4", kind: spec, note: "5.4 Structured values"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.1.4", kind: spec, note: "5.1.4 Type descriptors (primary and read-only aspects)"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: what_can_mutate
     text: Explain that both variables and values can be mutated, that only values with storage identity can be mutated, and that a mutation is visible through every reference to the value
@@ -20,6 +21,8 @@ must_cover:
   - id: read_only_bit
     text: Explain the read-only bit, which is fixed when a value is constructed and makes immutability deep, so everything reachable from a read-only value is also read-only
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/immutability/", kind: bbe}
   - id: immutability_categories
     text: Classify basic types as inherently immutable (nil, boolean, int, float, decimal, string, error, function, typedesc, handle) or selectively immutable (xml, list, mapping, table, object)
     difficulty: [intermediate]
@@ -29,6 +32,9 @@ must_cover:
   - id: readonly_type
     text: Use the `readonly` type, which contains exactly the values whose read-only bit is on, and `readonly & T` to describe immutable values of type T
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/immutability/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/readonly-type/", kind: bbe}
   - id: shape_aspects
     text: Explain that shapes have a primary aspect and a read-only aspect, that every type descriptor except `readonly` ignores the read-only aspect, and that equal plain data values may differ only in read-only bits
     difficulty: [advanced]
@@ -40,12 +46,15 @@ must_cover:
   - id: immutable_inherent_type
     text: Explain that an immutable structured value's inherent type is the singleton type of its shape, so it belongs to any type that contains its shape
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/casting-json-to-user-defined-type/", kind: bbe}
   - id: constructing_immutable
     text: Construct immutable values by giving constructors a readonly contextually expected type (e.g. `readonly & int[] xs = [1, 2];`), by casting with `<readonly>`, or by calling `cloneReadOnly()`
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.20", kind: spec, note: "6.20 Type cast expression"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+      - {url: "https://ballerina.io/learn/by-example/immutability/", kind: bbe}
   - id: mutating_immutable_panics
     text: Explain that storing into or removing a member of an immutable structured value compiles but panics at runtime, because the static type does not guarantee the value is mutable
     difficulty: [intermediate]
@@ -57,6 +66,7 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2", kind: spec, note: "5.4.2 Mappings"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.2", kind: spec, note: "5.4.2.2 Record types"}
+      - {url: "https://ballerina.io/learn/by-example/readonly-type/", kind: bbe}
   - id: uniform_types
     text: Explain that each selectively immutable basic type splits into a read-only and a mutable uniform type, and mutation can never move a value between them
     difficulty: [advanced]

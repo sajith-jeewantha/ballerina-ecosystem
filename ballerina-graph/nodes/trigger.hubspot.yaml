@@ -1,0 +1,91 @@
+schema_version: "0.2"
+id: trigger.hubspot
+type: trigger
+title: ballerinax/trigger.hubspot
+summary: "The HubSpot trigger: a `hubspot:Listener` that validates HubSpot webhook requests with the app's client secret and dispatches CRM object and conversation events to the remote methods of `hubspot:*Service` service types."
+priority: important
+status: draft
+modules: [ballerinax/trigger.hubspot]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "ballerinax/trigger.hubspot 0.12.1 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi/hubspot", kind: github, note: "Trigger source"}
+must_cover:
+  - id: listener_init
+    text: "Import `ballerinax/trigger.hubspot` and create `listener hubspot:Listener hubspotWebhook = new ({clientSecret: clientSecret, callbackURL: callbackUrl}, listenOn = 8090);` with a `hubspot:ListenerConfig` whose values come from `configurable string` variables set in `Config.toml`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Quickstart step 2"}
+  - id: signature_validation
+    text: "Know that the listener validates each request's `X-HubSpot-Signature-v3` header (HMAC-SHA256 with the app's `clientSecret`, together with `X-HubSpot-Request-Timestamp`), so `callbackURL` must be exactly the public target URL HubSpot calls"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/dispatcher_service.bal", kind: github, note: "validateSignature"}
+  - id: developer_setup
+    text: "Prepare HubSpot: create a developer account, install the HubSpot CLI (`npm install -g @hubspot/cli@latest`) and run `hs account auth`, create a developer test account, and expose port 8090 with `ngrok http 8090`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Prerequisites steps 1-4"}
+  - id: app_project
+    text: "Create a HubSpot app with `hs project create` (App, private, `oauth`, Webhooks) and list in `src/app/app-hsmeta.json` `requiredScopes` only for the objects you subscribe to (`crm.objects.contacts.read`, `crm.objects.companies.read`, `crm.objects.deals.read`, `tickets`, `e-commerce`, `conversations.read`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Prerequisites step 5"}
+  - id: webhook_subscriptions
+    text: "Declare subscriptions in `src/app/webhooks/webhook-hsmeta.json` with `targetUrl` set to the ngrok URL, CRM object events such as `contact.creation` or `deal.propertyChange` (with a `propertyName`) under `legacyCrmObjects`, and `contact.privacyDeletion` and `conversation.*` under `hubEvents`, then deploy with `hs project upload`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Prerequisites step 6"}
+  - id: install_app
+    text: "Copy the Client Secret from the app's Auth tab (`hs project open`), then install the app in the developer test account through its sample install (Test) URL, using HubSpot's OAuth quickstart server on `localhost:3000` for the token exchange"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Prerequisites steps 7-8"}
+  - id: implement_all_methods
+    text: "Implement every remote method of the chosen service type (a `hubspot:CompanyService` must define all six), each as `remote function onX(hubspot:WebhookEvent event) returns error?`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Step 3"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: webhook_event_fields
+    text: "Read `hubspot:WebhookEvent` fields such as `subscriptionType`, `objectId`, `eventId`, `occurredAt`, `portalId`, `propertyName`/`propertyValue` (property changes), `fromObjectId`/`toObjectId`/`associationType` (association changes) and `primaryObjectId`/`mergedObjectIds` (merges), and fetch full object data with a HubSpot CRM client because the payload carries no object metadata"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.hubspot/latest", kind: central, note: "Note on payload"}
+  - id: company_events
+    text: "Handle company events with `hubspot:CompanyService` (`onCompanyCreation`, `onCompanyDeletion`, `onCompanyPropertychange`, `onCompanyAssociationchange`, `onCompanyMerge`, `onCompanyRestore`; payload `hubspot:WebhookEvent`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: contact_events
+    text: "Handle contact events with `hubspot:ContactService` (`onContactCreation`, `onContactDeletion`, `onContactPropertychange`, `onContactAssociationchange`, `onContactMerge`, `onContactRestore`, `onContactPrivacydeletion`; payload `hubspot:WebhookEvent`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: deal_events
+    text: "Handle deal events with `hubspot:DealService` (`onDealCreation`, `onDealDeletion`, `onDealPropertychange`, `onDealAssociationchange`, `onDealMerge`, `onDealRestore`; payload `hubspot:WebhookEvent`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: ticket_events
+    text: "Handle ticket events with `hubspot:TicketService` (`onTicketCreation`, `onTicketDeletion`, `onTicketPropertychange`, `onTicketAssociationchange`, `onTicketMerge`, `onTicketRestore`; payload `hubspot:WebhookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: product_line_item_events
+    text: "Handle commerce events with `hubspot:ProductService` (`onProductCreation`, `onProductDeletion`, `onProductPropertychange`, `onProductMerge`, `onProductRestore`; payload `hubspot:WebhookEvent`) and `hubspot:LineItemService` (`onLineItemCreation`, `onLineItemDeletion`, `onLineItemPropertychange`, `onLineItemAssociationchange`, `onLineItemMerge`, `onLineItemRestore`; payload `hubspot:WebhookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+  - id: conversation_events
+    text: "Handle conversation inbox events with `hubspot:ConversationService` (`onConversationCreation`, `onConversationDeletion`, `onConversationPropertychange`, `onConversationPrivacydeletion`, `onConversationNewmessage`; payload `hubspot:WebhookEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/hubspot/service_types.bal", kind: github, note: "Service types"}
+out_of_scope:
+  - "HubSpot CRM API operations (connector.hubspot_crm, connector.hubspot)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [listener_init, implement_all_methods]}
+  - {to: connector.hubspot_crm, rel: uses, via: [webhook_event_fields], note: "Use the hubspot.crm.* clients to fetch the objects named in events"}
+  - {to: tool.config_toml, rel: uses, via: [listener_init]}
+  - {to: lib.http, rel: uses, via: [listener_init]}
+notes: "Verified against the trigger.hubspot 0.12.1 README and API docs. Method names keep HubSpot's lower-case suffixes (`onCompanyPropertychange`, `onContactPrivacydeletion`, `onConversationNewmessage`)."

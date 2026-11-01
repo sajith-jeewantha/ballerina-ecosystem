@@ -9,24 +9,36 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.4", kind: spec, note: "5.5.4 Futures"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.6", kind: spec, note: "7.6 Start action"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7", kind: spec, note: "7.7 Wait action"}
+  - {url: "https://ballerina.io/learn/concurrency/", kind: docs, note: "Learn: Concurrency"}
 must_cover:
   - id: start_action
     text: "Use `start f(args)` (or a method call, remote method call or resource access) to run a call on a new strand and immediately get a `future<T>`, with the arguments evaluated on the current strand"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/asynchronous-function-calls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/named-workers-and-futures/", kind: bbe}
   - id: future_types
     text: "Explain future types: `future<T>` refers to a strand that will return a T, and `future` without a type parameter covers every future value"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/asynchronous-function-calls/", kind: bbe}
   - id: isolated_start
     text: "Know that a start whose call is isolated (an isolated callee with isolated argument expressions, the receiver object counting as an argument) is allowed in isolated functions and may run on a separate thread"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/run-strands-safely-on-separate-threads/", kind: bbe}
   - id: single_wait
     text: "Use `wait f` to wait for a strand to terminate and get its termination value"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.1", kind: spec, note: "7.7.1 Single wait action"}
+      - {url: "https://ballerina.io/learn/by-example/waiting-for-workers/", kind: bbe}
   - id: wait_eventual_type
     text: "Explain wait result types: waiting on a named worker's name has eventual type T and cannot fail, while waiting on any other `future<T>` gives `T|error`, because only one wait on a strand succeeds and the others fail with an error"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/asynchronous-function-calls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/named-worker-return-values/", kind: bbe}
   - id: wait_panic
     text: "Know that if the awaited strand terminated abnormally (panicked), the wait itself completes with a panic carrying that error"
     difficulty: [intermediate]
@@ -35,11 +47,13 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.2", kind: spec, note: "7.7.2 Multiple wait action"}
+      - {url: "https://ballerina.io/learn/by-example/multiple-wait/", kind: bbe}
   - id: alternate_wait
     text: "Use `wait f1 | f2` to get the first non-error result, or the error from the last strand to finish if all finish with errors"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.7.3", kind: spec, note: "7.7.3 Alternate wait action"}
+      - {url: "https://ballerina.io/learn/by-example/alternate-wait/", kind: bbe}
   - id: no_wait_default_worker
     text: "Know that only named workers and started strands can be waited for; a function's default worker cannot be"
     difficulty: [intermediate]
@@ -48,6 +62,8 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.future", kind: spec, note: "11.3.7 lang.future module"}
+      - {url: "https://ballerina.io/learn/by-example/asynchronous-function-calls/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/named-workers-and-futures/", kind: bbe}
   - id: runtime_sleep
     text: "Pause the current strand with `runtime:sleep(seconds)` (a decimal number of seconds), which yields; `runtime` is not a predeclared prefix, so `import ballerina/lang.runtime;` is required"
     difficulty: [beginner]

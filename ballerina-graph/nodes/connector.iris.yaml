@@ -1,0 +1,60 @@
+schema_version: "0.2"
+id: connector.iris
+type: connector
+title: "IRIS connectors"
+summary: "Seven OpenAPI-generated Ballerina clients for the IRIS CRM APIs used by payment-processing ISOs (leads, merchants, chargeback disputes, e-signature, helpdesk, residuals, webhook subscriptions), sharing one `X-API-KEY` client shape."
+priority: long_tail
+status: draft
+modules: [ballerinax/iris.disputeresponder, ballerinax/iris.esignature, ballerinax/iris.helpdesk, ballerinax/iris.lead, ballerinax/iris.merchants, ballerinax/iris.residuals, ballerinax/iris.subscriptions]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/iris.disputeresponder/latest", kind: central, note: "ballerinax/iris.disputeresponder README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.esignature/latest", kind: central, note: "ballerinax/iris.esignature README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.helpdesk/latest", kind: central, note: "ballerinax/iris.helpdesk README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.lead/latest", kind: central, note: "ballerinax/iris.lead README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.merchants/latest", kind: central, note: "ballerinax/iris.merchants README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.residuals/latest", kind: central, note: "ballerinax/iris.residuals README"}
+  - {url: "https://central.ballerina.io/ballerinax/iris.subscriptions/latest", kind: central, note: "ballerinax/iris.subscriptions README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+must_cover:
+  - id: client_shape
+    text: "Create any IRIS client, e.g. `iris.lead:Client`, with `check new ({xApiKey: apiKey}, serviceUrl)` (an `ApiKeysConfig` sent as the `X-API-KEY` header, then a required `serviceUrl` for your IRIS CRM instance, then an optional `ConnectionConfig`), and page list calls with `page` and `perPage` named arguments"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.lead", kind: github, note: "iris.lead generated client.bal/types.bal"}
+  - id: leads
+    text: "Manage CRM leads with `iris.lead` `getLeads(page = ..., perPage = ...)`, `createLead(V1LeadsBody)`, `getDetailedLeadInformation(leadId)`, `updateLead(leadId, ...)`, `createLeadNote(leadId, ...)`, `createLeadTask(leadId, ...)`, `createLeadAppointment(leadId, ...)` and `assignUser(leadId, ...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.lead", kind: github, note: "iris.lead generated client.bal/types.bal"}
+  - id: merchants
+    text: "Read merchant data with `iris.merchants` `getMerchants()`, `getMerchantInformation(merchantNumber)`, `getDepositRecords(merchantNumber, year, month, day)`, `getBatches(merchantNumber)`, `getChargebacks(merchantNumber)`, `getStatements(merchantNumber)` and `downloadStatement(merchantNumber, statementId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.merchants", kind: github, note: "iris.merchants generated client.bal/types.bal"}
+  - id: disputes
+    text: "Respond to card disputes with `iris.disputeresponder` `disputeChargeback(merchantNumber, caseNumber, ChargebackReplyDisputeRequest)`, `replyToChargebackCaseAcceptChargeback(merchantNumber, caseNumber)`, `replyToChargebackCaseCreditIssued(...)` and `replyToRetrievalCaseRetrievalResponse(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.disputeresponder", kind: github, note: "iris.disputeresponder generated client.bal/types.bal"}
+  - id: esignature_helpdesk
+    text: "Send merchant applications for signature with `iris.esignature` `generateEsignatureDocument(leadId, applicationId, ...)` and `sendEsignatureDocument(leadId, applicationId, ...)`, and run support with `iris.helpdesk` `createNewTicket(V1HelpdeskBody)`, `getHelpdeskTickets()`, `addTicketComment(ticketId, ...)` and `updateTicket(ticketId, ...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.esignature", kind: github, note: "iris.esignature generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.helpdesk", kind: github, note: "iris.helpdesk generated client.bal/types.bal"}
+  - id: residuals
+    text: "Report agent payouts with `iris.residuals` `getResidualsSummaryData(year, month)`, `getResiduals(processorId, year, month)`, `getResidualsDetailsWithMerchantRows(...)` and `getResidualsLineItems(year, month)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.residuals", kind: github, note: "iris.residuals generated client.bal/types.bal"}
+  - id: webhook_subscriptions
+    text: "Register IRIS webhooks with `iris.subscriptions` `createSubscription(BriefSubscriptionInfo)`, `getSubscriptions()`, `updateSubscription(subscriptionId, ...)` and `deleteSubscription(subscriptionId)`, and send a test delivery with `testPayloadForCheckingServerResponse()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iris.subscriptions", kind: github, note: "iris.subscriptions generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape]}
+  - {to: concept.client_objects, rel: uses, via: [client_shape, leads]}
+  - {to: concept.records, rel: uses, via: [leads, disputes]}
+  - {to: concept.errors, rel: uses, via: [client_shape]}
+notes: "Central READMEs are stubs; operations come from openapi-connectors main client.bal. iris.subscriptions also exposes receiveNotificationWhen* methods that only describe webhook payloads; they are left out. No BBEs exist."

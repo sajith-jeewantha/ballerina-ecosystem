@@ -13,6 +13,7 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.7", kind: spec, note: "5.6.7 Union types"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.8", kind: spec, note: "5.6.8 Intersection types"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.9", kind: spec, note: "5.6.9 Optional types"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: no_new_values
     text: Explain that these type descriptors add no new values to the universe; they only describe subsets of existing values
@@ -20,21 +21,34 @@ must_cover:
   - id: union_types
     text: Declare union types such as `int|string`, whose shapes are the union of the members' shapes, and use them for variables and parameters that accept several types
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/unions/", kind: bbe}
   - id: optional_types
     text: Use optional types `T?`, which are exactly equivalent to `T|()`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nil/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/unions/", kind: bbe}
   - id: singleton_types
     text: Define singleton types from constant expressions, such as `"GET"|"POST"` or `1|2|3`, each containing exactly one shape
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/singleton-types/", kind: bbe}
   - id: singleton_structured_readonly
     text: Explain that a singleton type referencing a structured constant contains only values with the read-only bit set, so a mutable value never belongs to a singleton type
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/singleton-types/", kind: bbe}
   - id: any_type
     text: Use `any` for every value except errors, know that `any|error` covers all values, and that a list or mapping containing error members still belongs to `any`
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/any-type/", kind: bbe}
   - id: never_type
-    text: Use `never` for the empty type, for example as the return type of a function that never returns or in `xml<never>` for the empty xml value, and know `T|never` is the same as `T`
+    text: 'Use `never` for the empty type, for example as the return type of a function that never returns, in `xml<never>` for the empty xml value, or as an optional field `never x?;` stating that a record has no field `x` (e.g. the type of the rest of `var {x: _, y: _, ...rest} = p;`), and know `T|never` is the same as `T`'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/never-type/", kind: bbe}
   - id: intersection_types
     text: Write intersection types `T1 & T2` whose shapes are in both types, most commonly `readonly & T`, and know an intersection that denotes an empty set of shapes is a compile error
     difficulty: [intermediate]

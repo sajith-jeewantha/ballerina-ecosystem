@@ -1,0 +1,112 @@
+schema_version: "0.2"
+id: connector.health_other
+type: connector
+title: ballerinax/health.* (DICOM, C-CDA)
+summary: "Other Ballerina Health packages: the FHIR R4/R5 service types (`health.fhirr4`, `health.fhirr5`) for exposing FHIR APIs, CDS Hooks models, the TCP HL7 v2 client, DICOM parsing and DICOMweb services, and C-CDA document records."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/health.ccda.r3
+  - ballerinax/health.clients.hl7
+  - ballerinax/health.dicom
+  - ballerinax/health.dicom.dicomparser
+  - ballerinax/health.dicom.dicomservice
+  - ballerinax/health.dicom.dicomweb
+  - ballerinax/health.fhir.cds
+  - ballerinax/health.fhirr4
+  - ballerinax/health.fhirr5
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/health.fhirr4/latest", kind: central, note: "FHIR R4 service type README (3.0.8)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4", kind: github, note: "fhirr4 listener source and r4/fhir_context.bal, r4/fhir_api_config.bal"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.dicom", kind: github, note: "DICOM packages"}
+  - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/building-fhir-facade", kind: github, note: "FHIR facade over MySQL with health.fhirr4"}
+must_cover:
+  - id: fhir_service_listener
+    text: "Expose a FHIR R4 API with the `health.fhirr4` service type: `service /fhir/r4/Patient on new fhirr4:Listener(config = patientApiConfig)` (or `new fhirr4:Listener(9090, apiConfig)`) with resource functions that take `r4:FHIRContext fhirContext`, e.g. `isolated resource function get [string id](r4:FHIRContext fhirContext) returns Patient|r4:OperationOutcome|r4:FHIRError` and `get .(...)` returning an `r4:Bundle` search set"
+    difficulty: [intermediate]
+  - id: resource_api_config
+    text: "Describe each FHIR resource API with an `r4:ResourceAPIConfig` record: `resourceType: \"Patient\"`, `profiles: [\"http://hl7.org/fhir/StructureDefinition/Patient\"]`, `defaultProfile`, `searchParameters: [{name: \"gender\", active: true, information: {description: ..., builtin: false, documentation: ...}}]`, `operations`, `serverConfig`, `authzConfig` and optional `paginationConfig`"
+    difficulty: [intermediate]
+  - id: fhir_context_search
+    text: "Read typed search parameters from `r4:FHIRContext`: `fhirContext.getStringSearchParameter(\"name\")` returns `r4:StringSearchParameter[]|r4:FHIRTypeError?` (use `[0].value`), with `getTokenSearchParameter`, `getDateSearchParameter`, `getReferenceSearchParameter`, `getNumberSearchParameter` and `getRequestSearchParameters()` for other types"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4/blob/main/r4/fhir_context.bal", kind: github, note: "FHIRContext methods"}
+  - id: fhir_context_request
+    text: "Inspect and shape the request/response through `r4:FHIRContext`: `getResourceType()`, `getInteraction()`, `getClientAcceptFormat()`, `getFHIRUser()`, `getProperty`/`setProperty`, `addResponseHeader(name, value)` and `setResponseStatusCode(code)`"
+    difficulty: [advanced]
+  - id: fhir_service_interactions
+    text: "Implement the full set of FHIR interactions on a `fhirr4:Listener` service: create (`post .(r4:FHIRContext ctx, Patient patient) returns r4:FHIRError|http:Response` returning 201 with a `Location` header), update (`put [string id]`), patch (`patch [string id](r4:FHIRContext ctx, json patch)`), delete, `get [string id]/_history/[string vid]` and `get _history`, returning `r4:createFHIRError(\"Not implemented\", r4:ERROR, r4:INFORMATIONAL, httpStatusCode = http:STATUS_NOT_IMPLEMENTED)` for unsupported ones"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/blob/main/building-fhir-facade/service.bal", kind: github, note: "Patient and Encounter facade services"}
+  - id: fhir_service_validation
+    text: "Rely on the FHIR service type's built-in processing: it validates search parameters and content headers, parses and validates the payload of create requests into the profile type declared in the resource signature, runs pluggable post-processing, and turns errors into `OperationOutcome` responses"
+    difficulty: [intermediate]
+  - id: capability_statement
+    text: "Serve the server CapabilityStatement from a plain HTTP service, `service http:Service /fhir/r4/metadata on httpListener { isolated resource function get .() returns r4:CapabilityStatement|error { return check r4:generateFHIRCapabilityStatement(); } }`, built from the registered resource API configs"
+    difficulty: [intermediate]
+  - id: fhir_r5_service
+    text: "Expose FHIR R5 APIs with the `health.fhirr5` service type (`fhirr5:Listener`), which offers the same search-parameter validation, payload parsing, header validation and OperationOutcome error handling for R5 resources"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhirr5/latest", kind: central, note: "FHIR R5 service type"}
+  - id: cds_validate
+    text: "Validate a CDS Hooks 2.0 request with `health.fhir.cds`: convert JSON with `cloneWithType()` to `cds:CdsRequest` and `cds:CdsService`, call `cds:validateContext(cdsRequest, cdsService)` (returns `cds:CdsError?`, with `detail().code` and `detail().description`) and `cds:validateAndProcessPrefetch(cdsRequest, cdsService)` (returns `cds:CdsRequest|cds:CdsError`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.cds/latest", kind: central, note: "CDS package README"}
+  - id: cds_response
+    text: "Return CDS decision cards as `cds:CdsResponse {cards: [...], systemActions: []}` where each `cds:Card` has `summary`, `indicator` (e.g. `\"critical\"`, `\"info\"`), `'source: {label, url, icon}`, `detail`, `suggestions: [{label: ...}]`, `selectionBehavior` and `links: [{label, url, 'type: cds:ABSOLUTE}]`; convert errors with `cds:cdsErrorToHttpResponse(err)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/health-tool/", kind: docs, note: "CDS template decision-system sample"}
+  - id: hl7_tcp_client
+    text: "Send HL7 v2 messages over TCP with `health.clients.hl7`: `hl7:HL7Client hl7Client = check new (\"localhost\", 9876);` then `hl7v2:Message|hl7v2:HL7Error resp = hl7Client->sendMessage(adtMessage);`, enabling TLS with `config = {secureSocket: {cert: \"...\"}}` and handling `HL7_V2_MSG_VALIDATION_ERROR`, `HL7_V2_CLIENT_ERROR` and `HL7_V2_PARSER_ERROR` errors"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.clients.hl7/latest", kind: central, note: "HL7 client README"}
+  - id: dicom_parse_file
+    text: "Parse a DICOM `.dcm` file with `dicomparser:parseFile(\"./sample.dcm\", dicom:EXPLICIT_VR_LITTLE_ENDIAN)` from `health.dicom.dicomparser` (returns `dicom:File|dicom:ParsingError`), using `ignorePixelData = true` for fast metadata reads or `metaElementsOnly = true` for group 0002, and access `parsedFile.dataset`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.dicom.dicomparser/latest", kind: central, note: "DICOM parser README"}
+  - id: dicom_dataset_encode
+    text: "Build a `dicom:Dataset` from the `health.dicom` core package as a table of `{tag: {group: 0x0008, element: 0x0020}, vr: dicom:DA, value: \"20010103\"}` elements, encode it with `dicom:toBytes(dataset, dicom:EXPLICIT_VR_LITTLE_ENDIAN)` and decode bytes with `dicomparser:parseDataset(encoded, dicom:EXPLICIT_VR_LITTLE_ENDIAN)`"
+    difficulty: [advanced]
+  - id: dicom_accessors
+    text: "Read DICOM values with typed helpers and tag constants: `dicom:getString(dataset, dicom:TAG_PATIENT_NAME)`, `dicom:getInt(dataset, dicom:TAG_ROWS)`, `getFloat`, `getFloatArray(dataset, dicom:TAG_IMAGE_POSITION_PATIENT)`, `getStringArray`, `getSequence`, and parse structured VRs with `dicom:parsePersonName(raw)`, `dicom:parseDate(raw)` and `dicom:parseTime(raw)`"
+    difficulty: [intermediate]
+  - id: dicomweb_response
+    text: "Build DICOMweb (DICOM JSON Model) responses with `health.dicom.dicomweb`: `dicomweb:generateResponse(datasets, dicomweb:SEARCH_ALL_STUDIES, processedQueryParams = queryParams)` returns `dicomweb:Response|dicomweb:Error` (an array of `dicomweb:ModelObject` maps keyed by tag such as `\"00100010\"`), with resource types for QIDO-RS, WADO-RS and STOW-RS and error details `httpStatusCode`, `uuid`, `diagnostic`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.dicom.dicomweb/latest", kind: central, note: "DICOMweb README"}
+  - id: dicomweb_service
+    text: "Implement a DICOMweb QIDO-RS API with `health.dicom.dicomservice`: `service /wado on new dicomservice:Listener(9090, dicomservice:DEFAULT_API_CONFIG)` with `isolated resource function get studies(dicomservice:DicomContext context, dicomweb:QueryParameterMap queryParams) returns dicomweb:Response|dicomweb:Error?` and nested `studies/[string studyInstanceUID]/series/...` paths; clients must send `Accept: application/dicom+json`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.dicom.dicomservice/latest", kind: central, note: "DICOM service README"}
+  - id: dicomweb_api_config
+    text: "Customize DICOMweb query handling with a `dicomservice:ApiConfig` whose `queryParameters` entries (`name: dicomweb:LIMIT`, `active`, `preProcessor`, `postProcessor`) override `includefield`, `limit`, `offset` or `fuzzymatching` processing, and read request data from `DicomContext` (`getDicomRequestResourceType()`, `getClientAcceptFormat()`, `getRequestQueryParameterValue(dicomweb:LIMIT)`, `isInErrorState()`)"
+    difficulty: [advanced]
+  - id: ccda_parse
+    text: "Parse a C-CDA (HL7 CDA R2) clinical document into typed records with `health.ccda.r3` (`import ballerinax/health.ccda.r3 as ccda;`): `anydata doc = check ccda:parse(ccdaDocument);` then narrow with `doc is ccda:ContinuityofCareDocumentCCD`; the package defines records for sections and entries such as `AllergiesAndIntolerancesSection` and `AllergyIntoleranceObservation`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.ccda.r3/latest", kind: central, note: "CCDA README and API docs"}
+out_of_scope:
+  - "FHIR resource records, parser and FHIR client (connector.health_fhir)"
+  - "HL7 v2 message models and the generic hl7v2 client (connector.health_hl7v2)"
+  - "C-CDA to FHIR conversion (connector.health_fhir, `ccdatofhir`)"
+edges:
+  - {to: connector.health_fhir, rel: part_of}
+  - {to: connector.health_fhir, rel: uses, via: [fhir_service_listener, resource_api_config, fhir_service_interactions, capability_statement], target_items: [r4_base_types, fhir_errors]}
+  - {to: connector.health_hl7v2, rel: uses, via: [hl7_tcp_client], target_items: [version_packages_early]}
+  - {to: concept.services_listeners, rel: uses, via: [fhir_service_listener, dicomweb_service, fhir_r5_service]}
+  - {to: concept.resource_methods, rel: uses, via: [fhir_service_listener, fhir_service_interactions, dicomweb_service]}
+  - {to: lib.http, rel: uses, via: [fhir_service_interactions, capability_statement, cds_response]}
+  - {to: lib.tcp, rel: uses, via: [hl7_tcp_client]}
+  - {to: concept.tables, rel: uses, via: [dicom_dataset_encode]}
+  - {to: concept.client_objects, rel: uses, via: [hl7_tcp_client]}
+notes: "The health.ccda.r3 README passes an `xml` value to `ccda:parse` (and has an undefined variable), while the Central API docs show `parse(string ccdaDoc)`; the item avoids fixing the argument type. The FHIR service-type packages were assigned here by the package grouping even though they belong conceptually with connector.health_fhir. FHIR analytics publishing (resources/analytics_README.md) was not covered because its README was not available."

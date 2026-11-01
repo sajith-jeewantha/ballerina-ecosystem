@@ -1,0 +1,51 @@
+schema_version: "0.2"
+id: connector.commercetools
+type: connector
+title: "commercetools connectors"
+summary: "Generated `ballerinax/commercetools.*` clients for the commercetools Composable Commerce HTTP API, split by area (product catalog, carts/orders/shopping lists, customers, pricing and discounts, configuration, custom data, extensions/subscriptions, audit log); every call takes the `projectKey`."
+priority: long_tail
+status: draft
+modules: [ballerinax/commercetools.auditlog, ballerinax/commercetools.cartsordershoppinglists, ballerinax/commercetools.configuration, ballerinax/commercetools.customer, ballerinax/commercetools.customizebehavior, ballerinax/commercetools.customizedata, ballerinax/commercetools.pricingdiscount, ballerinax/commercetools.productcatalog]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/commercetools.productcatalog/latest", kind: central, note: "Representative README (no code)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/commercetools.productcatalog", kind: github, note: "Generated client.bal/types.bal (all commercetools.* packages live under openapi/)"}
+must_cover:
+  - id: client_auth
+    text: "Create a commercetools client, e.g. `productcatalog:Client` from `ballerinax/commercetools.productcatalog`, with `check new ({auth: {tokenUrl, clientId, clientSecret, scopes}}, serviceUrl)` (an `http:OAuth2ClientCredentialsGrantConfig`, or `{token}` bearer auth) and the region API URL"
+    difficulty: [beginner]
+  - id: products
+    text: "Query and create products with `commercetools.productcatalog`: `queryProduct(projectKey, ...)`, `createNewProduct(projectKey, ProductDraft payload)`, `getProductByID`, `getProductByKey`, `updateProductByID` and `uploadProductImage`"
+    difficulty: [intermediate]
+  - id: categories
+    text: "Manage the category tree with `commercetools.productcatalog` `queryCategory`, `createCategory`, `getCategoryByKey` and `updateCategoryByID`"
+    difficulty: [intermediate]
+  - id: carts_orders
+    text: "Run checkout with `commercetools.cartsordershoppinglists`: `createCart`, `queryCarts`, `getShippingMethodsForCart`, `createPayment`, `createOrderFromCart`, `queryOrder` and the store-scoped `createCartInStore`/`createOrderInStoreFromCart`"
+    difficulty: [intermediate, advanced]
+  - id: shopping_lists
+    text: "Manage shopping lists with `createShoppingListInStore`, `getShoppingListByID`, `updateShoppingListByID` and `deleteShoppingListByKey` on the `commercetools.cartsordershoppinglists` client"
+    difficulty: [intermediate]
+  - id: customers
+    text: "Sign up and authenticate customers with `commercetools.customer`: `createcustomerSignup(projectKey, CustomerDraft payload)`, `authenticateglobalcustomerSignin`, `queryCustomers`, `getCustomerByKey`, `updateCustomerByKey` and the password-reset token methods"
+    difficulty: [intermediate]
+  - id: pricing_discounts
+    text: "Configure prices and promotions with `commercetools.pricingdiscount`: `createTaxCategory`, `createProductDiscounts`, `getMatchingProductDiscount`, `createCartDiscount` and `queryDiscountCodes`"
+    difficulty: [intermediate]
+  - id: project_configuration
+    text: "Read and update project settings with `commercetools.configuration`: `getProject`, `updateProject`, `createStore`, `queryStores`, `createState` and `queryChannels`"
+    difficulty: [intermediate]
+  - id: custom_data
+    text: "Extend the data model with `commercetools.customizedata`: `createProductTypes`, `createType` for custom fields, and key-value custom objects with `createOrUpdateCustomObject` and `getCustomObjectByContainerAndKey`"
+    difficulty: [advanced]
+  - id: extensions_subscriptions
+    text: "Hook into platform behaviour with `commercetools.customizebehavior`: API extensions (`createExtensions`, `queryExtensions`), message subscriptions (`createSubscriptions`, `querySubscriptions`) and `queryMessages`"
+    difficulty: [advanced]
+  - id: audit_log
+    text: "Query change history with `commercetools.auditlog` `queryRecords`"
+    difficulty: [intermediate]
+edges:
+  - {to: lib.http, rel: uses, via: [client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [client_auth]}
+  - {to: concept.client_objects, rel: uses, via: [client_auth, products]}
+  - {to: concept.records, rel: uses, via: [products, customers]}
+notes: "All eight packages are openapi-connectors packages (v1.4.2, 1 pull each) with no README code; operation names and auth come from openapi-connectors main client.bal/types.bal. Field names of http:OAuth2ClientCredentialsGrantConfig are the standard ballerina/http ones."

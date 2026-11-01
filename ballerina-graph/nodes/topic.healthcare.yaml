@@ -1,0 +1,90 @@
+schema_version: "0.2"
+id: topic.healthcare
+type: topic
+title: Healthcare
+summary: "End-to-end healthcare integration with the Ballerina Health packages: exposing FHIR facades over existing data, converting HL7 v2 to FHIR or custom JSON, calling EHR FHIR servers, working with implementation guides, IPS and CDS Hooks, and de-identifying data."
+priority: important
+status: draft
+sources:
+  - {url: "https://github.com/ballerina-guides/healthcare-samples", kind: github, note: "Official healthcare samples repository (README and per-sample code)"}
+  - {url: "https://ballerina.io/learn/health-tool/", kind: docs, note: "Health tool guide"}
+  - {url: "https://central.ballerina.io/ballerinax/health.fhirr4/latest", kind: central, note: "FHIR service type"}
+must_cover:
+  - id: fhir_facade_db
+    text: "Build a FHIR R4 facade over a relational database: a `bal persist` client (`dbClient->/patientdata/[id]()`), a `service /fhir/r4/Patient on new fhirr4:Listener(config = patientApiConfig)` whose read and search resources map rows to `uscore700:USCorePatientProfile` with a mapping function, and `r4:createFHIRError(..., httpStatusCode = http:STATUS_NOT_FOUND)` when a row is missing"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/building-fhir-facade", kind: github, note: "FHIR facade over MySQL"}
+  - id: facade_search
+    text: "Implement FHIR search in a facade by reading `fhirContext.getStringSearchParameter(\"name\")`, building a `sql:ParameterizedQuery` where clause, and turning the result stream into an `r4:Bundle` with `'type: \"searchset\"` using a query expression `from var row in stream select {'resource: mapCustomPatientToFHIR(row)}`"
+    difficulty: [advanced]
+  - id: facade_create
+    text: "Accept FHIR create requests in a facade with `isolated resource function post .(r4:FHIRContext fhirContext, Patient patient) returns r4:FHIRError|http:Response`, mapping the validated profile record to an insert record, storing it, and returning `201 Created` with a `Location` header built from a configurable `SERVER_BASE_URL`"
+    difficulty: [advanced]
+  - id: facade_metadata
+    text: "Publish the facade's CapabilityStatement at `/fhir/r4/metadata` with `r4:generateFHIRCapabilityStatement()` alongside the resource services"
+    difficulty: [intermediate]
+  - id: hl7v2_to_fhir_flow
+    text: "Convert incoming HL7 v2 messages to FHIR: `json bundle = check v2tofhirr4:v2ToFhir(msg)` for the whole message, segment helpers such as `v2tofhirr4:pidToPatientName(adt.pid.pid5, adt.pid.pid9)` for fine-grained mapping, and a `V2SegmentToFhirMapper` override (e.g. a custom `pv1ToEncounter`) where the default mapping does not fit"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/hl7v2-to-fhir", kind: github, note: "HL7 v2.3 to FHIR R4"}
+  - id: hl7v2_listener_to_fhir_api
+    text: "Receive HL7 v2 ADT messages on a `tcp:Listener`, parse them with `hl7v2:parse(data)`, reply with an encoded `ACK`, and forward the converted FHIR resources to a FHIR server with `fhir_client:FHIRConnector->create` or `->'transaction(bundle)`"
+    difficulty: [advanced]
+  - id: hl7v2_to_json
+    text: "Integrate HL7 v2 with non-FHIR systems by parsing an ADT^A01 into `hl7v23:ADT_A01` and mapping PID fields to a custom record that is sent on as JSON"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/hl7v2-to-json", kind: github, note: "HL7 v2 to custom JSON"}
+  - id: hl7v2_to_ig_profiles
+    text: "Expose an HTTP service that accepts an HL7 v2 ADT^A01 message and returns a FHIR Bundle of IG-profiled resources (e.g. Danish MedCom `medcom240:MedComCorePatient` and `MedComCoreEncounter`) by combining `v2tofhirr4` with an IG package"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/working-with-fhir-igs", kind: github, note: "hl7v2-to-dk-medcom"}
+  - id: map_custom_to_ig
+    text: "Map a custom (legacy) patient record into an IG profile such as `aucore040:AUCorePatient` with an expression-bodied data-mapping function and serialize it with `toJson()`, so the profile URL and fixed codes come from the typed record"
+    difficulty: [intermediate]
+  - id: ehr_integration
+    text: "Read and search patient data in an EHR (e.g. Cerner, Epic) from an integration with `health.clients.fhir` or the vendor clients: configure `FHIRConnectorConfig` with OAuth2 or private-key JWT auth, call `getById(\"Patient\", id)`, `search(\"Encounter\", searchParameters = {...})` and conditional `create(..., onCondition = {...})`, and handle `FHIRError`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/working-with-fhir-connector", kind: github, note: "Basic and bulk-export interactions"}
+  - id: bulk_export_api
+    text: "Expose a bulk export API that starts a FHIR `$export` with `fhirConnector->bulkExport(fhir_client:EXPORT_PATIENT)` in `get export` and returns progress from `->bulkStatus(exportId = exportId)` in `get [string exportId]/status`, copying the `X-Progress` header and status code from `FHIRResponse`"
+    difficulty: [advanced]
+  - id: validate_inbound_fhir
+    text: "Validate FHIR payloads received from partners before storing them with `parser:parseWithValidation(payload, uscore501:USCorePatientProfile).ensureType()` or `validator:validate(payload, profileType)`, returning an `OperationOutcome` built from the `r4:FHIRValidationError`"
+    difficulty: [intermediate]
+  - id: ips_generation
+    text: "Generate an International Patient Summary for a patient by configuring the `summary` operation (with `ipsSectionConfig`) on a `fhirr4:Listener` Patient API and calling `POST /Patient/{id}/$summary`, or by calling `ips:getIpsBundle` directly"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/generate-ips", kind: github, note: "IPS generation sample"}
+  - id: deidentify_for_analytics
+    text: "Strip or mask PHI before sending FHIR data to analytics or test systems with `deidentify:deIdentify(bundle)` and FHIRPath-based rules (`mask`, `hash`, `encrypt`, `redact`), or targeted edits with `fhirpath:setValuesToFhirPath`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/fhirpath", kind: github, note: "FHIRPath read/modify/redact sample"}
+  - id: cds_service
+    text: "Build a CDS Hooks service: generate a template with `bal health cds -i cds-definitions.toml`, validate requests with `cds:validateContext` and `cds:validateAndProcessPrefetch`, and return `cds:CdsResponse` cards from the decision-engine connector"
+    difficulty: [advanced]
+  - id: ig_without_package
+    text: "Support an implementation guide that has no prebuilt package by generating one with `bal health fhir -m package --package-name <name> <definitions-dir>`, pushing it locally, and generating API templates for it with `bal health fhir -m template --dependent-package <org>/<name>`"
+    difficulty: [advanced]
+  - id: secure_fhir_api
+    text: "Protect patient-level FHIR APIs with `authz:authorize(authzRequest, config)` from `health.fhir.r4.authz` (patient, practitioner and privileged-user checks on JWT claims) and advertise the authorization endpoints through the SMART configuration template"
+    difficulty: [advanced]
+out_of_scope:
+  - "Package-level API detail (see the connector.health_* nodes)"
+  - "Deployment to Choreo"
+edges:
+  - {to: connector.health_fhir, rel: uses, via: [ehr_integration, bulk_export_api, validate_inbound_fhir, deidentify_for_analytics], target_items: [fhir_client_crud, fhir_client_bulk, parse_with_validation, deidentify]}
+  - {to: connector.health_other, rel: uses, via: [fhir_facade_db, facade_search, facade_create, facade_metadata, cds_service], target_items: [fhir_service_listener, fhir_context_search, fhir_service_interactions, capability_statement, cds_validate]}
+  - {to: connector.health_hl7v2, rel: uses, via: [hl7v2_to_fhir_flow, hl7v2_listener_to_fhir_api, hl7v2_to_json, hl7v2_to_ig_profiles], target_items: [v2_to_fhir, v2_to_fhir_custom_mapper, parse_bytes_tcp, map_to_custom_record]}
+  - {to: connector.health_fhir_igs, rel: uses, via: [hl7v2_to_ig_profiles, map_custom_to_ig, ips_generation, secure_fhir_api], target_items: [danish_medcom, australian_igs, ips_summary_operation, authz_default]}
+  - {to: tool.bal_health, rel: uses, via: [cds_service, ig_without_package], target_items: [cds_command, package_mode, template_mode]}
+  - {to: lib.persist, rel: uses, via: [fhir_facade_db, facade_search, facade_create]}
+  - {to: concept.query_expressions, rel: uses, via: [facade_search]}
+  - {to: topic.data_mapping, rel: uses, via: [hl7v2_to_json, map_custom_to_ig]}
+notes: "Scenarios are taken from the ballerina-guides/healthcare-samples README and sample code plus the Health tool guide. `hl7v2_listener_to_fhir_api` and `secure_fhir_api` combine documented package capabilities rather than reproducing a single published sample."

@@ -9,54 +9,73 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8", kind: spec, note: "7.8 Worker message passing"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#sending_messages", kind: spec, note: "7.8.1 Sending messages"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#receiving_messages", kind: spec, note: "7.8.2 Receiving messages"}
+  - {url: "https://ballerina.io/learn/concurrency/", kind: docs, note: "Learn: Concurrency"}
 must_cover:
   - id: message_values
     text: "Know that a worker message must belong to `value:Cloneable` and that the sent value is copied with the Clone operation"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-message-passing/", kind: bbe}
   - id: peer_workers
     text: "Send messages only between peer workers: a function's default worker (referred to as `function`) and its named workers are peers, and the workers of one fork statement are peers of each other"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-message-passing/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/fork/", kind: bbe}
   - id: async_send
     text: "Send a message without waiting for it to be received with the async send action `expr -> w;`, which evaluates to `()`"
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.1", kind: spec, note: "7.8.1.1 Async send action"}
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-message-passing/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/asynchronize-message-passing/", kind: bbe}
   - id: sync_send
     text: "Use the sync send action `expr ->> w`, which is equivalent to an async send followed by `flush w` and so may evaluate to the receiver's failure error"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.3", kind: spec, note: "7.8.1.3 Sync send action"}
+      - {url: "https://ballerina.io/learn/by-example/synchronize-message-passing/", kind: bbe}
   - id: flush_action
     text: "Use `flush w` (or `flush` alone for every peer) to wait until previously sent messages are received; it evaluates to `()` or to the receiver's error if the receiver terminated with failure, and panics if the receiver panicked"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.1.2", kind: spec, note: "7.8.1.2 Flush action"}
+      - {url: "https://ballerina.io/learn/by-example/flush/", kind: bbe}
   - id: single_receive
     text: "Receive a message with `T v = <- w;`, whose static type combines the message type, `error:NoMessage` when the matching send might not run, and the sender's failure error type"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.1", kind: spec, note: "7.8.2.1 Single receive action"}
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-message-passing/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/conditional-send/", kind: bbe}
   - id: multiple_receive
     text: "Receive from several workers at once with `<- {a: w1, b: w2}` (or `<- {w1, w2}`), producing a record of the received values, or an `error:NoMessage` if any expected message was never sent"
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.2", kind: spec, note: "7.8.2.2 Multiple receive action"}
+      - {url: "https://ballerina.io/learn/by-example/multiple-receive/", kind: bbe}
   - id: alternate_receive
     text: "Use the alternate receive action `<- w1 | w2` (new in 2024R1) to take the first non-error message from several workers, getting `error:NoMessage` if none of them sent one"
     difficulty: [advanced]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.8.2.3", kind: spec, note: "7.8.2.3 Alternate receive action"}
+      - {url: "https://ballerina.io/learn/by-example/alternate-receive/", kind: bbe}
   - id: sender_failure
     text: "Know that if the sending worker terminated with failure before sending, the receive evaluates to that error, and if it terminated abnormally (panic) the receive panics"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-failure-propagation/", kind: bbe}
   - id: compile_time_slots
     text: "Explain that each send and receive is matched to a queue slot at compile time, in syntactic order, so send and receive actions cannot appear where they could run more than once, such as inside a loop body"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/inter-worker-message-passing/", kind: bbe}
   - id: conditional_send
     text: "Know that a send action may sit in a branch that never runs (2024R1 removed the requirement that every send must be executed), in which case the receiver gets `error:NoMessage`, whereas a receive action may not be placed in such a conditional context"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/conditional-send/", kind: bbe}
   - id: async_send_failure_rule
     text: "Know that an async send whose receiver may terminate with failure is a compile-time error unless a sync send or flush is guaranteed to run before the sender terminates successfully"
     difficulty: [advanced]

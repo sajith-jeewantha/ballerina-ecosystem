@@ -5,9 +5,10 @@ title: ballerina/ai
 summary: "Provider-neutral APIs for LLM applications: direct calls through `ai:ModelProvider` (`chat`, typed `generate`, natural expressions), tool-using `ai:Agent`s with memory and MCP toolkits, and retrieval-augmented generation with `ai:VectorKnowledgeBase`, embedding providers and vector stores."
 priority: important
 status: draft
-modules: [ballerina/ai]
+modules: [ballerina/ai, ballerinax/ai.agent]
 sources:
   - {url: "https://central.ballerina.io/ballerina/ai/latest", kind: central, note: "ballerina/ai 1.16.1 package docs"}
+  - {url: "https://central.ballerina.io/ballerinax/ai.agent/latest", kind: central, note: "ballerinax/ai.agent 0.9.2 package docs and README"}
   - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "Module README: direct LLM calls, agents, RAG"}
   - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
   - {url: "https://ballerina.io/learn/by-example/ai-agent-local-tools/", kind: bbe}
@@ -35,15 +36,11 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/learn/by-example/direct-llm-calls/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-multimodal-input/", kind: bbe}
-  - id: chat_single
-    text: "Make a stateless call with `model->chat(userMessage)`, where `ai:ChatUserMessage userMessage = {role: ai:USER, content: ...}`, and read the optional `content` of the returned `ai:ChatAssistantMessage`"
-    difficulty: [beginner]
-    sources:
-      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "1.2 Multi-turn Conversation with chat"}
   - id: chat_history
-    text: "Hold a conversation in an `ai:ChatMessage[]`, passing the whole array to `model->chat(messages)` and pushing each `ai:ChatAssistantMessage` and follow-up user message so the model sees the history"
+    text: "Make a stateless call with `model->chat(userMessage)`, where `ai:ChatUserMessage userMessage = {role: ai:USER, content: ...}`, reading the optional `content` of the returned `ai:ChatAssistantMessage`, or hold a conversation in an `ai:ChatMessage[]`, passing the whole array to `model->chat(messages)` and pushing each `ai:ChatAssistantMessage` and follow-up user message so the model sees the history"
     difficulty: [beginner, intermediate]
     sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/README.md", kind: github, note: "1.2 Multi-turn Conversation with chat"}
       - {url: "https://ballerina.io/learn/by-example/direct-llm-calls-with-history/", kind: bbe}
   - id: multimodal_input
     text: "Send images to the model by interpolating an `ai:ImageDocument` (`content` is a URL or `byte[]`) into a `generate` prompt; the provider builds the multimodal request"
@@ -120,15 +117,20 @@ must_cover:
     sources:
       - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/rag-types.bal", kind: github, note: "MetadataFilter, MetadataFilters"}
       - {url: "https://github.com/ballerina-platform/module-ballerina-ai/blob/main/ballerina/rag.bal", kind: github, note: "KnowledgeBase.retrieve, deleteByFilter"}
+  - id: ai_agent_package
+    text: "Recognise `ballerinax/ai.agent` (0.9.x) as a separate ReAct-agent package with its own `agent:` API, unlike `ballerina/ai`'s `ai:ModelProvider`, `ai:Agent` and `@ai:AgentTool`: tools are `agent:Tool` records (`name`, `description`, JSON-schema `parameters`, `caller`) or `agent:HttpTool`s (also extracted with `agent:extractToolsFromOpenApiSpecFile`), models are classes such as `agent:ChatGptModel` and `agent:AzureChatGptModel`, agents are `agent:ReActAgent` or `agent:FunctionCallAgent` built as `check new (model, ...tools)`, and runs use `agent:run(agent, query, maxIter = 10)`, `agent:Iterator` or `agent:Executor`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/ai.agent/latest", kind: central, note: "ballerinax/ai.agent 0.9.2 README: Tool, ToolKit, Model, Agent"}
 out_of_scope:
-  - "Provider-specific initialization and model names (lib.ai.openai, lib.ai.anthropic, lib.ai.azure, lib.ai.ollama)"
-  - "External vector store configuration (lib.ai.pinecone)"
+  - "Provider-specific initialization and model names (connector.ai_model_providers)"
+  - "External vector stores, memory stores and knowledge sources (connector.ai_vector_stores, connector.ai_memory_stores, connector.ai_knowledge_sources)"
   - "Writing MCP servers and low-level MCP clients (lib.mcp)"
   - "Agent architecture and prompt design guidance (topic.ai_agents)"
 edges:
-  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_single, generate_text]}
+  - {to: concept.client_objects, rel: uses, via: [model_provider_init, chat_history, generate_text]}
   - {to: concept.typedesc, rel: uses, via: [generate_typed], note: "generate infers its typedesc from the expected type"}
-  - {to: concept.records, rel: uses, via: [generate_typed, chat_single, agent_create]}
+  - {to: concept.records, rel: uses, via: [generate_typed, chat_history, agent_create]}
   - {to: concept.documentation, rel: uses, via: [generate_typed, agent_tool], note: "Doc comments feed JSON schema and tool descriptions"}
   - {to: concept.annotations, rel: uses, via: [agent_tool, toolkit]}
   - {to: concept.isolation, rel: uses, via: [agent_tool, toolkit]}
@@ -140,4 +142,4 @@ edges:
   - {to: lib.http, rel: uses, via: [chat_service, agent_tool]}
   - {to: lib.mcp, rel: uses, via: [mcp_toolkit], target_items: [basic_service]}
   - {to: tool.config_toml, rel: uses, via: [default_providers]}
-notes: "Verified against module-ballerina-ai main (1.16.1, same as latest on Central). The README spells the toolkit type `ai:BaseToolkit`; the actual type (and the BBE) is `ai:BaseToolKit`. Public APIs present in source but not documented in README/BBEs were left out: human-in-the-loop approvals (`requiresApproval`, `ai:Resume`), `ai:Context`, `ai:HttpServiceToolKit`, `ai:ChatClient`, `toolLoadingStrategy`, model-assisted memory overflow and typed `run` results/`ai:Trace`."
+notes: "Verified against module-ballerina-ai main (1.16.1, same as latest on Central). The README spells the toolkit type `ai:BaseToolkit`; the actual type (and the BBE) is `ai:BaseToolKit`. Public APIs present in source but not documented in README/BBEs were left out: human-in-the-loop approvals (`requiresApproval`, `ai:Resume`), `ai:Context`, `ai:HttpServiceToolKit`, `ai:ChatClient`, `toolLoadingStrategy`, model-assisted memory overflow and typed `run` results/`ai:Trace`. v3: `chat_single` was folded into `chat_history`; `ballerinax/ai.agent` is covered by one overview item from its 0.9.2 README, which does not itself mention ballerina/ai or a migration path, so no migration claim is made."

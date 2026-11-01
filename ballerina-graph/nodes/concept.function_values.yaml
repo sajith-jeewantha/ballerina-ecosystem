@@ -12,6 +12,10 @@ must_cover:
   - id: function_type_desc
     text: "Write function type descriptors such as `function (int, string) returns boolean` and store, pass and return function values like any other value"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/function-values/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/function-types/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/function-pointers/", kind: bbe}
   - id: any_function
     text: "Use the bare `function` type, to which every function value belongs, and `isolated function`, to which exactly the isolated function values belong"
     difficulty: [intermediate]
@@ -27,20 +31,28 @@ must_cover:
   - id: explicit_anon
     text: "Write explicit anonymous functions such as `function (int x) returns int { return x + 1; }` or `function (int x) returns int => x + 1`"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/anonymous-function/", kind: bbe}
   - id: infer_anon
     text: "Write inferred anonymous functions such as `x => x * 2` or `(a, b) => a + b` in contexts that expect a function type, where the parameter types and whether the function is `isolated` are inferred from the expected type"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/anonymous-function/", kind: bbe}
   - id: infer_anon_typing
     text: "Explain that an inferred anonymous function's return type is the static type of its body expression, which gets the expected function type's return type as its contextually expected type, and that it is inferred `transactional` if the body calls transactional functions"
     difficulty: [advanced]
   - id: closures
     text: "Explain that an anonymous function captures outer local variables by reference: the closure refers to the same storage as the original variable, not a copy"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/function-closure/", kind: bbe}
   - id: call_function_values
     text: "Call a function value held in a variable or parameter with ordinary call syntax `f(1)`, and call an object field of function type with method-call syntax `obj.handler(1)`"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.16", kind: spec, note: "6.16 Method call expression"}
+      - {url: "https://ballerina.io/learn/by-example/function-values/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/function-pointers/", kind: bbe}
   - id: bound_method
     text: "Obtain a method as a function value with field access `obj.method` (without calling it), producing a function that calls the method with `self` bound to `obj`, whose isolated bit is set only if both the object and the method are isolated"
     difficulty: [advanced]
@@ -52,8 +64,11 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.function", kind: spec, note: "11.3.6 lang.function module"}
   - id: defaults_in_type
-    text: "Explain that the closures computing default parameter values are part of a function's type descriptor, created when it is resolved and called by the caller, and that with an `isolated` function type a default expression must meet the isolated-function requirements"
+    text: "Give parameters default values in a function type, as in `function (int num = 5) returns boolean f = isEven;`, where a call `f()` uses the default from the function type even if the function value declares its own; explain that the closures computing default parameter values are part of a function's type descriptor, created when it is resolved and called by the caller, and that with an `isolated` function type a default expression must meet the isolated-function requirements"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/function-types/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/function-pointers/", kind: bbe}
 out_of_scope:
   - "Function definitions and argument passing (concept.functions)"
   - "Isolation rules for captured variables in isolated functions (concept.isolation)"

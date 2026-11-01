@@ -1,0 +1,113 @@
+schema_version: "0.2"
+id: connector.area_ai_machine_learning
+type: connector
+title: AI & Machine Learning connectors
+summary: "Raw API connectors for AI and machine-learning services that are not `ballerina/ai` providers: the Milvus vector database client, the Mistral and OpenRouter REST APIs, Pinecone index and vector operations, Stability AI image generation, VisibleThread document analysis and the Weaviate REST/GraphQL API."
+priority: long_tail
+status: draft
+modules: [ballerinax/milvus, ballerinax/mistral, ballerinax/openrouter, ballerinax/pinecone.index, ballerinax/pinecone.vector, ballerinax/stabilityai, ballerinax/visiblethread, ballerinax/weaviate]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/milvus/latest", kind: central, note: "ballerinax/milvus 1.2.0 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-milvus/blob/main/ballerina/client.bal", kind: github, note: "milvus:Client remote methods"}
+  - {url: "https://central.ballerina.io/ballerinax/mistral/latest", kind: central, note: "ballerinax/mistral 1.0.2 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/openrouter/latest", kind: central, note: "ballerinax/openrouter 1.1.0 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/pinecone.index/latest", kind: central, note: "ballerinax/pinecone.index 1.0.3"}
+  - {url: "https://central.ballerina.io/ballerinax/pinecone.vector/latest", kind: central, note: "ballerinax/pinecone.vector 1.0.3"}
+  - {url: "https://central.ballerina.io/ballerinax/stabilityai/latest", kind: central, note: "ballerinax/stabilityai 1.0.2"}
+  - {url: "https://central.ballerina.io/ballerinax/visiblethread/latest", kind: central, note: "ballerinax/visiblethread 1.5.2"}
+  - {url: "https://central.ballerina.io/ballerinax/weaviate/latest", kind: central, note: "ballerinax/weaviate 1.0.3"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Source and Module.md of pinecone.index, pinecone.vector, stabilityai, visiblethread, weaviate"}
+must_cover:
+  - id: milvus_client
+    text: "Create a `ballerinax/milvus` client with `milvus:Client milvusClient = check new (milvusUrl);` against a Docker standalone Milvus or Zilliz Cloud, passing included `milvus:ConnectionConfig` fields as named arguments such as `authConfig = {token: ...}` or `credentialsConfig = {username: ..., password: ...}`, `databaseName`, `connectTimeout` and `secureConfig`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/milvus/latest", kind: central, note: "Setup guide; Step 2: Instantiate a new connector"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-milvus/blob/main/ballerina/types.bal", kind: github, note: "ConnectionConfig, AuthConfig, CredentialsConfig"}
+  - id: milvus_collections
+    text: "Manage Milvus collections with remote methods `check milvusClient->createCollection({collectionName: \"example_collection\", dimension: 2})`, `listCollections()`, `loadCollection(collectionName)` and `createIndex({collectionName, primaryKey, fieldNames})`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/milvus/latest", kind: central, note: "Step 3: Invoke the connector operations"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-milvus/blob/main/ballerina/client.bal", kind: github}
+  - id: milvus_data
+    text: "Write and search Milvus data with `->upsert({collectionName, data: {vectors: [...], properties: {...}}})`, `->search({collectionName, vectors, topK, filter, outputFields})` returning `milvus:SearchResult[][]` (with `similarityScore`), `->query({collectionName, filter})` and `->delete({collectionName, ids})`, which returns the deleted count"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-milvus/blob/main/ballerina/types.bal", kind: github, note: "UpsertRequest, SearchRequest, QueryRequest, DeleteRequest"}
+  - id: rest_client_shape
+    text: "Create the generated REST clients for Mistral and OpenRouter with a bearer API key, e.g. `mistral:Client mistralClient = check new (config = {auth: {token: token}});` (`ballerinax/mistral`, default `https://api.mistral.ai/v1`) or `openrouter:Client openrouterClient = check new ({auth: {token}});` (`ballerinax/openrouter`), with the token from `Config.toml`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/mistral/latest", kind: central, note: "Step 2: Create a new connector instance"}
+      - {url: "https://central.ballerina.io/ballerinax/openrouter/latest", kind: central, note: "Step 2: Instantiate a new connector"}
+  - id: mistral_chat
+    text: "Create a Mistral chat completion with `mistral:ChatCompletionRequest request = {model: \"mistral-small-latest\", messages: [{role: \"user\", content: \"...\"}]};` and `mistral:ChatCompletionResponse response = check mistralClient->/chat/completions.post(request);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/mistral/latest", kind: central, note: "Step 3: Invoke the connector operation"}
+  - id: mistral_other_endpoints
+    text: "Use the other `mistral:Client` resources: `/embeddings.post`, `/fim/completions.post` (fill-in-the-middle), `/ocr.post`, `/moderations.post`, `/agents/completions.post`, `/files`, `/fine_tuning/jobs`, `/batch/jobs` and `/models`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-mistral/blob/main/ballerina/client.bal", kind: github, note: "Resource functions"}
+  - id: openrouter_chat
+    text: "Route a chat completion to any model through OpenRouter with `openrouter:ChatGenerationParams chatRequest = {model: \"openai/gpt-3.5-turbo\", messages: [...], max_tokens: 150, temperature: 0.7};` and `openrouter:ChatResponse response = check openrouterClient->/chat/completions.post(chatRequest);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openrouter/latest", kind: central, note: "Create a chat completion"}
+  - id: openrouter_other_endpoints
+    text: "Use the other `openrouter:Client` resources: `/responses.post`, `/messages.post` (Anthropic Messages format), `/embeddings.post`, `/models.get`, `/providers.get`, `/credits.get`, `/generation.get` and key and guardrail management under `/keys` and `/guardrails`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-openrouter/blob/main/ballerina/client.bal", kind: github, note: "Resource functions"}
+  - id: pinecone_index
+    text: "Manage Pinecone indexes with `ballerinax/pinecone.index`: `index:Client pineconeIndexClient = check new ({apiKey: \"...\"}, serviceUrl = \"https://controller.<environment>.pinecone.io\");`, then `->/databases.get()` (an `index:IndexesList`), `->/databases.post(indexDefinition)`, get/`patch`/delete on `/databases/[indexName]`, and `/collections`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/pinecone.index/Module.md", kind: github, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/pinecone.index/client.bal", kind: github}
+  - id: pinecone_vector
+    text: "Work with vectors in a Pinecone index through `ballerinax/pinecone.vector`: `vector:Client pineconeVectorClient = check new ({apiKey: \"...\"}, serviceUrl = \"https://<index_name>-<project_name>.svc.<environment>.pinecone.io\");`, `->/vectors/upsert.post({vectors, namespace})`, `->/query.post({topK, vector, filter, includeMetadata: true, namespace})`, `->/vectors/fetch.get(ids)`, `->/vectors/update.post(...)`, `->/vectors/delete.post(...)` and `->/describe_index_stats.post({})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/pinecone.vector/Module.md", kind: github, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/pinecone.vector/types.bal", kind: github, note: "QueryRequest, UpsertRequest"}
+  - id: stabilityai_text_to_image
+    text: "Generate an image with `ballerinax/stabilityai`: `final stabilityai:Client stabilityaiClient = check new ({authorization: api_key});`, post `stabilityai:TextToImageRequestBody {text_prompts: [{\"text\": \"A lighthouse on a cliff\", \"weight\": 1}]}` to `->/v1/generation/[\"stable-diffusion-v1\"]/text\\-to\\-image.post(payload)`, then decode each artifact's `'base64` with `mime:base64Decode` and save it with `io:fileWriteBytes`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/stabilityai/Module.md", kind: github, note: "Quickstart"}
+  - id: stabilityai_other_operations
+    text: "Use the other `stabilityai:Client` resources: `/v1/generation/[engine_id]/image\\-to\\-image`, `/image\\-to\\-image/upscale` and `/image\\-to\\-image/masking` posts, plus `/v1/engines/list`, `/v1/user/account` and `/v1/user/balance` gets"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/stabilityai/client.bal", kind: github}
+  - id: visiblethread
+    text: "Analyze documents and web pages with `ballerinax/visiblethread`: create `visiblethread:Client` with `{apiKey: ...}` and call remote methods such as `getDocs()`, `getDocById(docId)`, `getDictionaries()`, `runSearch(payload)`, `getSearchResultsById(docId, dictionaryId, matchingOnly)`, `runScan(payload)`, `getScans()` and `getScanById(scanId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/visiblethread/client.bal", kind: github}
+  - id: weaviate_batch_insert
+    text: "Insert vectors into Weaviate with `ballerinax/weaviate`: `weaviate:Client weaviateClient = check new ({auth: {token: \"...\"}}, serviceUrl = \"https://weaviate-server:port/v1\");`, build `weaviate:Object` values `{'class: className, vector: embeddings[i], properties: {\"docs\": text[i]}}` and post them with `->/batch/objects.post({objects: objArr})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/weaviate/Module.md", kind: github, note: "Quickstart: batch insert"}
+  - id: weaviate_graphql_schema
+    text: "Search Weaviate by vector with a GraphQL query string using `nearVector: {vector: ...}`, `limit` and `_additional {certainty, id}` posted via `->/graphql.post({query: graphQLQuery})` (a `weaviate:GraphQLResponse`), and manage classes and objects with `/schema` and `/objects` resources"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/weaviate/Module.md", kind: github, note: "GraphQL query example"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/weaviate/client.bal", kind: github}
+out_of_scope:
+  - "Milvus, Pinecone and Weaviate as ai:VectorStore implementations (connector.ai_vector_stores)"
+  - "Mistral and OpenRouter as ai:ModelProvider implementations (connector.ai_model_providers)"
+  - "Full request/response schemas of each API"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [milvus_client, rest_client_shape, visiblethread]}
+  - {to: concept.resource_methods, rel: uses, via: [mistral_chat, pinecone_vector, weaviate_batch_insert]}
+  - {to: concept.records, rel: uses, via: [milvus_data, mistral_chat, pinecone_vector]}
+  - {to: lib.http, rel: uses, via: [rest_client_shape, weaviate_batch_insert], note: "Generated clients take http-based ConnectionConfig"}
+  - {to: lib.mime, rel: uses, via: [stabilityai_text_to_image], note: "mime:base64Decode"}
+  - {to: tool.config_toml, rel: uses, via: [rest_client_shape]}
+notes: "Milvus, Mistral and OpenRouter items come from their Central READMEs and main-branch client.bal/types.bal (versions match Central). Pinecone, Stability AI, VisibleThread and Weaviate have README stubs on Central; their items come from openapi-connectors Module.md and source (versions match Central). The weaviate Module.md writes `serviceURL: ...`; the init parameter is `serviceUrl`. VisibleThread request payload fields were not documented and are left out."

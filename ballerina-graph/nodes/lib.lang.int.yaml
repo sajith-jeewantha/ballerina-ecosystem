@@ -14,6 +14,7 @@ must_cover:
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
+      - {url: "https://ballerina.io/learn/by-example/built-in-integer-subtypes/", kind: bbe}
   - id: constants
     text: "Use the `lang.int` constants `int:MAX_VALUE` (9223372036854775807), `int:MIN_VALUE` (defined as `-9223372036854775807 - 1` because the literal 9223372036854775808 would overflow) and the subtype bounds `SIGNED32_MAX_VALUE`, `SIGNED32_MIN_VALUE`, `SIGNED16_*`, `SIGNED8_*` and `UNSIGNED32/16/8_MAX_VALUE`"
     difficulty: [beginner, intermediate]
@@ -29,6 +30,8 @@ must_cover:
   - id: range
     text: "Use `int:range(start, end, step)` to get an `object:Iterable` over `start + step*i` that is increasing and < end when step > 0, decreasing and > end when step < 0, and panics when step is 0, e.g. `foreach int i in int:range(10, 0, -2)`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/int-range/", kind: bbe}
   - id: aggregation_query
     text: "Aggregate int fields in a query with unqualified calls such as `sum(qty)`, `max(qty)` and `avg(qty)` on an aggregated variable after `group by` or in a `collect` clause, which resolve to `int:sum`, `int:max` and `int:avg`"
     difficulty: [intermediate]

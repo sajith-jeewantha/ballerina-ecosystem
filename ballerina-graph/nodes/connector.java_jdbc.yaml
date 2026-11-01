@@ -5,11 +5,13 @@ title: ballerinax/java.jdbc
 summary: "The generic JDBC connector: a `jdbc:Client` that implements the `sql:Client` API for any relational database reachable through a JDBC URL and a driver JAR added to the package."
 priority: important
 status: draft
-modules: [ballerinax/java.jdbc]
+modules: [ballerinax/java.jdbc, ballerinax/h2.driver, ballerinax/cdata.connect.driver]
 sources:
   - {url: "https://central.ballerina.io/ballerinax/java.jdbc/latest", kind: central, note: "ballerinax/java.jdbc 1.15.1 package docs"}
   - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jdbc/blob/master/ballerina/README.md", kind: github, note: "Module README"}
   - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jdbc/blob/master/ballerina/client.bal", kind: github, note: "Client init, Options, Operations"}
+  - {url: "https://central.ballerina.io/ballerinax/h2.driver/latest", kind: central, note: "ballerinax/h2.driver 1.2.1 (H2 2.3.232)"}
+  - {url: "https://central.ballerina.io/ballerinax/cdata.connect.driver/latest", kind: central, note: "ballerinax/cdata.connect.driver 1.1.1"}
 must_cover:
   - id: driver_dependency
     text: "Add the JDBC driver of the target database to `Ballerina.toml` under `[[platform.java17.dependency]]`, either with `path = \"...\"` to a downloaded JAR or with Maven coordinates (e.g. `groupId = \"com.h2database\"`, `artifactId = \"h2\"`, `version = \"2.0.206\"`)"
@@ -32,6 +34,16 @@ must_cover:
   - id: client_close
     text: "Keep a `jdbc:Client` for the application lifetime and close it with `check dbClient.close()` at shutdown"
     difficulty: [beginner]
+  - id: h2_driver_package
+    text: "Bundle the H2 JDBC driver instead of declaring a JAR by adding `import ballerinax/h2.driver as _;` next to `import ballerinax/java.jdbc;` and `import ballerina/sql;`, then connect with a `jdbc:h2:...` URL (the driver package is GraalVM-compatible)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/h2.driver/latest", kind: central, note: "Usage"}
+  - id: cdata_connect_driver
+    text: "Bundle the CData Connect JDBC driver with `import ballerinax/cdata.connect.driver as _;` for the `ballerinax/cdata.connect` client (`cdata:Client cdataClient = check new (user, password);` for CData Connect Cloud with the default URL `jdbc:cdata:connect:AuthScheme=Basic`, or `new (user, password, \"jdbc:cdata:connect:URL=http://<hostname>:<port>/rest.rsc;\")` for Connect Server), querying sources as `Connection.DataSource.Table`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-cdata.connect.driver/blob/master/Module.md", kind: github, note: "Prerequisites and quickstart"}
 out_of_scope:
   - "Generic query/execute/call semantics, typed values and errors (lib.sql)"
   - "Database-specific connectors with dedicated options and types (connector.mysql, connector.postgresql, connector.mssql, connector.oracledb)"
@@ -40,4 +52,5 @@ edges:
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
   - {to: concept.constants_enums, rel: uses, via: [generated_keys], note: "jdbc:Operations enum"}
   - {to: tool.ballerina_toml, rel: uses, via: [driver_dependency]}
+  - {to: concept.modules_imports, rel: uses, via: [h2_driver_package, cdata_connect_driver], note: "Driver packages are imported with the `as _` prefix only for their side effect"}
 notes: "Verified against module-ballerinax-java.jdbc master (1.15.1). The `jdbc-atomic-transaction` example folder in ballerina-distribution contains only an output file and is not in the BBE index, so it is not cited."

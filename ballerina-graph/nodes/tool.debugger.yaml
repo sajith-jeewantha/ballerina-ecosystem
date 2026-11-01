@@ -1,0 +1,95 @@
+schema_version: "0.2"
+id: tool.debugger
+type: tool
+title: Debugger
+summary: "The Ballerina debugger, used through the VS Code extension, runs program, test and remote debug sessions started from CodeLens or `.vscode/launch.json` configurations, with conditional breakpoints, logpoints, pause, expression evaluation and a strand and stack trace view. Remote sessions attach to programs started with `bal run --debug <port>` or `bal test --debug <port>`."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/debug-ballerina-programs/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+must_cover:
+  - id: session_types
+    text: "Choose between the three debug session types: program debugging of a Ballerina program, test debugging of a test function, and remote debugging of a program running elsewhere"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: codelens_debug
+    text: "Start a quick debug session by adding breakpoints in front of the line numbers and clicking the `Debug` CodeLens above `main()`, or the `debug` CodeLens above a test function to debug only that test case"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: create_launch_json
+    text: "Create `.vscode/launch.json` in the workspace root by opening the Run and Debug view (`Ctrl + Shift + D`, macOS `⌘ + ↑ + D`), clicking **create a launch.json file** and selecting **Ballerina Debug** as the environment"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - id: default_configurations
+    text: "Use the three default `launch.json` configurations, all with `\"type\": \"ballerina\"`: `Ballerina Debug` (`\"request\": \"launch\"`), `Ballerina Test` (`\"request\": \"launch\"`, `\"debugTests\": true`) and `Ballerina Remote` (`\"request\": \"attach\"`, `\"debuggeeHost\": \"127.0.0.1\"`, `\"debuggeePort\": \"5005\"`), selecting one in the drop-down and clicking **Start Debugging**"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - id: launch_attributes
+    text: "Customise a `launch` configuration with `programArgs` (strings passed to `main`), `commandOptions` (options listed by `bal run --help` or `bal test --help`), `env` (a map of environment variables), `debugTests` and `\"terminal\": \"integrated\"` to run the program in a separate integrated terminal"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - id: attach_attributes
+    text: "Point a `Ballerina Remote` `attach` configuration at a running process with `debuggeeHost` (defaults to `127.0.0.1`) and `debuggeePort`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-configurations/", kind: docs}
+  - id: remote_run
+    text: "Start a program for remote debugging with `bal run --debug <DEBUGGEE_PORT> <BAL_FILE_PATH/PACKAGE_PATH>` or an executable JAR with `bal run --debug <DEBUGGEE_PORT> <EXECUTABLE_JAR_FILE_PATH>`, wait for `Listening for transport dt_socket at address: 5005`, then start the **Ballerina Remote** session"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: remote_tests
+    text: "Debug tests remotely by starting them with `bal test --debug <DEBUGGEE_PORT> <PACKAGE_PATH>` and attaching a **Ballerina Remote** session"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: working_directory
+    text: "Know that a session launched from VS Code uses the package root as its working directory, and use remote debugging (`bal run --debug`) to run from another working directory"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-sessions/", kind: docs}
+  - id: conditional_breakpoints
+    text: "Set a conditional breakpoint whose condition is a Ballerina expression, so the debugger suspends only when the expression evaluates to `true`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+  - id: logpoints
+    text: "Add logpoints that log a message instead of breaking, as plain text or a string template with expressions in `${}`, and enable, disable or condition them like breakpoints"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+  - id: pause_continue
+    text: "Suspend a running program at its current line with the VS Code `pause` command and resume it, to find the line a hung program (blocking call or infinite loop) is waiting on"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+  - id: expression_evaluation
+    text: "Evaluate Ballerina variables and expressions in break mode from the **Debug Console** or the **Watch** window"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+  - id: strand_stack_view
+    text: "Inspect the strand and stack trace view, which shows the call stack of each strand of the running program when a breakpoint is hit, together with the standard variable view and step in, out and over actions"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/vs-code-extension/debug-the-code/debug-features/", kind: docs}
+out_of_scope:
+  - "Other VS Code extension features such as Run CodeLens, quick fixes and Try It (tool.vscode)"
+  - "Dumping strand states of a running program without a debugger (tool.strand_dump)"
+  - "Test selection options of `bal test` (tool.bal_test)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.vscode, rel: uses, via: [codelens_debug, create_launch_json, default_configurations, launch_attributes, attach_attributes]}
+  - {to: tool.bal_test, rel: uses, via: [remote_tests, launch_attributes]}
+  - {to: platform.runtime, rel: uses, via: [remote_run, pause_continue]}
+  - {to: concept.strands_workers, rel: uses, via: [strand_stack_view]}
+  - {to: concept.strings, rel: uses, via: [logpoints]}
+notes: "ballerina.io/learn/debug-ballerina-programs/ is an overview that links to the WSO2 VS Code docs; details come from the ballerina.io/learn/vs-code-extension/debug-the-code/ pages. The docs describe debugging only through the VS Code extension; no other editor or debug-adapter setup is documented, so none is covered."

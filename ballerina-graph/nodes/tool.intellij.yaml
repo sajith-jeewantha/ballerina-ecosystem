@@ -1,0 +1,58 @@
+schema_version: "0.2"
+id: tool.intellij
+type: tool
+title: IntelliJ plugin
+summary: "The Ballerina plugin for IntelliJ IDEA is an experimental, community-driven plugin aimed at Ballerina library developers who need Java interoperability. It offers a subset of the VS Code extension's features: running programs and tests, language-server diagnostics, completion, navigation, formatting and code actions."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://github.com/ballerina-platform/plugin-intellij", kind: github, note: plugin-intellij README}
+  - {url: "https://github.com/ballerina-platform/plugin-intellij/blob/master/getting-started/plugin-features/README.md", kind: github, note: Plugin features}
+  - {url: "https://plugins.jetbrains.com/plugin/9520-ballerina", kind: other, note: JetBrains Marketplace listing}
+must_cover:
+  - id: install_zip
+    text: "Install the plugin from a ZIP file via **Settings -> Plugins**, the gear icon next to **Installed**, **Install Plugin from Disk...**, then **Apply -> OK** and restart the IDE"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/plugin-intellij/blob/master/getting-started/plugin-installation/README.md", kind: github}
+  - id: sdk_setup
+    text: "Let the plugin auto-detect the system Ballerina SDK, or set one in **Settings -> Languages and Frameworks -> Ballerina -> SDK settings** by ticking **Use custom Ballerina SDK** and choosing an SDK, `Add Ballerina SDK` (a distribution folder) or `No SDK`, then restarting"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/plugin-intellij/blob/master/getting-started/using-the-plugin/setting-up-ballerina-sdk/README.md", kind: github}
+  - id: file_templates
+    text: "Create files with **New -> Ballerina File** from the `Empty Ballerina File`, `Ballerina Main` (sample main program) and `Ballerina Service` (sample service) templates"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/plugin-intellij/blob/master/getting-started/using-the-plugin/new-ballerina-project/README.md", kind: github}
+  - id: run_programs
+    text: "Run a `main` or service program from the gutter icon, the right-click menu or the run button, and customise the run configuration with environment variables, command options and program arguments"
+    difficulty: [beginner]
+  - id: run_tests
+    text: "Run a single test function from its gutter icon, package-level tests by right-clicking a package test file or root-level `.bal` file, and module-level tests by right-clicking a module test file or module root file"
+    difficulty: [beginner]
+  - id: navigation_formatting
+    text: "Navigate and tidy code: add imports on the fly from the module lookup list, find usages of variables and functions, go to a definition with `Ctrl`+`Click`, and reformat with `Ctrl`+`Alt`+`L`"
+    difficulty: [beginner]
+  - id: editing_assistance
+    text: "Get signature help after typing `(` or `,`, quick documentation with `Ctrl`+`Q` (or hover while holding `Ctrl`), code completion for identifiers, keywords and module imports, and live templates for boilerplate"
+    difficulty: [beginner]
+  - id: code_actions_diagnostics
+    text: "View errors and warnings from the Ballerina Language Server by hovering highlighted code, and apply code actions (add missing imports, fix errors, add missing documentation) from the light bulb or `Alt`+`Enter`"
+    difficulty: [beginner]
+  - id: spelling_folding
+    text: "Use spell checking for identifiers, comments and markdown documentation, and fold import declarations, markdown documentation, comments and braced content"
+    difficulty: [beginner]
+  - id: plugin_status
+    text: "Choose between IDEs knowing the plugin is experimental and community-driven, targets library developers needing Java interoperability, supports a subset of VS Code features, and that plugin `2.0.0` is for IntelliJ IDEA 2022.0 - 2024.1"
+    difficulty: [beginner]
+out_of_scope:
+  - "Debugging, graphical editors and other VS Code extension features (tool.vscode, tool.debugger)"
+  - "Java interoperability itself (concept.external_functions, lib.jballerina.java)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.vscode, rel: alternative_to}
+  - {to: platform.distributions, rel: uses, via: [sdk_setup]}
+  - {to: tool.bal_test, rel: uses, via: [run_tests]}
+  - {to: concept.external_functions, rel: uses, via: [plugin_status]}
+notes: "Limited and possibly unmaintained: the README calls the plugin experimental and community-driven, recommends the VS Code extension unless you are a library developer needing Java interop, and its features list has no debugger or graphical tools. The JetBrains Marketplace API (checked 2026-11-01) lists 1.2.8 (August 2020, pre-Swan Lake) as its latest release, while the README's 2.0.0 (IntelliJ IDEA 2022.0 - 2024.1) is documented only as a ZIP install. No ballerina.io page exists for the plugin (learn/intellij-plugin/ returns 404); the Marketplace description still links to v1-0.ballerina.io."

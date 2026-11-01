@@ -5,7 +5,9 @@ title: Code to Cloud
 summary: Code to Cloud is a compiler extension that generates Dockerfiles, container images and Kubernetes or OpenShift YAML from a Ballerina package at build time (`--cloud=docker|k8s|openshift` or `[build-options] cloud`), with defaults derived from the code and overrides in `Cloud.toml`; the same `cloud` build option also packages AWS Lambda and Azure Functions deployments.
 priority: important
 status: draft
+modules: [ballerina/cloud]
 sources:
+- {url: 'https://central.ballerina.io/ballerina/cloud/latest', kind: central, note: 'ballerina/cloud 4.1.0 (annotations Task, Expose; README on artifact generation)'}
 - {url: 'https://ballerina.io/learn/containerized-deployment/', kind: docs, note: Containerized deployment}
 - {url: 'https://ballerina.io/learn/deploy-ballerina-on-kubernetes/', kind: docs, note: Deploy Ballerina on Kubernetes}
 - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github, note: Code to Cloud specification (Cloud.toml properties)}
@@ -83,10 +85,16 @@ must_cover:
   sources:
   - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
 - id: cron_task
-  text: 'Run a `main` function as a Kubernetes cron job by annotating it with `@cloud:Task {schedule: {minutes: "*", hours: "*", dayOfMonth: "*", monthOfYear: "*", daysOfWeek: "*"}}` from `ballerina/cloud`'
+  text: 'Run a `main` function as a Kubernetes cron job by importing `ballerina/cloud` and annotating it with `@cloud:Task {schedule: {minutes: "*", hours: "*", dayOfMonth: "*", monthOfYear: "*", daysOfWeek: "*"}}` (a `cloud:TaskConfig` whose `schedule` is a `cloud:ScheduleConfig` of cron fields)'
   difficulty: [advanced]
   sources:
   - {url: 'https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md', kind: github}
+  - {url: 'https://central.ballerina.io/ballerina/cloud/latest', kind: central}
+- id: expose_port
+  text: 'Mark the port parameter of a custom listener''s initializer with `@cloud:Expose` from `ballerina/cloud` (e.g. `public function init(@cloud:Expose int port) {}`) so Code to Cloud treats it as a port to expose in the generated artifacts'
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://central.ballerina.io/ballerina/cloud/latest', kind: central, note: 'Expose annotation'}
 - id: openshift
   text: Generate OpenShift artifacts with `cloud = "openshift"` (or `bal build --cloud=openshift`), written to `target/openshift/`, and deploy them with `oc apply -f target/openshift/<module>`
   difficulty: [intermediate]
@@ -118,15 +126,15 @@ edges:
   via: [config_toml_runtime]
 - to: concept.services_listeners
   rel: uses
-  via: [docker_artifacts, k8s_artifacts, probes]
+  via: [docker_artifacts, k8s_artifacts, probes, expose_port]
 - to: lib.http
   rel: uses
   via: [probes]
 - to: concept.annotations
   rel: uses
-  via: [cron_task, aws_lambda]
+  via: [cron_task, aws_lambda, expose_port]
 - to: concept.program_execution
   rel: uses
   via: [cron_task]
 - {to: tool.graalvm, rel: related}
-notes: macOS on Apple Silicon needs `export DOCKER_DEFAULT_PLATFORM=linux/amd64` before building images (per the docs). The Dockerfile sample in the docs shows `FROM ballerina/jvm-runtime:1.0`, while the spec gives `ballerina/jvm-runtime:2.0` as the default `base`. The spec shows `[[settings]]` but the docs use `[settings]`; items follow the docs.
+notes: macOS on Apple Silicon needs `export DOCKER_DEFAULT_PLATFORM=linux/amd64` before building images (per the docs). The Dockerfile sample in the docs shows `FROM ballerina/jvm-runtime:1.0`, while the spec gives `ballerina/jvm-runtime:2.0` as the default `base`. The spec shows `[[settings]]` but the docs use `[settings]`; items follow the docs. `ballerina/cloud` (4.1.0) defines only the `@cloud:Task` and `@cloud:Expose` annotations; its README lists the generated artifacts (Deployment, Service, liveness/readiness probes, ConfigMap, HPA, Docker image, Dockerfile), already covered by the items above.

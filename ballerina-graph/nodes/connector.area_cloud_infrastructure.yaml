@@ -1,0 +1,96 @@
+schema_version: "0.2"
+id: connector.area_cloud_infrastructure
+type: connector
+title: Cloud & Infrastructure connectors
+summary: "Connectors for cloud platforms and infrastructure-style web APIs: the Elastic Cloud management client (resource methods), plus OpenAPI-generated clients (remote methods) for IP, domain and geolocation lookups, routing and time zones, device and asset monitoring, IoT file storage, EV-charging networks, API proxying, search suggestions, text analytics and public science data."
+priority: long_tail
+status: draft
+modules: [ballerinax/apideck.proxy, ballerinax/bing.autosuggest, ballerinax/bmc.truesightpresentationserver, ballerinax/earthref.fiesta, ballerinax/elastic.elasticcloud, ballerinax/fungenerators.uuid, ballerinax/geonames, ballerinax/graphhopper.directions, ballerinax/ip2whois, ballerinax/ipgeolocation, ballerinax/iptwist, ballerinax/ocpi, ballerinax/optitune, ballerinax/pushcut, ballerinax/rumble.run, ballerinax/siemens.iotandstorage.iotfileservice, ballerinax/spotto, ballerinax/symantotextanalytics, ballerinax/techport, ballerinax/whohoststhis, ballerinax/worldtimeapi]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/elastic.elasticcloud/latest", kind: central, note: "ballerinax/elastic.elasticcloud 1.0.1 README and API docs"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal of the 1.x OpenAPI connectors in this group"}
+  - {url: "https://central.ballerina.io/ballerinax/worldtimeapi/latest", kind: central, note: "ballerinax/worldtimeapi 1.5.2 API docs"}
+must_cover:
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated 1.x clients in this group: a no-auth client is created with `check new ()` (e.g. `worldtimeapi:Client wt = check new ();` then `wt->getCurrentTime(\"Europe\", \"London\")`), an API-key client takes an `ApiKeysConfig` first argument, an OAuth2/bearer client takes `ConnectionConfig` with `auth`, and clients without a fixed host take a required `serviceUrl`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/worldtimeapi/client.bal", kind: github, note: "worldtimeapi client.bal"}
+  - id: elasticcloud_client
+    text: "Create an `elasticcloud:Client` with `check new ({authorization: \"ApiKey \" + apiKey})` (an `elasticcloud:ApiKeysConfig` from a `configurable string apiKey` in `Config.toml`) and create a deployment with `elasticClient->/deployments.post(newDeploymentRequest, queries = {template_id: \"gcp-general-purpose\"})`, where `elasticcloud:DeploymentCreateRequest` has `name`, `region` and `version`, returning `elasticcloud:DeploymentCreateResponse`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/elastic.elasticcloud/latest", kind: central, note: "Quickstart"}
+  - id: elasticcloud_deployments
+    text: "Manage Elastic Cloud deployments with resource methods: list with `elasticClient->/deployments()`, read with `/deployments/[deploymentId]`, update with `/deployments/[deploymentId].put(elasticcloud:DeploymentUpdateRequest)` and shut down with `/deployments/[deploymentId]/_shutdown.post()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/elastic.elasticcloud/latest", kind: central, note: "elasticcloud:Client resource methods"}
+  - id: elasticcloud_api_keys
+    text: "Manage Elastic Cloud API keys and organizations: list keys with `elasticClient->/users/auth/keys()`, create one with `/users/auth/keys.post(elasticcloud:CreateApiKeyRequest)`, read or delete one via `/users/auth/keys/[apiKeyId]` (`get`, `delete`), and list organizations and members with `/organizations` and `/organizations/[organizationId]/members`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/elastic.elasticcloud/latest", kind: central, note: "elasticcloud:Client resource methods"}
+  - id: ip_domain_lookup
+    text: "Look up IPs and domains: `ip2whois` `getDomainInfo(domain, 'key)` (the key is a call argument, client created with `check new ()`); `ipgeolocation` (`ApiKeysConfig` `{apiKey}`) `getGeolocation(ipAddress = ...)`; `iptwist` (`{xIptwistToken}`) `getGeoLocationInfo(payload)`; and `whohoststhis` (`{'key}`) `discoverHostingProvider(url)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ip2whois", kind: github, note: "ip2whois client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ipgeolocation", kind: github, note: "ipgeolocation client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/iptwist", kind: github, note: "iptwist client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/whohoststhis", kind: github, note: "whohoststhis client.bal"}
+  - id: geo_routing
+    text: "Use geography and routing APIs: `geonames` (`ApiKeysConfig` `{username}`) `search(q = ...)`, `getTimezone(lat, lng)` and `postalCodeLookup(postalcode = ...)`; and `graphhopper.directions` (`{key}`) `getRoute(point, ...)`, `postRoute(graphhopper.directions:RouteRequest)`, `getIsochrone(point, ...)` and `getMatrix`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/geonames", kind: github, note: "geonames client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/graphhopper.directions", kind: github, note: "graphhopper.directions client.bal"}
+  - id: time_uuid_services
+    text: "Get times and identifiers: `worldtimeapi` `listTimezones()`, `getCurrentTime(area, location)` and `getCurrentTimeBasedOnIp()`; and `fungenerators.uuid` (`ApiKeysConfig` `{xFungeneratorsApiSecret}`) `generateUUID(count)` and `parseUUID(uuidstr)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/worldtimeapi", kind: github, note: "worldtimeapi client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/fungenerators.uuid", kind: github, note: "fungenerators.uuid client.bal"}
+  - id: infra_monitoring
+    text: "Drive infrastructure monitoring tools: `bmc.truesightpresentationserver` (`ApiKeysConfig` `{authorization}`, required `serviceUrl`) `collectNow(deviceId, monitorClass)`, `rediscover(deviceId)` and `reinitialize`; `rumble.run` (bearer) `getAccountAgents()` and `createAccountCredential(payload)`; and `optitune` (`http:CredentialsConfig` `{auth: {username, password}}`) `getMyAccounts()`, `getAllAccounts()` and `postAccounts`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bmc.truesightpresentationserver", kind: github, note: "bmc.truesightpresentationserver client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/rumble.run", kind: github, note: "rumble.run client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/optitune", kind: github, note: "optitune client.bal"}
+  - id: iot_assets
+    text: "Integrate IoT and asset platforms: `siemens.iotandstorage.iotfileservice` (bearer or OAuth2, required `serviceUrl`) `getFile(entityId, filepath)`, `searchFiles(entityId)` and `deleteFile(entityId, filepath)`; `spotto` (`{xApiKey}`) `getAssets()`, `postAssets(payload)` and `getAssetLastLocation(id)`; and `ocpi` (Open Charge Network node, default `serviceUrl` `http://localhost:8080`) `getConnectionStatus(authorization, countryCode, partyID)`, `generateRegistrationToken` and `postMessage`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/siemens.iotandstorage.iotfileservice", kind: github, note: "iotfileservice client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/spotto", kind: github, note: "spotto client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ocpi", kind: github, note: "ocpi client.bal"}
+  - id: proxy_and_suggest
+    text: "Proxy and search calls: `apideck.proxy` (`{authorization}`) forwards a request with `getProxy(xApideckConsumerId, xApideckAppId, xApideckServiceId, xApideckDownstreamUrl)` or `postProxy(..., payload)` (also `putProxy`, `patchProxy`, `deleteProxy`); `bing.autosuggest` (`ApiKeysConfig` `{ocpApimSubscriptionKey, subscriptionKey}`, required `serviceUrl`) returns suggestions with `getSuggestions(q)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/apideck.proxy", kind: github, note: "apideck.proxy client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bing.autosuggest", kind: github, note: "bing.autosuggest client.bal"}
+  - id: science_text_data
+    text: "Read science and text-analytics data: `earthref.fiesta` (`http:CredentialsConfig`) `getPublicContributionData(repository)` and `downloadPublicFiles(repository, nMaxContributions)`; NASA `techport` (no auth) `searchProjects(searchQuery = ...)`, `getProject(projectId)` and `getProjectsSince(updatedSince)`; and `symantotextanalytics` (`{xApiKey}`) `getSentiment(payload, all)`, `getEmotion`, `getPersonality` and `getCommunicationStyle`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/earthref.fiesta", kind: github, note: "earthref.fiesta client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/techport", kind: github, note: "techport client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/symantotextanalytics", kind: github, note: "symantotextanalytics client.bal"}
+  - id: pushcut_notifications
+    text: "Send smart notifications to devices with `pushcut:Client` (`ApiKeysConfig` `{apiKey}`): list devices with `getDevices()`, list defined notifications with `getNotifications()` and send one with `sendNotification(notificationName, pushcut:Notification)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/pushcut", kind: github, note: "pushcut client.bal"}
+out_of_scope:
+  - "AWS, Azure and Google Cloud connectors (connector.aws, connector.azure, connector.google_cloud)"
+  - "Querying Elasticsearch indices; elastic.elasticcloud manages Elastic Cloud deployments and keys only"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [generated_client_shape, elasticcloud_client]}
+  - {to: concept.resource_methods, rel: uses, via: [elasticcloud_deployments, elasticcloud_api_keys]}
+  - {to: concept.records, rel: uses, via: [elasticcloud_client, geo_routing]}
+  - {to: lib.http, rel: uses, via: [generated_client_shape, infra_monitoring], note: "ConnectionConfig wraps http client settings; http:CredentialsConfig"}
+  - {to: lib.oauth2, rel: uses, via: [iot_assets], note: "OAuth2 refresh-token grant for the Siemens client"}
+  - {to: tool.config_toml, rel: uses, via: [elasticcloud_client]}
+notes: "Elastic Cloud items come from the Central README and API docs for 1.0.1. All other packages have stub READMEs on Central; their items come from openapi-connectors client.bal and the Central API docs for the listed version."

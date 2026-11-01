@@ -8,6 +8,7 @@ status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.4", kind: spec, note: "7.3.4 Functions with external bodies"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.6", kind: spec, note: "5.5.6 Handles"}
+  - {url: "https://ballerina.io/learn/advanced-general-purpose-language-features/", kind: docs, note: "Learn: Advanced general-purpose language features"}
 must_cover:
   - id: external_body
     text: "Declare a function whose implementation is not provided in the Ballerina source module with an external body, e.g. `function now() returns int = external;`, optionally with annotations before `external`"

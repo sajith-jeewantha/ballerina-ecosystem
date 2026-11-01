@@ -1,0 +1,69 @@
+schema_version: "0.2"
+id: connector.hubspot
+type: connector
+title: ballerinax/hubspot.*
+summary: "The non-CRM HubSpot packages: marketing (campaigns, emails, events, forms, subscriptions, transactional email), automation custom workflow actions, custom behavioral events, files and analytics clients, plus the `hubspot.trigger` webhook listener."
+priority: long_tail
+status: draft
+modules: [ballerinax/hubspot.analytics, ballerinax/hubspot.automation.actions, ballerinax/hubspot.events, ballerinax/hubspot.events.completions, ballerinax/hubspot.files, ballerinax/hubspot.marketing.campaigns, ballerinax/hubspot.marketing.emails, ballerinax/hubspot.marketing.events, ballerinax/hubspot.marketing.forms, ballerinax/hubspot.marketing.subscriptions, ballerinax/hubspot.marketing.transactional, ballerinax/hubspot.trigger]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/hubspot.marketing.campaigns/latest", kind: central, note: "Representative marketing README (OAuth2 config, Client)"}
+  - {url: "https://central.ballerina.io/ballerinax/hubspot.trigger/latest", kind: central, note: "hubspot.trigger 0.12.0 README (services and remote functions)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.campaigns/blob/main/ballerina/client.bal", kind: github, note: "Resource paths; main matches released 2.0.2"}
+must_cover:
+  - id: client_auth
+    text: "Create a HubSpot marketing client such as `hsmcampaigns:Client` from a `ConnectionConfig` whose `auth` is an OAuth2 refresh-token config (`clientId`, `clientSecret`, `refreshToken`, `credentialBearer: oauth2:POST_BODY_BEARER`), a bearer token, or the package's `ApiKeysConfig`"
+    difficulty: [beginner]
+  - id: campaigns
+    text: "Manage campaigns with the `hubspot.marketing.campaigns` client: `->/.get()` returning `CollectionResponseWithTotalPublicCampaignForwardPaging`, `->/.post`, `->/[campaignGuid].patch`, `->/batch/create.post`, `->/[campaignGuid]/assets/[assetType]/[assetId].put()` and metrics via `->/[campaignGuid]/reports/metrics`"
+    difficulty: [beginner, intermediate]
+  - id: marketing_emails
+    text: "Work with marketing emails using the `hubspot.marketing.emails` client: `->/.post`, `->/[emailId].patch`, `->/clone.post`, `->/[emailId]/publish.post()`, the draft endpoints `->/[emailId]/draft`, and statistics with `->/statistics/list(startTimestamp = ..., endTimestamp = ...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.emails/blob/main/ballerina/client.bal", kind: github, note: "Resource paths"}
+  - id: marketing_forms
+    text: "Create and read forms with the `hubspot.marketing.forms` client: `->/.post` a `FormDefinitionCreateRequestBase` (`formType: \"hubspot\"`, `fieldGroups` with `fields` such as `fieldType: \"email\"`), `->/.get()`, `->/[formId]` and `->/[formId].patch`"
+    difficulty: [intermediate]
+  - id: marketing_events
+    text: "Register external marketing events with the `hubspot.marketing.events` remote methods, e.g. `postEventsCreate(payload)` with `externalAccountId`, `externalEventId`, `eventName`, `startDateTime`, then `postEventsExternalEventIdSubscriberStateUpsertUpsertByContactId` to record attendance and `postEventsExternalEventIdCancelCancel` to cancel"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/blob/main/ballerina/client.bal", kind: github, note: "Remote method names at 1.0.2 (README shows older names)"}
+  - id: subscriptions
+    text: "Read and change a contact's email subscription status with the `hubspot.marketing.subscriptions` remote methods `getCommunicationPreferencesV4StatusesSubscriberIdString(subscriberIdString, channel = \"EMAIL\")`, `postCommunicationPreferencesV4StatusesSubscriberIdString` and `postCommunicationPreferencesV4StatusesSubscriberIdStringUnsubscribeAll`"
+    difficulty: [intermediate]
+  - id: transactional_email
+    text: "Send transactional email with the `hubspot.marketing.transactional` client (imported as `ballerinax/hubspot.marketing.'transactional`): `->/single\\-email/send.post` and manage SMTP tokens with `->/smtp\\-tokens.post({createContact: true, campaignName: \"Campaign1\"})`"
+    difficulty: [intermediate]
+  - id: automation_actions
+    text: "Define custom workflow actions with the `hubspot.automation.actions` client using a developer `hapikey` in `ApiKeysConfig`: `->/[appId].post` a `PublicActionDefinitionEgg` (`actionUrl`, `inputFields`, `objectTypes`, `labels`), list with `->/[appId]`, and complete async callbacks with `->/callbacks/[callbackId]/complete.post`"
+    difficulty: [advanced]
+  - id: event_completions
+    text: "Report custom behavioral events with the `hubspot.events.completions` client (`auth: {token: accessToken}`): `hubspotEvents->sendEvent({eventName: \"pe1234_purchase_completed\", email, properties})` and `sendEventBatch`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/hubspot.events.completions/latest", kind: central, note: "events.completions 1.0.1 README"}
+  - id: legacy_generated
+    text: "Use the older generated clients: `hubspot.files` (`filesUpload`, `filesImportFromUrl`, `foldersCreate`, `getSignedUrl`), `hubspot.events` (`listEvents(objectType, objectId)`) and `hubspot.analytics` (`ApiKeysConfig {hapikey}` then `sendEvent(payload)`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/hubspot.files", kind: github, note: "Generated files client"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/hubspot.analytics", kind: github, note: "Generated analytics client"}
+  - id: trigger_listener
+    text: "Receive HubSpot webhooks with the `hubspot.trigger` package: `listener hubspot:Listener hubspotWebhook = new ({webhookSecret, callbackUrl}, 8090)` and a `service hubspot:CompanyService on hubspotWebhook` implementing `onCompanyCreation`, `onCompanyPropertyChange`, `onCompanyMerge` and the other remote functions with a `hubspot:WebhookEvent` payload"
+    difficulty: [intermediate]
+  - id: trigger_services
+    text: "Handle other object events with the `hubspot.trigger` service types `ContactService` (`onContactCreation`, `onContactPrivacyDeletion`), `DealService`, `TicketService`, `ProductService`, `LineItemService` and `ConversationService` (`onConversationNewMessage`)"
+    difficulty: [intermediate]
+out_of_scope:
+  - "HubSpot CRM object, association, pipeline and property clients (connector.hubspot_crm)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_auth, event_completions]}
+  - {to: lib.oauth2, rel: uses, via: [client_auth]}
+  - {to: concept.client_objects, rel: uses, via: [client_auth]}
+  - {to: concept.resource_methods, rel: uses, via: [campaigns, marketing_emails, marketing_forms]}
+  - {to: concept.services_listeners, rel: uses, via: [trigger_listener, trigger_services]}
+  - {to: connector.hubspot_crm, rel: related}
+  - {to: trigger.hubspot, rel: related, note: "ballerinax/hubspot.trigger is the newer webhook listener; ballerinax/trigger.hubspot is covered there"}
+notes: "Resource and method names checked against each repo's main branch (versions match Central). hubspot.analytics, hubspot.events and hubspot.files are old openapi-connectors packages (v2.3.2, 1 pull each) with no README code."

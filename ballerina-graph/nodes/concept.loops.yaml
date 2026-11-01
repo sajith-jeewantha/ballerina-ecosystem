@@ -14,13 +14,19 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_object_types", kind: spec, note: "5.7 Built-in object types"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.1", kind: spec, note: "5.7.1 Iterator"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.2", kind: spec, note: "5.7.2 Iterable"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: foreach_basic
     text: "Iterate with `foreach T x in expr { ... }` or `foreach var x in expr { ... }` over any iterable value (list, mapping, table, string, xml, stream or Iterable object), with `var` inferring the iteration value type"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/foreach-statement/", kind: bbe}
   - id: foreach_binding
     text: "Use a binding pattern in foreach, such as `foreach var [i, v] in arr.enumerate()` or `foreach var [k, v] in m.entries()`, knowing the compiler must be able to guarantee the pattern matches"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/foreach-statement/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/iterative-use-of-typed-binding/", kind: bbe}
   - id: foreach_semantics
     text: "Explain how foreach executes: it creates an iterator with `iterator()`, calls `next()` until it returns nil, and binds the `value` field of each result to the binding pattern"
     difficulty: [intermediate, advanced]
@@ -35,19 +41,25 @@ must_cover:
   - id: while_stmt
     text: "Write `while cond { ... }` loops, where the boolean condition is re-evaluated before each iteration"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/while-statement/", kind: bbe}
   - id: break_stmt
     text: "Use `break;` to make the nearest enclosing while or foreach complete normally, and know it is allowed only lexically inside one"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.4", kind: spec, note: "7.21.4 Break statement"}
+      - {url: "https://ballerina.io/learn/by-example/break-statement/", kind: bbe}
   - id: continue_stmt
     text: "Use `continue;` to end the current iteration of the nearest enclosing while or foreach and go on with the next one, allowed only lexically inside a loop"
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.21.3", kind: spec, note: "7.21.3 Continue statement"}
+      - {url: "https://ballerina.io/learn/by-example/continue-statement/", kind: bbe}
   - id: range_expressions
     text: "Use range expressions `a ... b` (inclusive) and `a ..< b` (exclusive) with int operands, as in `foreach int i in 0 ..< n`, which produce an `Iterable<int,()>` object iterating in increasing order"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/break-statement/", kind: bbe}
   - id: range_semantics
     text: "Know that a range expression is an ordinary iterable object usable outside foreach, is always isolated, yields nothing when the start is past the end, and is a compile error with non-int operands"
     difficulty: [intermediate]
@@ -56,6 +68,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int range"}
+      - {url: "https://ballerina.io/learn/by-example/int-range/", kind: bbe}
   - id: mutation_during_iteration
     text: "Explain that mutating a list or mapping (or any structure) after its iterator was created makes the iterator's `next()` panic, except for removing a member already returned or changing the value at an existing key (in which case the new, current value is returned)"
     difficulty: [advanced]

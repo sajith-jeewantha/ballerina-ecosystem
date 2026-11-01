@@ -1,0 +1,76 @@
+schema_version: "0.2"
+id: lib.ai.eval
+type: library
+title: ballerina/ai.eval
+summary: "Evaluation templates for `ballerina/ai` agents that run as ordinary `ballerina/test` test functions: rule-based checks scored in code and LLM-as-a-judge checks scored by a judge `ai:ModelProvider`, over single queries or recorded eval-set conversation threads."
+priority: long_tail
+status: draft
+modules: [ballerina/ai.eval]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "ballerina/ai.eval 0.9.0 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-ai.eval/tree/main/ballerina", kind: github, note: "rule_based.bal, llm_judges.bal, annotations.bal, error.bal"}
+must_cover:
+  - id: test_function_eval
+    text: "Write an evaluation as a `@test:Config {}` test function that calls an `ai.eval` template with `check`, e.g. `check eval:evaluateHelpfulness(targetAgent = agentUnderTest, queries = \"What is 12 * 8?\", judgeModel = judgeModel, judgeScoreThreshold = 0.8);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Usage: Evaluating a single query"}
+  - id: verdict_vs_error
+    text: "Distinguish a verdict on the agent (a failed `ballerina/test` assertion when a rule is breached or the judge score is below threshold) from a failure to evaluate, returned as `eval:Error` (agent run failed, judge unreachable, misconfiguration)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Overview"}
+  - id: eval_set_threads
+    text: "Replay a recorded eval set by loading `ai:ConversationThread` values with `ai:loadConversationThreads(\"tests/resources/evalsets/sample.evalset.json\")` in a data provider returning `map<[ai:ConversationThread]>|error`, so each thread runs as one test case"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Inputs; Evaluating an eval set"}
+  - id: rule_based_output
+    text: "Check responses in code with `eval:assertLengthCompliance` (`minLength`/`maxLength`), `eval:assertContentSafety` (`prohibitedStrings`) and `eval:assertContentCoverage` (`requiredStrings`, optional `caseSensitive`), which accept `ai:ConversationThread|string`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Rule-based templates"}
+  - id: rule_based_performance
+    text: "Check agent efficiency with `eval:assertIterationEfficiency` (`maxIterations`) and `eval:assertLatencyPerformance` (`maxLatencySeconds`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Rule-based templates"}
+  - id: reference_match
+    text: "Compare against a recorded reference response with `eval:assertExactMatch` (`caseSensitive`, `stripWhitespace`) and `eval:assertContainsMatch`, which require an `ai:ConversationThread`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Rule-based templates"}
+  - id: tool_trajectory
+    text: "Check tool calls against the recorded trajectory with `eval:evaluateToolTrajectory(targetAgent = agent, thread = thread, matchMode = eval:STRICT)`, choosing `STRICT`, `UNORDERED`, `SUBSET` or `SUPERSET`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "evaluateToolTrajectory modes"}
+  - id: llm_judges_quality
+    text: "Score response quality with LLM-as-a-judge templates `eval:evaluateOutputAccuracy`, `evaluateHelpfulness`, `evaluateClarity`, `evaluateCompleteness`, `evaluateRelevance`, `evaluateCoherence`, `evaluateConciseness` and `evaluateTone`, each taking `judgeModel` and `judgeScoreThreshold` (default `0.8`, within `[0.0, 1.0]`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "LLM-as-a-judge templates"}
+  - id: llm_judges_behaviour
+    text: "Judge agent behaviour with `eval:evaluateSafety`, `evaluateGroundedness`, `evaluateReasoningQuality`, `evaluatePathEfficiency`, `evaluateErrorRecovery` and `evaluateInstructionFollowing`, and semantic agreement with a recorded response with `eval:evaluateSemanticSimilarity` (needs an eval set)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "LLM-as-a-judge templates"}
+  - id: judge_model_config
+    text: "Configure the judge as an `ai:ModelProvider`, for example `final ai:ModelProvider judgeModel = check ai:getDefaultModelProvider();` with `[ballerina.ai.wso2ProviderConfig]` `serviceUrl` and `accessToken` in `Config.toml`, preferring a low temperature"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Configuring the judge model"}
+  - id: min_pass_rate
+    text: "Allow a proportion of eval-set threads to fail with `minPassRate: 0.8` on `@test:Config` together with `dataProvider` (Ballerina 2201.13.2 or newer)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ai.eval/latest", kind: central, note: "Allowing a proportion of threads to fail"}
+out_of_scope:
+  - "Building the agents under evaluation (lib.ai)"
+  - "The `@eval:EvalTemplate` annotation used by tooling to discover templates"
+edges:
+  - {to: lib.ai, rel: uses, via: [eval_set_threads, judge_model_config, test_function_eval]}
+  - {to: lib.test, rel: uses, via: [test_function_eval, eval_set_threads, min_pass_rate]}
+  - {to: tool.bal_test, rel: uses, via: [test_function_eval]}
+  - {to: tool.config_toml, rel: uses, via: [judge_model_config]}
+notes: "Function names and parameters verified against the GitHub source (0.9.0). The README notes judge prompts fence untrusted content but this cannot fully prevent prompt injection; scores from adversarial agents are advisory."

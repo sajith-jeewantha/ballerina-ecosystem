@@ -10,46 +10,72 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.11", kind: spec, note: "5.6.11 JSON types"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#lax_static_typing", kind: spec, note: "6.2.1 Lax static typing"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: anydata_type
     text: Use `anydata` for plain data, equivalent to `() | boolean | int | float | decimal | string | xml | regexp:RegExp | anydata[] | map<anydata> | table<map<anydata>>`, which excludes errors, functions, objects and other behavioral values
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/anydata-type/", kind: bbe}
   - id: json_type
     text: Use `json`, the built-in union `() | boolean | int | float | decimal | string | json[] | map<json>`, to represent JSON data, writing JSON null as `()` or `null`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-type/", kind: bbe}
   - id: lax_types
     text: Explain that `json` is lax and `map<T>` is lax when T is lax, and that laxness only relaxes typing of field access, optional field access and `check`
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/access-json-elements/", kind: bbe}
   - id: lax_field_access
     text: Access json fields with `j.name` (or chains like `j.a.b`) without a cast, where the static type is `json|error` and the result is an error at runtime if the value is not a mapping or lacks the field
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.10", kind: spec, note: "6.10 Field access expression"}
+      - {url: "https://ballerina.io/learn/by-example/access-json-elements/", kind: bbe}
   - id: lax_optional_access
     text: Use optional field access `j?.name` on json, which returns `()` when the value is nil or the field is missing and an error when the value is not a mapping
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.11", kind: spec, note: "6.11 Optional field access expression"}
+      - {url: "https://ballerina.io/learn/by-example/access-optional-json-elements/", kind: bbe}
   - id: lax_check
     text: Write `int age = check j.age;`, where `check` on a lax expression whose expected type is a simple type is treated as `check value:ensureType(j.age, int)`, failing with an error if the value has the wrong type
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.33", kind: spec, note: "6.33 Checking expression"}
+      - {url: "https://ballerina.io/learn/by-example/access-json-elements/", kind: bbe}
   - id: to_json
     text: Convert anydata to json with `v.toJson()`, a deep copy that turns xml into a string and tables into lists of mappings, gives arrays and maps inherent types `json[]` and `map<json>`, copies even immutable values, and panics on cyclic values
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/converting-from-user-defined-type-to-json/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/converting-from-table-and-xml-to-json/", kind: bbe}
+  - id: records_as_json
+    text: 'Assign a value of a closed record type whose fields are all json-compatible (e.g. `record {| string name; [float, float] cords; |}`) directly to `json`, since that type is a subtype of json, and call `toJson()` instead for open records (whose extra fields are anydata), tables and xml'
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/converting-from-user-defined-type-to-json/", kind: bbe}
   - id: to_json_string
     text: Serialize with `v.toJsonString()`, which first converts the value as `toJson` does and returns JSON text
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-numbers/", kind: bbe}
   - id: from_json_string
     text: Parse JSON text with `value:fromJsonString(s)` (or `s.fromJsonString()`), which returns an error on invalid input and maps numbers to int when they have integer syntax and fit in int, to float `-0.0` for negative zero, and to decimal otherwise
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/json-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/json-numbers/", kind: bbe}
   - id: json_float_decimal
     text: Use `fromJsonFloatString` and `fromJsonDecimalString` to parse JSON numbers uniformly as float (`value:JsonFloat`) or decimal (`value:JsonDecimal`)
     difficulty: [advanced]
   - id: from_json_with_type
     text: Convert json to a user type with `j.fromJsonWithType(T)` or `T x = check j.fromJsonWithType();`, which works like cloneWithType plus the inverse of toJson conversions, and use `fromJsonStringWithType` to parse and convert in one step
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/convert-from-json-to-user-defined-type/", kind: bbe}
   - id: merge_json
     text: 'Use `value:mergeJson(j1, j2)` which returns j2 if j1 is nil, j1 if j2 is nil, recursively merges two mappings key by key (mutating j1), and otherwise returns an error leaving j1 unchanged'
     difficulty: [advanced]

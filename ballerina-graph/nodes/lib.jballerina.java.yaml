@@ -2,10 +2,10 @@ schema_version: "0.2"
 id: lib.jballerina.java
 type: library
 title: ballerina/jballerina.java
-summary: "The `jballerina.java` module provides the Java interoperability layer of jBallerina: annotations that bind external Ballerina functions to Java methods, constructors and fields, plus helpers for the `handle` type such as string conversion, null handling and casting."
+summary: "The `jballerina.java` module provides the Java interoperability layer of jBallerina: annotations that bind external Ballerina functions to Java methods, constructors and fields, plus helpers for the `handle` type such as string conversion, null handling and casting; the companion `jballerina.java.arrays` module creates and converts Java arrays."
 priority: important
 status: draft
-modules: [ballerina/jballerina.java]
+modules: [ballerina/jballerina.java, ballerina/jballerina.java.arrays]
 sources:
   - {url: "https://ballerina.io/learn/ballerina-ffi/", kind: docs, note: "Ballerina FFI guide"}
   - {url: "https://ballerina.io/learn/call-java-code-from-ballerina/", kind: docs}
@@ -13,6 +13,7 @@ sources:
   - {url: "https://github.com/ballerina-platform/ballerina-lang/tree/master/langlib/jballerina.java/src/main/ballerina", kind: github, note: "annotations.bal, ballerina_values_to_Java.bal, JObject.bal"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.3.4", kind: spec, note: "7.3.4 Functions with external bodies"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.5.6", kind: spec, note: "5.5.6 Handles"}
+  - {url: "https://central.ballerina.io/ballerina/jballerina.java.arrays/latest", kind: central, note: "ballerina/jballerina.java.arrays 1.6.3 README"}
 must_cover:
   - id: static_method
     text: "Bind a Ballerina function to a static Java method with `function randomUUID() returns handle = @java:Method {'class: \"java.util.UUID\"} external;`, adding `name: \"...\"` when the Java method name differs from the Ballerina function name"
@@ -89,6 +90,18 @@ must_cover:
     sources:
       - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/ballerina_values_to_Java.bal", kind: github}
       - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/jballerina.java/src/main/ballerina/JObject.bal", kind: github}
+  - id: java_arrays_access
+    text: "Create and access Java arrays with `ballerina/jballerina.java.arrays`: `handle strArray = arrays:newInstance(check java:getClass(\"java.lang.String\"), 4);`, `arrays:get(array, index)` (a `handle` to the element), `arrays:set(array, index, java:fromString(\"Ballerina\"))` and `arrays:getLength(array)`, knowing that `newInstance`, `get` and `set` panic on a Java `null` handle"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/jballerina.java.arrays/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jballerina.java.arrays/blob/master/ballerina/jarray_utils.bal", kind: github}
+  - id: java_arrays_convert
+    text: "Convert between Java and Ballerina arrays with `int[] values = <int[]> check arrays:fromHandle(arrayHandle, \"int\");` (the Java element type as a string, plus an optional Ballerina element type) and `handle h = check arrays:toHandle(bArray, \"char\");` (a Java class name or primitive type)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/jballerina.java.arrays/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-jballerina.java.arrays/blob/master/ballerina/jarray_utils.bal", kind: github}
 out_of_scope:
   - "Generating bindings automatically with `bal bindgen` (tool.bal_bindgen)"
   - "Declaring Java platform dependencies (JARs, Maven artifacts) in Ballerina.toml (tool.ballerina_toml)"
@@ -102,5 +115,6 @@ edges:
   - {to: concept.basic_types, rel: uses, via: [handle_type, type_mapping]}
   - {to: concept.strings, rel: uses, via: [string_conversion]}
   - {to: concept.typedesc, rel: uses, via: [jobject_cast]}
+  - {to: concept.arrays_tuples, rel: uses, via: [java_arrays_convert]}
   - {to: concept.records, rel: uses, via: [overload_param_types]}
 notes: "The FFI guide's asynchronous-call example uses `BalEnv`/`BalFuture` names on the Java side; it was not cross-checked against the current runtime API, so it is left out."

@@ -1,0 +1,65 @@
+schema_version: "0.2"
+id: connector.google_cloud
+type: connector
+title: ballerinax/googleapis.* (Cloud)
+summary: "Generated connectors for Google Cloud Platform REST APIs: BigQuery and BigQuery Data Transfer, Pub/Sub, Datastore, Filestore, Cloud Functions, Cloud Build, Cloud Scheduler, Billing, Natural Language, Translation, Vision, Talent Solution, Apps Script and the Discovery API."
+priority: long_tail
+status: draft
+modules: [ballerinax/googleapis.appsscript, ballerinax/googleapis.bigquery, ballerinax/googleapis.bigquery.datatransfer, ballerinax/googleapis.cloudbillingaccount, ballerinax/googleapis.cloudbuild, ballerinax/googleapis.clouddatastore, ballerinax/googleapis.cloudfilestore, ballerinax/googleapis.cloudfunctions, ballerinax/googleapis.cloudnaturallanguage, ballerinax/googleapis.cloudpubsub, ballerinax/googleapis.cloudscheduler, ballerinax/googleapis.cloudtalentsolution, ballerinax/googleapis.cloudtranslation, ballerinax/googleapis.discovery, ballerinax/googleapis.vision]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.bigquery/latest", kind: central, note: "googleapis.bigquery 1.5.2"}
+  - {url: "https://central.ballerina.io/ballerinax/googleapis.cloudpubsub/latest", kind: central, note: "googleapis.cloudpubsub 1.5.2"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "client.bal and types.bal of each googleapis.* cloud package (init signatures, remote methods, ConnectionConfig auth)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.bigquery/client.bal", kind: github, note: "BigQuery client"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.cloudpubsub/client.bal", kind: github, note: "Pub/Sub client"}
+must_cover:
+  - id: gcp_client_auth
+    text: "Initialise a generated Google Cloud client with a `ConnectionConfig` whose `auth` is an `http:BearerTokenConfig` (`{token}`) or an `OAuth2RefreshTokenGrantConfig` (`{clientId, clientSecret, refreshToken, refreshUrl}`), optionally overriding the default `serviceUrl` (e.g. `https://bigquery.googleapis.com/bigquery/v2`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.bigquery/types.bal", kind: github, note: "ConnectionConfig auth union"}
+  - id: bigquery_datasets_tables
+    text: "Manage BigQuery resources with the `googleapis.bigquery` client: `listDatasets(projectId)`, `insertDataset`, `getDataset`, `deleteDataset`, `listTables`, `insertTable`, `getTable`, `patchTable` and `deleteTable`"
+    difficulty: [intermediate]
+  - id: bigquery_query_data
+    text: "Run SQL with `queryJob(projectId, {query: \"SELECT ...\", useLegacySql: false})` and page results with `getJobQueryResults`, stream rows in with `insertAllTableData(projectId, datasetId, tableId, payload)`, read rows with `listTableData`, and manage jobs with `insertJob`, `getJob`, `listJobs` and `cancelJob`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/googleapis.bigquery/client.bal", kind: github, note: "queryJob, insertAllTableData, listTableData signatures"}
+  - id: bigquery_datatransfer
+    text: "Schedule BigQuery loads with `googleapis.bigquery.datatransfer`: `listDataSources`, `createTransferConfigs`, `listTransferConfigs`, `startManualRuns`, `createScheduleRun`, `getTransferRun` and `getTransferLogs`"
+    difficulty: [advanced]
+  - id: pubsub_topics_publish
+    text: "Publish with the `googleapis.cloudpubsub` client: create a topic with `createTopic`, list with `listTopics`, publish with `publishPubsubProjectsTopic(\"projects/<p>/topics/<t>\", {messages: [{data: <base64>}]})`, and manage schemas with `createSchema` and `validateSchemaMessage`"
+    difficulty: [intermediate]
+  - id: pubsub_subscriptions_pull
+    text: "Consume Pub/Sub messages by pulling: `pullSubscription(subscription, {maxMessages: 10})`, then `acknowledgeSubscription` with the received `ackId`s, `modifySubscriptionAckDeadline` to extend processing time, and `modifySubscriptionPushConfig`, `seekSubscription`, `listSubscriptions` and `deleteSubscription` for administration"
+    difficulty: [intermediate, advanced]
+  - id: datastore_filestore
+    text: "Work with Cloud Datastore through `googleapis.clouddatastore` (`lookupEntity`, `runQuery`, `beginTransaction`, `commitTransaction`, `rollbackTransaction`, `allocateIdKeys`, `exportEntities`) and Filestore instances through `googleapis.cloudfilestore` (`listInstances`, `createInstance`, `createBackup`, `restoreInstance`)"
+    difficulty: [intermediate]
+  - id: cloud_functions_build_scheduler
+    text: "Automate Google Cloud operations with `googleapis.cloudfunctions` (`listFunctions`, `createFunction`, `callFunction`, `generateFunctionUploadUrl`), `googleapis.cloudbuild` (`createBuild`, `listBuilds`, `createTrigger`, `runTrigger`) and `googleapis.cloudscheduler` (`createJob`, `listJobs`, `pauseJob`, `resumeJob`, `runJob`)"
+    difficulty: [intermediate]
+  - id: billing_appsscript
+    text: "Read billing data with `googleapis.cloudbillingaccount` (`listBillingAccounts`, `getProjectsBillingInfo`, `updateProjectsBillingInfo`, `listServicesSkus`) and run Apps Script projects with `googleapis.appsscript` (`createProjects`, `updatecontentProjects`, `createProjectsDeployments`, `runScripts`)"
+    difficulty: [intermediate]
+  - id: ml_language_translation
+    text: "Analyse and translate text with `googleapis.cloudnaturallanguage` (`analyzesentimentDocuments`, `analyzeentitiesDocuments`, `classifytextDocuments`, `annotatetextDocuments`) and `googleapis.cloudtranslation` (`translatetextProjectsLocations`, `detectlanguageProjectsLocations`, `batchtranslatetextProjectsLocations`, `createProjectsLocationsGlossaries`)"
+    difficulty: [intermediate]
+  - id: vision_talent
+    text: "Annotate images with `googleapis.vision` (`annotateBatchImages`, `asyncBatchImageAnnotate`, `annotateBatchFiles`, product search via `createProductSet`/`addProduct`) and search jobs with `googleapis.cloudtalentsolution` (`createProjectsTenantsCompanies`, `createProjectsTenantsJobs`, `searchProjectsTenantsJobs`)"
+    difficulty: [intermediate]
+  - id: discovery_api
+    text: "List Google APIs and fetch their discovery documents with the keyless `googleapis.discovery` client (`new ()` with default config): `listAPIList` and `getAPIDescription`"
+    difficulty: [beginner]
+out_of_scope:
+  - "Google Workspace APIs (connector.google_workspace)"
+  - "Google AI model providers such as Vertex AI / Gemini (connector.ai_model_providers)"
+edges:
+  - {to: lib.http, rel: uses, via: [gcp_client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [gcp_client_auth]}
+  - {to: concept.client_objects, rel: uses, via: [bigquery_datasets_tables, pubsub_topics_publish]}
+  - {to: concept.records, rel: uses, via: [bigquery_query_data, pubsub_subscriptions_pull]}
+  - {to: concept.errors, rel: uses, via: [bigquery_query_data]}
+notes: "All 15 packages are 1.5.x OpenAPI-generated connectors whose Central READMEs only state the API name; operations were read from openapi-connectors main client.bal and may differ slightly from the published 1.5.2/1.6.2 builds. Payload field names (query, useLegacySql, messages, data, maxMessages, ackIds) follow the Google REST API schemas mirrored in types.bal."

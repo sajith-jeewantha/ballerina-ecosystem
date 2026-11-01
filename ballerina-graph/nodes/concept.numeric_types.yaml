@@ -11,36 +11,52 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.4.1", kind: spec, note: "5.2.4.1 Float"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.4.2", kind: spec, note: "5.2.4.2 Decimal"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#byte_type", kind: spec, note: "5.6.12 Byte type"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: int_range
     text: Use the `int` type for 64-bit two's complement signed integers from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807, available as `int:MIN_VALUE` and `int:MAX_VALUE`
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int constants"}
+      - {url: "https://ballerina.io/learn/by-example/integers/", kind: bbe}
   - id: int_literals
     text: Write int literals in decimal (no leading zeros except `0`) or hexadecimal with a `0x`/`0X` prefix such as `0xFF`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/integers/", kind: bbe}
   - id: byte_type
     text: Use `byte` for ints in the range 0 to 255 inclusive, and know it is equivalent to the built-in subtype `int:Unsigned8`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/byte-type/", kind: bbe}
   - id: int_builtin_subtypes
     text: Use the built-in int subtypes `int:Signed8`, `int:Signed16`, `int:Signed32`, `int:Unsigned8`, `int:Unsigned16` and `int:Unsigned32` and their range constants such as `int:SIGNED32_MAX_VALUE` and `int:UNSIGNED16_MAX_VALUE`
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#built-in_subtypes", kind: spec, note: "11.2 Built-in subtypes"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.int", kind: spec, note: "11.3.8 lang.int"}
+      - {url: "https://ballerina.io/learn/by-example/built-in-integer-subtypes/", kind: bbe}
   - id: float_semantics
     text: Use `float` for IEEE 754-2008 64-bit binary floating point, knowing all NaN bit patterns are the same value, +0.0 and -0.0 are distinct values with the same shape, operations round ties to even and no extended precision is used for intermediate results
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/floating-point-numbers/", kind: bbe}
   - id: float_literals
     text: Write floating point literals with a fraction or exponent (`1.5`, `.5`, `2e10`, `1.0E-3`), hexadecimal floating point literals such as `0x1.8p1`, and the `f`/`F` suffix to force float
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/floating-point-numbers/", kind: bbe}
   - id: decimal_semantics
     text: Use `decimal` for IEEE 754-2008 decimal128-subset values with a 34-digit coefficient, knowing it has no NaN, infinities, subnormals or negative zero and that operations which would produce them panic
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/decimal-type/", kind: bbe}
   - id: decimal_literals
     text: Write decimal literals with the `d`/`D` suffix such as `1.20d`, and explain that decimal shape is the mathematical value so `1.0d` and `1.00d` have the same shape despite different precision
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/decimal-type/", kind: bbe}
   - id: numeric_literal_typing
     text: 'Determine the type of a numeric literal: a `f` suffix or hex float literal gives float, a `d` suffix gives decimal, a literal with fraction or exponent may be float or decimal, otherwise int, float or decimal; candidates disjoint from the contextually expected type are dropped and the first of int, float, decimal remaining is chosen (so `decimal d = 1.5;` is a decimal)'
     difficulty: [intermediate]
@@ -56,6 +72,7 @@ must_cover:
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.3", kind: spec, note: "6.3 Casting and conversion"}
+      - {url: "https://ballerina.io/learn/by-example/floating-point-numbers/", kind: bbe}
   - id: numeric_convert
     text: 'Convert between numeric types with a type cast, following NumericConvert: int to float or decimal keeps the mathematical value, float and decimal convert to the closest value, and conversion to int rounds and fails (making the cast panic) for NaN or out-of-range values'
     difficulty: [intermediate]

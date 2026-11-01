@@ -1,0 +1,88 @@
+schema_version: "0.2"
+id: connector.b2b
+type: connector
+title: ballerinax/edifact.*, financial.*
+summary: "B2B and financial message packages: prebuilt UN/EDIFACT D03A parsers for seven message groups, ISO 20022, ISO 8583 and SWIFT MT parsers/serializers, and the Aayu MFT Gateway AS2 connector."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/aayu.mftg.as2
+  - ballerinax/edifact.d03a.finance
+  - ballerinax/edifact.d03a.logistics
+  - ballerinax/edifact.d03a.manufacturing
+  - ballerinax/edifact.d03a.retail
+  - ballerinax/edifact.d03a.services
+  - ballerinax/edifact.d03a.shipping
+  - ballerinax/edifact.d03a.supplychain
+  - ballerinax/financial.iso20022
+  - ballerinax/financial.iso8583
+  - ballerinax/financial.swift.mt
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/edifact.d03a.supplychain/latest", kind: central, note: "EDIFACT D03A Supply Chain README (1.0.1)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-edifact", kind: github, note: "EDIFACT D03A packages"}
+  - {url: "https://central.ballerina.io/ballerinax/financial.iso20022/latest", kind: central, note: "ISO 20022 README (2.0.2)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-financial.iso8583/blob/main/iso8583/ballerina/Module.md", kind: github, note: "ISO 8583 module docs"}
+  - {url: "https://central.ballerina.io/ballerinax/financial.swift.mt/latest", kind: central, note: "SWIFT MT README (3.0.5)"}
+must_cover:
+  - id: edifact_read
+    text: "Read a UN/EDIFACT D03A message by importing the group package and the message submodule (`import ballerinax/edifact.d03a.supplychain; import ballerinax/edifact.d03a.supplychain.mORDERS;`) and calling `mORDERS:EDI_ORDERS_ORDERS msg = check supplychain:fromEdiString(ediText, supplychain:EDI_ORDERS).ensureType();`"
+    difficulty: [beginner]
+  - id: edifact_write
+    text: "Write a message record back to EDIFACT text with `supplychain:toEdiString(message, supplychain:EDI_ORDERS)` (the `UNT` segment count is recomputed), or the full `UNB`..`UNZ` interchange with `interchangeToEdiString`"
+    difficulty: [beginner]
+  - id: edifact_interchange
+    text: "Process whole interchanges with `interchangeFromEdiString` (full `UNB`/`UNZ` envelope with `UNH`/`UNT` headers), read only the envelope with `headersFromEdiString`, and list supported messages with `supplychain:getEDINames()`"
+    difficulty: [intermediate]
+  - id: edifact_supplychain
+    text: "Handle purchase-order and delivery messages with `edifact.d03a.supplychain` submodules such as `mORDERS` (purchase order), `mORDRSP` (order response), `mORDCHG`, `mDESADV` (despatch advice), `mDELFOR`, `mINVRPT` and `mRECADV`"
+    difficulty: [intermediate]
+  - id: edifact_finance
+    text: "Handle banking and invoicing messages with `edifact.d03a.finance` (e.g. `import ballerinax/edifact.d03a.finance.mINVOIC;`, `finance:fromEdiString(text, finance:EDI_INVOIC)`), covering `INVOIC`, `PAYMUL`, `PAYEXT`, `CREADV`, `DEBADV`, `DIRDEB`, `FINSTA` and `BANSTA`"
+    difficulty: [intermediate]
+  - id: edifact_transport_groups
+    text: "Handle transport messages with `edifact.d03a.logistics` (forwarding and booking: `IFTMIN`, `IFTMBF`, `IFTMBC`, `IFTDGN`, `CALINF`) and `edifact.d03a.shipping` (container and vessel: `BAPLIE`, `CODECO`, `COARRI`, `COPARN`), e.g. `logistics:fromEdiString(text, logistics:EDI_IFTMIN)`"
+    difficulty: [intermediate]
+  - id: edifact_other_groups
+    text: "Handle the remaining D03A groups with `edifact.d03a.retail` (`PRODAT` product data, `REQOTE`, `RETANN`, `GENRAL`), `edifact.d03a.manufacturing` (`MSCONS`, `UTILMD`, `UTILTS`, `QALITY`, `CNTCND`) and `edifact.d03a.services` (`INSPRE`, `MEDPRE`, `JOBOFF`, `BERMAN`, `PAYDUC`), each via `<group>:fromEdiString(text, <group>:EDI_<NAME>)` and `m<NAME>` submodules"
+    difficulty: [intermediate]
+  - id: iso20022_build
+    text: "Create an ISO 20022 message with the typed records in `financial.iso20022` submodules (`payments_clearing_and_settlement`, `payment_initiation`, `cash_management`), e.g. an `isorecord:Pacs004Envelope` with optional `AppHdr` and `Document: {PmtRtr: {GrpHdr: ..., TxInf: [...]}}`, and serialize it with `iso20022:toXml(envelope)`"
+    difficulty: [intermediate]
+  - id: iso20022_parse
+    text: "Parse ISO 20022 XML (e.g. pacs.008, pacs.004, pain.001, camt.052, camt.054) into a record with `iso20022:parse(xmlValue, isorecord:Pacs004Envelope)`"
+    difficulty: [intermediate]
+  - id: iso8583_parse
+    text: "Parse a raw ISO 8583 string with `iso8583:parse(isoMessage)` from `financial.iso8583` (returns `anydata|iso8583:ISOError`), convert it with `cloneWithType()` to an MTI record such as `iso8583:MTI_020X` or `MTI_0210`, and check it with `constraint:validate(msg)`"
+    difficulty: [intermediate]
+  - id: iso8583_encode
+    text: "Encode an ISO 8583 record (e.g. `iso8583:MTI_020X {MTI: \"0200\", PrimaryAccountNumber: ..., ProcessingCode: ..., AmountTransaction: ...}`) to the compact MTI+bitmap+payload string with `iso8583:encode(record)`"
+    difficulty: [intermediate]
+  - id: iso8583_bytes
+    text: "Prepare ISO 8583 for TCP transport with `iso8583:generateByteStream(msg, customHeader, addLengthHeader, lengthHeaderSize, isLengthHeaderASCII)` or `iso8583:toBytes(record, ...)`, and decode received bytes with `iso8583:decodeByteStream(bytes, 4, 4, false, 12)` (MTI, bitmap, payload) or `iso8583:toJson(bytes, ...)`; load a custom packager with `iso8583:initialize(\"packager.xml\", \"element-definitions.csv\")` in `init()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-financial.iso8583/blob/main/iso8583/ballerina/iso8583_parser.bal", kind: github, note: "Function signatures"}
+  - id: swift_parse
+    text: "Parse a SWIFT FIN message with `record {} msg = check swiftmt:parse(finMessage);` (`import ballerinax/financial.swift.mt as swiftmt;`) and narrow it with `msg is swiftmt:MT900Message` (or `MT103Message`, `MT940Message`, ...)"
+    difficulty: [intermediate]
+  - id: swift_build
+    text: "Create an MT record such as `swiftmt:MT900Message {block1: {logicalTerminal: ...}, block2: {'type: \"input\", messageType: \"900\", receiverAddress: ...}, block4: {MT20: {name: \"20\", msgId: {content: ..., number: \"1\"}}, MT32A: {...}}}` and render it with `swiftmt:toFinMessage(message)`; the package covers MT1xx, MT2xx, MT300-MT341, MT9xx and nXX categories"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-financial.swiftmt", kind: github, note: "Message type files and parser.bal"}
+  - id: as2_mft_gateway
+    text: "Exchange AS2 messages through the Aayu MFT Gateway with `aayu.mftg.as2`: create the client with `new (username, password, as2From)`, send with `->sendAS2Message(as2To, contentType, payload, subject = ..., attachmentName = ...)`, and manage the inbox with `->listReceivedMessages()`, `->retrieveInboxMessage(as2MessageId)` and `->retrieveInboxMessageMDN(as2MessageId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/aayu.mftg.as2/client.bal", kind: github, note: "Client init and remote methods"}
+out_of_scope:
+  - "The `ballerina/edi` library and generating custom EDI schemas/packages (lib.edi, tool.bal_edi)"
+edges:
+  - {to: lib.edi, rel: uses, via: [edifact_read, edifact_write, edifact_interchange]}
+  - {to: tool.bal_edi, rel: related}
+  - {to: concept.records, rel: uses, via: [iso20022_build, swift_build, iso8583_encode]}
+  - {to: concept.xml, rel: uses, via: [iso20022_build, iso20022_parse]}
+  - {to: lib.constraint, rel: uses, via: [iso8583_parse]}
+  - {to: concept.client_objects, rel: uses, via: [as2_mft_gateway]}
+  - {to: lib.http, rel: uses, via: [as2_mft_gateway]}
+notes: "EDIFACT message codes per group are from each package README's 'Supported messages' table. The financial.iso8583 Central README is a stub; API details come from the GitHub Module.md and parser source. The swift.mt README imports `fiancial.swift.mt` (typo) in two samples."

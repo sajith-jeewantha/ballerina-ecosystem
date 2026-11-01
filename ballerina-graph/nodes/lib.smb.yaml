@@ -1,0 +1,105 @@
+schema_version: "0.2"
+id: lib.smb
+type: library
+title: ballerina/smb
+summary: "The `ballerina/smb` module reads, writes and manages files on SMB shares (Windows file servers, NAS, Samba) through a typed `smb:Client`, and polls share directories with an `smb:Listener` that dispatches added or deleted files to a service."
+priority: long_tail
+status: draft
+modules: [ballerina/smb]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central, note: "ballerina/smb 2.2.1 package README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-smb/blob/main/ballerina/client.bal", kind: github, note: "smb:Client remote methods"}
+  - {url: "https://ballerina.io/learn/by-example/smb-client-read-file/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/smb-client-write-file/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/smb-service-receive-file/", kind: bbe}
+  - {url: "https://ballerina.io/learn/by-example/smb-caller/", kind: bbe}
+must_cover:
+  - id: client_init
+    text: "Create an `smb:Client` with an `smb:ClientConfiguration` giving `host`, `share` and `auth: {credentials: {username, password, domain}}` (port `445` by default), knowing that every path is relative to the share, and release it with `check fileClient->close();`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-client-read-file/", kind: bbe}
+  - id: kerberos_auth
+    text: "Authenticate with Kerberos by giving `auth: {kerberosConfig: {principal: \"alice@EXAMPLE.COM\", keytab: \"/path/to/alice.keytab\", configFile: \"/etc/krb5.conf\"}}` instead of `credentials`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: connection_security
+    text: "Tune the connection with `dialects: [smb:SMB_3_1_1, smb:SMB_3_0_2]` (dialects 2.0.2 to 3.1.1 are supported), `signRequired`, `encryptData`, `enableDfs`, `bufferSize` and `connectTimeout`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: typed_read
+    text: "Read files by content type with `getText` (`string`), `getJson` and `getXml` (bound to `json`/`xml` or a record type taken from the expected type, e.g. `DailySummary daily = check fileClient->getJson(\"/reports/summary.json\");`), `getCsv` (`string[][]` or a record array) and `getBytes` (`byte[]`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-client-read-file/", kind: bbe}
+  - id: typed_write
+    text: "Write files with `putText`, `putJson`, `putXml`, `putCsv` and `putBytes`, passing `smb:APPEND` as the last argument to add to a file instead of the default `smb:OVERWRITE`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-client-write-file/", kind: bbe}
+  - id: streaming_patch
+    text: "Handle files too large for memory with `getBytesAsStream` (`stream<byte[], error?>`), `getCsvAsStream` (a stream of `string[]` or records), `putBytesAsStream` and `putCsvAsStream`, and overwrite part of a file at a byte offset with `patch(path, content, offset)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smb/blob/main/ballerina/client.bal", kind: github}
+  - id: file_management
+    text: "Manage the share with `list(path)` (returns `smb:FileInfo[]`), `mkdir`, `rmdir`, `rename`, `move`, `copy`, `delete`, `exists`, `size` and `isDirectory`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-smb/blob/main/ballerina/client.bal", kind: github}
+  - id: listener_service
+    text: "Watch a directory with `listener smb:Listener fileListener = check new ({host, share, auth, pollingInterval: 10});` (seconds, default 60) and a service annotated `@smb:ServiceConfig {path: \"/sales/new\"}`, which also covers subdirectories and must declare at least one `onFile*` or `onFileDelete` method"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-service-receive-file/", kind: bbe}
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: content_handlers
+    text: "Receive file content already bound to the first parameter's type by extension: `onFileText` (`.txt`, `.log`, `.md` as `string`), `onFileJson` (`json` or a record), `onFileXml` (`xml` or a record), `onFileCsv` (`string[][]`, a record array or a stream) and `onFile` (`byte[]` or `stream<byte[], error?>`) for every other file and as the fallback"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: stream_handlers
+    text: "Declare a `stream<byte[], error?>` or CSV stream parameter in a handler to read large files in chunks, consuming it with a query such as `check from byte[] chunk in content do { ... };` and calling `close()` only when stopping early"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: fileinfo_caller
+    text: "Add optional `smb:FileInfo` (name, path, size, timestamps, attributes) and `smb:Caller` parameters after the content, and use the caller to act on the share while processing, e.g. writing an acknowledgement file with `check caller->putText(ackPath, receipt);` without opening a second connection"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-caller/", kind: bbe}
+  - id: on_file_delete
+    text: "Handle deletions with `remote function onFileDelete(string path, smb:Caller caller)`, which gets only the removed file's path (no content or `smb:FileInfo`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: on_error
+    text: "Declare `remote function onError(smb:Error err, smb:Caller caller)` (or with an `error` parameter alone) to handle failures to poll, read or bind a file and errors returned by handlers; without it failures are logged and processing continues"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: function_config
+    text: "Filter and post-process files per handler with `@smb:FunctionConfig {fileNamePattern: \"invoice_(.*)\\\\.csv\", afterProcess: {moveTo: \"/invoices/processed\"}, afterError: {moveTo: \"/invoices/failed\", preserveSubDirs: false}}`, or `smb:DELETE` as the action; the listener-level `fileNamePattern` applies when a handler sets none"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: csv_fail_safe
+    text: "Skip malformed CSV rows instead of failing the whole file with `csvFailSafe: {contentType: smb:RAW_AND_METADATA}` on the listener or client (`smb:METADATA` by default, or `smb:RAW`), which logs each skipped row to `<file-name>_error.log` in the working directory"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+out_of_scope:
+  - "FTP and SFTP servers (lib.ftp)"
+  - "Local file system operations (lib.file)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [client_init, typed_read, typed_write, file_management]}
+  - {to: concept.services_listeners, rel: uses, via: [listener_service, content_handlers, on_file_delete, on_error]}
+  - {to: concept.records, rel: uses, via: [typed_read, content_handlers]}
+  - {to: concept.streams, rel: uses, via: [streaming_patch, stream_handlers]}
+  - {to: concept.query_expressions, rel: uses, via: [stream_handlers]}
+  - {to: concept.annotations, rel: uses, via: [listener_service, function_config]}
+  - {to: concept.regexp, rel: uses, via: [function_config]}
+notes: "The README names the file-management operations only by link to the API docs; their names (`mkdir`, `rmdir`, `rename`, `move`, `copy`, `delete`, `exists`, `size`, `isDirectory`) and the `putBytesAsStream`/`putCsvAsStream` methods come from client.bal of version 2.2.1. `fileNamePattern` is a regular expression given as a string."

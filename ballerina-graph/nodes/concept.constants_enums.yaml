@@ -9,16 +9,21 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.8", kind: spec, note: "8.8 Module constant declaration"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.4", kind: spec, note: "6.4 Constant expressions"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.9", kind: spec, note: "8.9 Module enumeration declaration"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: const_decl
     text: "Declare module constants with `const MAX = 10;` or `public const string GREETING = \"hi\";`, naming immutable values known at compile time"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/const-and-final/", kind: bbe}
   - id: const_type
     text: "Explain that a constant's type is the intersection of `readonly` and the singleton type of its value, so an explicit type descriptor only supplies the contextually expected type and an upper bound; it must be a subtype of `anydata` and not `never`, and the const-expr's static type must be a subtype of it"
     difficulty: [intermediate, advanced]
   - id: const_in_types
     text: "Use constants where compile-time values are required: as singleton types in type descriptors (e.g. `type Mode READ|WRITE;`), as array lengths such as `int[N]`, and in match patterns"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/singleton-types/", kind: bbe}
   - id: const_expr_forms
     text: "Write constant expressions from literals, template expressions, list/mapping/table constructors, references to other constants, type casts, `is` tests, and unary, arithmetic, relational, equality, logical and conditional operators, where every nested expression must itself be a const-expr"
     difficulty: [intermediate]
@@ -31,6 +36,8 @@ must_cover:
   - id: structured_consts
     text: "Declare structured constants such as `const map<int> LIMITS = {low: 1, high: 9};` or `const int[] PRIMES = [2, 3, 5];`, whose values are immutable"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/const-and-final/", kind: bbe}
   - id: simple_const_expr
     text: "Distinguish `simple-const-expr` (nil, boolean, optionally signed numeric literals, string literals and constant references), which is used for singleton types, const match patterns and xmlns namespace URIs, from a full const-expr"
     difficulty: [advanced]
@@ -39,9 +46,13 @@ must_cover:
   - id: enum_decl
     text: "Declare enums such as `enum Color { RED, GREEN, BLUE }`, where each member becomes a string constant whose value defaults to its own name and the enum name becomes a type that is the union of the member constants"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/enumerations/", kind: bbe}
   - id: enum_values
     text: "Give enum members explicit values such as `RED = \"red\"`, knowing the const-expr must evaluate to a string"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/enumerations/", kind: bbe}
   - id: enum_equivalence
     text: "Explain that `public enum Color { RED, GREEN, BLUE }` is exactly equivalent to `public const RED = \"RED\";` (and so on) plus `public type Color RED|GREEN|BLUE;`, so a public enum makes both the type and the constants public"
     difficulty: [intermediate]

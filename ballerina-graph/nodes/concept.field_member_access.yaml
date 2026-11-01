@@ -13,12 +13,16 @@ must_cover:
   - id: record_field_access
     text: 'Read a record field with `r.name`, and explain that for a non-lax type the field must be a required key of a mapping type, giving static type the field type'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/records/", kind: bbe}
   - id: optional_field_as_optional_access
     text: 'Explain that `r.f` on a non-lax record where `f` is an optional field whose type excludes nil is treated as `r?.f` and so can evaluate to `()`'
     difficulty: [intermediate, advanced]
   - id: optional_field_access
     text: 'Use `x?.f` to read a possibly absent field, returning `()` when `x` is `()` or has no field `f`, with static type including `()` in those cases'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/optional-fields/", kind: bbe}
   - id: optional_access_requirements
     text: 'Explain that for a non-lax type, `x?.f` requires the static type to be a subtype of `()` or mapping and the type descriptor to declare `f` as an individual field (in at least one union member)'
     difficulty: [advanced]
@@ -30,6 +34,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lax_static_typing", kind: spec, note: "6.2.1 Lax static typing"}
+      - {url: "https://ballerina.io/learn/by-example/access-json-elements/", kind: bbe}
   - id: key_expression_types
     text: 'Explain the key type rules for `c[k]`: `int` for lists, strings and xml, the key type `K` for `table<R> key<K>`, and `string` for mappings (where the container may also be `()`)'
     difficulty: [intermediate]
@@ -39,9 +44,13 @@ must_cover:
   - id: xml_member_access
     text: 'Index xml values with `x[i]`, which panics for a negative index but returns the empty xml value when `i` is beyond the length, with static type `M|E` for `xml<M>`'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-access/", kind: bbe}
   - id: mapping_member_access
     text: 'Read mapping members with `m["key"]`, which returns `()` when the key is absent or `m` is `()`, so the static type is `T?` for a map or an optional record field'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/maps/", kind: bbe}
   - id: multi_key_only_tables
     text: 'Explain that the multi-key form `c[k1, k2]` is allowed only when the container is a table'
     difficulty: [intermediate]

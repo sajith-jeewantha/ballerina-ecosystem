@@ -17,6 +17,9 @@ must_cover:
   - id: type_cast_basic
     text: Write a type cast `<T> expr`, which returns the value unchanged if it belongs to T and otherwise panics
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/any-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/casting-json-to-user-defined-type/", kind: bbe}
   - id: numeric_cast
     text: Use a type cast to convert between numeric types when T contains exactly one numeric basic type (e.g. `<int>3.7`, `<float>n`, `<decimal>f`), applying NumericConvert and panicking if the conversion fails (e.g. NaN or out-of-range to int)
     difficulty: [intermediate]
@@ -45,9 +48,13 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.value", kind: spec, note: "11.3.19 lang.value ensureType"}
+      - {url: "https://ballerina.io/learn/by-example/ensureType-function/", kind: bbe}
   - id: is_narrowing
     text: Narrow a union-typed local variable or parameter with `if x is T { ... } else { ... }`, where x has type `Tx & T` in the if block and the read-only difference of Tx and T in the else block
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/if-statement/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/unions/", kind: bbe}
   - id: readonly_difference
     text: Explain the read-only difference used for the false case, where a mutable part of the type is removed only if it is entirely contained in T, because a mutable value can look like T without belonging to it
     difficulty: [advanced]

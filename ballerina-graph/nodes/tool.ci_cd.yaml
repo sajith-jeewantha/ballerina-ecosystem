@@ -1,0 +1,104 @@
+schema_version: "0.2"
+id: tool.ci_cd
+type: tool
+title: CI/CD
+summary: "Ballerina projects are built, tested and published in CI/CD pipelines by installing Ballerina (the `setup-ballerina` GitHub Action, the `UseBallerina` Azure Pipelines task, a `.deb` download or the `ballerina/ballerina` Docker image) and running `bal test`, `bal pack`, `bal push` and `bal build --cloud=docker`. The `scan-ballerina` action runs `bal scan` and sends findings to GitHub code scanning or SonarQube."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - {url: "https://github.com/ballerina-platform/setup-ballerina", kind: github, note: setup-ballerina README}
+  - {url: "https://github.com/ballerina-platform/ballerina-action", kind: github, note: ballerina-action README}
+  - {url: "https://github.com/ballerina-platform/ballerina-azure-pipelines-task", kind: github, note: ballerina-azure-pipelines-task README}
+  - {url: "https://github.com/ballerina-platform/scan-ballerina", kind: github, note: scan-ballerina README}
+  - {url: "https://github.com/ballerina-platform/sonar-ballerina", kind: github, note: sonar-ballerina README}
+must_cover:
+  - id: github_workflow
+    text: "Write a GitHub Actions workflow in `.github/workflows/ballerina-ci.yml` (`on: [push, pull_request]`) that checks out the code, installs Ballerina with `uses: ballerina-platform/setup-ballerina@v1` and `with: version: 2201.11.0`, then runs `bal test` and `bal pack`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: setup_ballerina_inputs
+    text: "Configure `setup-ballerina` with its required `version` input (a fixed version such as `2201.13.3`, `latest`, or a value starting with `nightly`) and the optional `github-token` used to download nightly builds; the action sets `BALLERINA_HOME`, adds `bal` to `PATH`, and runs on Ubuntu, macOS and Windows runners"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/setup-ballerina", kind: github}
+  - id: cache_dependencies
+    text: "Cache Ballerina dependencies between runs with `actions/cache` on `path: ~/.ballerina` keyed by `ballerina-deps-${{ hashFiles('**/Ballerina.toml') }}` with `restore-keys: ballerina-deps-`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: push_to_central
+    text: "Publish to Ballerina Central from a pipeline by running `bal push` after `bal pack` with the `BALLERINA_CENTRAL_ACCESS_TOKEN` environment variable set from a repository secret (`${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: docker_image
+    text: "Build a Docker image in CI with `bal build --cloud=docker`, then log in with `docker login -u \"${{ secrets.DOCKER_USERNAME }}\" --password-stdin` and `docker push` the image"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: ballerina_action
+    text: "Run `bal` commands through the `ballerina-platform/ballerina-action@master` action with `with: args: pack` or `args: push`, setting `BALLERINA_CENTRAL_ACCESS_TOKEN` for push and `WORKING_DIR` to run in a sub-directory of the repository"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-action", kind: github}
+  - id: gitlab_ci
+    text: "Write a `.gitlab-ci.yml` with `test`, `build` and `push` stages that installs Ballerina in `before_script` by downloading `ballerina-$BALLERINA_VERSION-swan-lake-linux-x64.deb` from `https://dist.ballerina.io/downloads/$BALLERINA_VERSION/` and running `dpkg -i`, caches `~/.ballerina/`, and runs `bal pack` and `bal push` only on `main`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: bitbucket_pipelines
+    text: "Write a `bitbucket-pipelines.yml` that uses `image: ballerina/ballerina:2201.11.0`, defines a `ballerina: ~/.ballerina` cache under `definitions: caches:`, runs `bal test`, `bal pack` and `bal push` steps, and a `pull-requests: \"**\"` step that runs `bal test` and `bal pack`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: azure_pipelines
+    text: "Install Ballerina in an Azure pipeline with the `- task: UseBallerina@1` step and `inputs: version: '2201.6.0'`, then run `bal` commands in `script` steps such as `bal -v`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-azure-pipelines-task", kind: github}
+  - id: version_matrix
+    text: "Follow the CI/CD best practices: keep tokens and credentials in secrets or environment variables, cache dependencies, add build notifications, and test against several Ballerina versions with a matrix build"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/cicd/", kind: docs}
+  - id: scan_code_scanning
+    text: "Run `bal scan` in GitHub Actions with `uses: ballerina-platform/scan-ballerina@v0` and `platforms: github-code-scanning`, giving the job `security-events: write` permission, so findings appear as code scanning alerts"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/scan-ballerina", kind: github}
+  - id: scan_sonarqube
+    text: "Send `scan-ballerina` findings to SonarQube with `platforms: sonarqube` and a `platform-config` block giving `sonarqube:` `host-url`, `token` and `project-key` (or per-package `packages` entries), with `packages: read` permission and `fetch-depth: 0` on checkout"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/scan-ballerina", kind: github}
+  - id: scan_gate
+    text: "Fail a build on scan findings with the `scan-ballerina` inputs `fail-on-severity` (`low`, `medium`, `high` or `none`) and `max-findings`, show findings inline with `annotations: true`, and read the `result`, `high-count`, `medium-count`, `low-count` and `sarif-file` outputs"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/scan-ballerina", kind: github}
+  - id: scan_filters
+    text: "Control what `scan-ballerina` scans with `paths`, `exclude-paths` globs, `exclude-tests`, `include-rules` or `exclude-rules` (e.g. `ballerina:1,ballerina/crypto:1`), pin `ballerina-version` and `tool-version`, and save the merged SARIF file with `artifacts: true`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/scan-ballerina", kind: github}
+  - id: sonar_plugin
+    text: "Set up the `sonar-ballerina` SonarQube plugin so a SonarQube server can analyse Ballerina code, with OpenJDK 21, Ballerina, the Ballerina static code analysis tool (`bal scan`), SonarQube 9.9 LTS and the Sonar Scanner CLI as prerequisites"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/sonar-ballerina", kind: github}
+out_of_scope:
+  - "`bal scan` rules, `Scan.toml` and local scan reports (tool.bal_scan)"
+  - "Docker, Kubernetes and `Cloud.toml` settings (tool.code_to_cloud)"
+  - "Deploying to specific cloud platforms (topic.deployment)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.bal_test, rel: uses, via: [github_workflow, gitlab_ci, bitbucket_pipelines]}
+  - {to: tool.central, rel: uses, via: [push_to_central, ballerina_action]}
+  - {to: tool.code_to_cloud, rel: uses, via: [docker_image]}
+  - {to: tool.bal_scan, rel: uses, via: [scan_code_scanning, scan_sonarqube, scan_gate, scan_filters, sonar_plugin]}
+  - {to: platform.distributions, rel: uses, via: [setup_ballerina_inputs, gitlab_ci, bitbucket_pipelines, azure_pipelines]}
+  - {to: tool.ballerina_toml, rel: uses, via: [cache_dependencies]}
+  - {to: topic.deployment, rel: related}
+notes: "The ballerina.io page shows `setup-ballerina@v1` with `2201.11.0`; the setup-ballerina README shows `@v1.1.4` with `2201.13.3`. The page only names matrix builds as a best practice and gives no matrix YAML. The sonar-ballerina README lists only prerequisites (no install or configuration steps), and the Azure task README shows only the `version` input. `scan-ballerina` `v0` is marked pre-release."

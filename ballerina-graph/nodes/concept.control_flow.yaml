@@ -11,15 +11,19 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4.2", kind: spec, note: "7.4.2 Statement blocks"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.4.3", kind: spec, note: "7.4.3 Unreachability"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.18", kind: spec, note: "7.18 Conditional statement"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: if_else
     text: "Write `if cond { ... } else if cond { ... } else { ... }` statements whose conditions have static type boolean, executing the first block whose condition is true or the `else` block if none is"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/if-statement/", kind: bbe}
   - id: do_stmt
     text: "Use a `do { ... }` statement to execute a statement block as a single compound statement (commonly so that an `on fail` clause can be attached)"
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.19", kind: spec, note: "7.19 Do statement"}
+      - {url: "https://ballerina.io/learn/by-example/single-use-with-on-fail-clause/", kind: bbe}
   - id: return_stmt
     text: "Use `return expr;` to terminate the current worker normally with a value, and know that `return;` and falling off the end of a body are equivalent to `return ();`"
     difficulty: [beginner]
@@ -43,6 +47,7 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.16", kind: spec, note: "7.16 Call statement"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.14.4", kind: spec, note: "7.14.4 Destructuring assignment statement"}
+      - {url: "https://ballerina.io/learn/by-example/wildcard-binding-pattern/", kind: bbe}
   - id: action_stmt
     text: "Write an action (such as a remote method call `c->m();`, a send or a `wait`) as a statement only when its static type is nil"
     difficulty: [intermediate]

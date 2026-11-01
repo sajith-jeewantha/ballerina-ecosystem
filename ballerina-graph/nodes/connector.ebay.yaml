@@ -1,0 +1,53 @@
+schema_version: "0.2"
+id: connector.ebay
+type: connector
+title: "eBay connectors"
+summary: "Generated `ballerinax/ebay.*` clients for the eBay Buy (Browse) and Sell APIs (account, inventory, listing, finances, analytics, compliance, logistics, metadata, negotiation, recommendation), each with an OAuth2 `ConnectionConfig` and a `Client` whose remote methods mirror the API operations."
+priority: long_tail
+status: draft
+modules: [ballerinax/ebay.account, ballerinax/ebay.analytics, ballerinax/ebay.browse, ballerinax/ebay.compliance, ballerinax/ebay.finances, ballerinax/ebay.inventory, ballerinax/ebay.listing, ballerinax/ebay.logistics, ballerinax/ebay.metadata, ballerinax/ebay.negotiation, ballerinax/ebay.recommendation]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/ebay.inventory/latest", kind: central, note: "Representative README (no code)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ebay.inventory", kind: github, note: "Generated client.bal/types.bal (all ebay.* packages live under openapi/)"}
+must_cover:
+  - id: client_auth
+    text: "Create an eBay client such as `inventory:Client` from `ballerinax/ebay.inventory` with `check new ({auth: {token: userAccessToken}})` or an OAuth2 refresh-token config; the default `serviceUrl` is the production API (e.g. `https://api.ebay.com/sell/inventory/v1`)"
+    difficulty: [beginner]
+  - id: app_token_clients
+    text: "Use an application token (`OAuth2ClientCredentialsGrantConfig`) with the public-data clients `ebay.browse` and `ebay.metadata`, which also accept bearer or refresh-token auth"
+    difficulty: [intermediate]
+  - id: browse
+    text: "Search and read items with `ebay.browse`: `search`, `searchByImage`, `getItem`, `getItemByLegacyId`, `getItems`, `getItemsByItemGroup` and `checkCompatibility`"
+    difficulty: [beginner]
+  - id: inventory_items
+    text: "Manage stock with `ebay.inventory`: `createOrReplaceInventoryItem(contentLanguage, sku, payload)` (an `InventoryItem` record), `getInventoryItem`, `getInventoryItems`, `bulkCreateOrReplaceInventoryItem`, `bulkUpdatePriceQuantity` and inventory locations via `createInventoryLocation`"
+    difficulty: [intermediate]
+  - id: offers_publish
+    text: "List items for sale with `ebay.inventory` offers: `createOffer`, `updateOffer`, `getListingFees`, `publishOffer` (or `bulkPublishOffer`, `publishOfferByInventoryItemGroup`) and `withdrawOffer`"
+    difficulty: [intermediate, advanced]
+  - id: account_policies
+    text: "Configure seller business policies with `ebay.account`: `createFulfillmentPolicy`, `createPaymentPolicy`, `createReturnPolicy`, the matching `get*`/`update*`/`delete*` methods, and sales tax with `createOrReplaceSalesTax`"
+    difficulty: [intermediate]
+  - id: listing_drafts
+    text: "Create an item draft that the seller completes on eBay with `ebay.listing` `createItemDraft`"
+    difficulty: [intermediate]
+  - id: finances_analytics
+    text: "Read money and performance data with `ebay.finances` (`getPayouts`, `getPayoutSummary`, `getTransactions`, `getSellerFundsSummary`; base URL `https://apiz.ebay.com/sell/finances/v1`) and `ebay.analytics` (`getTrafficReport`, `findSellerStandardsProfiles`, `getCustomerServiceMetric`)"
+    difficulty: [intermediate]
+  - id: compliance_metadata
+    text: "Check listing health with `ebay.compliance` (`getListingViolationsSummary`, `getListingViolations`, `suppressViolation`) and marketplace rules with `ebay.metadata` (`getItemConditionPolicies`, `getReturnPolicies`, `getSalesTaxJurisdictions`)"
+    difficulty: [intermediate]
+  - id: logistics
+    text: "Buy shipping labels with `ebay.logistics`: `createShippingQuote`, `createFromShippingQuote`, `getShipment`, `downloadLabelFile` and `cancelShipment`"
+    difficulty: [advanced]
+  - id: negotiation_recommendation
+    text: "Send offers to interested buyers with `ebay.negotiation` (`findEligibleItems`, `sendOfferToInterestedBuyers`) and get listing improvement tips with `ebay.recommendation` `findListingRecommendations`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "eBay OAuth consent flow for obtaining user tokens (done outside Ballerina)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_auth]}
+  - {to: lib.oauth2, rel: uses, via: [client_auth, app_token_clients]}
+  - {to: concept.client_objects, rel: uses, via: [client_auth, browse]}
+  - {to: concept.records, rel: uses, via: [inventory_items, offers_publish]}
+notes: "All eleven packages are openapi-connectors packages (v1.5.2, 1-2 pulls) with no README code; operation names, default URLs and auth unions come from openapi-connectors main client.bal/types.bal. Exact parameter lists (e.g. marketplace headers) were not checked per operation."

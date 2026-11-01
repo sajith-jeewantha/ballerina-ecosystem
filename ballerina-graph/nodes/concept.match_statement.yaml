@@ -9,37 +9,62 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#match_statement", kind: spec, note: "7.20 Match statement"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.1", kind: spec, note: "7.20.1 Match patterns"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_7.20.2", kind: spec, note: "7.20.2 Match clause reachability and narrowing"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: match_basic
     text: "Write `match target { pattern => { ... } }`, where the target may be an expression or an action, clauses are tried in order and only the first clause whose pattern matches (and whose guard is true) runs"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-statement/", kind: bbe}
   - id: const_patterns
     text: "Match constant patterns such as `0`, `\"GET\"`, `true`, `()` and references to named constants, which match when DeepEquals (the `==` relation) holds and bind no variables"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-statement/", kind: bbe}
   - id: alternatives
     text: "Combine patterns with `|` in one clause, as in `1|2|3 => { ... }`, knowing every alternative must bind the same set of variables"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-statement/", kind: bbe}
   - id: wildcard
     text: "Use `_` as a catch-all clause, knowing the wildcard match pattern matches any value except an error"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-statement/", kind: bbe}
   - id: var_binding
     text: "Capture parts of the value with `var x`, `var [a, b]` or `var {name}`, distinguishing identifiers under `var` (new variables) from bare identifiers (constant references), and keeping patterns linear (no variable bound twice)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/binding-patterns-in-match-statement/", kind: bbe}
   - id: list_patterns
     text: "Use list match patterns such as `[1, var x]` and `[var first, ...var rest]` to match on list length and members"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/list-binding-pattern-in-match-statement/", kind: bbe}
   - id: mapping_patterns
     text: "Use mapping match patterns such as `{kind: \"circle\", radius: var r}` (optionally with `...var rest`), which match when every listed field matches, regardless of other fields"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/binding-patterns-in-match-statement/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mapping-binding-pattern-in-match-statement/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/match-statement-with-maps/", kind: bbe}
   - id: error_patterns
     text: "Use error match patterns such as `error(var msg)`, `error(var msg, var cause)` and `error MyError(var msg, code = var c)` to match an error's message, cause, detail fields and error type"
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/error-binding-pattern-in-match-statement/", kind: bbe}
   - id: guards
     text: "Add a match guard with `pattern if cond => { ... }`, where `cond` is boolean, sees the pattern's variables, and a false guard moves on to the next clause"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-guard-in-match-statement/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/list-binding-pattern-in-match-statement/", kind: bbe}
   - id: guard_call_restriction
     text: "Know a match guard may contain a function or method call only if the match target's static type is readonly, or the callee is isolated and every argument (and the receiver object) has a readonly static type"
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/match-guard-in-match-statement/", kind: bbe}
   - id: looks_like_matching
     text: "Explain that a value matches a pattern when it looks like the pattern's type, so a mutable value can match without belonging to that type, while an error match pattern with a type reference requires the error to belong to the referenced error type"
     difficulty: [advanced]

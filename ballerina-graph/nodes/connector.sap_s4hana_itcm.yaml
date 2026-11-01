@@ -1,0 +1,69 @@
+schema_version: "0.2"
+id: connector.sap_s4hana_itcm
+type: connector
+title: ballerinax/saps4hana.*
+summary: "Generated OpenAPI clients for SAP S/4HANA Intelligent Trade Claims Management (`saps4hana.itcm.*` master data and accounts receivable), the external tax calculation `taxquote` API, Procurement Planning SCIM user management and Watch List Screening hits. Each package exposes a `Client` initialized with OAuth2 client credentials and a service URL."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/saps4hana.externaltaxcalculation.taxquote
+  - ballerinax/saps4hana.itcm.accountreceivable
+  - ballerinax/saps4hana.itcm.agreement
+  - ballerinax/saps4hana.itcm.currency
+  - ballerinax/saps4hana.itcm.customer
+  - ballerinax/saps4hana.itcm.customerhierarchy
+  - ballerinax/saps4hana.itcm.organizationaldata
+  - ballerinax/saps4hana.itcm.product
+  - ballerinax/saps4hana.itcm.producthierarchy
+  - ballerinax/saps4hana.itcm.promotion
+  - ballerinax/saps4hana.itcm.uom
+  - ballerinax/saps4hana.itcm.user
+  - ballerinax/saps4hana.pp.idm
+  - ballerinax/saps4hana.wls.screeninghits
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/saps4hana.itcm.customer/latest", kind: central, note: "ITCM package overview (same shape for all saps4hana.itcm.* packages)"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "client.bal and types.bal of each saps4hana.* package (init, ConnectionConfig, remote methods)"}
+  - {url: "https://central.ballerina.io/ballerinax/saps4hana.wls.screeninghits/latest", kind: central, note: "Watch List Screening Hits API v1.7 overview"}
+must_cover:
+  - id: client_init
+    text: "Create a `customer:Client` (and likewise any `saps4hana.itcm.*` client) with `check new ({auth: {clientId, clientSecret, tokenUrl}}, serviceUrl)`, where `auth` is an OAuth2 client-credentials grant config whose `tokenUrl` points at the SAP BTP authentication endpoint"
+    difficulty: [beginner]
+  - id: itcm_customer
+    text: "Replicate customers into ITCM with `saps4hana.itcm.customer`: `createCustomer(payload)` with a `CustomerDTO`, `getCustomerByExternalId(externalid)` and `deleteCustomer(externalid)`"
+    difficulty: [beginner]
+  - id: itcm_product_units
+    text: "Maintain product master data with `saps4hana.itcm.product` (`createProduct`, `deleteProduct`), units of measure with `saps4hana.itcm.uom` (`createUoM`, `getByISOLangKey`, `deleteByISOLangKey`) and currencies with `saps4hana.itcm.currency` (`createCurrencyCode`, `getByISOLangKey(currencyCode, languageKey)`, `deleteCurrency`)"
+    difficulty: [beginner]
+  - id: itcm_hierarchies
+    text: "Load hierarchies with `saps4hana.itcm.customerhierarchy` (`createCustomerHierarchy(payload)` with a `HierarchyHeaderEO`, `getAllNodes(externalId)`, `getNode(externalId)`, `deleteCustomerHierarchy`) and `saps4hana.itcm.producthierarchy` (`createProductHierarchy`, `getAllNodes`, `deleteProductHierarchyTenant(headerExternalId)`)"
+    difficulty: [intermediate]
+  - id: itcm_organizational_data
+    text: "Maintain sales organizational data with `saps4hana.itcm.organizationaldata`: `createSalesOrganization`, `createDistributionChannel`, `createSalesDivision` and `createSalesArea`, each with a matching `get...ByExternalId(externalId)` and `delete...` method"
+    difficulty: [intermediate]
+  - id: itcm_agreement_promotion
+    text: "Send trade agreements with `saps4hana.itcm.agreement` (`createAgreement(payload)`, `deleteAgreement`) and promotions with `saps4hana.itcm.promotion` (`createPromotion`, `getPromotionByExternalId`, `deletePromotion(externalId)`)"
+    difficulty: [intermediate]
+  - id: itcm_accounts_receivable_user
+    text: "Post accounts-receivable open items with `saps4hana.itcm.accountreceivable` (`createAROpenItem(payload)`, `getAROpenItemById(id)`, `batchCreateReasonCode(payload)`, `getReasonCodeList(code)`) and create ITCM users with `saps4hana.itcm.user` `createUser(payload)` using a `UserProfileDTO`"
+    difficulty: [intermediate]
+  - id: tax_quote
+    text: "Request a tax calculation from an external tax engine with `saps4hana.externaltaxcalculation.taxquote` `taxquote1(payload, xCorrelationid = ..., xRoutingKey = ...)`, sending an `ApiV0SchemaTaxrequest` and reading the `ApiV0SchemaTaxresponse`"
+    difficulty: [intermediate]
+  - id: scim_users
+    text: "Manage Procurement Planning users through the SCIM API with `saps4hana.pp.idm`: `getAllUsers()`, `getUserById(id)`, `addNewUser(payload)`, `updateUserById(id, payload)` and `deleteUserById(id)`"
+    difficulty: [intermediate]
+  - id: screening_hits
+    text: "Review watch-list screening results with `saps4hana.wls.screeninghits`: read decisions with `get(filter)`, update a screening request with `put(screeningRequestKey, payload)` using a `BusinessContext`, look up business partners with `getBPData(name, city = ..., countryISOCode = ...)`, and purge with `delete(date, logicalDelete)`"
+    difficulty: [intermediate]
+  - id: error_handling
+    text: "Handle the `error` returned by every remote method with `check` or `on fail`, and check the `http:Response` status returned by methods such as `addNewUser` and `put`"
+    difficulty: [beginner]
+out_of_scope:
+  - "The OData-based S/4HANA Cloud clients `sap.s4hana.*` (connector.sap_s4hana)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_init, error_handling]}
+  - {to: lib.oauth2, rel: uses, via: [client_init]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, itcm_customer]}
+  - {to: concept.records, rel: uses, via: [itcm_customer, itcm_hierarchies, tax_quote]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+notes: "The Central READMEs of these packages contain only an overview and compatibility table, so method names and signatures come from the openapi-connectors main branch client.bal files. Several ITCM `ConnectionConfig` records default `tokenUrl` to a sample tenant; always set your own. The real `serviceUrl` values are tenant-specific and are not documented in the READMEs."

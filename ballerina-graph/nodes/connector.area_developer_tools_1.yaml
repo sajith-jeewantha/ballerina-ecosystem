@@ -1,0 +1,114 @@
+schema_version: "0.2"
+id: connector.area_developer_tools_1
+type: connector
+title: Developer Tools connectors (A–G)
+summary: "Developer-tool connectors from A to G: the GitHub REST client (`github:Client`, resource methods for repositories, issues, pull requests, contents and releases), the Apache FreeMarker template library (`freemarker:render`, `freemarker:renderFromFile`), and OpenAPI-generated clients (remote methods) for Ably, Adobe Analytics, App Store Connect, Avalara AvaTax, Bitbucket, Bitly, Elastic Cloud (legacy), elmah.io, Disqus, screenshot and scraping services and data-lookup APIs."
+priority: long_tail
+status: draft
+modules: [ballerinax/ably, ballerinax/adobe.analytics, ballerinax/apple.appstore, ballerinax/automata, ballerinax/avatax, ballerinax/bintable, ballerinax/bisstats, ballerinax/bitbucket, ballerinax/bitly, ballerinax/browshot, ballerinax/dataflowkit, ballerinax/disqus, ballerinax/elasticsearch, ballerinax/elmah, ballerinax/extpose, ballerinax/freemarker, ballerinax/github]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/github/latest", kind: central, note: "ballerinax/github 6.1.0 README and API docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-github/tree/master/examples", kind: github, note: "GitHub connector examples (initialize project, issues, pull requests)"}
+  - {url: "https://central.ballerina.io/ballerinax/freemarker/latest", kind: central, note: "ballerinax/freemarker 1.0.2 README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal of the 1.x OpenAPI connectors in this group"}
+must_cover:
+  - id: github_client
+    text: "Create a `github:Client` with a personal access token, `github:ConnectionConfig gitHubConfig = {auth: {token: authToken}}` then `check new (gitHubConfig)`, and list the user's private repositories with `github:Repository[] repos = check github->/user/repos(visibility = \"private\", 'type = ());`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/github/latest", kind: central, note: "Quickstart"}
+  - id: github_oauth2_refresh
+    text: "Authenticate a GitHub App with the OAuth2 refresh-token grant, `auth: {clientId, clientSecret, refreshToken}` (the connector renews the 8-hour token automatically), and for GitHub Enterprise Server set `refreshUrl: \"https://github.example.com/login/oauth/access_token\"` and pass the API URL as the second argument, `check new (gitHubConfig, \"https://github.example.com/api/v3\")`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/github/latest", kind: central, note: "Setup guide option 2 and Quickstart"}
+  - id: github_repos_contents
+    text: "Create a repository with `github->/user/repos.post(github:UserReposBody)` (`name`, `'private`, `description`) or `/orgs/[org]/repos.post(...)`, commit a file with `/repos/[owner]/[repo]/contents/[path].put(github:ContentspathBody)` whose `content` is base64 (`\"text\".toBytes().toBase64()`), and invite a collaborator with `/repos/[owner]/[repo]/collaborators/[username].put(github:CollaboratorsusernameBody1)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-github/blob/master/examples/initialize-new-project/main.bal", kind: github, note: "Initialize a new project example"}
+  - id: github_issues
+    text: "Create an issue with `github->/repos/[owner]/[repo]/issues.post(github:RepoIssuesBody)` (`title`, `body`), then add labels or assignees by patching it with `/repos/[owner]/[repo]/issues/[issueNumber].patch(github:IssuesissueNumberBody)` (`labels`, `assignees`), list issues with `/repos/[owner]/[repo]/issues` and search with `/search/issues`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-github/blob/master/examples/create-and-assign-issue/main.bal", kind: github, note: "Create and assign issue example"}
+  - id: github_pull_requests
+    text: "Open a pull request with `github->/repos/[owner]/[repo]/pulls.post(github:RepoPullsBody)` (`title`, `base`, `head`, `body`), read `number` from the `github:PullRequest`, and request changes with `/repos/[owner]/[repo]/pulls/[prNumber]/reviews.post(github:PullNumberReviewsBody)` using `event: \"REQUEST_CHANGES\"`; list pull requests with `/repos/[owner]/[repo]/pulls`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-github/blob/master/examples/create-and-manage-pull-request/main.bal", kind: github, note: "Create and manage pull request example"}
+  - id: github_releases_stars
+    text: "List or create releases with `github->/repos/[owner]/[repo]/releases` and `/repos/[owner]/[repo]/releases.post(github:RepoReleasesBody)`, list an organization's repositories with `/orgs/[org]/repos`, and star a repository with `/user/starred/[owner]/[repo].put()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/github/latest", kind: central, note: "github:Client resource methods; star-ballerina-repositories example"}
+  - id: freemarker_render
+    text: "Render an inline Apache FreeMarker template with `string result = check freemarker:render(template, {\"name\": \"Alice\", \"count\": 5});`, where the template uses `${name}` interpolation and the data is a `map<json>`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/freemarker/latest", kind: central, note: "Render a template string"}
+  - id: freemarker_file_templates
+    text: "Render a `.ftl` template from disk with `freemarker:renderFromFile(\"templates/invoice.ftl\", data)` and write templates with `<#list items as item>` iteration, `<#if isPremiumMember?? && isPremiumMember>` conditionals and `${item.name}` interpolation, e.g. to build an order-confirmation e-mail body"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/freemarker/latest", kind: central, note: "Render from file and template syntax"}
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated 1.x clients in this group: import the package (e.g. `import ballerinax/bitbucket;`), create its `Client` with a `ConnectionConfig` holding `auth` (bearer `{token}`, OAuth2 refresh-token or `http:CredentialsConfig`) or an `ApiKeysConfig` first argument for API-key services, and call remote methods such as `bitbucketClient->getRepositoryDetail(repoSlug, workspace)` with `check`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bitbucket", kind: github, note: "bitbucket client.bal"}
+  - id: bitbucket_bitly
+    text: "Use `bitbucket:Client` (bearer or OAuth2) to `listWorkspaces(workspace)`, `getRepositoryDetail(repoSlug, workspace)`, `createNewRepository(repoSlug, workspace, payload)`, `listPullrequets(repoSlug, workspace)` and `getPullRequestByID(pullRequestId, repoSlug, workspace)`; and `bitly:Client` (bearer) to shorten a link with `createBitlink(bitly:Shorten)` and read clicks with `getGroupClicks(groupGuid, unit, units)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bitbucket", kind: github, note: "bitbucket client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bitly", kind: github, note: "bitly client.bal"}
+  - id: ably_channels
+    text: "Use `ably:Client` (bearer token or `http:CredentialsConfig` `{username, password}`) to publish with `publishMessagesToChannel(channelId, ably:Message)`, read history with `getMessagesByChannel(channelId)`, check presence with `getPresenceOfChannel(channelId)` and list channels with `getMetadataOfAllChannels()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/ably", kind: github, note: "ably client.bal"}
+  - id: analytics_appstore
+    text: "Call analytics and store APIs: `adobe.analytics` (bearer/OAuth2) `runReport(adobe.analytics:RankedRequest)`, `findCalculatedMetrics(...)` and `createCalculatedMetric(payload, locale)`; `apple.appstore` (bearer token) `appsGetCollection()` and `appcategoriesGetCollection()`; and `extpose` (`ApiKeysConfig` `{xApiKey}`) `getUserExtensions()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/adobe.analytics", kind: github, note: "adobe.analytics client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/apple.appstore", kind: github, note: "apple.appstore client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/extpose", kind: github, note: "extpose client.bal"}
+  - id: avatax_tax
+    text: "Create an `avatax:Client` with bearer or `http:CredentialsConfig` auth and the AvaTax `serviceUrl`, check connectivity with `ping(xAvalaraClient)`, compute tax with `createTransaction(avatax:CreateTransactionModel, xAvalaraClient = ...)` returning `avatax:TransactionModel`, and list accounts with `queryAccounts(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/avatax", kind: github, note: "avatax client.bal"}
+  - id: web_capture_scraping
+    text: "Capture and scrape web pages: `browshot` (`{'key}`) `createScreenshot(url, ...)` and `getScreenshotInfo(id, details)`; `dataflowkit` (`{apiKey}`) `urlToPdf(payload)`, `urlToScreenshot`, `fetch(payload)`, `parse(payload)` and `serp(payload)`; and `automata` (`{xApiKey}`) `getSimilar(link, page)`, `search(terms, page)` and `searchContent`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/browshot", kind: github, note: "browshot client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/dataflowkit", kind: github, note: "dataflowkit client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/automata", kind: github, note: "automata client.bal"}
+  - id: data_lookups
+    text: "Query lookup APIs with no-auth clients created by `check new ()`: `bintable` `binLookup(bin, apiKey)` and `balanceLookup(apiKey)` (the key is a call argument); and `bisstats` `getData(flow, 'key)`, `getDataFlows(...)` and `getDataStructures` for Bank for International Settlements statistics (SDMX text responses)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bintable", kind: github, note: "bintable client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bisstats", kind: github, note: "bisstats client.bal"}
+  - id: ops_and_comments
+    text: "Use operations and community APIs: `elasticsearch` (Elastic Cloud API, `ApiKeysConfig` `{authorization}`) `getVersionStacks(...)`, `shutdownDeploymentEsResource(deploymentId, refId, ...)` and `restoreDeployment(deploymentId, ...)`; `elmah` (`{apiKey}`) `messagesCreate(logId, payload)`, `messagesGetAll(logId, ...)`, `deploymentsCreate(payload)` and `heartbeatsCreate(id, logId, payload)`; and `disqus` (`{accessToken, apiKey, apiSecret}`) `listPosts(forum = ...)`, `getForumDetails(forum)` and `listCategories`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/elasticsearch", kind: github, note: "elasticsearch client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/elmah", kind: github, note: "elmah client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/disqus", kind: github, note: "disqus client.bal"}
+out_of_scope:
+  - "Receiving GitHub webhook events (trigger.github)"
+  - "Querying Elasticsearch indices; ballerinax/elasticsearch wraps the Elastic Cloud deployment API"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [github_client, generated_client_shape, avatax_tax]}
+  - {to: concept.resource_methods, rel: uses, via: [github_repos_contents, github_issues, github_pull_requests, github_releases_stars]}
+  - {to: concept.records, rel: uses, via: [github_issues, github_pull_requests, avatax_tax]}
+  - {to: lib.http, rel: uses, via: [generated_client_shape, ably_channels], note: "ConnectionConfig wraps http client settings; http:CredentialsConfig"}
+  - {to: lib.oauth2, rel: uses, via: [github_oauth2_refresh], note: "OAuth2 refresh-token grant config"}
+  - {to: concept.json_anydata, rel: uses, via: [freemarker_render, freemarker_file_templates], note: "Template data is map<json>"}
+  - {to: lib.lang.array, rel: uses, via: [github_repos_contents], note: "toBase64 for file contents"}
+notes: "GitHub and FreeMarker items come from their Central READMEs, the GitHub connector examples and the Central API docs. The other packages have stub READMEs; their items come from openapi-connectors client.bal and the Central API docs for the listed version. No Ballerina by Example covers these packages. The Bitbucket method is spelled `listPullrequets` in the package."

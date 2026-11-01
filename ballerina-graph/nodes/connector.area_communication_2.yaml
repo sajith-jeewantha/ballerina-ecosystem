@@ -1,0 +1,145 @@
+schema_version: "0.2"
+id: connector.area_communication_2
+type: connector
+title: "Communication connectors (S–Z)"
+summary: "Ballerina connectors for communication platforms from Sinch Voice to Zoom: Slack, Telegram (client and webhook listener), Twilio, WhatsApp Business (client and webhook listener), Zoom Meetings and Scheduler, and generated Vonage, Sinch Voice and legacy Zoom clients."
+priority: long_tail
+status: draft
+modules: [ballerinax/sinch.voice, ballerinax/slack, ballerinax/telegram, ballerinax/twilio, ballerinax/vonage.numberinsight, ballerinax/vonage.numbers, ballerinax/vonage.sms, ballerinax/vonage.verify, ballerinax/vonage.voice, ballerinax/whatsapp.business, ballerinax/zoom, ballerinax/zoom.meetings, ballerinax/zoom.scheduler]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/sinch.voice/latest", kind: central, note: "ballerinax/sinch.voice README"}
+  - {url: "https://central.ballerina.io/ballerinax/slack/latest", kind: central, note: "ballerinax/slack README"}
+  - {url: "https://central.ballerina.io/ballerinax/telegram/latest", kind: central, note: "ballerinax/telegram README"}
+  - {url: "https://central.ballerina.io/ballerinax/twilio/latest", kind: central, note: "ballerinax/twilio README"}
+  - {url: "https://central.ballerina.io/ballerinax/vonage.numberinsight/latest", kind: central, note: "ballerinax/vonage.numberinsight README"}
+  - {url: "https://central.ballerina.io/ballerinax/vonage.numbers/latest", kind: central, note: "ballerinax/vonage.numbers README"}
+  - {url: "https://central.ballerina.io/ballerinax/vonage.sms/latest", kind: central, note: "ballerinax/vonage.sms README"}
+  - {url: "https://central.ballerina.io/ballerinax/vonage.verify/latest", kind: central, note: "ballerinax/vonage.verify README"}
+  - {url: "https://central.ballerina.io/ballerinax/vonage.voice/latest", kind: central, note: "ballerinax/vonage.voice README"}
+  - {url: "https://central.ballerina.io/ballerinax/whatsapp.business/latest", kind: central, note: "ballerinax/whatsapp.business README"}
+  - {url: "https://central.ballerina.io/ballerinax/zoom/latest", kind: central, note: "ballerinax/zoom README"}
+  - {url: "https://central.ballerina.io/ballerinax/zoom.meetings/latest", kind: central, note: "ballerinax/zoom.meetings README"}
+  - {url: "https://central.ballerina.io/ballerinax/zoom.scheduler/latest", kind: central, note: "ballerinax/zoom.scheduler README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-slack", kind: github, note: "Slack 5.0.1 client.bal/types.bal (master)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-telegram", kind: github, note: "module-ballerinax-telegram source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-twilio", kind: github, note: "Twilio 5.0.1 client and examples"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-whatsapp.business", kind: github, note: "module-ballerinax-whatsapp.business source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-zoom.meetings", kind: github, note: "module-ballerinax-zoom.meetings source"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-zoom.scheduler", kind: github, note: "module-ballerinax-zoom.scheduler source"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for sinch.voice, vonage.*, zoom"}
+must_cover:
+  - id: slack_client
+    text: "Create a `slack:Client` with `check new ({auth: {token}})` using a Slack OAuth token and post a message with `slack->/chat\\.postMessage.post({channel: \"general\", text: \"hello\"})`, which returns `slack:ChatPostMessageResponse`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/slack/latest", kind: central, note: "Quickstart"}
+  - id: slack_messages
+    text: "Manage Slack messages with the dotted resource paths: reply in a thread by setting `threadTs` in `/chat\\.postMessage.post(...)`, edit with `/chat\\.update.post({channel, ts, text})`, delete with `/chat\\.delete.post(...)`, and use `/chat\\.postEphemeral.post(...)`, `/chat\\.scheduleMessage.post(...)` and `/chat\\.getPermalink(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-slack/blob/master/ballerina/client.bal", kind: github, note: "chat.* resources; ChatPostMessageBody, ChatUpdateBody"}
+  - id: slack_conversations
+    text: "Read and manage Slack channels: `slack->/conversations\\.list(types = ..., excludeArchived = true)`, `/conversations\\.history(channel = channelId, 'limit = 100)`, `/conversations\\.replies(channel = ..., ts = ...)`, `/conversations\\.create.post({name, isPrivate})`, `/conversations\\.invite.post(...)` and `/conversations\\.join.post(...)`, passing query parameters as named arguments"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-slack/blob/master/ballerina/client.bal", kind: github, note: "conversations.* resources and *Queries records"}
+  - id: slack_users_reactions_files
+    text: "Look up Slack users with `slack->/users\\.list()`, `/users\\.lookupByEmail(email = ...)` and `/users\\.info(...)`, react with `/reactions\\.add.post({channel, name, timestamp})`, upload with `/files\\.upload.post(...)` and set reminders with `/reminders\\.add.post(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-slack/blob/master/ballerina/client.bal", kind: github, note: "users.*, reactions.*, files.*, reminders.* resources"}
+  - id: telegram_client
+    text: "Create a `telegram:Client` with `check new ({accessToken})` and send with `telegramClient->sendMessage(chatId, \"Hello\")` (returns `telegram:Message`; `chatId` is `int|string`, e.g. `\"@my_channel\"`), using included options such as `parse_mode` and `reply_markup`, and send media with `sendPhoto`, `sendDocument`, `sendVideo`, `sendAudio`, `sendAnimation` and `sendSticker` (URL/file id `string` or `byte[]`), `sendLocation` and `sendMediaGroup`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/telegram/latest", kind: central, note: "Quickstart (client)"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-telegram/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: telegram_chat_management
+    text: "Manage Telegram chats and messages with `getChat(chatId)` (returns `telegram:ChatFullInfo`), `getChatAdministrators`, `getChatMember`, `setChatTitle`, `setChatDescription`, `pinChatMessage`, `editMessageText`, `deleteMessage` and `sendChatAction`, and fetch files with `getFile(fileId)`/`downloadFile(fileId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-telegram/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: telegram_listener
+    text: "Receive Telegram webhook updates with `listener telegram:Listener l = new (8090, accessToken = ..., callbackUrl = \"https://...\")` and `service telegram:TelegramService on l { remote function onMessage(telegram:Message message) returns error? {...} }`, adding any of the optional handlers `onEditedMessage`, `onChannelPost`, `onEditedChannelPost`, `onCallbackQuery`, `onInlineQuery`, `onPoll`, `onPreCheckoutQuery`, `onShippingQuery`, and answer button presses with `answerCallbackQuery(callbackQuery.id, text = \"Got it!\")`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/telegram/latest", kind: central, note: "Setup guide and Quickstart (listener)"}
+  - id: telegram_ack_webhook
+    text: "Control Telegram acknowledgement with `@telegram:ServiceConfig {autoAck: false}` and a second `telegram:Caller caller` handler parameter calling `caller->complete()`, keep handlers idempotent because updates can be redelivered, and manage the webhook explicitly with `setWebhook(url)`, `deleteWebhook()` and `getWebhookInfo()`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/telegram/latest", kind: central, note: "Quickstart (listener) and setup step 3"}
+  - id: twilio_client_sms
+    text: "Create a `twilio:Client` from a `twilio:ConnectionConfig` whose `auth` is an API key (`{apiKey, apiSecret, accountSid}`) or an auth token (`{accountSid, authToken}`), and send an SMS with `twilio->createMessage({To, From, Body})` (a `twilio:CreateMessageRequest`), reading `response?.status` from the returned `twilio:Message`; send WhatsApp messages the same way with `whatsapp:+...` numbers"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/twilio/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-twilio/tree/master/examples/messages", kind: github, note: "examples/messages"}
+  - id: twilio_calls_logs
+    text: "Place a voice call with `twilio->createCall({To, From, Url})` (a `twilio:CreateCallRequest` pointing at TwiML), and manage logs with `fetchCall(sid)`, `listCall()`, `deleteCall(sid)`, `listMessage()`, `fetchMessage(sid)` and `deleteMessage(sid)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-twilio/tree/master/examples/calls", kind: github, note: "examples/calls"}
+  - id: twilio_accounts
+    text: "Manage Twilio accounts with `createAccount(...)` (subaccount), `fetchAccount(sid)`, `listAccount()`, `updateAccount(sid, ...)` and `fetchBalance()`, passing the optional `accountSid` argument to act on another account than the one in the config"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-twilio/blob/master/ballerina/client.bal", kind: github, note: "client.bal and examples/accounts"}
+  - id: whatsapp_client
+    text: "Create a WhatsApp `business:Client` (`import ballerinax/whatsapp.business as business;`) with `check new ({auth: {token: accessToken}})` and send with `whatsappClient->sendMessage(phoneNumberId, message)` where `message` is a `business:TextMessage` (`{to, text: {body}}`) or another `business:Message` member (`ImageMessage`, `AudioMessage`, `VideoMessage`, `DocumentMessage`, `LocationMessage`, `ContactMessage`), and send templates with `sendTemplateMessage(phoneNumberId, {to, template: {name, language: {code}}})`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/whatsapp.business/latest", kind: central, note: "Quickstart (client)"}
+  - id: whatsapp_media
+    text: "Handle WhatsApp media with `uploadMedia(phoneNumberId, {fileContent, fileName, mimeType})` (returns `business:MediaUploadResponse`), `retrieveMediaUrl(mediaId)`, `downloadMedia(mediaId)` returning `byte[]`, and `deleteMedia(mediaId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/whatsapp.business/latest", kind: central, note: "Quickstart (client)"}
+  - id: whatsapp_listener
+    text: "Receive WhatsApp webhooks with `listener business:Listener l = new (8090, verifyToken = ..., appSecret = ...)` and `service business:WhatsAppService on l`, handling `onMessages(business:MessagesNotification n)` (narrow with `n is business:Messages` vs status updates), `onSecurity`, the other field handlers and `onError(business:HandlerError)`, and acknowledge manually with `@business:ServiceConfig {autoAck: false}` plus `caller->complete()`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/whatsapp.business/latest", kind: central, note: "Setup step 3 and Quickstart (listener)"}
+  - id: zoom_meetings
+    text: "Use `zoom.meetings:Client` with an OAuth2 refresh-token `auth` (`refreshToken`, `clientId`, `clientSecret`, `refreshUrl`) to list a user's meetings with `zoomClient->/users/[userId]/meetings()`, create one with `/users/[userId]/meetings.post(...)`, get/update/delete via `/meetings/[meetingId]`, manage `/meetings/[meetingId]/registrants`, and read `/past_meetings/[meetingId]/participants` and `/meetings/[meetingId]/recordings`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/zoom.meetings/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-zoom.meetings/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: zoom_scheduler
+    text: "Use `zoom.scheduler` (`import ballerinax/zoom.scheduler as zoom;`) to create a schedule with `zoomClient->/schedules.post(payload = {summary, description, duration})` and read `scheduleId`, create one-time booking links with `/schedules/single_use_link.post(...)`, and manage `/availability`, `/events` and `/analytics`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/zoom.scheduler/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-zoom.scheduler/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: zoom_legacy_client
+    text: "Use the older generated `zoom` package (remote methods, bearer or refresh-token auth): `createMeeting(userId, MeetingDetails)`, `listMeetings(userId)`, `getMeetingById(meetingId)`, `addMeetingRegistrant(meetingId, ...)` and `listUsers()`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/zoom", kind: github, note: "zoom generated client.bal/types.bal"}
+  - id: vonage_clients
+    text: "Use the generated Vonage clients: `vonage.sms` `sendAnSms(NewMessage)` and `vonage.verify` `verifyRequest(...)`/`verifyCheck(...)`/`verifyControl(...)` (credentials `api_key`/`api_secret` go in the payload), `vonage.numberinsight` `getNumberInsightBasic(format, number)` and `vonage.numbers` `getAvailableNumbers(country)`/`buyANumber(...)` (with `ApiKeysConfig {apiKey, apiSecret}`), and `vonage.voice` `createCall(...)`/`startTalk(uuid, ...)` (bearer token)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vonage.sms", kind: github, note: "vonage.sms generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vonage.verify", kind: github, note: "vonage.verify generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vonage.numberinsight", kind: github, note: "vonage.numberinsight generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vonage.numbers", kind: github, note: "vonage.numbers generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vonage.voice", kind: github, note: "vonage.voice generated client.bal/types.bal"}
+  - id: sinch_voice
+    text: "Use the `sinch.voice` client (`http:CredentialsConfig` auth) to start calls with `callouts(CalloutRequest)`, read results with `callingGetcallresult(callid)`, control a live call with `callingUpdatecall(callid, SVAMLRequestBody)` and manage conferences with `callingGetconferenceinfo(conferenceid)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sinch.voice", kind: github, note: "sinch.voice generated client.bal/types.bal"}
+out_of_scope:
+  - "Slack Events API listener (trigger.slack)"
+edges:
+  - {to: lib.http, rel: uses, via: [slack_client, twilio_client_sms, vonage_clients]}
+  - {to: lib.oauth2, rel: uses, via: [zoom_meetings, zoom_scheduler]}
+  - {to: concept.client_objects, rel: uses, via: [telegram_client, twilio_client_sms, whatsapp_client, vonage_clients]}
+  - {to: concept.resource_methods, rel: uses, via: [slack_client, slack_conversations, zoom_meetings, zoom_scheduler]}
+  - {to: concept.services_listeners, rel: uses, via: [telegram_listener, whatsapp_listener]}
+  - {to: concept.records, rel: uses, via: [twilio_client_sms, whatsapp_client]}
+  - {to: concept.errors, rel: uses, via: [telegram_ack_webhook, whatsapp_listener]}
+  - {to: trigger.slack, rel: related, note: "Slack events are received with ballerinax/trigger.slack"}
+notes: "Slack 5.0.1, Twilio 5.0.1, Telegram 0.9.4, WhatsApp Business 2.1.1, Zoom Meetings/Scheduler 1.0.2 verified against module repos (versions match Central). Generated packages verified against openapi-connectors main client.bal. No BBEs exist for these connectors."

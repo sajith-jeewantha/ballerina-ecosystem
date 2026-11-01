@@ -1,0 +1,126 @@
+schema_version: "0.2"
+id: connector.openai
+type: connector
+title: ballerinax/openai.*
+summary: "Generated REST connectors for the OpenAI API (`ballerinax/openai` and the per-area `openai.chat`, `openai.responses`, `openai.audio`, `openai.images`, `openai.finetunes`, `openai.embeddings`, `openai.moderations`, `openai.text` packages) and for Azure OpenAI (`azure.openai.*`), each a `Client` with resource methods such as `->/chat/completions.post(request)`."
+priority: important
+status: draft
+modules: [ballerinax/azure.openai.chat, ballerinax/azure.openai.deployment, ballerinax/azure.openai.embeddings, ballerinax/azure.openai.finetunes, ballerinax/azure.openai.responses, ballerinax/azure.openai.text, ballerinax/openai, ballerinax/openai.audio, ballerinax/openai.chat, ballerinax/openai.embeddings, ballerinax/openai.finetunes, ballerinax/openai.images, ballerinax/openai.moderations, ballerinax/openai.responses, ballerinax/openai.text]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/openai.chat/latest", kind: central, note: "ballerinax/openai.chat 5.0.0 package docs and README"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.responses/latest", kind: central, note: "ballerinax/openai.responses 1.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/openai/latest", kind: central, note: "ballerinax/openai 1.0.2"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.audio/latest", kind: central, note: "ballerinax/openai.audio 3.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.images/latest", kind: central, note: "ballerinax/openai.images 2.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.finetunes/latest", kind: central, note: "ballerinax/openai.finetunes 3.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.embeddings/latest", kind: central, note: "ballerinax/openai.embeddings 1.0.6"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.moderations/latest", kind: central, note: "ballerinax/openai.moderations 1.0.6"}
+  - {url: "https://central.ballerina.io/ballerinax/openai.text/latest", kind: central, note: "ballerinax/openai.text 1.0.6"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.chat/latest", kind: central, note: "ballerinax/azure.openai.chat 4.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.responses/latest", kind: central, note: "ballerinax/azure.openai.responses 1.0.0"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.embeddings/latest", kind: central, note: "ballerinax/azure.openai.embeddings 1.0.3"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.text/latest", kind: central, note: "ballerinax/azure.openai.text 1.0.4"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.deployment/latest", kind: central, note: "ballerinax/azure.openai.deployment 1.0.2"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.openai.finetunes/latest", kind: central, note: "ballerinax/azure.openai.finetunes 1.0.2"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Source and Module.md of the openapi-connectors packages (openai.embeddings/moderations/text, azure.openai.deployment/embeddings/finetunes/text)"}
+must_cover:
+  - id: client_shape
+    text: "Create an OpenAI REST client from a `ConnectionConfig` with a bearer API key, e.g. `final chat:Client openAIChat = check new ({auth: {token}});` for `ballerinax/openai.chat`, with `configurable string token = ?;` set in `Config.toml`; every `ballerinax/openai*` client defaults `serviceUrl` to `https://api.openai.com/v1`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.chat/latest", kind: central, note: "Step 2: Create a new connector instance"}
+  - id: chat_completion
+    text: "Create a chat completion with `chat:CreateChatCompletionRequest request = {model: \"gpt-4o-mini\", messages: [{\"role\": \"user\", \"content\": \"...\"}]};` and `chat:CreateChatCompletionResponse response = check openAIChat->/chat/completions.post(request);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.chat/latest", kind: central, note: "Create a chat completion"}
+  - id: chat_reasoning_models
+    text: "Call GPT-5 and o-series models through `openai.chat` with `max_completion_tokens` instead of the deprecated `max_tokens`, optional `reasoning_effort` and `verbosity`, and a `developer` message instead of `system`, reading reasoning usage from `response.usage.completion_tokens_details.reasoning_tokens` (a too-low budget gives an empty message with `finish_reason` `\"length\"`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.chat/latest", kind: central, note: "Create a chat completion with a GPT-5 or other reasoning model"}
+  - id: responses_api
+    text: "Create a model response with the `ballerinax/openai.responses` client: `responses:CreateResponse request = {model: \"gpt-4o-mini\", input: \"...\"};` and `responses:Response response = check openAIResponses->/responses.post(request);` (the package exposes only `POST /responses`, covering text/image input, JSON output, function calling and built-in tools)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.responses/latest", kind: central, note: "Overview; Create a model response"}
+  - id: audio
+    text: "Transcribe audio with `ballerinax/openai.audio`: read the file with `io:fileReadBytes`, build `audio:CreateTranscriptionRequest {model: \"whisper-1\", file: {fileContent, fileName}}` and call `->/audio/transcriptions.post(request)` for an `audio:CreateTranscriptionResponse`; the client also has `/audio/translations` and `/audio/speech`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.audio/latest", kind: central, note: "Transcribe audio into input language"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-openai.audio/blob/main/ballerina/client.bal", kind: github, note: "Resource paths"}
+  - id: images
+    text: "Generate images with `ballerinax/openai.images`: `images:CreateImageRequest request = {prompt: \"A cute baby sea otter\", model: \"dall-e-3\", n: 1, size: \"1024x1024\", response_format: \"url\"};` and `images:ImagesResponse response = check openAIImages->/images/generations.post(request);`, with `/images/edits` and `/images/variations` for editing and variations"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.images/latest", kind: central, note: "Generate a image"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-openai.images/blob/main/ballerina/client.bal", kind: github, note: "Resource paths"}
+  - id: finetunes
+    text: "Fine-tune a model with `ballerinax/openai.finetunes`: upload training data with `finetunes:CreateFileRequest {file: {fileContent: check io:fileReadBytes(\"sample.jsonl\"), fileName: \"sample.jsonl\"}, purpose: \"fine-tune\"}` via `->/files.post(req)`, then start a job with `finetunes:CreateFineTuningJobRequest {model: \"gpt-3.5-turbo\", training_file: fileId}` via `->/fine_tuning/jobs.post(...)` returning `finetunes:FineTuningJob`, and follow it with `/fine_tuning/jobs/[id]`, `/events`, `/checkpoints` and `/cancel`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai.finetunes/latest", kind: central, note: "Fine tuning the gpt-3.5-turbo model"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-openai.finetunes/blob/main/ballerina/client.bal", kind: github, note: "fine_tuning/jobs resources"}
+  - id: openai_full_api
+    text: "Use the all-in-one `ballerinax/openai` `openai:Client` for the wider API (assistants, batches, evals, files, fine-tuning, images, models, moderations, organization admin), e.g. create an assistant with `openai:CreateAssistantRequest {model: \"gpt-4o\", name: \"Math Tutor\", instructions: ..., tools: [{\"type\": \"code_interpreter\"}]}` and `openai->/assistants.post(request, headers = {\"OpenAI-Beta\": \"assistants=v2\"})` returning `openai:AssistantObject`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/openai/latest", kind: central, note: "Create an Assistant"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-openai/blob/main/ballerina/client.bal", kind: github, note: "Resource paths"}
+  - id: embeddings_moderations
+    text: "Get embeddings with the `ballerinax/openai.embeddings` client via `->/embeddings.post({model: ..., input: ...})` (a `CreateEmbeddingRequest` whose `input` is a string, strings or token arrays; vectors in `data[].embedding`), and classify text with `ballerinax/openai.moderations` via `->/moderations.post({input: ...})` (`model` defaults to `\"text-moderation-latest\"`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/openai.embeddings/client.bal", kind: github, note: "post embeddings"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/openai.moderations/types.bal", kind: github, note: "CreateModerationRequest"}
+  - id: legacy_text_completions
+    text: "Call the legacy Completions API with the `ballerinax/openai.text` client via `->/completions.post({model: ..., prompt: ...})` returning `CreateCompletionResponse`, and the edits endpoint via `->/edits.post({model: ..., input: ..., instruction: ...})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/openai.text/client.bal", kind: github, note: "post completions, post edits"}
+  - id: azure_chat_client
+    text: "Create an Azure OpenAI chat client from `ballerinax/azure.openai.chat` with `check new ({auth: {api\\-key: apiKey}}, serviceUrl)` or, alternatively, a Microsoft Entra ID token `{auth: {token}}` (one credential, not both), where `serviceUrl` must include the v1 base path, e.g. `https://<resource-name>.openai.azure.com/openai/v1` (the bare resource root returns 404)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/azure.openai.chat/latest", kind: central, note: "Setup guide step 7; Step 2: Create a new connector instance"}
+  - id: azure_chat_completion
+    text: "Create an Azure chat completion with `chat:ChatCompletionsBody request = {model: \"gpt-4o-mini\", messages: [{role: \"user\", \"content\": \"...\"}]};` and `chat:InlineResponse200 response = check azureOpenAIChat->/chat/completions.post(request);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/azure.openai.chat/latest", kind: central, note: "Create a chat completion"}
+  - id: azure_responses
+    text: "Create an Azure model response with `ballerinax/azure.openai.responses`: a `responses:Client` built from `{auth: {api\\-key: apiKey}}` (a key sent as `token` fails with 401) and the `/openai/v1` service URL, `responses:OpenAICreateResponse {model, input}` posted with `->/responses.post(request)` returning `responses:InlineResponse200`, reading text from the `output_text` parts of each `responses:OpenAIOutputItem` in `response.output` (the `output_text` convenience field is nil)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/azure.openai.responses/latest", kind: central, note: "Derive the service URL; Create a model response"}
+  - id: azure_legacy_inference
+    text: "Call Azure deployment endpoints with the older `ballerinax/azure.openai.embeddings` and `ballerinax/azure.openai.text` clients, created with `check new (config = {auth: {apiKey: apiKey}}, serviceUrl = serviceUrl)` (`https://<resource>.openai.azure.com/openai`), passing the deployment and `apiVersion` per call: `->/deployments/[\"embedding\"]/embeddings.post(\"2023-03-15-preview\", {input: ...})` and `->/deployments/[\"davinci\"]/completions.post(\"2023-03-15-preview\", {prompt: ...})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.embeddings/Module.md", kind: github, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.text/Module.md", kind: github, note: "Quickstart"}
+  - id: azure_deployment
+    text: "Manage Azure OpenAI model deployments with `ballerinax/azure.openai.deployment`: `deployment:Client` takes an `ApiKeysConfig` `{apiKey: ...}` and the resource `serviceUrl`, then `->/deployments.get(apiVersion)`, `->/deployments.post(\"2022-12-01\", {model: \"text-davinci-002\", scale_settings: {scale_type: \"standard\"}})` and get, `patch` and delete on `/deployments/[deploymentId]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.deployment/client.bal", kind: github, note: "init(ApiKeysConfig, serviceUrl, config), deployments resources"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.deployment/Module.md", kind: github, note: "Deployment example"}
+  - id: azure_finetunes
+    text: "Fine-tune on Azure with `ballerinax/azure.openai.finetunes`: upload with `finetunes:Files_body {purpose: \"fine-tune\", file: {fileContent: ..., fileName: \"sample.jsonl\"}}` via `->/files.post(\"2022-12-01\", filePayload)`, create a job with `finetunes:FineTuneCreation {training_file: ..., model: \"curie\"}` via `->/fine\\-tunes.post(\"2022-12-01\", payload)`, and use `/fine\\-tunes/[fineTuneId]/events`, `/cancel` and `/models`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.finetunes/Module.md", kind: github, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.openai.finetunes/client.bal", kind: github, note: "Resource paths"}
+out_of_scope:
+  - "Provider-neutral LLM calls, agents and RAG through ai:ModelProvider (lib.ai, connector.ai_model_providers)"
+  - "HTTP client configuration in detail (lib.http)"
+  - "Full request/response schemas of every OpenAI endpoint"
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape, azure_chat_client], note: "ConnectionConfig and BearerTokenConfig come from ballerina/http"}
+  - {to: concept.client_objects, rel: uses, via: [client_shape, azure_chat_client]}
+  - {to: concept.resource_methods, rel: uses, via: [chat_completion, azure_deployment, azure_finetunes]}
+  - {to: concept.records, rel: uses, via: [chat_completion, images, finetunes]}
+  - {to: tool.config_toml, rel: uses, via: [client_shape, azure_responses]}
+  - {to: lib.io, rel: uses, via: [audio, finetunes], note: "io:fileReadBytes for uploads"}
+notes: "Items for the module-ballerinax-* packages come from their Central READMEs; resource lists were checked in each repository's main client.bal (versions match Central, except openai.images main is 2.0.1). The openai.audio README declares the client as `images:Client`; it is `audio:Client`. The openai.audio and openai.finetunes clients expose the whole OpenAI API, but only the documented areas are listed. openai.embeddings, openai.moderations, openai.text and the azure.openai deployment/embeddings/finetunes/text packages have README stubs only; their items come from openapi-connectors source (versions match Central). The azure.openai.deployment/finetunes Module.md show `apiKeyConfig = {auth: {apiKey: apiKey}}`, but the source `ApiKeysConfig` has a top-level `apiKey`, so the source shape is used."

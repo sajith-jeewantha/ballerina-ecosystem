@@ -8,13 +8,18 @@ status: draft
 sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#metadata", kind: spec, note: "9 Metadata"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_9.1", kind: spec, note: "9.1 Annotations"}
+  - {url: "https://ballerina.io/learn/advanced-general-purpose-language-features/", kind: docs, note: "Learn: Advanced general-purpose language features"}
 must_cover:
   - id: annotation_syntax
     text: "Attach annotations such as `@marker`, `@info {label: \"Name\"}` or the qualified `@mod:config {...}` in a construct's metadata (after any documentation string), with several annotations allowed on one construct"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/annotations/", kind: bbe}
   - id: annotation_decl
     text: "Declare annotation tags with `annotation Info info on function;` (optionally `public` and `const`), knowing annotation tags live in their own symbol space, separate from other module declarations and from module and XML namespace prefixes"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/annotations/", kind: bbe}
   - id: annotation_types
     text: "Explain that an annotation tag's type must be a subtype of `true`, `map<value:Cloneable>` or `map<value:Cloneable>[]`, defaulting to `true` when omitted, and that a `true`-typed annotation cannot take a mapping value"
     difficulty: [intermediate]
@@ -41,6 +46,7 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.13", kind: spec, note: "6.13 Annotation access expression"}
+      - {url: "https://ballerina.io/learn/by-example/annotations/", kind: bbe}
   - id: runtime_targets
     text: "Explain which type descriptor a non-source annotation is attached to at runtime: the defined type for `type` and `class`, the function's type for `function`, `return` and `parameter`, and the containing mapping, list or object type for fields"
     difficulty: [advanced]

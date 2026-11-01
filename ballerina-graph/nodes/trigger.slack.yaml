@@ -1,0 +1,90 @@
+schema_version: "0.2"
+id: trigger.slack
+type: trigger
+title: ballerinax/trigger.slack
+summary: "The Slack trigger: a `slack:Listener` that receives Slack Events API callbacks, answers URL verification, checks the verification token and dispatches each event to the remote methods of `slack:*Service` service types."
+priority: important
+status: draft
+modules: [ballerinax/trigger.slack]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "ballerinax/trigger.slack 0.9.0 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi/slack", kind: github, note: "Trigger source"}
+  - {url: "https://api.slack.com/apis/connections/events-api", kind: other, note: "Slack Events API"}
+must_cover:
+  - id: listener_init
+    text: "Import `ballerinax/trigger.slack` and create `listener slack:Listener slackListener = new (configuration);` from a `slack:ListenerConfig` holding `verificationToken`, optionally passing a port (default 8090) or an `http:Listener` as `listenOn`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "Step 2"}
+  - id: slack_app_setup
+    text: "Create a Slack App at `https://api.slack.com/apps`, enable `Event Subscriptions`, add the events to listen to under `Subscribe to events on behalf of users`, and copy the `Verification Token` from the app's `Basic Information`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "Prerequisites"}
+  - id: request_url_verification
+    text: "Register the Request URL: run the service, expose it (e.g. `ngrok http 9090`), paste the public URL with a trailing `/` into `Event Subscriptions`, and let the listener answer Slack's `url_verification` event by echoing the `challenge` after checking the token, until the URL shows as verified"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "Register the request URL"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/dispatcher_service.bal", kind: github, note: "Token check and url_verification handling"}
+  - id: token_check
+    text: "Know that every request whose `token` differs from `verificationToken` fails with a `Verification token mismatch` error before dispatch, and that the package also declares `slack:UrlVerificationService` (`onUrlVerification`; payload `slack:GenericEventWrapper`) although the listener answers `url_verification` itself"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/dispatcher_service.bal", kind: github, note: "Token check and url_verification handling"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: event_wrapper
+    text: "Read `slack:GenericEventWrapper` fields `event_id`, `api_app_id`, `team_id`, `event` (the inner event), `'type` (usually `event_callback`), `event_time` and `token` inside handlers such as `isolated remote function onUserChange(slack:GenericEventWrapper event) returns error?`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "Step 3 sample"}
+  - id: message_events
+    text: "Handle messages with `slack:MessageService` (`onMessage(slack:Message)`, `onMessageAppHome(slack:GenericEventWrapper)`, `onMessageChannels(slack:GenericEventWrapper)`, `onMessageGroups(slack:GenericEventWrapper)`, `onMessageIm(slack:GenericEventWrapper)`, `onMessageMpim(slack:GenericEventWrapper)`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: app_events
+    text: "Handle app lifecycle and mentions with `slack:AppService` (`onAppMention`, `onAppRateLimited`, `onAppUninstalled`; payload `slack:GenericEventWrapper`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: channel_events
+    text: "Handle public channel events with `slack:ChannelService` (`onChannelArchive`, `onChannelCreated`, `onChannelDeleted`, `onChannelHistoryChanged`, `onChannelLeft`, `onChannelRename`, `onChannelUnarchive`; payload `slack:GenericEventWrapper`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: group_im_events
+    text: "Handle private channel and direct message events with `slack:GroupService` (`onGroupArchive`, `onGroupClose`, `onGroupHistoryChanged`, `onGroupLeft`, `onGroupOpen`, `onGroupRename`, `onGroupUnarchive`; payload `slack:GenericEventWrapper`); `slack:ImService` (`onImClose`, `onImCreated`, `onImHistoryChanged`, `onImOpen`; payload `slack:GenericEventWrapper`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: member_user_events
+    text: "Handle members, users and user groups with `slack:MemberService` (`onMemberJoinedChannel`, `onMemberLeftChannel`; payload `slack:GenericEventWrapper`); `slack:UserChangeService` (`onUserChange`; payload `slack:GenericEventWrapper`); `slack:TeamService` (`onTeamDomainChange`, `onTeamJoin`, `onTeamRename`; payload `slack:GenericEventWrapper`); `slack:SubteamService` (`onSubteamCreated`, `onSubteamMembersChanged`, `onSubteamSelfAdded`, `onSubteamSelfRemoved`, `onSubteamUpdated`; payload `slack:GenericEventWrapper`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.slack/latest", kind: central, note: "UserChangeService sample"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: file_events
+    text: "Handle file events with `slack:FileService` (`onFileChange`, `onFileCommentAdded`, `onFileCommentDeleted`, `onFileCommentEdited`, `onFileCreated`, `onFileDeleted`, `onFilePublic`, `onFileShared`, `onFileUnshared`; payload `slack:GenericEventWrapper`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: reaction_pin_star_events
+    text: "Handle reactions, pins and stars with `slack:ReactionService` (`onReactionAdded`, `onReactionRemoved`; payload `slack:GenericEventWrapper`); `slack:PinService` (`onPinAdded`, `onPinRemoved`; payload `slack:GenericEventWrapper`); `slack:StarService` (`onStarAdded`, `onStarRemoved`; payload `slack:GenericEventWrapper`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+  - id: workspace_events
+    text: "Handle workspace-level events with `slack:EmailDomainChangedService` (`onEmailDomainChanged`; payload `slack:GenericEventWrapper`); `slack:EmojiChangedService` (`onEmojiChanged`; payload `slack:GenericEventWrapper`); `slack:DndService` (`onDndUpdated`, `onDndUpdatedUser`; payload `slack:GenericEventWrapper`); `slack:GridMigrationService` (`onGridMigrationFinished`, `onGridMigrationStarted`; payload `slack:GenericEventWrapper`); `slack:LinkSharedService` (`onLinkShared`; payload `slack:GenericEventWrapper`); `slack:ResourcesService` (`onResourcesAdded`, `onResourcesRemoved`; payload `slack:GenericEventWrapper`); `slack:ScopeService` (`onScopeDenied`, `onScopeGranted`; payload `slack:GenericEventWrapper`); `slack:TokensRevokedService` (`onTokensRevoked`; payload `slack:GenericEventWrapper`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/slack/service_types.bal", kind: github, note: "Service types"}
+out_of_scope:
+  - "Slack Web API calls (connector.area_communication_2)"
+  - "Slack Socket Mode"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [listener_init, message_events, event_wrapper]}
+  - {to: connector.area_communication_2, rel: uses, via: [message_events], note: "Use the ballerinax/slack client to respond to received events"}
+  - {to: lib.http, rel: uses, via: [listener_init, request_url_verification]}
+  - {to: tool.bal_asyncapi, rel: uses, via: [event_wrapper], note: "Generated from the Slack AsyncAPI contract"}
+notes: "Verified against the trigger.slack 0.9.0 README and API docs. The README says to append `/slack/events/` to the ngrok URL, but the dispatcher in the source is attached at the listener root (`resource function post .`), so the item only states the trailing `/` requirement."

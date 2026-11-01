@@ -1,0 +1,78 @@
+schema_version: "0.2"
+id: connector.sap_businessone
+type: connector
+title: ballerinax/sap.businessone.*
+summary: "Connectors for the SAP Business One Service Layer (OData V3): the generic `businessone:Client`, which manages the session login with `B1SESSION`/`ROUTEID` cookies, and fourteen generated domain clients (sales, purchasing, inventory, banking, financials and more) built on it."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/sap.businessone
+  - ballerinax/sap.businessone.administration
+  - ballerinax/sap.businessone.banking
+  - ballerinax/sap.businessone.businesspartners
+  - ballerinax/sap.businessone.crm
+  - ballerinax/sap.businessone.financials
+  - ballerinax/sap.businessone.fixedassets
+  - ballerinax/sap.businessone.humanresources
+  - ballerinax/sap.businessone.inventory
+  - ballerinax/sap.businessone.localization
+  - ballerinax/sap.businessone.production
+  - ballerinax/sap.businessone.projects
+  - ballerinax/sap.businessone.purchasing
+  - ballerinax/sap.businessone.sales
+  - ballerinax/sap.businessone.service
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/sap.businessone/latest", kind: central, note: "Generic Service Layer client README (session handling, quickstart)"}
+  - {url: "https://central.ballerina.io/ballerinax/sap.businessone.sales/latest", kind: central, note: "Module connector README; the other module READMEs follow the same setup and quickstart"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.businessone/blob/main/ballerina/businessone/b1_http_client.bal", kind: github, note: "SessionConfig, Client init, resource/remote HTTP methods, logout"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.businessone/tree/sales-v1.0.2/ballerina/sales", kind: github, note: "Released sales client and types (ListOrdersQueries, ordersClose/ordersCancel); other modules read at their <module>-v1.0.2 tags"}
+must_cover:
+  - id: generic_client
+    text: "Create a generic `businessone:Client` with `check new (\"https://localhost:50000/b1s/v1\", {companyDb: \"SBODEMOUS\", username: \"manager\", password: \"...\"})` (a `businessone:SessionConfig`, plus an optional `http:ClientConfiguration`); the client logs in with `POST /Login`, tracks the `B1SESSION` and `ROUTEID` cookies, and re-logs in and replays once on HTTP 401"
+    difficulty: [beginner]
+  - id: generic_requests
+    text: "Call any Service Layer endpoint with resource-access syntax, e.g. `json orders = check b1->/Orders(headers = (), targetType = json, \\$top = 5);`, or with `post`, `patch` and `delete` resource and remote methods, and end the session with `check b1->logout();`"
+    difficulty: [beginner, intermediate]
+  - id: module_client_init
+    text: "Create a module client such as `sales:Client` with `check new ({companyDb, username, password}, serviceUrl = serviceUrl)`, reading `serviceUrl` (`https://<host>:50000/b1s/v1`), `companyDb`, `username` and `password` from `configurable` variables in `Config.toml`; an optional `ConnectionConfig` second argument sets HTTP options"
+    difficulty: [beginner]
+  - id: odata_query_options
+    text: "Page and filter collections with the query fields of list methods, e.g. `salesClient->listOrders(dollarTop = 20, dollarSkip = 0, dollarFilter = \"DocumentStatus eq 'bost_Open'\", dollarSelect = \"DocEntry,CardCode\", dollarOrderby = \"DocDate desc\", dollarInlinecount = \"allpages\")`, and control server paging with the header record `{prefer: \"odata.maxpagesize=50\"}`; results are in `OrdersCollectionResponse`"
+    difficulty: [intermediate]
+  - id: sales_documents
+    text: "Work with sales documents in `sap.businessone.sales`: `createOrders(payload)` with a `Document` record, `getOrders(docEntry)`, `updateOrders(docEntry, payload)`, `ordersClose(docEntry)`, `ordersCancel(docEntry)`, `createInvoices(payload)`, and blanket agreements with `listBlanketAgreements`/`createBlanketAgreements`"
+    difficulty: [intermediate]
+  - id: purchasing_documents
+    text: "Work with purchasing documents in `sap.businessone.purchasing`: `listPurchaseOrders()`, `createPurchaseDeliveryNotes(payload)` (goods receipt PO) and `createPurchaseInvoices(payload)` (A/P invoice), all taking a `Document` record"
+    difficulty: [intermediate]
+  - id: business_partners
+    text: "Create and query customers and vendors with `sap.businessone.businesspartners`: `listBusinessPartners(dollarFilter = ...)`, `createBusinessPartners(payload)` with a `BusinessPartner` record, and related objects such as `listBPPriorities`"
+    difficulty: [beginner]
+  - id: inventory
+    text: "Manage items and stock with `sap.businessone.inventory`: `listItems()`, `createInventoryGenEntries(payload)` (goods receipt), `createStockTransfers(payload)` with a `StockTransfer`, `listInventoryCountings()`, `listBinLocations()` and `listBatchNumberDetails()`"
+    difficulty: [intermediate]
+  - id: banking_financials
+    text: "Post money movements with `sap.businessone.banking` (`listIncomingPayments()`, `createVendorPayments(payload)` with a `Payment` record) and accounting entries with `sap.businessone.financials` (`listJournalEntries()`, `createJournalEntries(payload)` with a `JournalEntry` record)"
+    difficulty: [intermediate]
+  - id: crm_service
+    text: "Track customer engagement with `sap.businessone.crm` (`listSalesOpportunities()`, `createActivities(payload)` with an `Activity` record) and after-sales service with `sap.businessone.service` (`listServiceCalls()`, `createServiceCalls(payload)`, `listServiceContracts()`)"
+    difficulty: [intermediate]
+  - id: production_projects
+    text: "Run manufacturing and projects with `sap.businessone.production` (`listProductionOrders()`, `createProductionOrders(payload)`, `productionOrdersCancel(absoluteEntry)`, `listProductTrees()`) and `sap.businessone.projects` (`listProjectManagements()`, `createProjectManagementTimeSheet(payload)`)"
+    difficulty: [intermediate]
+  - id: admin_hr_assets_localization
+    text: "Use the remaining module clients: `sap.businessone.administration` (`listUsers()`, `listApprovalRequests()`), `sap.businessone.humanresources` (`listEmployeesInfo()`, `createEmployeesInfo(payload)`), `sap.businessone.fixedassets` (`listAssetClasses()`, `createAssetCapitalization(payload)`) and `sap.businessone.localization` (`listElectronicDocuments()`, `listEWBTransporters()`)"
+    difficulty: [intermediate]
+  - id: error_handling
+    text: "Handle errors from module methods (`T|error`; update, close and cancel methods return `error?`) and from the generic client (`businessone:ClientError`, `businessone:LoginFailure`, both `http:ClientError`) with `check` or `on fail`"
+    difficulty: [beginner]
+out_of_scope:
+  - "Installing and licensing the SAP Business One Service Layer"
+edges:
+  - {to: lib.http, rel: uses, via: [generic_client, generic_requests, module_client_init], note: "businessone:Client wraps http:Client"}
+  - {to: concept.client_objects, rel: uses, via: [generic_client, module_client_init]}
+  - {to: concept.resource_methods, rel: uses, via: [generic_requests]}
+  - {to: concept.records, rel: uses, via: [sales_documents, business_partners, odata_query_options]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+  - {to: tool.config_toml, rel: uses, via: [module_client_init]}
+notes: "The 1.0.2 module READMEs call `ordersList()`, `usersList()` and so on, but the released sources (tags <module>-v1.0.2) name the methods verb-first: `listOrders()`, `listUsers()`, `listItems()`, ... This node uses the source names. Query fields are `dollarTop`, `dollarFilter` etc. (mapped to `$top`, `$filter` with `@http:Query`)."

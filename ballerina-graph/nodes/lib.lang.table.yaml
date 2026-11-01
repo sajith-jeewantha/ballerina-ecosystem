@@ -15,9 +15,13 @@ must_cover:
   - id: add
     text: "Add a row with `t.add(val)`, which appends it as the last member and panics if `val` has the same key as an existing member or is inconsistent with the table's inherent type"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/table/", kind: bbe}
   - id: put
     text: "Insert or replace a row with `t.put(val)`, which replaces a member with the same key value while keeping its position (otherwise appends) and panics if `val` is inconsistent with the table's inherent type"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/table/", kind: bbe}
   - id: get
     text: "Look up a row by key with `t.get(k)` on a keyed table `table<R> key<K>`, which returns the member and panics if there is no member with key `k`"
     difficulty: [beginner, intermediate]
@@ -27,6 +31,8 @@ must_cover:
   - id: remove
     text: "Remove rows by key with `t.remove(k)` (returns the removed member; panics if there is none) or `t.removeIfHasKey(k)` (returns `R?`, nil when the key is absent)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/table/", kind: bbe}
   - id: remove_all
     text: "Clear a table with `t.removeAll()`, which panics if any member cannot be removed"
     difficulty: [intermediate]

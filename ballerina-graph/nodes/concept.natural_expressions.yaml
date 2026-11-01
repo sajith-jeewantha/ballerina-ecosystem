@@ -1,0 +1,82 @@
+schema_version: "0.2"
+id: concept.natural_expressions
+type: concept
+title: Natural expressions
+summary: "A `natural (model) { ... }` expression embeds natural-language instructions in code: at runtime the text (with `${...}` insertions) becomes an LLM prompt, a JSON schema is derived from the expected type, and the response is bound to that type, with `lang.natural` defining the prompt and generator types."
+priority: important
+status: draft
+modules: [ballerina/lang.natural]
+sources:
+  - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe}
+  - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs}
+  - {url: "https://central.ballerina.io/ballerina/lang.natural/latest", kind: central, note: "lang.natural 2201.13.2: the module defines the implementation of natural expressions"}
+  - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/lang.natural/src/main/ballerina/natural.bal", kind: github, note: "natural:Prompt, natural:Generator, @natural:code"}
+  - {url: "https://blog.ballerina.io/posts/2025-04-26-introducing-natural-programming/", kind: other, note: "Syntax and implementation of natural expressions and functions"}
+must_cover:
+  - id: natural_syntax
+    text: "Write a natural expression `natural (model) { natural language text }` whose body is free-form instructions, for example `Attraction[]|error attractions = natural (model) { Tell me the top ${count} places to visit in ${country} ... };`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe}
+  - id: insertions
+    text: "Use `${expr}` insertions in the natural-language text to substitute in-scope variables and parameters into the prompt at runtime"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs, note: "Introduce the natural expression to call the LLM and bind the response"}
+  - id: typed_result
+    text: "Rely on the expected type (e.g. `Attraction[]`, a record, or `string`) to generate the JSON schema sent to the LLM and to bind the response to that type, and use `#` documentation on closed record fields to describe the expected data"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe}
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs, note: "Create a record to represent an attraction"}
+  - id: error_handling
+    text: "Include `error` in the expected type (`T|error`) or use `check`, because a natural expression evaluates to an error when the LLM call fails or the response cannot be converted to the expected type, and map it to a response such as `http:InternalServerError`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs, note: "Create the resource method"}
+      - {url: "https://blog.ballerina.io/posts/2025-04-26-introducing-natural-programming/", kind: other, note: "Implementation"}
+  - id: model_provider
+    text: "Supply the model in parentheses as an `ai:ModelProvider`, obtained with `check ai:getDefaultModelProvider()` or from a provider package such as `check new openai:ModelProvider(apiKey, openai:GPT_4O)`, typically held in a `final` module-level variable"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs, note: "Introduce a model provider corresponding to the LLM"}
+  - id: default_model_config
+    text: "Configure the default WSO2 model provider by running the VS Code command `Configure default WSO2 Model Provider`, which adds its configuration to `Config.toml`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/work-with-llms-using-natural-expressions/", kind: docs, note: "Configure the default model"}
+  - id: natural_functions
+    text: "Write a natural function as an expression-bodied function whose body is a natural expression, e.g. `function getPlacesToSee(string country, string interest, int number = 3) returns Place[]|error => natural (model) { ... };`, to reuse a typed prompt"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://blog.ballerina.io/posts/2025-04-26-introducing-natural-programming/", kind: other, note: "Example 3: Natural language as the function body"}
+      - {url: "https://central.ballerina.io/ballerina/np/latest", kind: central, note: "Expression-bodied natural function with `=> natural (model) { ... }`"}
+  - id: experimental_flag
+    text: "Build and run code that uses natural expressions with the `--experimental` flag (`bal run --experimental`) on Swan Lake Update 13 (2201.13.0) or newer"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/natural-expressions/", kind: bbe, note: "Note on experimental feature"}
+  - id: lang_natural_types
+    text: "Explain the `lang.natural` types behind the expression: `natural:Prompt` (a raw template object with `strings` and `insertions`) and `natural:Generator`, an isolated client object with `remote function generate(natural:Prompt prompt, typedesc<anydata> td) returns td|error`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/lang.natural/src/main/ballerina/natural.bal", kind: github}
+  - id: natural_code_annotation
+    text: "Recognise `@natural:code {prompt: ...}` from `lang.natural` on an `external` function body, which marks the body to be generated at compile time from the natural-language description"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/langlib/lang.natural/src/main/ballerina/natural.bal", kind: github, note: "annotation code on source external"}
+out_of_scope:
+  - "Direct `ai:ModelProvider` `chat`/`generate` calls and agents (lib.ai)"
+  - "The milestone-era `ballerina/np` API and compile-time code generation tooling (lib.np)"
+edges:
+  - {to: concept.expression_typing, rel: requires}
+  - {to: concept.typedesc, rel: requires}
+  - {to: concept.functions, rel: requires}
+  - {to: lib.ai, rel: uses, via: [model_provider, default_model_config]}
+  - {to: concept.records, rel: uses, via: [typed_result]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+  - {to: concept.client_objects, rel: uses, via: [lang_natural_types]}
+  - {to: concept.documentation, rel: uses, via: [typed_result]}
+  - {to: tool.config_toml, rel: uses, via: [default_model_config]}
+notes: "Natural expressions are newer than the 2024R1 language specification (introduced experimentally in Swan Lake Update 13 / 2201.13.0), so no spec sources are cited. The blog also states that when a natural function body has no interpolations, the function arguments are injected into the prompt by parameter name; this is from the announcement post only, so it is not an item. Whether the model is mandatory in the 2201.13.x syntax (`natural { ... }` without `(model)`) is not confirmed: the blog and np README show it optional with a default model, while the BBE and Learn tutorial always pass `(model)`."

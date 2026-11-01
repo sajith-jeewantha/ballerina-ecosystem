@@ -17,15 +17,23 @@ must_cover:
   - id: unquoted_identifiers
     text: Write unquoted identifiers that start with an ASCII letter, `_` or a non-ASCII identifier character and continue with those characters or digits
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/identifiers/", kind: bbe}
   - id: unicode_identifier_chars
     text: Explain that non-ASCII characters are allowed in identifiers except private-use characters, Pattern_White_Space and Pattern_Syntax characters, following Unicode TR31 immutable identifiers so the allowed set does not change between Unicode versions
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/identifiers/", kind: bbe}
   - id: quoted_identifiers
     text: "Use a quoted identifier `'K` (a single quote before the name) to use a reserved keyword K as an identifier, for example a field or variable named `'type`"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/identifiers/", kind: bbe}
   - id: identifier_escapes
     text: 'Use identifier escapes, a backslash before a non-letter, non-whitespace character (e.g. `first\-name`) or a numeric escape `\u{XXXX}`, so any non-empty string can be an identifier, and know the numeric escape must be a valid non-surrogate code point up to 0x10FFFF'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/identifiers/", kind: bbe}
   - id: restricted_identifiers
     text: Explain that organization and module names must be restricted identifiers made of ASCII letters and digits starting with a letter, with single underscores only between letter/digit runs
     difficulty: [intermediate]

@@ -1,0 +1,125 @@
+schema_version: "0.2"
+id: connector.area_productivity_collaboration
+type: connector
+title: Productivity & Collaboration connectors
+summary: "Connectors for project-management, collaboration and general information APIs: the hand-maintained Jira, Trello, Asana, Smartsheet and Candid clients (resource methods such as `jiraClient->/api/'3/issue.post(...)`), plus OpenAPI-generated clients with remote methods for Notion, Shortcut, LaunchDarkly, Avaza, Karbon, ProdPad, OpenAir, Formstack, Clever, Flat, news, weather, book, dictionary and other lookup APIs."
+priority: long_tail
+status: draft
+modules: [ballerinax/asana, ballerinax/avaza, ballerinax/candid, ballerinax/clever.data, ballerinax/covid19, ballerinax/flatapi, ballerinax/formstack, ballerinax/isbndb, ballerinax/jira, ballerinax/karbon, ballerinax/launchdarkly, ballerinax/mathtools.numbers, ballerinax/namsor, ballerinax/newsapi, ballerinax/notion, ballerinax/odweather, ballerinax/openair, ballerinax/openweathermap, ballerinax/prodpad, ballerinax/shortcut, ballerinax/smartsheet, ballerinax/trello, ballerinax/uber, ballerinax/wordnik]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/jira/latest", kind: central, note: "ballerinax/jira 2.0.2 README and API docs"}
+  - {url: "https://central.ballerina.io/ballerinax/trello/latest", kind: central, note: "ballerinax/trello 2.0.1 README and API docs"}
+  - {url: "https://central.ballerina.io/ballerinax/asana/latest", kind: central, note: "ballerinax/asana 3.0.1 README and API docs"}
+  - {url: "https://central.ballerina.io/ballerinax/smartsheet/latest", kind: central, note: "ballerinax/smartsheet 1.0.2 README and API docs"}
+  - {url: "https://central.ballerina.io/ballerinax/candid/latest", kind: central, note: "ballerinax/candid 0.2.1 README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal of the 1.x OpenAPI connectors (avaza, clever.data, covid19, flatapi, formstack, isbndb, karbon, launchdarkly, mathtools.numbers, namsor, newsapi, notion, odweather, openair, openweathermap, prodpad, shortcut, uber, wordnik)"}
+must_cover:
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated 1.x clients in this group: `import ballerinax/newsapi;`, create `newsapi:Client` with `check new (apiKeyConfig)` (an `ApiKeysConfig` first argument for API-key services, otherwise a `ConnectionConfig` with `auth`), optionally pass `ConnectionConfig` HTTP settings and a `serviceUrl`, then call remote methods such as `newsClient->listTopHeadlines(country = \"us\")` with `check`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/newsapi/client.bal", kind: github, note: "init(ApiKeysConfig apiKeyConfig, ConnectionConfig config = {}, string serviceUrl = \"https://newsapi.org/v2\")"}
+  - id: jira_client
+    text: "Create a `jira:Client` with `jira:ConnectionConfig config = {auth: {username, password}}` (Atlassian e-mail and API token from `configurable` variables in `Config.toml`) and the site service URL `https://<domain>.atlassian.net/rest` as the second argument, then read the current user with `jira:User user = check jiraClient->/api/'3/myself;`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/jira/latest", kind: central, note: "Quickstart"}
+  - id: jira_issues
+    text: "Create a Jira issue with `jiraClient->/api/'3/issue.post(issuePayload)` where `jira:IssueUpdateDetails` has `fields` with `project: {key}`, `summary`, `issuetype: {name: \"Task\"}` and an Atlassian Document Format `description` (`'type: \"doc\"`, `version: 1`, `content`), read the returned `jira:CreatedIssue` key, then add a `jira:Comment` with `/api/'3/issue/[issueKey]/comment.post(commentPayload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-jira/blob/main/examples/create_issue_and_add_comment/main.bal", kind: github, note: "Create issue and add comment example"}
+  - id: jira_projects_search
+    text: "Manage Jira projects and issues with resource methods: list or create projects via `jiraClient->/api/'3/project` and `/api/'3/project.post(jira:CreateProjectDetails)`, get, edit or delete an issue via `/api/'3/issue/[issueIdOrKey]` (`get`, `put`, `delete`), move it through a workflow with `/api/'3/issue/[issueIdOrKey]/transitions.post(...)`, and search with JQL through `/api/'3/search/jql.post(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/jira/latest", kind: central, note: "jira:Client resource methods"}
+  - id: trello_client
+    text: "Create a `trello:Client` with `check new (apiKeyConfig, {})` where `trello:ApiKeysConfig apiKeyConfig = {key, token}` comes from `configurable` values in `Config.toml`, and create a card with `trello->/cards.post({}, cardQueries)` using `trello:PostCardsQueries` (`idList`, `name`), returning a `trello:Card`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-trello/blob/main/examples/create_card/main.bal", kind: github, note: "Create card example (client init and card operations)"}
+  - id: trello_boards_cards
+    text: "Work with Trello boards, lists and cards, passing the headers map first and a `...Queries` record second: update a card via `trello->/cards/[cardId].put({}, trello:PutCardsIdQueries)`, create a list with `/lists.post({}, trello:PostListsQueries)`, read board lists with `/boards/[boardId]/lists`, create a label with `/boards/[boardId]/labels.post({}, trello:PostBoardsIdLabelsQueries)`, attach it with `/cards/[cardId]/idLabels.post({}, {value: labelId})` and comment with `/cards/[cardId]/actions/comments.post(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-trello/blob/main/examples/create_card/main.bal", kind: github, note: "Create card example"}
+      - {url: "https://central.ballerina.io/ballerinax/trello/latest", kind: central, note: "trello:Client resource methods"}
+  - id: asana_client
+    text: "Create an `asana:Client` with `asana:ConnectionConfig asanaConfig = {auth: {token: authToken}}` (personal access token, or an OAuth2 refresh-token config), list projects with `asana->/projects()` returning `asana:ProjectCompacts`, and create a task with `asana->/tasks.post(taskReq)` where `asana:TasksBody` wraps `data: {name, notes, workspace, projects}`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/asana/latest", kind: central, note: "Quickstart"}
+  - id: asana_tasks
+    text: "Manage Asana tasks with resource methods: get or update one via `asana->/tasks/[taskGid]` (`get`, `put` with `asana:TaskstaskGidBody`), list a project's tasks with `/projects/[projectGid]/tasks`, add subtasks with `/tasks/[taskGid]/subtasks.post(...)`, comment with `/tasks/[taskGid]/stories.post(...)`, move a task into a section with `/sections/[sectionGid]/addTask.post(...)` and list workspaces with `/workspaces`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/asana/latest", kind: central, note: "asana:Client resource methods"}
+  - id: smartsheet_sheets
+    text: "Create a `smartsheet:Client` with `check new ({auth: {token}})`, create a sheet with `smartsheet->/sheets.post(newSheet)` where `smartsheet:SheetsBody` has `name` and `columns` (`title`, `type` such as `\"TEXT_NUMBER\"`, `\"PICKLIST\"` with `options`, `\"DATE\"`, and one `primary: true`), then read it with `/sheets/[sheetId]`, add rows with `/sheets/[sheetId]/rows.post(...)`, update rows with `/sheets/[sheetId]/rows.put(...)` and add columns with `/sheets/[sheetId]/columns.post(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/smartsheet/latest", kind: central, note: "Quickstart and resource methods"}
+  - id: candid_apis
+    text: "Use the `ballerinax/candid` submodules with a subscription key: create `essentials:Client` (`import ballerinax/candid.essentials;`) with `check new ({subscriptionKey: \"...\"})` and search nonprofits with `essentials->/v3.post({search_terms: \"candid\"})`; get a nonprofit profile with `premier->/v3/[ein]` (`candid.premier`, `premier:V3PublicProfile`); and generate a compliance report with `charitycheckpdf->/v1/pdf/[ein]` (`candid.charitycheckpdf`, returns `http:Response`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/candid/latest", kind: central, note: "Quickstart for the three submodules"}
+  - id: notion_pages
+    text: "Create a `notion:Client` with a bearer token (`{auth: {token}}`) and use its remote methods, which take the `notionVersion` header value as a parameter: `createPage(payload, notionVersion)` with `notion:PageBodyParams`, `queryDatabase(id, payload, notionVersion)`, `retrievePage`, `retrieveDatabase`, `createDatabase`, `listAllDatabases`, `retrieveBlockChildren` and `appendBlockChildren(id, payload, notionVersion)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/notion/client.bal", kind: github, note: "notion client.bal"}
+  - id: shortcut_launchdarkly
+    text: "Call API-key project tools: `shortcut:Client` with `ApiKeysConfig` `{shortcutToken}` to create stories with `createStory(payload)` (`shortcut:CreateStoryParams`) and list categories with `listCategories()`; and `launchdarkly:Client` with `ApiKeysConfig` `{authorization}` to list flags with `getFeatureFlags(projectKey)` and change one with `patchFeatureFlag(projectKey, featureFlagKey, payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/shortcut/client.bal", kind: github, note: "shortcut client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/launchdarkly/client.bal", kind: github, note: "launchdarkly client.bal"}
+  - id: work_management_clients
+    text: "Use bearer-token (`{auth: {token}}`) work-management clients: `avaza:Client` (`projectGet()`, `timesheetPost(avaza:NewTimesheet)`, `invoicePost(avaza:NewInvoice)`, `contactPost`), `karbon:Client` (`getWorkItems(accessKey)`, `postWorkItems(accessKey, payload)`, `getContacts(accessKey)`), `prodpad:Client` (`getIdeas()`, `postIdeas(prodpad:IdeaPost)`, `postFeedbacks`), and `openair:Client`, which needs an explicit `serviceUrl` (`getContacts()`, `addContact(openair:Contact)`, `getListOfExpenseReports()`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/avaza", kind: github, note: "avaza client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/karbon", kind: github, note: "karbon client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/prodpad", kind: github, note: "prodpad client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/openair", kind: github, note: "openair client.bal"}
+  - id: forms_education_music
+    text: "Use the Formstack, Clever and Flat clients (bearer token or OAuth2 refresh-token `auth`): `formstack:Client` `getAllForms()`, `getFormById`, `copyFormById` and `getAllFolders()`; `clever.data` `getStudents()`, `getSections()` and `getDistricts()` with `'limit` and `startingAfter` paging; and `flatapi:Client` `createScore(flatapi:ScoreCreation)`, `getScore(score)` and `createScoreRevision(score, payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/formstack", kind: github, note: "formstack client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/clever.data", kind: github, note: "clever.data client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/flatapi", kind: github, note: "flatapi client.bal"}
+  - id: news_weather_lookups
+    text: "Fetch news, weather and statistics: `newsapi` `listTopHeadlines(country = ...)`, `listArticles(page, pageSize, q = ...)` and `listSources()` (`ApiKeysConfig` `{apiKey}`); `openweathermap` `getCurretWeatherData(q = \"London\")` and `getWeatherForecast(lat, lon)` (`ApiKeysConfig` `{appid}`); and the no-auth `covid19:Client` (`getGlobalStatus()`, `getStatusByCountry(country)`) and `odweather:Client` (`getForecastTimeSeries(latitude, longitude, weather)`, `compareStation(stationName)`), created with `check new ()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/newsapi", kind: github, note: "newsapi client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/openweathermap", kind: github, note: "openweathermap client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/covid19", kind: github, note: "covid19 client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/odweather", kind: github, note: "odweather client.bal"}
+  - id: reference_data_lookups
+    text: "Query reference-data APIs with an `ApiKeysConfig`: `isbndb` (`{authorization}`) `getBookDetails(isbn)` and `searchBooks(payload)`; `wordnik` (`{apiKey}`) `getDefinitions(word, ...)`; `mathtools.numbers` (`{xMathtoolsApiSecret}`) `getNumberOfTheDay()` and `convertBase10ToRomanNumeral(number)`; and `namsor` (`{xApiKey}`) `gender(firstName, lastName)`, `genderFull(fullName)` and `origin(firstName, lastName)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/isbndb", kind: github, note: "isbndb client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/wordnik", kind: github, note: "wordnik client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/mathtools.numbers", kind: github, note: "mathtools.numbers client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/namsor", kind: github, note: "namsor client.bal"}
+  - id: uber_rides
+    text: "Create an `uber:Client` with a bearer token and get ride products with `getProducts(latitude, longitude)`, price estimates with `getPrices(startLatitude, startLongitude, endLatitude, endLongitude)`, time estimates with `getTimes`, the rider profile with `getUser()` and trip history with `history()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/uber", kind: github, note: "uber client.bal"}
+out_of_scope:
+  - "Trello, Asana and Jira webhooks/event listeners (trigger nodes)"
+  - "Generic HTTP client configuration fields shared by every `ConnectionConfig` (lib.http)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [generated_client_shape, jira_client, trello_client, asana_client, smartsheet_sheets]}
+  - {to: concept.resource_methods, rel: uses, via: [jira_issues, jira_projects_search, trello_boards_cards, asana_tasks, candid_apis]}
+  - {to: concept.records, rel: uses, via: [jira_issues, asana_client, smartsheet_sheets, trello_client]}
+  - {to: lib.http, rel: uses, via: [generated_client_shape, candid_apis], note: "Generated ConnectionConfig wraps http client settings; Candid PDF returns http:Response"}
+  - {to: lib.oauth2, rel: uses, via: [asana_client, forms_education_music], note: "OAuth2 refresh-token grant configs"}
+  - {to: tool.config_toml, rel: uses, via: [jira_client, trello_client]}
+notes: "Jira, Trello, Asana, Smartsheet and Candid items come from their Central READMEs, module examples on GitHub and the Central API docs (resource paths checked against the docs JSON for the listed versions). The 1.x generated connectors have stub READMEs on Central; their items come from openapi-connectors client.bal/types.bal and the Central API docs. Candid submodule API docs were not returned by Central, so the Candid item uses only the README calls. The openweathermap method is spelled `getCurretWeatherData` in the package."

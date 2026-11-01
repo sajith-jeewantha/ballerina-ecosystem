@@ -41,6 +41,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/mqtt-client-basic-authentication/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/mqtt-service-ssl/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/mqtt-client-ssl/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/mqtt-service-basic-authentication/", kind: bbe}
   - id: connection_management
     text: "Manage client connections with `isConnected()`, `reconnect()`, `disconnect()` and `close()`"
     difficulty: [intermediate]

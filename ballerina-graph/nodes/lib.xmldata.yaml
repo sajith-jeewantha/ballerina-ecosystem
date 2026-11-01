@@ -1,0 +1,67 @@
+schema_version: "0.2"
+id: lib.xmldata
+type: library
+title: ballerina/xmldata
+summary: "The deprecated `ballerina/xmldata` package converted between XML and JSON, maps and records (`toJson`, `fromJson`, `toXml`, `fromXml`, `toRecord`); new code uses `ballerina/data.xmldata`, which keeps the `xmldata` prefix."
+priority: long_tail
+status: deprecated
+replaced_by: lib.data.xmldata
+modules: [ballerina/xmldata]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/xmldata/latest", kind: central, note: "ballerina/xmldata 2.9.2; README deprecation notice"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/xmldata.bal", kind: github, note: "Public functions, options and annotations"}
+  - {url: "https://ballerina.io/learn/by-example/xml-to-record/", kind: bbe, note: "Replacement API (data.xmldata)"}
+  - {url: "https://ballerina.io/learn/by-example/xml-to-record-with-projection/", kind: bbe, note: "Replacement API (data.xmldata)"}
+must_cover:
+  - id: to_json
+    text: "Recognise `xmldata:toJson(xmlValue, options)`, which converts XML to its JSON representation, with `xmldata:XmlOptions` fields `attributePrefix` (default `\"@\"`) and `preserveNamespaces` (default `true`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/xmldata.bal", kind: github}
+  - id: from_json
+    text: "Recognise `xml? x = check xmldata:fromJson(jsonValue, options)`, where `xmldata:JsonOptions` sets `attributePrefix` (keys with this prefix become attributes, default `\"@\"`), `arrayEntryTag` (default `\"item\"`) and `rootTag` (a `root` element is added when the result needs one)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/xmldata.bal", kind: github}
+  - id: to_xml_annotations
+    text: "Recognise `xmldata:toXml(mapOrRecord)`, which converts a map or record to XML, using `@xmldata:Name {value: ...}` (type or field), `@xmldata:Namespace {prefix: ..., uri: ...}` (type) and `@xmldata:Attribute` (field) to set element names, namespaces and attributes"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/xmldata.bal", kind: github}
+  - id: from_xml
+    text: "Recognise `Person p = check xmldata:fromXml(xmlValue);`, which converts XML to a map or record type inferred from the expected type and validates names, namespaces and attributes against the same annotations, and the older `xmldata:toRecord(xmlValue, preserveNamespaces)`, which is marked `@deprecated` in favour of `fromXml`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/xmldata.bal", kind: github}
+  - id: xmldata_error
+    text: "Handle the `xmldata:Error` returned by every conversion function with `check` or an `is xmldata:Error` test"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-xmldata/blob/master/ballerina/error.bal", kind: github}
+  - id: migrate_import
+    text: "Migrate by replacing `import ballerina/xmldata;` with `import ballerina/data.xmldata;`, which keeps the `xmldata:` prefix and the `@xmldata:Name`, `@xmldata:Namespace` and `@xmldata:Attribute` annotations"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xmldata/latest", kind: central, note: "Deprecation notice"}
+      - {url: "https://central.ballerina.io/ballerina/data.xmldata/latest", kind: central}
+  - id: migrate_from_xml
+    text: "Replace `xmldata:fromXml` and `xmldata:toRecord` with `xmldata:parseAsType(xmlValue)` from `ballerina/data.xmldata` (or `parseString`/`parseBytes`/`parseStream` for unparsed input), using closed records to project only the needed elements"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/xml-to-record-with-projection/", kind: bbe}
+  - id: migrate_json_conversions
+    text: "Replace `xmldata:toJson` by parsing the XML into a record with `xmldata:parseAsType` and calling `toJson()` on it, and keep `xmldata:toXml` and `xmldata:fromJson` (with `JsonOptions`), which `ballerina/data.xmldata` still provides"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/data.xmldata/latest", kind: central}
+out_of_scope:
+  - "The full data.xmldata API, XSD validation and XPath (lib.data.xmldata)"
+  - "XML values and XML templates in the language (concept.xml)"
+edges:
+  - {to: lib.data.xmldata, rel: uses, via: [migrate_import, migrate_from_xml, migrate_json_conversions]}
+  - {to: concept.xml, rel: uses, via: [to_json, from_json, from_xml]}
+  - {to: concept.json_anydata, rel: uses, via: [to_json, from_json]}
+  - {to: concept.annotations, rel: uses, via: [to_xml_annotations]}
+  - {to: concept.records, rel: uses, via: [to_xml_annotations, from_xml]}
+notes: "Central (2.9.2) does not set isDeprecated, but the README carries a deprecation notice pointing to ballerina/data.xmldata. The migration mapping comes from comparing the old API with the data.xmldata API (as covered in lib.data.xmldata); the toJson replacement follows the data.xmldata node's xml_to_json item."

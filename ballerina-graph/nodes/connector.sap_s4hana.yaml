@@ -1,0 +1,113 @@
+schema_version: "0.2"
+id: connector.sap_s4hana
+type: connector
+title: ballerinax/sap.s4hana.*
+summary: "Generated clients for individual SAP S/4HANA Cloud OData APIs (sales, delivery, inventory, procurement and quality management). Each package exposes a `Client` built on `sap:Client` with remote methods such as `listA_SalesOrders`, `createA_SalesOrder` and `patchA_SalesOrder` that take OData query options."
+priority: important
+status: draft
+modules:
+  - ballerinax/sap.s4hana.api_charcattributecatalog_srv
+  - ballerinax/sap.s4hana.api_customer_returns_delivery_srv_0002
+  - ballerinax/sap.s4hana.api_del_doc_with_credit_block
+  - ballerinax/sap.s4hana.api_inbound_delivery_srv_0002
+  - ballerinax/sap.s4hana.api_inforecord_process_srv
+  - ballerinax/sap.s4hana.api_inspectionlot_srv
+  - ballerinax/sap.s4hana.api_inspectionmethod_srv
+  - ballerinax/sap.s4hana.api_inspectionplan_srv
+  - ballerinax/sap.s4hana.api_masterinspcharacteristic_srv
+  - ballerinax/sap.s4hana.api_material_document_srv
+  - ballerinax/sap.s4hana.api_material_stock_srv
+  - ballerinax/sap.s4hana.api_outbound_delivery_srv_0002
+  - ballerinax/sap.s4hana.api_physical_inventory_doc_srv
+  - ballerinax/sap.s4hana.api_qualityinforecord_srv
+  - ballerinax/sap.s4hana.api_reservation_document_srv
+  - ballerinax/sap.s4hana.api_sales_inquiry_srv
+  - ballerinax/sap.s4hana.api_sales_order_simulation_srv
+  - ballerinax/sap.s4hana.api_sales_order_srv
+  - ballerinax/sap.s4hana.api_sales_quotation_srv
+  - ballerinax/sap.s4hana.api_salesdistrict_srv
+  - ballerinax/sap.s4hana.api_salesorganization_srv
+  - ballerinax/sap.s4hana.api_sd_incoterms_srv
+  - ballerinax/sap.s4hana.api_sd_sa_soldtopartydetn
+  - ballerinax/sap.s4hana.api_slspricingconditionrecord_srv
+  - ballerinax/sap.s4hana.ce_apireservationdocument_0001
+  - ballerinax/sap.s4hana.ce_salesorder_0001
+  - ballerinax/sap.s4hana.salesarea_0001
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/sap.s4hana.api_sales_order_srv/latest", kind: central, note: "Sales Order (A2X) connector README; the other packages' READMEs follow the same quickstart"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.s4hana.sales", kind: github, note: "Sales packages: client.bal and types.bal per module (ConnectionConfig, query records, performBatchOperation)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.s4hana.inventory", kind: github, note: "Material stock, material document, physical inventory and reservation packages"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.s4hana.delivery", kind: github, note: "Outbound, inbound, customer returns delivery and credit block packages"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.s4hana.qm", kind: github, note: "Quality management packages"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-sap.s4hana.procurement", kind: github, note: "Purchasing info record package"}
+must_cover:
+  - id: client_init
+    text: "Import a package with an alias (e.g. `import ballerinax/sap.s4hana.api_sales_order_srv as salesorder;`) and create `salesorder:Client` with `check new ({auth: {username, password}}, hostname)` using a communication user's credentials and the API host `<id>-api.s4hana.cloud.sap` (optional `port`, default 443); the client calls `https://{hostname}:{port}/sap/opu/odata/sap/API_SALES_ORDER_SRV` through `sap:Client`, so CSRF tokens are handled for you"
+    difficulty: [beginner]
+  - id: auth_options
+    text: "Set `ConnectionConfig.auth` to `http:CredentialsConfig` (Basic), `http:BearerTokenConfig` or `OAuth2RefreshTokenGrantConfig`, and set HTTP options such as `timeout`, `retryConfig` and `secureSocket` in the same record"
+    difficulty: [intermediate]
+  - id: odata_query_options
+    text: 'Pass OData query options to list methods as named arguments, e.g. `salesOrderClient->listA_SalesOrders(\$top = 10, \$skip = 20, \$filter = "SalesOrganization eq ''1010''", \$orderby = [...], \$select = [...], \$expand = [...], \$inlinecount = "allpages")`, and read the entities from the returned `CollectionOfA_SalesOrderWrapper`'
+    difficulty: [intermediate]
+  - id: sales_order_crud
+    text: "Manage sales orders with `sap.s4hana.api_sales_order_srv`: `createA_SalesOrder(payload)` (deep insert of header and items), `getA_SalesOrder(SalesOrder)`, `patchA_SalesOrder(SalesOrder, payload)`, `deleteA_SalesOrder(SalesOrder)`, sub-entities such as `createItemOfA_SalesOrder` and `listItemsOfA_SalesOrder`, and approvals with `releaseApprovalRequest`/`rejectApprovalRequest`"
+    difficulty: [beginner, intermediate]
+  - id: sales_order_v4
+    text: "Use the OData V4 sales order API `sap.s4hana.ce_salesorder_0001` with `listSalesOrders()`, `createSalesOrder(payload)`, `getSalesOrder(...)`, `patchSalesOrder(...)` and `listItemsOfSalesOrder(...)`"
+    difficulty: [intermediate]
+  - id: quotation_inquiry_simulation
+    text: "Work with pre-sales documents: `sap.s4hana.api_sales_quotation_srv` (`listA_SalesQuotations`, `createA_SalesQuotation`, `patchA_SalesQuotation`, `releaseApprovalRequest`), `sap.s4hana.api_sales_inquiry_srv` (`listA_SalesInquiries`), and `sap.s4hana.api_sales_order_simulation_srv` (`createA_SalesOrderSimulation(payload)` returns pricing, material availability and credit check results without saving the order)"
+    difficulty: [intermediate]
+  - id: sales_master_data
+    text: "Read sales master data with `sap.s4hana.api_salesorganization_srv` (`listA_SalesOrganizations`), `sap.s4hana.api_salesdistrict_srv` (`listA_SalesDistricts`), `sap.s4hana.salesarea_0001` (`listSalesAreas`, `getSalesArea`), `sap.s4hana.api_sd_incoterms_srv` (`listA_IncotermsClassifications`) and `sap.s4hana.api_sd_sa_soldtopartydetn` (`listA_DelivSchedSoldToPartyDetns`)"
+    difficulty: [beginner]
+  - id: pricing_condition_batch
+    text: "Maintain pricing condition records with `sap.s4hana.api_slspricingconditionrecord_srv`, whose entity types are in the `oas` submodule (`import ballerinax/sap.s4hana.api_slspricingconditionrecord_srv.oas;`), and publish a whole price list in one `$batch` round trip with `conditionRecordClient->performBatchOperation(requests, atomic = true)`, passing entities or `BatchRequest` records (`method`, `uri`, `payload`, `headers`) and reading the `BatchResult[]`"
+    difficulty: [advanced]
+  - id: material_stock
+    text: "Query stock with `sap.s4hana.api_material_stock_srv`: `listA_MaterialStocks()`, `getA_MaterialStock(Material)` and `listA_MatlStkInAcctMods(\\$filter = ...)` for quantities by plant, storage location, batch and stock type"
+    difficulty: [beginner]
+  - id: material_document
+    text: "Post goods movements (goods receipt, goods issue, transfer posting) with `sap.s4hana.api_material_document_srv` `createA_MaterialDocumentHeader(payload)`, read them with `listA_MaterialDocumentItems`, and reverse them with `createCancel(...)` or `createCancelItem(...)`"
+    difficulty: [intermediate]
+  - id: physical_inventory
+    text: "Plan and post stock counts with `sap.s4hana.api_physical_inventory_doc_srv`: `createA_PhysInventoryDocHeader(payload)`, `patchA_PhysInventoryDocItem(...)`, `createPostDifferences(...)` and `createInitiateRecount(...)`"
+    difficulty: [intermediate]
+  - id: reservations
+    text: "Create and remove material reservations with `sap.s4hana.api_reservation_document_srv` (`createA_ReservationDocumentHeader`, `listA_ReservationDocumentItems`, `deleteA_ReservationDocumentHeader`) or the OData V4 `sap.s4hana.ce_apireservationdocument_0001` client (`createReservationDocument`, `patchReservationDocument`, `listReservationDocumentItems`, `deleteReservationDocument`)"
+    difficulty: [intermediate]
+  - id: outbound_delivery
+    text: "Process outbound deliveries with `sap.s4hana.api_outbound_delivery_srv_0002`: `createA_OutbDeliveryHeader(payload)`, picking with `createPickAllItems`/`createPickOneItem`, then `createPostGoodsIssue(DeliveryDocument = \"'80000000'\")` (function-import key values are enclosed in single quotes) or `createReverseGoodsIssue(...)`"
+    difficulty: [intermediate, advanced]
+  - id: inbound_returns_delivery
+    text: "Process inbound deliveries with `sap.s4hana.api_inbound_delivery_srv_0002` (`createA_InbDeliveryHeader`, `createPutawayAllItems`, `createPostGoodsReceipt`, `createReverseGoodsReceipt`) and customer returns with `sap.s4hana.api_customer_returns_delivery_srv_0002` (`createA_ReturnsDeliveryHeader`, `createPutawayOneItem`, `createPostGoodsReceipt`)"
+    difficulty: [intermediate]
+  - id: credit_block
+    text: "List deliveries blocked by credit management with `sap.s4hana.api_del_doc_with_credit_block` `listA_CreditBlockedDeliveryDocs()` and act on them with `createCheckCreditBlock`, `createReleaseCreditBlock` or `createRejectCreditBlock`"
+    difficulty: [intermediate]
+  - id: purchasing_info_record
+    text: "Maintain purchasing info records with `sap.s4hana.api_inforecord_process_srv`: `createA_PurchasingInfoRecord(payload)`, `patchA_PurchasingInfoRecord(...)`, `createPurgInfoRecdOrgPlantDataOfA_PurchasingInfoRecord(...)` and pricing conditions such as `createA_PurInfoRecdPrcgCndnValidity`"
+    difficulty: [intermediate]
+  - id: inspection_lot
+    text: "Record quality inspections with `sap.s4hana.api_inspectionlot_srv`: `listA_InspectionLots()`, `createA_InspectionResult(payload)`, `createA_InspSampleResult(payload)` and the usage decision `createA_InspLotUsageDecision(payload)`"
+    difficulty: [intermediate, advanced]
+  - id: quality_master_data
+    text: "Read and maintain quality master data with `sap.s4hana.api_inspectionplan_srv` (`listA_InspectionPlans`), `sap.s4hana.api_inspectionmethod_srv` (`listA_InspectionMethods`), `sap.s4hana.api_masterinspcharacteristic_srv` (`listA_InspectionSpecifications`), `sap.s4hana.api_charcattributecatalog_srv` (`listA_CharcAttribSeldCodeSets`) and `sap.s4hana.api_qualityinforecord_srv` (`createQualityInProcurement`, `createQualityFirstArticleInspection`)"
+    difficulty: [beginner, intermediate]
+  - id: error_handling
+    text: "Handle the `error` returned by each remote method with `check` or `do`/`on fail`, and inspect the `http:Response` returned by `patchA_*` and `deleteA_*` methods; send a hand-built `$batch` with `performBatchOperation(http:Request)` on packages without a typed batch API"
+    difficulty: [intermediate]
+out_of_scope:
+  - "The generic `sap:Client` CSRF and auth mechanics (connector.sap)"
+  - "SAP S/4HANA ITCM and other `saps4hana.*` packages (connector.sap_s4hana_itcm)"
+  - "Setting up communication users, systems and arrangements in the S/4HANA Fiori launchpad (each README lists the `SAP_COM_*` scenario)"
+edges:
+  - {to: connector.sap, rel: uses, via: [client_init, error_handling, pricing_condition_batch], target_items: [csrf_modifying_requests, connection_config], note: "Every generated client wraps sap:Client"}
+  - {to: lib.http, rel: uses, via: [auth_options, error_handling]}
+  - {to: lib.oauth2, rel: uses, via: [auth_options]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sales_order_crud]}
+  - {to: concept.records, rel: uses, via: [sales_order_crud, odata_query_options, pricing_condition_batch]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+  - {to: concept.modules_imports, rel: uses, via: [client_init, pricing_condition_batch]}
+notes: "Verified against the main branch client.bal of module-ballerinax-sap.s4hana.{sales,inventory,delivery,qm,procurement}. The 2.1.0 sales READMEs call `listA_SalesOrders()` on `sap.s4hana.ce_salesorder_0001`; the source names it `listSalesOrders()`, which is used here. Query parameter fields are escaped identifiers (`\\$top`, `\\$filter`, ...). OData V4 packages (`ce_*`) use `$count` instead of `$inlinecount`."

@@ -1,0 +1,65 @@
+schema_version: "0.2"
+id: connector.godaddy
+type: connector
+title: "GoDaddy connectors"
+summary: "Nine OpenAPI-generated Ballerina clients for the GoDaddy developer APIs (abuse, aftermarket, agreements, certificates, countries, domains, orders, shoppers, subscriptions) that share one API-key client shape."
+priority: long_tail
+status: draft
+modules: [ballerinax/godaddy.abuse, ballerinax/godaddy.aftermarket, ballerinax/godaddy.agreements, ballerinax/godaddy.certificates, ballerinax/godaddy.countries, ballerinax/godaddy.domains, ballerinax/godaddy.orders, ballerinax/godaddy.shopper, ballerinax/godaddy.subscriptions]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.abuse/latest", kind: central, note: "ballerinax/godaddy.abuse README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.aftermarket/latest", kind: central, note: "ballerinax/godaddy.aftermarket README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.agreements/latest", kind: central, note: "ballerinax/godaddy.agreements README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.certificates/latest", kind: central, note: "ballerinax/godaddy.certificates README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.countries/latest", kind: central, note: "ballerinax/godaddy.countries README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.domains/latest", kind: central, note: "ballerinax/godaddy.domains README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.orders/latest", kind: central, note: "ballerinax/godaddy.orders README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.shopper/latest", kind: central, note: "ballerinax/godaddy.shopper README"}
+  - {url: "https://central.ballerina.io/ballerinax/godaddy.subscriptions/latest", kind: central, note: "ballerinax/godaddy.subscriptions README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+must_cover:
+  - id: client_shape
+    text: "Create any GoDaddy client, e.g. `godaddy.domains:Client`, with `check new ({authorization: apiKey})` (an `ApiKeysConfig` sent as the `Authorization` header) plus optional `ConnectionConfig` and `serviceUrl` (default the OTE test host `https://api.ote-godaddy.com/`); the same shape applies to `godaddy.abuse`, `godaddy.aftermarket`, `godaddy.agreements`, `godaddy.certificates`, `godaddy.countries`, `godaddy.orders`, `godaddy.shopper` and `godaddy.subscriptions`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.domains", kind: github, note: "godaddy.domains generated client.bal/types.bal"}
+  - id: domain_availability
+    text: "Check and suggest domains with `godaddy.domains` `getDomainAvailability(domain)`, `getDomainsAvailabilityBulk([...])`, `suggestDomainNames(query = ...)` and `listTLDs()`, then register with `purchaseDomain(DomainPurchase)` after `getAgreement(tlds, privacy)` and `validateRequestBody(...)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.domains", kind: github, note: "godaddy.domains generated client.bal/types.bal"}
+  - id: domain_management_dns
+    text: "Manage owned domains with `godaddy.domains` `listDomains()`, `getDomainDetail(domain)`, `updateDomain(...)`, `renewDomain(domain, DomainRenew)`, `cancelDomain(domain)`, and DNS with `getDNSRecord(domain, 'type, name)`, `addDNSRecord(domain, records)`, `replaceDNSRecordType(...)` and `deleteDNSRecordTypeName(domain, 'type, name)`, passing `xShopperId` when acting for a reseller customer"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.domains", kind: github, note: "godaddy.domains generated client.bal/types.bal"}
+  - id: certificates
+    text: "Order and manage SSL certificates with `godaddy.certificates` `certificateCreate(CertificateCreate)`, `certificateGet(certificateId)`, `certificateVerifydomaincontrol(certificateId)`, `certificateDownload(certificateId)`, `certificateRenew(...)`, `certificateReissue(...)` and `certificateRevoke(...)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.certificates", kind: github, note: "godaddy.certificates generated client.bal/types.bal"}
+  - id: shopper_orders_subscriptions
+    text: "Manage reseller accounts with `godaddy.shopper` `createSubaccount(SubaccountCreate)`, `get(shopperId)` and `update(shopperId, ShopperUpdate)`; list purchases with `godaddy.orders` `listOrders()` and `getOrderByID(orderId)`; and handle renewals with `godaddy.subscriptions` `listSubscriptions()`, `getSubscription(subscriptionId)` and `cancelSubscription(subscriptionId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.shopper", kind: github, note: "godaddy.shopper generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.orders", kind: github, note: "godaddy.orders generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.subscriptions", kind: github, note: "godaddy.subscriptions generated client.bal/types.bal"}
+  - id: abuse_aftermarket
+    text: "Report abuse with `godaddy.abuse` `createTicket(AbuseTicketCreate)`, `getTickets()` and `getTicketInfo(ticketId)`, and manage GoDaddy Auction listings with `godaddy.aftermarket` `addExpiryListings(AftermarketListingExpiryCreate[])` and `deleteListings(domains)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.abuse", kind: github, note: "godaddy.abuse generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.aftermarket", kind: github, note: "godaddy.aftermarket generated client.bal/types.bal"}
+  - id: reference_data
+    text: "Look up reference data with `godaddy.countries` `getCountries(marketId)` and `getCountry(countryKey, marketId)`, and fetch legal agreements with `godaddy.agreements` `getLegalAgreements(keys)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.countries", kind: github, note: "godaddy.countries generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/godaddy.agreements", kind: github, note: "godaddy.agreements generated client.bal/types.bal"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape]}
+  - {to: concept.client_objects, rel: uses, via: [client_shape, domain_availability]}
+  - {to: concept.records, rel: uses, via: [domain_availability, certificates]}
+  - {to: concept.errors, rel: uses, via: [client_shape]}
+notes: "Central READMEs are stubs; operations come from openapi-connectors main client.bal. The exact value format of the `Authorization` key is not documented in the connector, so it is left unspecified. No BBEs exist."

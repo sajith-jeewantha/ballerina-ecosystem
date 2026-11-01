@@ -12,24 +12,33 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.1", kind: spec, note: "6.6.1 String template expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.6.4", kind: spec, note: "6.6.4 Raw template expression"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.7.5", kind: spec, note: "5.7.5 RawTemplate"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: string_values
     text: Explain that a string is a sequence of zero or more Unicode scalar values (code points 0x0 to 0x10FFFF excluding surrogates), may contain noncharacters such as 0xFFFE, and is inherently immutable with no storage identity
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/strings/", kind: bbe}
   - id: string_literals
     text: Write double-quoted string literals that cannot contain raw newlines, using the escapes `\t`, `\n`, `\r`, `\\`, `\"` and numeric escapes `\u{1F600}`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/strings/", kind: bbe}
   - id: sequence_semantics
     text: Explain sequence semantics for strings, that a single character is itself a string of length 1 (a singleton), concatenating with the empty string gives the same value, and this differs from lists whose members are separate values
     difficulty: [intermediate]
   - id: string_char
     text: Use the built-in subtype `string:Char` for strings of length 1
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/built-in-string-subtype/", kind: bbe}
   - id: string_indexing
     text: Index a string with `s[i]` to get a `string:Char`, knowing it panics when `i < 0` or `i >= s.length()`
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.14", kind: spec, note: "6.14 Member access expression"}
+      - {url: "https://ballerina.io/learn/by-example/strings/", kind: bbe}
   - id: string_iteration
     text: Iterate over a string with `foreach`, which yields each character as a `string:Char` in order with nil completion
     difficulty: [beginner]
@@ -40,36 +49,50 @@ must_cover:
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.24", kind: spec, note: "6.24 Additive expression"}
+      - {url: "https://ballerina.io/learn/by-example/strings/", kind: bbe}
   - id: string_template
     text: 'Build strings with string templates ``string `Hello ${name}!` ``, where each interpolation `${expr}` must have static type that is a subtype of `boolean|int|float|decimal|string`'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/string-templates/", kind: bbe}
   - id: template_evaluation
     text: Explain that string template interpolations are evaluated left to right and each result is converted with the direct-style ToString, so `string `${1.0}`` gives "1.0"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/string-templates/", kind: bbe}
   - id: backtick_string_rules
     text: Explain that every character in a BacktickString outside `${...}` interpolations is literal (no escape sequences), including a `$` not followed by `{`, and include a literal backtick with the interpolation `${"`"}`
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/string-templates/", kind: bbe}
   - id: string_ordering
     text: Compare strings with `<`, `<=`, `>`, `>=`, which order lexicographically by Unicode code point
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#ordering", kind: spec, note: "5.8.6 Ordering"}
+      - {url: "https://ballerina.io/learn/by-example/strings/", kind: bbe}
   - id: string_langlib
     text: Call `lang.string` functions with method-call syntax, such as `s.length()`, `s.substring(0, 3)`, `s.indexOf("x")`, `s.trim()` and `s.toUpperAscii()`
     difficulty: [beginner]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.string", kind: spec, note: "11.3.13 lang.string"}
+      - {url: "https://ballerina.io/learn/by-example/langlib-functions/", kind: bbe}
   - id: raw_template_expr
     text: 'Write an untagged template such as `` `SELECT * FROM t WHERE id = ${id}` `` to construct a raw template object instead of a string'
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/raw-templates/", kind: bbe}
   - id: rawtemplate_type
     text: 'Describe `object:RawTemplate`, a distinct object type with fields `public (readonly & string[]) strings` and `public (any|error)[] insertions`'
     difficulty: [intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.object", kind: spec, note: "11.3.10 lang.object module"}
+      - {url: "https://ballerina.io/learn/by-example/raw-templates/", kind: bbe}
   - id: strings_and_insertions
     text: 'Explain that `insertions` holds the interpolated values evaluated in order and `strings` holds the literal text split at the interpolation points, so `strings` has one more member than `insertions`'
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/raw-templates/", kind: bbe}
   - id: per_expression_class
     text: 'Explain that each raw template expression has its own class (a subtype of RawTemplate) whose `strings` value is created once, while a new `insertions` list is created on every evaluation'
     difficulty: [advanced]
@@ -79,6 +102,8 @@ must_cover:
   - id: constrained_raw_templates
     text: 'Use a subtype of `object:RawTemplate` with a narrower `insertions` type as the expected type, so that the compiler checks the types of the interpolated expressions'
     difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/raw-templates/", kind: bbe}
 out_of_scope:
   - "Detailed lang.string function semantics (lib.lang.string)"
   - "XML templates (concept.xml)"

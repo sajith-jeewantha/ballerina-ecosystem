@@ -1,0 +1,57 @@
+schema_version: "0.2"
+id: connector.area_hrms
+type: connector
+title: HRMS connectors
+summary: "Generated clients for HR and payroll systems outside the SAP and Workday nodes: ADP Pay Statements and Worker Payroll Instructions, the Brex Team API (users, cards, departments, locations) and Zoho People (forms, leave, attendance, cases, onboarding)."
+priority: long_tail
+status: draft
+modules: [ballerinax/adp.paystatements, ballerinax/adp.workerpayrollinstructions, ballerinax/brex.team, ballerinax/zoho.people]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/adp.paystatements/latest", kind: central, note: "ADP Pay Statements API v1 connector overview"}
+  - {url: "https://central.ballerina.io/ballerinax/zoho.people/latest", kind: central, note: "Zoho People API v2 connector overview"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "client.bal and types.bal of adp.paystatements, adp.workerpayrollinstructions, brex.team and zoho.people"}
+must_cover:
+  - id: adp_client
+    text: "Create a `paystatements:Client` from `ballerinax/adp.paystatements` with `check new ({auth: {clientId, clientSecret}}, serviceUrl)`, using the OAuth2 client-credentials config whose `tokenUrl` defaults to `https://accounts.adp.com/auth/oauth/v2/token` (an `http:BearerTokenConfig` is also accepted)"
+    difficulty: [beginner]
+  - id: adp_pay_statements
+    text: "Read a worker's pay statements with `listPayStatements(roleCode, aoid, numberoflastpaydates = 5)`, `getPayStatement(aoid, roleCode, payStatementId)` and `getProjectedPayStatement(aoid, projectedPayStatementId, roleCode)`, and fetch a statement image with `getClientPayStatementImage(...)`"
+    difficulty: [intermediate]
+  - id: adp_payroll_instructions
+    text: "Manage general deduction instructions with `ballerinax/adp.workerpayrollinstructions`: `listPayrollInstructions(aoid, roleCode)`, then `startWorkerGeneralInstructionEvent(roleCode, payload)`, `changeWorkerGeneralInstructionEvent(roleCode, payload)` or `stopWorkerGeneralInstructionEvent(...)`, reading the allowed fields first with `getChangeEventMetaData(...)`"
+    difficulty: [intermediate, advanced]
+  - id: brex_client
+    text: "Create a `team:Client` from `ballerinax/brex.team` with `check new ({auth: {token: apiToken}}, serviceUrl)` or an OAuth2 refresh-token config (`refreshUrl` `https://accounts.brex.com/oauth2/v1/token`); pass the production URL explicitly because `serviceUrl` defaults to `https://platform.staging.brexapps.com`"
+    difficulty: [beginner]
+  - id: brex_users
+    text: "Manage Brex users with `listUsersGet(cursor = ..., 'limit = 50)`, `createUserPost(payload, idempotencyKey = ...)`, `getMeGet()`, `getUserByIdGet(id)`, `updateUserPut(id, payload)` and spending limits with `setUserLimitPost(id, payload)`"
+    difficulty: [intermediate]
+  - id: brex_cards_org
+    text: "Issue and control Brex cards with `createCardPost(payload)`, `listCardsByUserIdGet(...)`, `lockCardPost(id, payload)`, `unlockCardPost(id, payload)` and `terminateCardPost(id, payload)`, and maintain `createDepartmentPost`/`listDepartmentsGet` and `createLocationPost`/`listLocationsGet`"
+    difficulty: [intermediate]
+  - id: zoho_client
+    text: "Create a `people:Client` from `ballerinax/zoho.people` with an `http:BearerTokenConfig` or an OAuth2 refresh-token config (`refreshUrl` `https://accounts.zoho.com/oauth/v2/token`); `serviceUrl` defaults to `https://people.zoho.com/people/api`"
+    difficulty: [beginner]
+  - id: zoho_form_records
+    text: "Read and write Zoho People form records with `insertRecord(inputType, formLinkName, payload)`, `updateRecord(inputType, formLinkName, recordId, payload)`, `getBulkRecords(formLinkName, sIndex = 1, 'limit = 100, searchColumn = ..., searchValue = ...)`, `getRecordByID(...)` and `getForms()`"
+    difficulty: [intermediate]
+  - id: zoho_leave
+    text: "Handle leave in Zoho People with `addLeave(payload)`, `getLeaveTypes(userId)`, `addLeaveBalance(payload)`, `getHolidays(userId)` and `getLeaveReportOfUser(...)`"
+    difficulty: [intermediate]
+  - id: zoho_attendance
+    text: "Record attendance with `createAttendance(dateFormat, checkIn = ..., checkOut = ..., empId = ...)`, `importBulkAttendance(payload)` and `getAttendanceEntries(date = ..., empId = ...)`, and manage shifts with `updateUserShift(...)` and `getShiftDetails(...)`"
+    difficulty: [intermediate]
+  - id: zoho_cases_onboarding
+    text: "Raise and list HR cases with `addCase(categoryId, subject, description = ...)` and `getAllCases(index)`, and start onboarding with `triggerOnboarding(onboardingType, userId)`"
+    difficulty: [intermediate]
+  - id: error_handling
+    text: "Handle the `error` returned by every remote method with `check` or `do`/`on fail`, and pass an `idempotencyKey` on Brex create calls so retries do not duplicate users or cards"
+    difficulty: [beginner, intermediate]
+edges:
+  - {to: lib.http, rel: uses, via: [adp_client, brex_client, zoho_client]}
+  - {to: lib.oauth2, rel: uses, via: [adp_client, brex_client, zoho_client]}
+  - {to: concept.client_objects, rel: uses, via: [adp_client, brex_client, zoho_client]}
+  - {to: concept.records, rel: uses, via: [adp_payroll_instructions, brex_users, zoho_form_records]}
+  - {to: concept.errors, rel: uses, via: [error_handling]}
+  - {to: connector.workday, rel: related, via: [adp_pay_statements, zoho_leave], note: "Workday HR, absence and payroll connectors"}
+notes: "The Central READMEs contain only an overview and compatibility table, so method names and signatures come from the openapi-connectors main branch client.bal files. The import prefixes shown (`paystatements`, `team`, `people`) are the default last segment of each package name. ADP-specific requirements such as mutual TLS certificates are not documented in the package and are left out."

@@ -1,0 +1,142 @@
+schema_version: "0.2"
+id: topic.file_integration
+type: topic
+title: File integration
+summary: "File-based integration in Ballerina: polling FTP, SFTP, FTPS and SMB locations or local directories, binding file content to typed values, and processing CSV, JSON, XML, EDI, Excel and ZIP files before moving, acknowledging or forwarding them."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/supported-network-protocols/", kind: docs, note: "FTP/SFTP listed as a supported protocol"}
+  - {url: "https://ballerina.io/learn/supported-data-formats/", kind: docs, note: "CSV, TSV, XLSX, EDI and other file formats"}
+  - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central, note: "ftp README: typed get/put, content handlers, FTPS, CSV fail-safe"}
+  - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central, note: "smb README"}
+  - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe, note: "FTP, SFTP and SMB BBE categories"}
+  - {url: "https://ballerina.io/learn/by-example/directory-listener/", kind: bbe}
+must_cover:
+  - id: ftp_archive_listener
+    text: "Archive text files dropped on an FTP server: declare `listener ftp:Listener fileListener = check new ({host: ..., auth: {credentials: {...}}})`, attach a service with `@ftp:ServiceConfig {path: \"/home/in\", fileNamePattern: \"(.*).txt\"}` and implement `remote function onFileText(string note, ftp:FileInfo fileInfo)` that writes the content locally with `io:fileWriteString`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe}
+  - id: move_after_processing
+    text: "Move each handled file to a processed or failed folder with `@ftp:FunctionConfig {afterProcess: {moveTo: \"/home/processed\"}, afterError: {moveTo: \"/home/failed\"}}` (or `ftp:DELETE`) so it is not picked up again on the next poll, and log failures in `remote function onError(error err)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-service-receive-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/ftp-caller/", kind: bbe}
+  - id: sftp_key_listener
+    text: "Watch an SFTP directory by configuring the listener with `protocol: ftp:SFTP`, `port: 22` and `auth` holding both `credentials` and `privateKey: {path: ..., password: ...}`, keeping the same service and content handlers as for FTP"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/sftp-service-receive-file/", kind: bbe}
+  - id: ftps_secure_transfer
+    text: "Transfer files over FTPS with `protocol: ftp:FTPS` and `auth.secureSocket` holding `key` and `cert` keystore/truststore paths, `mode: ftp:EXPLICIT` (port 21) or `ftp:IMPLICIT` (port 990) and `dataChannelProtection: ftp:PRIVATE`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+  - id: acknowledge_with_caller
+    text: "Write an acknowledgement back to the server while processing by adding an `ftp:Caller caller` parameter to `onFileText(string note, ftp:FileInfo fileInfo, ftp:Caller caller)` and calling `caller->putText(fileInfo.pathDecoded, receipt, ftp:APPEND)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-caller/", kind: bbe}
+  - id: typed_json_xml_handlers
+    text: "Bind incoming `.json` and `.xml` files directly to record types with `remote function onFileJson(User content, ftp:FileInfo fileInfo)` and `onFileXml(Config content, ftp:FileInfo fileInfo)`, relying on extension-based routing to the matching handler"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+  - id: csv_to_database
+    text: "Load CSV files received over FTP into a database: bind rows with `remote function onFileCsv(Order[] rows, ftp:FileInfo fileInfo)`, build `sql:ParameterizedQuery[]` INSERT statements with a query expression and write them with `mysql:Client`'s `batchExecute`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+      - {url: "https://ballerina.io/learn/by-example/mysql-batch-execute-operation/", kind: bbe}
+  - id: large_csv_streaming
+    text: "Process large CSV or binary files without loading them fully by declaring `onFileCsv(stream<DataRow, error?> content, ftp:FileInfo fileInfo)` or `onFile(stream<byte[], error?> content, ...)`, iterating with `content.next()` and calling `content.close()`, and skip malformed rows with the listener's `csvFailSafe: {contentType: ftp:RAW_AND_METADATA}`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+  - id: client_upload_download
+    text: "Pull and push files with an `ftp:Client`: read with `getText`, `getJson`, `getXml` or `getCsv` (binding to the expected type, e.g. `CsvRecord[] records = check ftpClient->getCsv(path)`), write with `putText`, `putJson`, `putXml`, `putCsv` or `putBytes`, and manage files with `rename`, `delete`, `mkdir` and `list`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-read-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-write-file/", kind: bbe}
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+  - id: local_to_remote_transfer
+    text: "Copy a local file to a remote server by reading it with `io:fileReadString` (or streaming it with `io:fileReadBlocksAsStream` into `ftpClient->put(path, byteStream)`) and writing it with `ftpClient->putText`, and the reverse with `getText` plus `io:fileWriteString`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/ftp-client-write-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/sftp-client-read-file/", kind: bbe}
+      - {url: "https://central.ballerina.io/ballerina/ftp/latest", kind: central}
+  - id: smb_share_processing
+    text: "Process JSON reports dropped on a Windows/Samba share with `listener smb:Listener` (`host`, `share`, `auth.credentials` with `domain`, `pollingInterval`), `@smb:ServiceConfig {path: \"/sales/new\"}`, `remote function onFileJson(SalesReport report, smb:FileInfo fileInfo)` and `@smb:FunctionConfig {afterProcess: {moveTo: \"/sales/processed\"}}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-service-receive-file/", kind: bbe}
+  - id: smb_client_and_caller
+    text: "Write to an SMB share with `smb:Client` (`putText`, `putJson` of a record, `smb:APPEND`, `close()`), stream big files with `getCsvAsStream` or `getBytesAsStream`, and write acknowledgements from a listener handler through an `smb:Caller` parameter"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/smb-client-write-file/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/smb-caller/", kind: bbe}
+      - {url: "https://central.ballerina.io/ballerina/smb/latest", kind: central}
+  - id: local_directory_pipeline
+    text: "React to files in a local folder with `listener file:Listener inFolder = new ({path: ..., recursive: false})` and a service with `remote function onCreate(file:FileEvent m)` (plus `onModify`/`onDelete`), reading the new file named by `m.name` (e.g. with `io:fileReadCsv`) and archiving it with `@file:FunctionConfig {afterProcess: {moveTo: \"/data/archive\"}, afterError: {moveTo: \"/data/failed\"}}`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/directory-listener/", kind: bbe}
+      - {url: "https://central.ballerina.io/ballerina/file/latest", kind: central}
+  - id: local_csv_files
+    text: "Read and write local CSV files as typed records with `Employee[] rows = check io:fileReadCsv(path)`, `io:fileWriteCsv(path, rows)`, `io:fileReadCsvAsStream` and `io:fileWriteCsvFromStream`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/io-csv-datamapping/", kind: bbe}
+  - id: csv_parse_options
+    text: "Parse CSV content that arrives as bytes or a block stream with `csv:parseBytes` or `csv:parseStream(io:fileReadBlocksAsStream(path))` into records, projecting columns with a closed record such as `BookMinimal`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/csv-streams-to-record-array/", kind: bbe}
+  - id: edi_file_processing
+    text: "Process EDIFACT purchase orders received as files: read the text in `onFileText`, inspect the envelope with `edi:edifactHeadersFromEdiString` to route by message type, and parse with `mORDERS:fromEdiString(text)` from `ballerinax/edifact.d03a.supplychain.mORDERS`, or `mORDERS:interchangeFromEdiString` to iterate `interchange.transactions` and quarantine bodies that are `error`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/edi-to-record/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/edi-interchange-parsing/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/edi-envelope-headers/", kind: bbe}
+  - id: excel_over_sftp
+    text: "Enrich an Excel file held on SFTP: fetch it as bytes, open it with `xlsx:fromBytes`, read rows with `sheet.getRows()`, write them back with `sheet.putRows(orders)`, and upload `wb.toBytes()` with `putBytes`; for local files use `xlsx:parseSheet(path, \"Sheet\")` and `xlsx:writeSheet(records, path, \"Sheet\")`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xlsx/latest", kind: central, note: "Bytes in, bytes out example"}
+      - {url: "https://ballerina.io/learn/by-example/xlsx-to-records/", kind: bbe}
+  - id: zip_bundles
+    text: "Bundle outbound files with `zip:compress(\"resources/reports\", \"reports.zip\", {level: zip:BEST, overwrite: true})` before upload, and unpack received archives with `zip:listEntries` and `zip:decompress(\"reports.zip\", \"restored\", {fileWriteMode: zip:REPLACE})`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/zip-compress/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/zip-decompress/", kind: bbe}
+out_of_scope:
+  - "Full ftp, smb and file module API surface such as filters, coordination and error types (lib.ftp, lib.smb, lib.file)"
+  - "CSV parse option details (lib.data.csv) and EDI schema code generation (lib.edi, tool.bal_edi)"
+  - "Cloud object storage connectors such as S3 or Azure Files (connector.aws, connector.azure)"
+edges:
+  - {to: lib.ftp, rel: uses, via: [ftp_archive_listener, move_after_processing, sftp_key_listener, ftps_secure_transfer, acknowledge_with_caller, typed_json_xml_handlers, csv_to_database, large_csv_streaming, client_upload_download, local_to_remote_transfer, edi_file_processing, excel_over_sftp]}
+  - {to: lib.smb, rel: uses, via: [smb_share_processing, smb_client_and_caller]}
+  - {to: lib.file, rel: uses, via: [local_directory_pipeline]}
+  - {to: lib.io, rel: uses, via: [ftp_archive_listener, local_to_remote_transfer, local_directory_pipeline, local_csv_files, csv_parse_options]}
+  - {to: lib.data.csv, rel: uses, via: [csv_parse_options]}
+  - {to: lib.edi, rel: uses, via: [edi_file_processing]}
+  - {to: connector.b2b, rel: uses, via: [edi_file_processing]}
+  - {to: lib.xlsx, rel: uses, via: [excel_over_sftp]}
+  - {to: lib.zip, rel: uses, via: [zip_bundles]}
+  - {to: lib.sql, rel: uses, via: [csv_to_database]}
+  - {to: connector.mysql, rel: uses, via: [csv_to_database]}
+  - {to: concept.services_listeners, rel: uses, via: [ftp_archive_listener, sftp_key_listener, smb_share_processing, local_directory_pipeline]}
+  - {to: concept.annotations, rel: uses, via: [ftp_archive_listener, move_after_processing, smb_share_processing, local_directory_pipeline]}
+  - {to: concept.records, rel: uses, via: [typed_json_xml_handlers, csv_to_database, smb_share_processing, local_csv_files, csv_parse_options]}
+  - {to: concept.streams, rel: uses, via: [large_csv_streaming, smb_client_and_caller, local_csv_files]}
+  - {to: concept.query_expressions, rel: uses, via: [csv_to_database]}
+  - {to: concept.errors, rel: uses, via: [move_after_processing, edi_file_processing]}
+  - {to: topic.integration_patterns, rel: related}
+notes: "The ftp README's xlsx example calls `sftp->get(...)`/`sftp->put(...)` with bytes; the item uses the documented typed `getBytes`/`putBytes` instead. The CSV-to-database and ZIP-before-upload items combine documented APIs of separate modules; no single page shows them together. No ballerina.io integration tutorial covers file integration, so items come from BBEs and module READMEs."

@@ -1,0 +1,124 @@
+schema_version: "0.2"
+id: connector.azure
+type: connector
+title: ballerinax/azure.*
+summary: "The Microsoft Azure connectors: Blob Storage, Azure Files, the older combined Storage Service, Cosmos DB, Event Hubs, Key Vault, Azure AD, AI Search, Data Lake and other management/cognitive APIs, plus the `azure.functions` package for writing Azure Functions in Ballerina."
+priority: important
+status: draft
+modules: [ballerinax/azure.ad, ballerinax/azure.ai.search, ballerinax/azure.ai.search.index, ballerinax/azure.analysisservices, ballerinax/azure.anomalydetector, ballerinax/azure.datalake, ballerinax/azure.functions, ballerinax/azure.iotcentral, ballerinax/azure.iothub, ballerinax/azure.keyvault, ballerinax/azure.qnamaker, ballerinax/azure.sqldb, ballerinax/azure.storage.blob, ballerinax/azure.storage.files, ballerinax/azure.textanalytics, ballerinax/azure.timeseries, ballerinax/azure_cosmosdb, ballerinax/azure_eventhub, ballerinax/azure_storage_service]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/azure.storage.blob/latest", kind: central, note: "azure.storage.blob 1.0.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.storage.files/latest", kind: central, note: "azure.storage.files 1.2.0 README"}
+  - {url: "https://central.ballerina.io/ballerinax/azure_storage_service/latest", kind: central, note: "azure_storage_service 4.3.4"}
+  - {url: "https://central.ballerina.io/ballerinax/azure_cosmosdb/latest", kind: central, note: "azure_cosmosdb 4.5.0"}
+  - {url: "https://central.ballerina.io/ballerinax/azure_eventhub/latest", kind: central, note: "azure_eventhub 3.1.0"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.functions/latest", kind: central, note: "azure.functions 4.2.0: supported triggers and bindings"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.ai.search/latest", kind: central, note: "azure.ai.search 1.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/azure.ai.search.index/latest", kind: central, note: "azure.ai.search.index 1.0.2 README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated clients for azure.keyvault, datalake, sqldb, iothub, iotcentral, timeseries, anomalydetector, textanalytics, qnamaker, analysisservices"}
+  - {url: "https://ballerina.io/learn/by-example/azure-functions-hello-world/", kind: bbe, note: "Azure Functions BBE series (HTTP, queue, timer, Cosmos DB triggers)"}
+must_cover:
+  - id: blob_client_auth
+    text: "Create a container-bound `blob:Client` with `new (\"reports\", auth = {accountName, accountKey})`, or authenticate with a SAS token (`{accountName, sasToken}`), a SAS URL (`{sasUrl}`), a connection string (`{connectionString}`) or Microsoft Entra ID (`{kind: blob:DEFAULT_AZURE_CREDENTIAL, accountName}`, client secret, certificate or workload identity configs)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.storage.blob/blob/main/ballerina/types.bal", kind: github, note: "AuthConfig union"}
+  - id: blob_operations
+    text: "Manage containers with `blob:AdminClient` (`hasContainer`, `createContainer`, `listContainers`, `deleteContainer`) and blobs with `uploadFromFile`, `upload(record, \"2026/q1/metrics.json\")`, typed `getBlob`, `download`, `listBlobs({prefix})` as a `stream<blob:BlobEntry, blob:Error?>`, `copyBlob`, `deleteBlob`, `setAccessTier`, `setTags`/`findBlobsByTags` and `createSnapshot`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.storage.blob/blob/main/ballerina/client.bal", kind: github, note: "Blob client remote methods"}
+  - id: blob_sas_leases
+    text: "Generate time-limited links with `blobClient.generateSas(path, {expiryTime, permissions: {read: true}})`, `generateContainerSas` or `AdminClient.generateAccountSas`, and coordinate writers with `acquireLease`, `renewLease` and `releaseLease`; build blobs from parts with `stageBlock`/`commitBlockList`, `createAppendBlob`/`appendBlock` and `createPageBlob`/`uploadPages`"
+    difficulty: [advanced]
+  - id: blob_listener
+    text: "React to Event Grid blob events delivered to a storage queue with `listener blob:Listener` and a service annotated `@blob:ServiceConfig {queueName: \"report-events\"}` whose `remote function onBlobJson(Metric metric, blob:BlobEvent event, blob:Caller caller)` binds the blob to a record and uses the caller (e.g. `caller->setTags`)"
+    difficulty: [advanced]
+  - id: files_share
+    text: "Use `azure.storage.files`: create a share with `files:AdminClient` `createShare`, then on a share-bound `files:Client` call `createDirectory`, `uploadFromFile(\"./local/q1.pdf\", \"/q1.pdf\")`, `upload`, `getFile`, `download`, `getFileProperties`, `list`, `copyFile`, `renameFile`, `deleteFile` and `createShareSnapshot`"
+    difficulty: [beginner, intermediate]
+  - id: files_listener
+    text: "Process files dropped on a share with `listener files:Listener` (`new (shareName, auth = {...}, pollingInterval = 5)`), a service attached to a path (`service /incoming on dropListener`) with `onFileJson(Person person, files:FileInfo file, files:Caller caller)`, `onFile(byte[] content, ...)` and `onError`, and `@files:FunctionConfig {afterProcess: files:DELETE}` or `{afterProcess: {moveTo: \"/processed\"}}`"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.storage.files/blob/main/examples/drop-folder-processor/main.bal", kind: github, note: "Drop folder processor example"}
+  - id: storage_service_legacy
+    text: "Use the older `azure_storage_service` package: `azure_storage_service.blobs` (`azure_blobs:BlobClient` with `{accessKeyOrSAS, accountName, authorizationMethod: \"accessKey\"}`, `listContainers`, `listBlobs`, `putBlob(container, name, \"BlockBlob\", bytes)`, `getBlob`, `deleteBlob`) and `azure_storage_service.files` (`azure_files:FileClient` `getDirectoryList`, `createDirectory`, `directUpload`, `getFile`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure-storage-service/blob/main/ballerina/modules/blobs/Module.md", kind: github, note: "Blobs submodule quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure-storage-service/blob/main/ballerina/modules/files/Module.md", kind: github, note: "Files submodule quickstart"}
+  - id: cosmos_documents
+    text: "Import `ballerinax/azure_cosmosdb as cosmosdb`, create `cosmosdb:DataPlaneClient` with `{baseUrl, primaryKeyOrResourceToken}`, and call `createDocument(\"my_database\", \"my_container\", id, document, partitionKey)` with a `map<json>` document, `getDocument`, `replaceDocument`, `deleteDocument`, `getDocumentList` and `queryDocuments(db, container, sqlQuery)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure-cosmosdb/blob/main/ballerina/Module.md", kind: github, note: "Cosmos DB quickstart"}
+  - id: cosmos_management
+    text: "Administer Cosmos DB with `cosmosdb:ManagementClient`: `createDatabase`/`createDatabaseIfNotExist`, `createContainer(db, container, partitionKey)`, `listContainers`, `createUser`/`createPermission`, triggers and user-defined functions, and run server-side logic with `DataPlaneClient` `createStoredProcedure` and `executeStoredProcedure`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure-cosmosdb/blob/main/ballerina/management_endpoint.bal", kind: github, note: "ManagementClient remote methods"}
+  - id: eventhub_send
+    text: "Create an `azure_eventhub:Client` from `{sasKeyName, sasKey, resourceUri}` taken from the namespace connection string, send events with `send(eventHubPath, eventData, userProps, brokerProps, partitionKey = ...)` or `sendBatch`, and manage hubs with `createEventHub`, `listEventHubs`, `createConsumerGroup`, `listPartitions` and `revokePublisher`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.eventhub/blob/master/ballerina/Module.md", kind: github, note: "Event Hub quickstart"}
+  - id: keyvault_secrets
+    text: "Use the generated `keyvault:Client` (`new ({auth: {token}}, vaultUrl)` with an Azure AD bearer token) to `setSecret(name, apiVersion, payload)`, `getSecret(name, version, apiVersion)`, `getSecrets`, `deleteSecret`, and key operations such as `createKey`, `encrypt`, `decrypt`, `sign` and `verify`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.keyvault/client.bal", kind: github, note: "Key Vault client"}
+  - id: azure_ad_users_groups
+    text: "Manage Azure AD (Microsoft Graph) directory objects with `azure.ad` `Client` configured with an OAuth2 refresh token grant (`refreshUrl`, `refreshToken`, `clientId`, `clientSecret`): `createUser(info)` with a `NewUser` record, `getUser`, `listUsers`, `createGroup`, `addGroupMember` and `listGroupMembers`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.ad/blob/master/ballerina/Module.md", kind: github, note: "Azure AD quickstart"}
+  - id: ai_search
+    text: "Create an index with `azure.ai.search` (`azureSearch:Client` `indexesCreate(searchIndex, {\"api-key\": adminKey}, {api\\-version: \"2025-09-01\"})`) and query it with `azure.ai.search.index` (`index:Client` bound to `${serviceUrl}/indexes/${indexName}`, `documentsSearchGet(headers, search = ..., \\$count = true, \\$select = [...])`)"
+    difficulty: [intermediate]
+  - id: datalake_sqldb_analysis
+    text: "Call Azure management and storage REST APIs through generated clients that take an `http:BearerTokenConfig`: `azure.datalake` (`filesystemCreate`, `filesystemList`, `pathCreate`, `pathRead`, `pathUpdate`), `azure.sqldb` (`getManagedDatabases`, `createOrUpdateManagedDatabases`) and `azure.analysisservices` (`serversList`, `serversCreate`, `serversSuspend`, `serversResume`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.datalake/client.bal", kind: github, note: "Data Lake client"}
+  - id: iot_timeseries
+    text: "Manage IoT resources with `azure.iotcentral` (`devicesList`, `devicesCreate`, `devicesRuncommand`, `devicetemplatesList`), `azure.iothub` (`iothubresourceCreateorupdate`, `iothubresourceListkeys`, `iothubresourceExportdevices`) and `azure.timeseries` (`queryExecute`, `timeseriesinstancesList`)"
+    difficulty: [intermediate]
+  - id: cognitive_services
+    text: "Call Azure cognitive APIs with an `ApiKeysConfig` subscription key: `azure.textanalytics` (`sentiment`, `keyPhrases`, `entitiesRecognitionGeneral`, `languages`), `azure.anomalydetector` (`postTimeseriesEntireDetect`, `postTimeseriesLastDetect`, `postTimeseriesChangepointDetect`) and `azure.qnamaker` (`createKnowledgebase`, `publishKnowledgebase`, `downloadKnowledgebase`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/azure.textanalytics/client.bal", kind: github, note: "Text Analytics client and ApiKeysConfig"}
+  - id: functions_http_trigger
+    text: "Write an HTTP-triggered Azure Function with `ballerinax/azure.functions`: `service / on new functions:HttpListener()` with resource functions, returning multiple outputs as a tuple such as `[@functions:HttpOutput http:Created, @functions:QueueOutput {queueName: \"people\"} string]`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/azure-functions-http-trigger-with-queue/", kind: bbe, note: "HTTP trigger with queue output"}
+  - id: functions_event_triggers
+    text: "Bind non-HTTP triggers by annotating listeners: `@functions:TimerTrigger {schedule: \"*/10 * * * * *\"} listener functions:TimerListener` with `remote function onTrigger(functions:TimerMetadata metadata)`, `@functions:CosmosDBTrigger {connectionStringSetting, databaseName, collectionName}` with `functions:CosmosDBListener` and `onUpdate(DBEntry[] entries)`, plus `QueueTrigger`/`functions:QueueListener` and `BlobTrigger`/`functions:BlobListener`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/azure-functions-timer-trigger/", kind: bbe, note: "Timer trigger"}
+      - {url: "https://ballerina.io/learn/by-example/azure-functions-cosmosdb-trigger/", kind: bbe, note: "Cosmos DB trigger"}
+  - id: functions_bindings_deploy
+    text: "Use input/output bindings `@functions:BlobInput`, `@functions:BlobOutput`, `@functions:CosmosDBInput`, `@functions:CosmosDBOutput` and `@functions:TwilioSmsOutput`, then build with `bal build --cloud=\"azure_functions\"` and publish with `func azure functionapp publish <function_app_name> --script-root target/azure_functions` to a Java 21 Windows Function App"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-azure.functions/blob/master/ballerina/annotation.bal", kind: github, note: "Trigger and binding annotations"}
+      - {url: "https://ballerina.io/learn/by-example/azure-functions-hello-world/", kind: bbe, note: "Build and deploy commands"}
+out_of_scope:
+  - "Azure Service Bus (connector.asb)"
+  - "Azure OpenAI model providers (connector.ai_model_providers)"
+  - "Cloud build options and artifact generation (tool.code_to_cloud)"
+edges:
+  - {to: lib.http, rel: uses, via: [keyvault_secrets, datalake_sqldb_analysis, functions_http_trigger]}
+  - {to: lib.oauth2, rel: uses, via: [azure_ad_users_groups]}
+  - {to: concept.client_objects, rel: uses, via: [blob_operations, files_share, cosmos_documents, eventhub_send]}
+  - {to: concept.services_listeners, rel: uses, via: [blob_listener, files_listener, functions_http_trigger, functions_event_triggers]}
+  - {to: concept.resource_methods, rel: uses, via: [functions_http_trigger]}
+  - {to: concept.annotations, rel: uses, via: [functions_event_triggers, functions_bindings_deploy, files_listener]}
+  - {to: concept.streams, rel: uses, via: [blob_operations]}
+  - {to: concept.records, rel: uses, via: [blob_client_auth, cosmos_documents]}
+  - {to: concept.errors, rel: uses, via: [blob_operations]}
+  - {to: tool.code_to_cloud, rel: uses, via: [functions_bindings_deploy]}
+notes: "Generated (openapi-connectors) client method names were read from the repo's main branch and may differ slightly from the 1.5.x Central releases. Event Hub receive/consume is not in the azure_eventhub REST connector. Blob listener handler names other than onBlobJson were not confirmed from the README and are left out."

@@ -15,6 +15,8 @@ must_cover:
   - id: char_type
     text: "Use the built-in subtype `string:Char` for single-character strings, e.g. as the type of `padChar` and of `toCodePointInt`'s parameter"
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/built-in-string-subtype/", kind: bbe}
   - id: concat_join
     text: "Combine strings with `string:concat(...strs)` (empty string for no arguments) and `string:'join(separator, ...strs)` (separator placed between the strings)"
     difficulty: [beginner]
@@ -39,6 +41,8 @@ must_cover:
   - id: code_points
     text: "Convert between strings and code points with `getCodePoint(index)`, `toCodePointInts()`, `toCodePointInt(ch)`, `fromCodePointInts(ints)` and `fromCodePointInt(cp)`, where the `from` functions return an error for an invalid code point (outside 0 to 0x10FFFF or in the surrogate range 0xD800 to 0xDFFF)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/built-in-string-subtype/", kind: bbe}
   - id: utf8_bytes
     text: "Encode a string to UTF-8 with `toBytes()` returning `byte[]` and decode with `string:fromBytes(bytes)`, which returns `string|error`"
     difficulty: [beginner, intermediate]

@@ -1,0 +1,64 @@
+schema_version: "0.2"
+id: lib.authzen
+type: library
+title: ballerina/authzen
+summary: "A client for OpenID AuthZEN Authorization API 1.0 Policy Decision Points that lets an integration act as a Policy Enforcement Point: evaluate single or batched access requests, search subjects, resources and actions, and read PDP metadata."
+priority: long_tail
+status: draft
+modules: [ballerina/authzen]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/authzen/latest", kind: central, note: "ballerina/authzen 1.0.1 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/tree/main/ballerina", kind: github, note: "client.bal and types.bal"}
+must_cover:
+  - id: client_init
+    text: "Create an `authzen:Client` with the PDP URL (its `policy_decision_point` identifier, e.g. `https://pdp.example.com` or `https://pdp.example.com/tenant1`) and OAuth 2.0 client credentials: `check new (pdpUrl, auth = {tokenUrl, clientId, clientSecret})`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/authzen/latest", kind: central, note: "Quickstart Step 2"}
+  - id: auth_options
+    text: "Authenticate to the PDP with `auth = {token: accessToken}` (Bearer), an `authzen:ApiKeyConfig` such as `{apiKey: \"<key>\", headerName: \"x-api-key\"}`, Basic auth or a self-signed JWT (`http:ClientAuthConfig`), mutual TLS via `secureSocket`, or no `auth` for an unauthenticated PDP"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/client.bal", kind: github, note: "ApiKeyConfig and ConnectionConfig.auth"}
+  - id: evaluate
+    text: "Ask for a decision with `authzen:Decision result = check pdp->evaluate({subject: {'type: \"user\", id: \"alice@example.com\"}, action: {name: \"can_read\"}, 'resource: {'type: \"document\", id: \"123\"}});` and enforce `result.decision`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/authzen/latest", kind: central, note: "Quickstart Step 3"}
+  - id: deny_not_error
+    text: "Treat a denied access as `decision: false` rather than an error, and handle the `error` returned only when the PDP cannot evaluate the request or cannot be reached"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/authzen/latest", kind: central, note: "Key features"}
+  - id: evaluate_batch
+    text: "Evaluate many requests in one call with `pdp->evaluateBatch({subject: ..., evaluations: [...], options: {evaluationsSemantic: \"deny_on_first_deny\"}})`, where top-level members are defaults each `authzen:BatchEvaluationItem` may override, and read `evaluations` in request order (`execute_all`, `deny_on_first_deny`, `permit_on_first_permit`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/types.bal", kind: github, note: "BatchEvaluationRequest, BatchEvaluationOptions, BatchEvaluationResponse"}
+  - id: search_apis
+    text: "Find who may act with `pdp->searchSubjects`, what a subject may access with `pdp->searchResources` and what a subject may do with `pdp->searchActions`, reading `results` from the response"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/authzen/latest", kind: central, note: "Key features"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/client.bal", kind: github}
+  - id: paging
+    text: "Page through search results by sending `page: {token: nextToken, 'limit: 10}` with the request otherwise unchanged until `page.nextToken` in the response is empty or absent"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/types.bal", kind: github, note: "PageRequest, PageResponse"}
+  - id: metadata_discovery
+    text: "Read PDP metadata from `/.well-known/authzen-configuration` with `pdp->getMetadata()`, and set `discoverEndpoints = true` on the client so each request goes to the endpoint the PDP advertises"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/client.bal", kind: github, note: "getMetadata; ConnectionConfig.discoverEndpoints"}
+  - id: request_id
+    text: "Correlate calls by passing `authzen:RequestHeaders` `{requestId: \"...\"}` as the second argument, sent as the `X-Request-ID` header"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-authzen/blob/main/ballerina/client.bal", kind: github, note: "RequestHeaders"}
+edges:
+  - {to: concept.client_objects, rel: uses, via: [evaluate, evaluate_batch, search_apis]}
+  - {to: lib.http, rel: uses, via: [auth_options]}
+  - {to: lib.oauth2, rel: uses, via: [client_init, auth_options]}
+  - {to: concept.records, rel: uses, via: [evaluate, evaluate_batch]}
+notes: "API names checked against the main-branch source (Ballerina.toml 1.0.1, same as Central). The PDPs named in the README (Cerbos, Topaz, OPA, OpenFGA, WSO2 Identity Server, ...) are not modelled."

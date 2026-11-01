@@ -80,6 +80,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/grpc-service-basic-auth-file-user-store/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/grpc-service-jwt-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/grpc-service-oauth2/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-basic-auth-ldap-user-store/", kind: bbe}
   - id: client_auth
     text: "Authenticate gRPC client calls with the `auth` config of the generated client: Basic, bearer token, self-signed JWT and OAuth2 client credentials, password, refresh token and JWT bearer grants"
     difficulty: [intermediate]
@@ -88,6 +89,9 @@ must_cover:
       - {url: "https://ballerina.io/learn/by-example/grpc-client-bearer-token-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/grpc-client-self-signed-jwt-auth/", kind: bbe}
       - {url: "https://ballerina.io/learn/by-example/grpc-client-oauth2-client-credentials-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-oauth2-password-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-oauth2-refresh-token-grant-type/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-oauth2-jwt-bearer-grant-type/", kind: bbe}
   - id: retry_compression
     text: "Configure client retries with `retryConfiguration: {retryCount, interval, maxInterval, backoffFactor, errorTypes}` and request gzip compression by adding headers from `grpc:setCompression()`"
     difficulty: [advanced]

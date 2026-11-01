@@ -1,0 +1,67 @@
+schema_version: "0.2"
+id: connector.area_marketing_social_media
+type: connector
+title: "Marketing & Social Media connectors"
+summary: "Clients for marketing automation, email, analytics and social platforms: Twitter (X), Mailchimp Marketing and Transactional, RudderStack, and generated connectors for ActiveCampaign, Constant Contact, Eloqua, Eventbrite, Facebook Ads, Instagram, DEV, Botify, RiteKit, Shorten.REST and Tableau."
+priority: long_tail
+status: draft
+modules: [ballerinax/activecampaign, ballerinax/botify, ballerinax/constantcontact, ballerinax/dev.to, ballerinax/eloqua, ballerinax/eventbrite, ballerinax/facebook.ads, ballerinax/instagram, ballerinax/instagram.bussiness, ballerinax/mailchimp, ballerinax/mailchimp.marketing, ballerinax/mailchimp.transactional, ballerinax/ritekit, ballerinax/rudderstack, ballerinax/shorten.rest, ballerinax/tableau, ballerinax/twitter]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/twitter/latest", kind: central, note: "twitter 5.0.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/mailchimp.transactional/latest", kind: central, note: "mailchimp.transactional 1.0.2 README"}
+  - {url: "https://central.ballerina.io/ballerinax/rudderstack/latest", kind: central, note: "rudderstack 1.0.2 README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated clients for the remaining packages"}
+must_cover:
+  - id: twitter_client
+    text: "Create a `twitter:Client` with `new ({auth: {token}})` (bearer token, or an OAuth2 refresh-token config) and post with `twitter->/tweets.post(payload = {text: \"This is a sample tweet\"})` returning `twitter:TweetCreateResponse`"
+    difficulty: [beginner]
+  - id: twitter_read
+    text: "Read data with Twitter resource methods such as `->/users/me`, `->/users/'by/username/[username]`, `->/tweets/search/recent(query = ...)` and `->/tweets/[id]/retweets`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-twitter/blob/main/ballerina/client.bal", kind: github, note: "Resource paths"}
+  - id: twitter_dm_lists
+    text: "Send direct messages with `->/dm_conversations/with/[participantId]/messages.post` and manage lists with `->/lists.post` and `->/lists/[id]/members.post`"
+    difficulty: [intermediate]
+  - id: mailchimp_marketing
+    text: "Use the `mailchimp.marketing` client with basic auth `new ({auth: {username, password: mailchimpApiKey}})` to add a subscriber with `->/lists/[listId]/members.post({emailAddress, status: \"subscribed\"})`, read it with `->/lists/[listId]/members/[memberId].get()`, list audiences with `->/lists`, and send campaigns with `->/campaigns/[campaignId]/actions/send.post`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-mailchimp.marketing/tree/main/examples/add_subscriber", kind: github, note: "add_subscriber example"}
+  - id: mailchimp_transactional
+    text: "Send transactional email with `mailchimp.transactional` (imported as `ballerinax/mailchimp.'transactional as mailchimp`): `new ({}, serverUrl)`, then `->/messages/send.post({key, message: {fromEmail, to: [{email}], subject, text}})` returning `InlineResponse20028[]`, or `->/messages/send\\-template.post` and `->/templates/add.post`"
+    difficulty: [beginner, intermediate]
+  - id: mailchimp_legacy
+    text: "Use the older generated `mailchimp` client (basic `http:CredentialsConfig` auth) remote methods such as `getAutomations`, `postAutomations` and `postAutomationsIdActionsStartAllEmails`"
+    difficulty: [intermediate]
+  - id: rudderstack_events
+    text: "Send customer events with `rudderstack:Client` created as `new ({auth: {writeKey, serviceAccessToken}}, serviceUrl = dataPlaneUrl)` (optionally `region: rudderstack:EU`): `track({userId, event: \"Order Completed\", properties})`, `identify`, `page`, `screen`, `group`, `alias` and `batch`"
+    difficulty: [beginner, intermediate]
+  - id: rudderstack_profiles
+    text: "Read RudderStack profiles with `getProfile({entity: \"user\", destinationId, id: {'type: \"user_id\", value}})` or `getProfiles`, delete with `deleteProfile`/`deleteProfiles`, and run a Profiles project with `startProfilesRun` then poll `getProfilesRunStatus`"
+    difficulty: [advanced]
+  - id: email_marketing_platforms
+    text: "Manage contacts and lists in email platforms: `activecampaign` (`ApiKeysConfig {apiToken}` plus account `serviceUrl`; `getContacts`, `createContact`, `createAccount`), `constantcontact` (bearer or refresh-token OAuth2; `bulkImportContactsJSON`, `contactsCSVImport`, `postContactsExport`) and `eloqua` (bearer; `postSyncIndividual` for import/export syncs)"
+    difficulty: [intermediate]
+  - id: social_ads
+    text: "Manage ads with `facebook.ads` (`ApiKeysConfig {accessToken}`; `getCampaigns`, `createCampaign`, `createAdSet`, `createAd`) and read Instagram data with `instagram` (`getUserMedia`, `getMedia`, `getMyFields`) or `instagram.bussiness` (bearer/OAuth2; `getMediaInsights`, `getUserInsights`, `searchHashtag`, `createComment`)"
+    difficulty: [intermediate]
+  - id: events_and_content
+    text: "Create and publish events with `eventbrite` (bearer token; `createEvent`, `publishEvent`, `createTicketClass`, `listOrdersByEvent`) and articles with `dev.to` (`ApiKeysConfig {apiKey}`; `createArticle`, `getArticles`, `updateArticle`)"
+    difficulty: [intermediate]
+  - id: seo_and_links
+    text: "Use the utility clients `botify` (`getProjectAnalyses`, `getCrawlStatistics`, `getUrls`), `ritekit` (`ApiKeysConfig {clientId}`; `hashtagSuggestions`, `trendingHashtags`, `autoHashtag`, `shortenLink`) and `shorten.rest` (`ApiKeysConfig {xApiKey}`; `createAlias`, `getAlias`, `getClicks`)"
+    difficulty: [intermediate]
+  - id: tableau
+    text: "Manage Tableau analytics and dashboard extension settings with `tableau:Client` (`new ({}, serviceUrl)`), e.g. `analyticsextensionsserviceGetanalyticsextensionssitesettings` and `dashboardextensionssitesettingsserviceGetdashboardextensionssitesettings`"
+    difficulty: [advanced]
+out_of_scope:
+  - "HubSpot and Salesforce marketing packages (connector.hubspot, connector.salesforce)"
+edges:
+  - {to: lib.http, rel: uses, via: [twitter_client, mailchimp_transactional, email_marketing_platforms]}
+  - {to: lib.oauth2, rel: uses, via: [twitter_client, email_marketing_platforms]}
+  - {to: lib.auth, rel: uses, via: [mailchimp_marketing, mailchimp_legacy], note: "Basic auth via http:CredentialsConfig"}
+  - {to: concept.client_objects, rel: uses, via: [twitter_client, rudderstack_events]}
+  - {to: concept.resource_methods, rel: uses, via: [twitter_read, mailchimp_marketing, mailchimp_transactional]}
+  - {to: concept.records, rel: uses, via: [rudderstack_events, mailchimp_marketing]}
+notes: "twitter, mailchimp.marketing, mailchimp.transactional and rudderstack have full READMEs; the rest are openapi-connectors packages (1 pull each) whose names and auth come from openapi-connectors main. The mailchimp.marketing README quickstart shows no client code, so the init comes from its add_subscriber example. Tableau's generated client covers only analytics/dashboard extension settings."

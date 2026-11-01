@@ -1,0 +1,123 @@
+schema_version: "0.2"
+id: connector.health_fhir_igs
+type: connector
+title: ballerinax/health.fhir.r4.* guides
+summary: "FHIR R4 implementation-guide packages: typed profile records for US Core, AU Base/Core, Belgian, CARIN BB, Da Vinci, IHE PDQm, IPS, Sri Lanka and Danish MedCom guides, plus the IPS bundle builder, Da Vinci PDex operation hooks and the FHIR role-based authorization library."
+priority: long_tail
+status: draft
+modules:
+  - ballerinax/health.fhir.r4.aubase410
+  - ballerinax/health.fhir.r4.aubase421
+  - ballerinax/health.fhir.r4.aucore040
+  - ballerinax/health.fhir.r4.authz
+  - ballerinax/health.fhir.r4.be.allergy100
+  - ballerinax/health.fhir.r4.be.clinical100
+  - ballerinax/health.fhir.r4.be.core200
+  - ballerinax/health.fhir.r4.be.lab100
+  - ballerinax/health.fhir.r4.be.medication100
+  - ballerinax/health.fhir.r4.be.mycarenet200
+  - ballerinax/health.fhir.r4.be.vaccination100
+  - ballerinax/health.fhir.r4.carinbb200
+  - ballerinax/health.fhir.r4.davincicrd210
+  - ballerinax/health.fhir.r4.davincidrugformulary210
+  - ballerinax/health.fhir.r4.davincidtr210
+  - ballerinax/health.fhir.r4.davincihrex100
+  - ballerinax/health.fhir.r4.davincipas
+  - ballerinax/health.fhir.r4.davincipdex220
+  - ballerinax/health.fhir.r4.davinciplannet120
+  - ballerinax/health.fhir.r4.ihe.pdqm320
+  - ballerinax/health.fhir.r4.ips
+  - ballerinax/health.fhir.r4.lkcore010
+  - ballerinax/health.fhir.r4.medcom240
+  - ballerinax/health.fhir.r4.uscore311
+  - ballerinax/health.fhir.r4.uscore400
+  - ballerinax/health.fhir.r4.uscore501
+  - ballerinax/health.fhir.r4.uscore610
+  - ballerinax/health.fhir.r4.uscore700
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.uscore501/latest", kind: central, note: "US Core 5.0.1 package README with parse and serialize samples"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-health.fhir.r4", kind: github, note: "Source of the IG packages (uscore, au, belgiumfederal, davinci*, ihe, ips, lkcore010, dk, utils/authz)"}
+  - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/working-with-fhir-igs", kind: github, note: "AU Core and MedCom IG samples"}
+must_cover:
+  - id: ig_profile_parse
+    text: "Parse a FHIR JSON payload into an IG profile record by passing the profile type to the core parser, e.g. `uscore501:USCorePatientProfile p = check parser:parse(payload, uscore501:USCorePatientProfile).ensureType();` or `pdqm320:PDQmPatient` from `health.fhir.r4.ihe.pdqm320`"
+    difficulty: [beginner, intermediate]
+  - id: ig_profile_build
+    text: "Build an IG-conformant resource from typed records and the package constants, e.g. a `uscore501:USCorePatientProfile` with `meta: {profile: [uscore501:PROFILE_BASE_USCOREPATIENTPROFILE]}`, `gender: uscore501:CODE_GENDER_MALE` and `use: uscore501:CODE_USE_OFFICIAL`, then serialize it with `r4:FHIRResourceEntity` and `toJson()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.uscore501/latest", kind: central, note: "Creating FHIR resource models and serializing"}
+  - id: us_core_versions
+    text: "Pick the US Core version package that matches the target server: `health.fhir.r4.uscore311`, `health.fhir.r4.uscore400`, `health.fhir.r4.uscore501`, `health.fhir.r4.uscore610` or `health.fhir.r4.uscore700`, each with profiles such as `USCorePatientProfile`, `USCoreEncounterProfile`, `USCoreDocumentReferenceProfile` and (6.1.0+) `USCoreCoverageProfile`"
+    difficulty: [beginner]
+  - id: australian_igs
+    text: "Model Australian data with `health.fhir.r4.aubase410` / `health.fhir.r4.aubase421` (AU Base: `AUBasePatient`, `AUBaseMedicationRequest`, `AUBasePathologyResult`, `AUBasePractitioner`) and `health.fhir.r4.aucore040` (AU Core: `AUCorePatient`, `AUCoreImmunization`, `AUCoreEncounter`, `AUCoreBloodPressure`), e.g. mapping a custom patient record to `aucore040:AUCorePatient`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.aucore040/latest", kind: central, note: "AU Core 0.4.0 profiles"}
+  - id: belgian_core_clinical
+    text: "Use the Belgian eHealth guides `health.fhir.r4.be.core200` (`BePatient`, `BePractitioner`, `BeOrganization`, `BeDocumentReference`), `health.fhir.r4.be.clinical100` (`BeProblem`, `BeObservation`, `BeScoreResult`) and `health.fhir.r4.be.lab100` (`BeLaboratoryReport`, `BeObservationLaboratory`, `BeSpecimenLaboratory`)"
+    difficulty: [intermediate]
+  - id: belgian_other
+    text: "Use the single-purpose Belgian packages `health.fhir.r4.be.allergy100` (`BeAllergyIntolerance`), `health.fhir.r4.be.medication100` (`BeMedicationDispense`), `health.fhir.r4.be.vaccination100` (`BeVaccination`) and `health.fhir.r4.be.mycarenet200` (`BeMyCareNetMessageHeader`, `BeMyCareNetEagreementClaim`, `BeMyCareNetEagreementServiceRequest`)"
+    difficulty: [intermediate]
+  - id: carin_bb
+    text: "Represent payer claims data with `health.fhir.r4.carinbb200` (CARIN Blue Button: `C4BBExplanationOfBenefit` and its `Inpatient`/`Outpatient`/`Pharmacy`/`Oral`/`ProfessionalNonClinician` variants, `C4BBPatient`, `C4BBCoverage`, `C4BBOrganization`)"
+    difficulty: [intermediate]
+  - id: davinci_crd_dtr
+    text: "Model Da Vinci prior-authorization workflows with `health.fhir.r4.davincicrd210` (Coverage Requirements Discovery: `CRDPatient`, `CRDServiceRequest`, `CRDCoverage`, `CRDMedicationRequest`) and `health.fhir.r4.davincidtr210` (Documentation Templates and Rules: `DTRStdQuestionnaire`, `DTRQuestionnairePackageInputParameters`, `DTRQuestionnairePackageOutputParameters`)"
+    difficulty: [advanced]
+  - id: davinci_pas_hrex
+    text: "Model Da Vinci Prior Authorization Support with `health.fhir.r4.davincipas` (`PASClaim`, `PASClaimResponse`, `PASBeneficiary`, `PASInsurer`, `PASClaimInquiry`) and member matching with `health.fhir.r4.davincihrex100` (`HRexMemberMatchRequestParameters`, `HRexMemberMatchResponseParameters`, `HRexCoverage`, `HRexConsent`)"
+    difficulty: [advanced]
+  - id: davinci_formulary_plannet
+    text: "Publish payer directories and formularies with `health.fhir.r4.davincidrugformulary210` (`FormularyDrug`, `FormularyItem`, `PayerInsurancePlan`, `InsurancePlanLocation`) and `health.fhir.r4.davinciplannet120` (Plan-Net: `PlannetNetwork`, `PlannetPractitioner`, `PlannetPractitionerRole`, `PlannetEndpoint`, `PlannetHealthcareService`)"
+    difficulty: [intermediate]
+  - id: davinci_pdex_operations
+    text: "Implement Da Vinci PDex 2.2.0 operations from `health.fhir.r4.davincipdex220`: a class with `*davincipdex220:BulkMemberMatcher` whose `matchMembers(davincipdex220:BulkMemberMatchResources)` returns `davincipdex220:BulkMemberMatchResult|r4:FHIRError` (`Group/$bulk-member-match`), and a `*davincipdex220:DaVinciDataExporter` whose `initiateExport(groupId, davincipdex220:DataExportParameters)` returns a `davincipdex220:DataExportJob` (`Group/[id]/$davinci-data-export`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.davincipdex220/latest", kind: central, note: "PDex operation object types"}
+  - id: ihe_pdqm
+    text: "Build IHE Patient Demographics Query for Mobile payloads with `health.fhir.r4.ihe.pdqm320` records (`PDQmPatient`, `MatchParametersIn`, and audit profiles such as `AuditPdqmQueryConsumer`/`AuditPdqmQuerySupplier`)"
+    difficulty: [intermediate]
+  - id: ips_bundle
+    text: "Build an International Patient Summary with `health.fhir.r4.ips`: `r4:Bundle|error b = ips:getIpsBundle(check bundleJson.cloneWithType(r4:Bundle));` (also accepts an `IpsData` record), using IPS profile records such as `ips:CompositionUvIps`, `ips:ConditionUvIps` and `ips:MedicationStatementIPS`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.ips/latest", kind: central, note: "IPS sample usage"}
+  - id: ips_custom_generation
+    text: "Override IPS generation by writing `isolated function (string patientId, ips:IPSContext context) returns r4:Bundle|error` and registering it with `ips:registerCustomGenerateIps(generateIpsCustomImpl)`"
+    difficulty: [advanced]
+  - id: ips_summary_operation
+    text: "Expose `Patient/[id]/$summary` on a FHIR service by adding a `summary` operation to the API config with `additionalProperties: {ipsSectionConfig: [{sectionName: ips:PROBLEMS, sectionTitle: \"Active Problems\", resources: [{resourceType: \"Condition\"}]}], ipsMetaData: {authors: [\"Organization/50\"]}}`; without `ipsSectionConfig` the default mandatory IPS sections are used"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/generate-ips", kind: github, note: "IPS generation via $summary"}
+  - id: sri_lanka_core
+    text: "Model Sri Lankan public-health data with `health.fhir.r4.lkcore010` records (`LKCorePatient`, `LKCorePractitioner`, `LKCoreLocation`, `HHIMSPatient`, `BloodPressure`, `GenericServiceRequest`, `Prescriptions`)"
+    difficulty: [intermediate]
+  - id: danish_medcom
+    text: "Produce Danish MedCom Core 2.4.0 resources with `health.fhir.r4.medcom240` (`MedComCorePatient`, `MedComCoreEncounter`, `MedComCorePractitioner`, `MedComCoreOrganization`, `MedComCoreObservation`), e.g. in a service that converts an HL7 v2 ADT^A01 message into a bundle of MedCom-profiled Patient and Encounter resources"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/working-with-fhir-igs", kind: github, note: "hl7v2-to-dk-medcom sample"}
+  - id: authz_default
+    text: "Authorize FHIR API access by role with `health.fhir.r4.authz`: `r4:AuthzResponse res = authz:authorize(authzRequest);` performs cascading patient (JWT `patient` claim matches requested `patientId`), practitioner and privileged-user checks, and returns `isAuthorized` and a `scope`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/health.fhir.r4.authz/latest", kind: central, note: "Authorization flow and API"}
+  - id: authz_custom
+    text: "Customize authorization with `authz:AuthzConfig {patientIdClaim: \"sub\", practitionerIdClaim: \"doctor_id\", authorizePractitioner: fn, authorizePrivilegedUser: fn}`, where the practitioner function `(string patientId, string practitionerId) returns r4:AuthzResponse` returns `{isAuthorized: true, scope: r4:PRACTITIONER}` and the privileged-user function reads claims with `authz:getClaimValue(claimName, authzRequest)`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Parser, validator and base types themselves (connector.health_fhir)"
+  - "Generating an IG package for a guide that has none (tool.bal_health)"
+edges:
+  - {to: connector.health_fhir, rel: part_of}
+  - {to: connector.health_fhir, rel: uses, via: [ig_profile_parse, ig_profile_build, ips_bundle], target_items: [parse_resource, serialize_resource, r4_base_types]}
+  - {to: concept.records, rel: uses, via: [ig_profile_build, us_core_versions, carin_bb]}
+  - {to: concept.objects, rel: uses, via: [davinci_pdex_operations]}
+  - {to: concept.function_values, rel: uses, via: [ips_custom_generation, authz_custom]}
+  - {to: lib.jwt, rel: uses, via: [authz_default, authz_custom]}
+notes: "Profile record names are taken from each package's Central README resource table. The IPS `$summary` configuration comes from the healthcare-samples generate-ips sample (it runs inside the `health.fhirr4` service). Only names listed in READMEs are used; no per-IG operations beyond PDex/IPS/authz were found documented."

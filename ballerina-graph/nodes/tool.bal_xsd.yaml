@@ -1,0 +1,65 @@
+schema_version: "0.2"
+id: tool.bal_xsd
+type: tool
+title: bal xsd
+summary: "The `bal xsd` CLI tool (pulled from Ballerina Central) generates Ballerina record types from an XML Schema Definition (XSD) file into a `types.bal` file of the current package, mapping XSD constructs to records, enums and `ballerina/data.xmldata` annotations."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/xsd-tool/", kind: docs, note: XSD tool}
+  - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: "xsd-tools README (supported XSD features table)"}
+must_cover:
+  - id: install_tool
+    text: "Install the XSD tool from Ballerina Central (`ballerina/xsdtool`) with `bal tool pull xsd` before running the `bal xsd` command"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/xsdtool/latest", kind: central}
+  - id: generate_types
+    text: "Generate record types for every element of a schema with `bal xsd sample.xsd`, run inside a Ballerina package (it is mandatory), which writes `types.bal` to the default module and prints `The 'types.bal' file is written to the default module`"
+    difficulty: [beginner]
+  - id: module_option
+    text: "Generate the types into a submodule with `bal xsd sample.xsd --module custom` (`-m`), which writes `modules/custom/types.bal` and prints `The 'types.bal' file is written to 'modules/custom'`"
+    difficulty: [beginner, intermediate]
+  - id: complex_simple_types
+    text: "Read how XSD types map to Ballerina: `xs:complexType` becomes a record type, `xs:element` a record field, `xs:simpleType` a type alias, `xs:extension` a record extension and `xs:restriction` a constrained type"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+  - id: sequence_choice_all
+    text: "Read the records generated for element groups: `xs:sequence` becomes a sequence record annotated with `@xmldata:Sequence`, `xs:choice` a choice record annotated with `@xmldata:Choice`, and `xs:all` a record holding all the fields"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+  - id: attributes
+    text: "Read how attributes are generated: each `xs:attribute` becomes a field annotated with `@xmldata:Attribute`, and an `xs:attributeGroup` is expanded inline as attribute fields"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+  - id: enumerations
+    text: "Get a Ballerina `enum` for an `xs:enumeration` restriction in the schema"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+  - id: any_wildcard
+    text: "Read the field generated for an `xs:any` wildcard: an `@xmldata:Any`-annotated field of type `anydata` or of a union of the known element or complex-type records"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+  - id: include_files
+    text: "Generate types from a schema split across files with `xs:include`, which the tool processes as multiple files"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/xsd-tools", kind: github, note: Supported XSD Features}
+out_of_scope:
+  - "Parsing XML into the generated records and the `xmldata` annotations themselves (lib.data.xmldata)"
+  - "Generating SOAP clients from WSDL (tool.bal_wsdl)"
+  - "Managing CLI tools with `bal tool` (tool.bal_tool)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.bal_tool, rel: uses, via: [install_tool]}
+  - {to: lib.data.xmldata, rel: uses, via: [sequence_choice_all, attributes, any_wildcard]}
+  - {to: concept.records, rel: uses, via: [complex_simple_types, sequence_choice_all]}
+  - {to: concept.xml, rel: uses, via: [generate_types]}
+  - {to: concept.constants_enums, rel: uses, via: [enumerations]}
+  - {to: tool.packages, rel: uses, via: [module_option]}
+notes: "The README's feature table gives only the mapping (no generated-code samples), so items describe the mapping rather than exact generated record shapes. Neither source documents a way to use the generated types with `xmldata:parseString`; that is left to lib.data.xmldata."

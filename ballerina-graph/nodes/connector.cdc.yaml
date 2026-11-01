@@ -5,7 +5,7 @@ title: ballerinax/cdc
 summary: "The change data capture (CDC) library, built on Debezium: database-specific CDC listeners (`mysql:CdcListener`, `postgresql:CdcListener`, `mssql:CdcListener`, `oracledb:CdcListener`) deliver insert, update and delete events to `cdc:Service` remote methods."
 priority: long_tail
 status: draft
-modules: [ballerinax/cdc, ballerinax/mysql.cdc.driver, ballerinax/postgresql.cdc.driver, ballerinax/mssql.cdc.driver, ballerinax/oracledb.cdc.driver]
+modules: [ballerinax/cdc, ballerinax/mysql.cdc.driver, ballerinax/postgresql.cdc.driver, ballerinax/mssql.cdc.driver, ballerinax/oracledb.cdc.driver, ballerinax/cdc.schema.aws.s3.driver, ballerinax/cdc.schema.azure.blob.driver, ballerinax/cdc.schema.rocketmq.driver]
 sources:
   - {url: "https://central.ballerina.io/ballerinax/cdc/latest", kind: central, note: "ballerinax/cdc 1.4.1 package docs"}
   - {url: "https://github.com/ballerina-platform/module-ballerinax-cdc/blob/main/ballerina/README.md", kind: github, note: "Module README (quickstart)"}
@@ -53,6 +53,14 @@ must_cover:
   - id: offset_schema_storage
     text: "Choose where the listener stores offsets and schema history with `offsetStorage` (`cdc:FileOffsetStorage` default `tmp/debezium-offsets.dat`, `KafkaOffsetStorage`, `MemoryOffsetStorage`, `JdbcOffsetStorage`, `RedisOffsetStorage`) and `internalSchemaStorage` (file, Kafka, memory, JDBC, Redis, Amazon S3, Azure Blob, RocketMQ), so processing resumes after a restart"
     difficulty: [advanced]
+  - id: schema_history_cloud_drivers
+    text: "Keep schema history in Amazon S3, Azure Blob Storage or RocketMQ by setting the listener's `internalSchemaStorage` to `cdc:AmazonS3InternalSchemaStorage` (`bucketName`, `objectName`, optional `region`, `accessKeyId`, `secretAccessKey`, and `endpoint`/`forcePathStyle` for S3-compatible stores such as MinIO), `cdc:AzureBlobInternalSchemaStorage` (`connectionString`, `containerName`, optional `accountName`, `blobName`) or `cdc:RocketMQInternalSchemaStorage` (`topicName`, `nameServerAddress`, `aclEnabled`, `accessKey`, `secretKey`), and import the matching driver package once: `import ballerinax/cdc.schema.aws.s3.driver as _;`, `cdc.schema.azure.blob.driver` or `cdc.schema.rocketmq.driver`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/cdc/latest", kind: central, note: "AmazonS3InternalSchemaStorage, AzureBlobInternalSchemaStorage, RocketMQInternalSchemaStorage"}
+      - {url: "https://central.ballerina.io/ballerinax/cdc.schema.aws.s3.driver/latest", kind: central}
+      - {url: "https://central.ballerina.io/ballerinax/cdc.schema.azure.blob.driver/latest", kind: central}
+      - {url: "https://central.ballerina.io/ballerinax/cdc.schema.rocketmq.driver/latest", kind: central}
   - id: liveness_check
     text: "Expose a liveness probe by calling `cdc:isLive(cdcListener)` from an HTTP resource and returning `http:OK` or `http:SERVICE_UNAVAILABLE`, with the check interval set by `livenessInterval`"
     difficulty: [advanced]

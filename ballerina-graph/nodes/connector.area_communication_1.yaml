@@ -1,0 +1,119 @@
+schema_version: "0.2"
+id: connector.area_communication_1
+type: connector
+title: "Communication connectors (B–S)"
+summary: "Ballerina connectors for communication SaaS APIs from BulkSMS to Sinch SMS: Discord and Intercom (resource-method clients) plus OpenAPI-generated clients for SMS, e-mail, webinar and meeting services."
+priority: long_tail
+status: draft
+modules: [ballerinax/bulksms, ballerinax/discord, ballerinax/gotomeeting, ballerinax/gototraining, ballerinax/gotowebinar, ballerinax/intercom, ballerinax/isendpro, ballerinax/livestorm, ballerinax/mailscript, ballerinax/mitto.sms, ballerinax/sakari, ballerinax/sendgrid, ballerinax/sinch.conversation, ballerinax/sinch.sms]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/discord/latest", kind: central, note: "ballerinax/discord README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-discord", kind: github, note: "Discord connector source (client.bal resource paths, examples)"}
+  - {url: "https://central.ballerina.io/ballerinax/intercom/latest", kind: central, note: "ballerinax/intercom README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-intercom", kind: github, note: "Intercom connector source (client.bal)"}
+  - {url: "https://central.ballerina.io/ballerinax/bulksms/latest", kind: central, note: "ballerinax/bulksms README"}
+  - {url: "https://central.ballerina.io/ballerinax/gotomeeting/latest", kind: central, note: "ballerinax/gotomeeting README"}
+  - {url: "https://central.ballerina.io/ballerinax/gototraining/latest", kind: central, note: "ballerinax/gototraining README"}
+  - {url: "https://central.ballerina.io/ballerinax/gotowebinar/latest", kind: central, note: "ballerinax/gotowebinar README"}
+  - {url: "https://central.ballerina.io/ballerinax/isendpro/latest", kind: central, note: "ballerinax/isendpro README"}
+  - {url: "https://central.ballerina.io/ballerinax/livestorm/latest", kind: central, note: "ballerinax/livestorm README"}
+  - {url: "https://central.ballerina.io/ballerinax/mailscript/latest", kind: central, note: "ballerinax/mailscript README"}
+  - {url: "https://central.ballerina.io/ballerinax/mitto.sms/latest", kind: central, note: "ballerinax/mitto.sms README"}
+  - {url: "https://central.ballerina.io/ballerinax/sakari/latest", kind: central, note: "ballerinax/sakari README"}
+  - {url: "https://central.ballerina.io/ballerinax/sendgrid/latest", kind: central, note: "ballerinax/sendgrid README"}
+  - {url: "https://central.ballerina.io/ballerinax/sinch.conversation/latest", kind: central, note: "ballerinax/sinch.conversation README"}
+  - {url: "https://central.ballerina.io/ballerinax/sinch.sms/latest", kind: central, note: "ballerinax/sinch.sms README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for bulksms, gotomeeting, gototraining, gotowebinar, isendpro, livestorm, mailscript, mitto.sms, sakari, sendgrid, sinch.conversation, sinch.sms"}
+must_cover:
+  - id: discord_client
+    text: "Create a `discord:Client` with `check new ({auth: {clientId, clientSecret, scopes}})` (OAuth2 client credentials with Discord OAuth2 scopes held in `configurable` variables) and call `discord->/users/\\@me/connections()` to get the linked `ConnectedAccountResponse[]`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/discord/latest", kind: central, note: "Quickstart"}
+  - id: discord_messages
+    text: "Work with Discord channel messages through resource methods: list with `discord->/channels/[channelId]/messages()`, post with `/channels/[channelId]/messages.post(...)`, read/edit/delete one via `/channels/[channelId]/messages/[messageId]` (`get`, `patch`, `delete`), add a reaction with `/channels/[channelId]/messages/[messageId]/reactions/[emojiName]/\\@me.put()` and pin with `/channels/[channelId]/pins/[messageId].put()`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-discord/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: discord_guilds
+    text: "Manage a Discord server: list channels with `discord->/guilds/[guildId]/channels()`, list members with `/guilds/[guildId]/members()`, assign a role with `/guilds/[guildId]/members/[userId]/roles/[roleId].put()`, and create a scheduled event with `/guilds/[guildId]/scheduled\\-events.post(payload)` (as in the event-reminder and role-assignment examples)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-discord/tree/main/examples", kind: github, note: "examples/automated-event-reminders and automated-role-assignment"}
+  - id: intercom_client
+    text: "Create an `intercom:Client` with `check new ({auth: {token}})` from a `configurable string token` in `Config.toml`, and create a contact with `intercomClient->/contacts.post(newContact)` where `newContact` is an `intercom:ContactsBody` (`email`, `name`), returning `intercom:ContactWithPush`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/intercom/latest", kind: central, note: "Quickstart"}
+  - id: intercom_conversations
+    text: "Start an Intercom conversation with `intercomClient->/conversations.post(payload)` using an `intercom:CreateConversationRequest` (`body`, `'from: {'type: \"user\", id: ...}`), reply with `/conversations/[conversationId]/reply.post(...)`, and search with `/conversations/search.post(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/intercom/latest", kind: central, note: "Quickstart"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-intercom/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: intercom_contacts_tickets
+    text: "Manage Intercom data with resource methods: search contacts via `intercomClient->/contacts/search.post(...)`, get/update/delete one via `/contacts/[contactId]`, create and reply to tickets via `/tickets.post(...)` and `/tickets/[ticketId]/reply.post(...)`, and manage help-center articles via `/articles.post(...)` and `/articles/search`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-intercom/blob/main/ballerina/client.bal", kind: github, note: "client.bal"}
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated clients in this group: `import ballerinax/sendgrid;`, create `sendgrid:Client` with a `ConnectionConfig` (plus an `ApiKeysConfig` first argument for API-key APIs) and an optional `serviceUrl`, then call remote methods such as `sendgridClient->sendMail(...)` with `check`, handling the `error` they return"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sendgrid", kind: github, note: "sendgrid generated client.bal/types.bal"}
+  - id: auth_variants
+    text: "Configure the auth each generated client expects: a bearer token `{auth: {token}}` for `sendgrid`, `mailscript` and `sinch.sms`; `http:CredentialsConfig` `{auth: {username, password}}` for `bulksms`; OAuth2 password/refresh-token or bearer config for `gotomeeting`, `gototraining` and `gotowebinar`; OAuth2 client credentials for `sakari` and `sinch.conversation`; and an `ApiKeysConfig` first argument for `livestorm` (`authorization`) and `mitto.sms` (`xMittoApiKey`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "ConnectionConfig/ApiKeysConfig in each package's types.bal"}
+  - id: sendgrid_mail
+    text: "Send e-mail with `sendgrid:Client` `sendMail(sendgrid:SendEmailRequest)` and administer the account with `getSubusers()`, `postSubusers(...)`, `getSuppressionBlocks()`, `getSuppressionSpamReports()` and `postAlerts(...)`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sendgrid", kind: github, note: "sendgrid generated client.bal/types.bal"}
+  - id: bulksms_messages
+    text: "Send SMS with the `bulksms` client: `sendMessage(to, body)` for one message, `sendBatchMessages(SubmissionEntry[] payload)` for a batch, `retrieveMessages(...)`/`getMessage(id)` to read them, and `createWebhook(WebhookEntry)`/`listWebhooks()` to register delivery callbacks"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/bulksms", kind: github, note: "bulksms generated client.bal/types.bal"}
+  - id: sms_gateways
+    text: "Send SMS through other generated gateways: `isendpro` `sendSms(SmsUniqueRequest)`/`sendSmsMulti(SMSRequest)` and `getCredit(keyid, credit)` (the API key `keyid` is passed per call), `mitto.sms` `sendSms(SmsBody)` and `sendBulkSms(SmsbulkBody)`, and `sakari` `sendMessage(accountId, SendMessagesRequest)` with contacts managed by `createContact(accountId, ContactRequest)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/isendpro", kind: github, note: "isendpro generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/mitto.sms", kind: github, note: "mitto.sms generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sakari", kind: github, note: "sakari generated client.bal/types.bal"}
+  - id: sinch_messaging
+    text: "Use the Sinch clients: `sinch.sms` `sendSMS(servicePlanId, SendBatchObject)`, `listInboundMessages(servicePlanId)` and `getDeliveryReportByBatchId(servicePlanId, batchId)`; `sinch.conversation` `messagesSendmessage(projectId, SendMessageRequest)`, `appCreateapp(projectId, App)` and `contactCreatecontact(projectId, Contact)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sinch.sms", kind: github, note: "sinch.sms generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/sinch.conversation", kind: github, note: "sinch.conversation generated client.bal/types.bal"}
+  - id: goto_meetings_training
+    text: "Schedule GoTo sessions: `gotomeeting` `getUpcomingMeetingsByOrganizer(organizerKey)` and `createOrganizer(OrganizerReq)`, `gototraining` `scheduleTraining(organizerKey, TrainingReqCreate)` and `getRegistrants(organizerKey, trainingKey)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/gotomeeting", kind: github, note: "gotomeeting generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/gototraining", kind: github, note: "gototraining generated client.bal/types.bal"}
+  - id: gotowebinar_webinars
+    text: "Manage webinars with `gotowebinar:Client`: `createWebinar(organizerKey, WebinarReqCreate)`, `getWebinars(organizerKey, fromTime, toTime)`, `updateWebinar(...)`, `cancelWebinar(organizerKey, webinarKey)` and `getAttendeesForAllWebinarSessions(organizerKey, webinarKey)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/gotowebinar", kind: github, note: "gotowebinar generated client.bal/types.bal"}
+  - id: livestorm_mailscript
+    text: "Use the `livestorm` client to `listEvents()`, `listSessionByEvent(id)` and `registerPeopleForSession(id, payload)`, and the `mailscript` client to claim addresses with `addAddress(AddAddressRequest)`, list them with `getAllAddresses()` and attach automations with `addAction(ActionsBody)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/livestorm", kind: github, note: "livestorm generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/mailscript", kind: github, note: "mailscript generated client.bal/types.bal"}
+out_of_scope:
+  - "Discord, Intercom and SendGrid webhooks or event listeners (not provided by these packages)"
+edges:
+  - {to: lib.http, rel: uses, via: [generated_client_shape, auth_variants], note: "ConnectionConfig mirrors http:ClientConfiguration"}
+  - {to: lib.oauth2, rel: uses, via: [discord_client, auth_variants]}
+  - {to: concept.client_objects, rel: uses, via: [generated_client_shape, sendgrid_mail, bulksms_messages]}
+  - {to: concept.resource_methods, rel: uses, via: [discord_messages, discord_guilds, intercom_conversations, intercom_contacts_tickets]}
+  - {to: concept.records, rel: uses, via: [intercom_client, intercom_conversations]}
+  - {to: concept.errors, rel: uses, via: [generated_client_shape]}
+  - {to: tool.config_toml, rel: uses, via: [intercom_client]}
+notes: "Operation names for the generated packages are taken from client.bal in ballerina-platform/openapi-connectors (main); Discord 2.0.1 and Intercom 1.0.1 checked against their module repos (versions match Central). No BBEs exist for these connectors."

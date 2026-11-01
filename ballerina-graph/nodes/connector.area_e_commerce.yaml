@@ -1,0 +1,59 @@
+schema_version: "0.2"
+id: connector.area_e_commerce
+type: connector
+title: "E-Commerce connectors"
+summary: "Clients for online-store, checkout and shipping APIs: the Shopify Admin connector plus generated connectors for Square, Magento, BeezUP, SamCart, Selz, ShipStation, Shippit and Shipwire."
+priority: long_tail
+status: draft
+modules: [ballerinax/beezup.merchant, ballerinax/magento.address, ballerinax/magento.async.customer, ballerinax/magento.cart, ballerinax/samcart, ballerinax/selz, ballerinax/shippit, ballerinax/shipstation, ballerinax/shipwire.carrier, ballerinax/shipwire.containers, ballerinax/shipwire.receivings, ballerinax/shipwire.warehouse, ballerinax/shopify.admin, ballerinax/squareup]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/shopify.admin/latest", kind: central, note: "shopify.admin 3.0.0 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-shopify.admin/blob/main/ballerina/client.bal", kind: github, note: "Shopify Admin remote method names"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated clients for the other packages"}
+must_cover:
+  - id: shopify_client
+    text: "Create a Shopify Admin client with `import ballerinax/shopify.admin as shopadmin;` and `shopadmin:Client shopify = check new ({xShopifyAccessToken}, serviceUrl)` (the store's Admin API URL)"
+    difficulty: [beginner]
+  - id: shopify_customers
+    text: "Manage Shopify customers with `shopify->createACustomer({customer: {firstName, lastName, email}})` returning `shopadmin:CustomerResponse`, plus `retrieveAListOfCustomers`, `updateACustomer` and `searchForCustomersThatMatchASuppliedQuery`"
+    difficulty: [beginner]
+  - id: shopify_orders
+    text: "Create and manage Shopify orders with `createAnOrder`, `retrieveAListOfOrders` and `cancelAnOrder`, and draft orders with `createANewDraftOrder` and `completeADraftOrder`"
+    difficulty: [intermediate]
+  - id: shopify_inventory
+    text: "Adjust Shopify stock with `adjustTheInventoryLevelOfAnInventoryItemAtALocation`, `setTheInventoryLevelForAnInventoryItemAtALocation` and `retrieveAListOfInventoryLevels`"
+    difficulty: [intermediate]
+  - id: squareup
+    text: "Use `squareup:Client` (bearer, refresh-token OAuth2 or `ApiKeysConfig {authorization}`) to `upsertCatalogObject`, `searchCatalogObjects`, `listOrders`, `listPayments`, `createRefund`, `listEmployees` and `createBooking`"
+    difficulty: [intermediate]
+  - id: magento
+    text: "Call a Magento store with bearer-token clients that take the store `serviceUrl`: `magento.cart` (`createEmptyCartForGuest`, `addCouponByCodeToCart`, `estimateShippingMethodsByAddressId`), `magento.async.customer` (`customerAccountManagementV1CreateAccountPost`, `quoteCartRepositoryV1SavePut`) and `magento.address` (`customerAddressDeleteByIdV1`)"
+    difficulty: [intermediate]
+  - id: storefronts
+    text: "Read and sell through hosted storefronts: `samcart` (`ApiKeysConfig {scApi}`; `getOrders`, `getCustomers`, `getProducts`, `getSubscriptions`, `getCharges`) and `selz` (bearer; `findProducts`, `createProducts`, `getOrders`, `completeOrders`, `createDiscounts`)"
+    difficulty: [intermediate]
+  - id: beezup
+    text: "Manage marketplace feeds with `beezup.merchant` (`ApiKeysConfig {ocpApimSubscriptionKey}`): `getStores`, `createStore`, `getChannels` and `getUserAccountInfo`"
+    difficulty: [intermediate]
+  - id: shipstation
+    text: "Ship orders with `shipstation:Client` (basic auth `http:CredentialsConfig`): `listOrders`, `createUpdateorder`, `createLabelForOrder`, `markAnOrderAsShipped`, `getRates`, `listCarriers` and `listShipments`"
+    difficulty: [intermediate]
+  - id: shippit
+    text: "Book deliveries with `shippit:Client` (bearer token): `getQuote`, `createOrder`, `bookOrder`, `getOrderLabel`, `trackOrder` and `cancelOrder`"
+    difficulty: [intermediate]
+  - id: shipwire
+    text: "Manage Shipwire fulfilment with basic-auth clients: `shipwire.warehouse` (`getWarehouses`, `postWarehouse`), `shipwire.receivings` (`getReceivings`, `postReceivings`, `postReceivingsCancelById`), `shipwire.containers` (`getContainers`, `postContainers`) and `shipwire.carrier` (`getCarriers`, `getCarrier`)"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Shopify webhooks (trigger.shopify)"
+  - "eBay and commercetools connectors (connector.ebay, connector.commercetools)"
+edges:
+  - {to: lib.http, rel: uses, via: [shopify_client, squareup, magento]}
+  - {to: lib.oauth2, rel: uses, via: [squareup]}
+  - {to: lib.auth, rel: uses, via: [shipstation, shipwire], note: "Basic auth via http:CredentialsConfig"}
+  - {to: concept.client_objects, rel: uses, via: [shopify_client]}
+  - {to: concept.records, rel: uses, via: [shopify_customers]}
+  - {to: connector.commercetools, rel: related}
+  - {to: connector.ebay, rel: related}
+  - {to: trigger.shopify, rel: related, note: "Shopify Admin API client vs Shopify webhook listener"}
+notes: "Only shopify.admin has README code. All other packages are openapi-connectors packages (1-4 pulls) whose operation names and auth come from openapi-connectors main client.bal/types.bal."

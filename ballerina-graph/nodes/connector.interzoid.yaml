@@ -1,0 +1,61 @@
+schema_version: "0.2"
+id: connector.interzoid
+type: connector
+title: "Interzoid connectors"
+summary: "Nine OpenAPI-generated single-operation Ballerina clients for Interzoid data APIs (currency, email, phone, page load, time, state, weather and zip code), all authenticated with a `license` API key."
+priority: long_tail
+status: draft
+modules: [ballerinax/interzoid.convertcurrency, ballerinax/interzoid.currencyrate, ballerinax/interzoid.emailinfo, ballerinax/interzoid.globalnumberinfo, ballerinax/interzoid.globalpageload, ballerinax/interzoid.globaltime, ballerinax/interzoid.statedata, ballerinax/interzoid.weatherzip, ballerinax/interzoid.zipinfo]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.convertcurrency/latest", kind: central, note: "ballerinax/interzoid.convertcurrency README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.currencyrate/latest", kind: central, note: "ballerinax/interzoid.currencyrate README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.emailinfo/latest", kind: central, note: "ballerinax/interzoid.emailinfo README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.globalnumberinfo/latest", kind: central, note: "ballerinax/interzoid.globalnumberinfo README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.globalpageload/latest", kind: central, note: "ballerinax/interzoid.globalpageload README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.globaltime/latest", kind: central, note: "ballerinax/interzoid.globaltime README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.statedata/latest", kind: central, note: "ballerinax/interzoid.statedata README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.weatherzip/latest", kind: central, note: "ballerinax/interzoid.weatherzip README"}
+  - {url: "https://central.ballerina.io/ballerinax/interzoid.zipinfo/latest", kind: central, note: "ballerinax/interzoid.zipinfo README"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+must_cover:
+  - id: client_shape
+    text: "Create any Interzoid client, e.g. `interzoid.zipinfo:Client`, with `check new ({license: apiKey})` (an `ApiKeysConfig` sent as the `license` query parameter) and the default `serviceUrl` `https://api.interzoid.com`; every package exposes one remote method returning a typed record or `error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.zipinfo", kind: github, note: "interzoid.zipinfo generated client.bal/types.bal"}
+  - id: currency
+    text: "Convert money with `interzoid.convertcurrency` `convertCurrency('from, to, amount)` returning `CurrencyConversionInfo`, and get the rate for one US dollar with `interzoid.currencyrate` `getCurrencyRate(symbol)` returning `CurrencyInfo`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.convertcurrency", kind: github, note: "interzoid.convertcurrency generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.currencyrate", kind: github, note: "interzoid.currencyrate generated client.bal/types.bal"}
+  - id: contact_validation
+    text: "Validate contact data with `interzoid.emailinfo` `getEmailInfo(email)` (returns `EmailInfo`) and `interzoid.globalnumberinfo` `getglobalnumberinfo(intlnumber)` (returns `GlobalNumberInfo`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.emailinfo", kind: github, note: "interzoid.emailinfo generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.globalnumberinfo", kind: github, note: "interzoid.globalnumberinfo generated client.bal/types.bal"}
+  - id: location_data
+    text: "Look up location data with `interzoid.zipinfo` `getzipcodeinfo(zip)` (`ZipInfo`), `interzoid.weatherzip` `getweatherzipcode(zip)` (`WeatherData`), `interzoid.statedata` `getstateabbreviation(state)` (`StateData`) and `interzoid.globaltime` `getGlobalTime(locale)` (`GlobalTime`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.zipinfo", kind: github, note: "interzoid.zipinfo generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.weatherzip", kind: github, note: "interzoid.weatherzip generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.statedata", kind: github, note: "interzoid.statedata generated client.bal/types.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.globaltime", kind: github, note: "interzoid.globaltime generated client.bal/types.bal"}
+  - id: page_load
+    text: "Measure page-load or API latency from a geographic origin with `interzoid.globalpageload` `getGlobalPageLoad(origin, url)` returning `PageLoadPerformance`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/interzoid.globalpageload", kind: github, note: "interzoid.globalpageload generated client.bal/types.bal"}
+  - id: enrichment_service
+    text: "Enrich incoming records in an HTTP service by calling several Interzoid clients (e.g. `getEmailInfo` and `getzipcodeinfo`) held as `final` module-level clients, mapping the returned records into the response"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal for every package in this node"}
+edges:
+  - {to: lib.http, rel: uses, via: [client_shape, enrichment_service]}
+  - {to: concept.client_objects, rel: uses, via: [client_shape]}
+  - {to: concept.records, rel: uses, via: [currency, location_data]}
+  - {to: concept.errors, rel: uses, via: [client_shape]}
+notes: "Central READMEs are stubs; method names come from openapi-connectors main client.bal. The enrichment_service item composes documented calls; it is not a published example. No BBEs exist."

@@ -1,0 +1,106 @@
+schema_version: "0.2"
+id: connector.salesforce
+type: connector
+title: ballerinax/salesforce
+summary: "The Salesforce connectors: `salesforce:Client` for sObject CRUD, SOQL/SOSL and reports over the REST API, the `salesforce.bulk`, `salesforce.bulkv2`, `salesforce.apex` and `salesforce.soap` submodules, a CometD `salesforce:Listener` for Change Data Capture and Platform Events, plus the Pub/Sub API, Data Cloud, Marketing Cloud, Pardot and Einstein packages."
+priority: important
+status: draft
+modules: [ballerinax/salesforce, ballerinax/salesforce.datacloud, ballerinax/salesforce.einstein, ballerinax/salesforce.marketingcloud, ballerinax/salesforce.pardot, ballerinax/salesforce.pubsub]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/salesforce/latest", kind: central, note: "ballerinax/salesforce 8.7.3 README (setup, client, listener, onError, salesforce.types)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/blob/master/ballerina/client.bal", kind: github, note: "Remote methods of salesforce:Client"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/blob/master/ballerina/data_types.bal", kind: github, note: "ListenerConfig, ReplayOptions, EventData, PlatformEventsMessage"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples", kind: github, note: "REST, Bulk, Bulk v2 and Apex REST examples"}
+must_cover:
+  - id: client_init
+    text: "Create a `salesforce:Client` from a `salesforce:ConnectionConfig` with `baseUrl` and an OAuth2 refresh-token `auth` record (`clientId`, `clientSecret`, `refreshToken`, `refreshUrl`) read from `configurable` values"
+    difficulty: [beginner]
+  - id: sobject_create
+    text: "Create a record with `salesforce->create(\"Account\", {\"Name\": \"IT World\", \"BillingCity\": \"New York\"})` and read the new id from the returned `salesforce:CreationResponse`"
+    difficulty: [beginner]
+  - id: sobject_read_update_delete
+    text: "Read a record with `getById(sobjectName, id)` (data-bound to a record type via the inferred `returnType`) or `getByExternalId(sobjectName, extIdField, extId)`, change it with `update(sObjectName, id, record)` or `upsert(sObjectName, externalIdField, externalId, record)`, and remove it with `delete(sObjectName, id)`"
+    difficulty: [beginner, intermediate]
+  - id: typed_sobjects
+    text: "Use the generated sObject record types from the `ballerinax/salesforce.types` module, e.g. `types:AccountSObject accountRecord = {Name: \"IT World\", BillingCity: \"New York\"}`, when calling `create`"
+    difficulty: [intermediate]
+  - id: soql_query
+    text: "Run a SOQL query with `stream<record {}, error?> results = check salesforce->query(\"SELECT name FROM Account\")` (or a typed `stream<Account, error?>`) and iterate it with a query expression or `foreach`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples/rest_api_usecases/use_query_api", kind: github, note: "find_record_by_query_stream.bal"}
+  - id: sosl_search
+    text: "Run a SOSL search such as `salesforce->search(\"FIND {WSO2 Inc}\")`, which also returns a `stream<record {}, error?>`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples/rest_api_usecases/use_search_api", kind: github, note: "search_record_by_string_stream.bal"}
+  - id: metadata_and_limits
+    text: "Inspect the org with `describe(sObjectName)`, `getBasicInfo(sobjectName)`, `getOrganizationMetaData()`, `getApiVersions()` and `getLimits()`, and track changes with `getUpdatedRecords`/`getDeletedRecords(sObjectName, startDate, endDate)` using `time:Civil` bounds"
+    difficulty: [intermediate]
+  - id: reports_and_batch
+    text: "Run reports with `listReports()`, `runReportSync(reportId)` and `runReportAsync(reportId)` plus `getReportInstanceResult`, and send several REST calls in one round trip with `batch(Subrequest[] batchRequests, haltOnError)`"
+    difficulty: [intermediate, advanced]
+  - id: bulk_v1
+    text: "Use the Bulk API through `bulk:Client` (`ballerinax/salesforce.bulk`): `createJob(\"insert\", \"Contact\", \"CSV\")`, `addBatch(job, csvString)`, `getBatchInfo`, `getAllBatches`, `getBatchResult(job, batchId)` and `closeJob(job)`; for a `\"query\"` job pass the SOQL string to `addBatch`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples/bulk_api_usecases", kind: github, note: "Insert, update, upsert, delete and query jobs"}
+  - id: bulk_v2_ingest
+    text: "Run a Bulk API 2.0 ingest job with `bulkv2:Client` (`ballerinax/salesforce.bulkv2`): `createIngestJob({'object: \"Contact\", contentType: \"CSV\", operation: \"insert\", lineEnding: \"LF\"})`, `addBatch(job.id, csvContent)` with `string[][]` from `io:fileReadCsv`, `closeIngestJobAndWait(job.id)` returning a `future<bulkv2:BulkJobInfo|error>` to `wait` on, then `getJobStatus(job.id, \"successfulResults\")`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples/bulkv2_api_usecases/execute_bulkv2_ingest_job", kind: github, note: "bulkv2_insert.bal"}
+  - id: bulk_v2_query
+    text: "Run a Bulk API 2.0 query job with `createQueryJob` or `createQueryJobAndWait`, then fetch rows as `string[][]` with `getQueryResult(jobId, maxRecords)`, and manage jobs with `getJobInfo`, `getAllJobs`, `abortJob` and `deleteJob`"
+    difficulty: [advanced]
+  - id: apex_rest
+    text: "Call custom Apex REST endpoints with `apex:Client` (`ballerinax/salesforce.apex`): `apexRestExecute(\"Cases\", \"POST\", {...})` returning the new id, and `apexRestExecute(string `Cases/${caseId}`, \"GET\", {})` returning a record"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce/tree/master/examples/apex_rest_api_usecases/create_case", kind: github, note: "invoke_apex_methods.bal"}
+  - id: soap_convert_lead
+    text: "Convert a lead into an account and contact with `soap:Client` (`ballerinax/salesforce.soap`) by calling `convertLead(soap:LeadConvert payload)`"
+    difficulty: [advanced]
+  - id: cdc_listener
+    text: "Listen to Change Data Capture events with `listener salesforce:Listener` configured by a `salesforce:ListenerConfig` (username plus password+security token, or OAuth2 `auth` with `baseUrl`) and a `service \"/data/ChangeEvents\"` implementing `onCreate`, `onUpdate`, `onDelete` and `onRestore` with a `salesforce:EventData` (`changedData`, `metadata`) parameter"
+    difficulty: [intermediate, advanced]
+  - id: platform_events_and_errors
+    text: "Subscribe to a Platform Event channel with `service \"/event/MyEvent__e\"` and `remote function onMessage(salesforce:PlatformEventsMessage message)`, add `remote function onError(error err)` for handler and subscription failures, and choose the start point with `replayFrom` (`salesforce:REPLAY_FROM_TIP`, `salesforce:REPLAY_FROM_EARLIEST` or a replay id)"
+    difficulty: [advanced]
+  - id: pubsub_api
+    text: "Use the gRPC Pub/Sub API package `salesforce.pubsub`: build a `pubsub:ConnectionConfig` (`auth`, `instanceUrl`, `tenantId`), publish with `pubsub:Publisher` `->publish([{payload: {...}}])` returning `pubsub:PublishResult[]`, and consume with `listener pubsub:Listener` and `service /event/Order_Notification__e` (or `/data/AccountChangeEvent`) implementing `remote function onEvent(pubsub:Event event)`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/salesforce.pubsub/latest", kind: central, note: "ballerinax/salesforce.pubsub 0.1.0 README"}
+  - id: data_cloud
+    text: "Use the `salesforce.datacloud` client: `new ({auth: {clientId, clientSecret}}, orgUrl)`, stream records with `upsertRecords(sourceName, objectName, {data: [...]})`, bulk-load with `createBulkJob`, `uploadBulkJobData` and `updateBulkJobState`, read profiles with `getProfile`, and run SQL with `querySql`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/salesforce.datacloud/latest", kind: central, note: "ballerinax/salesforce.datacloud 1.0.2 README"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce.datacloud/blob/main/ballerina/client.bal", kind: github, note: "Remote method names"}
+  - id: marketing_cloud
+    text: "Use the `salesforce.marketingcloud` client created with `new (subDomain, config = {auth: {clientId, clientSecret, accountId}})` to call `getContactMembership({contactKeyList: [...]})`, `fireEntryEvent`, `upsertDERowSetByKey` (Data Extension rows) and `sendEmailMessage`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/salesforce.marketingcloud/latest", kind: central, note: "ballerinax/salesforce.marketingcloud 1.0.2 README"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-salesforce.marketingcloud/blob/main/ballerina/client.bal", kind: github, note: "Remote method names"}
+  - id: pardot_einstein
+    text: "Call the generated `salesforce.pardot` client (Pardot API v5, e.g. `queryProspects(fields)`, `readCampaign(fields, id)`) and the `salesforce.einstein` client (bearer token, e.g. `getSentimentPrediction`, `detectImage`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/salesforce.pardot", kind: github, note: "Generated Pardot client"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/salesforce.einstein", kind: github, note: "Generated Einstein client"}
+out_of_scope:
+  - "Generic OAuth2 grant configuration (lib.oauth2)"
+  - "Generic stream and query-expression semantics (concept.streams, concept.query_expressions)"
+edges:
+  - {to: lib.http, rel: uses, via: [client_init, apex_rest]}
+  - {to: lib.oauth2, rel: uses, via: [client_init, cdc_listener, data_cloud]}
+  - {to: concept.client_objects, rel: uses, via: [client_init, sobject_create]}
+  - {to: concept.streams, rel: uses, via: [soql_query, sosl_search]}
+  - {to: concept.services_listeners, rel: uses, via: [cdc_listener, platform_events_and_errors, pubsub_api]}
+  - {to: concept.futures_wait, rel: uses, via: [bulk_v2_ingest]}
+  - {to: concept.records, rel: uses, via: [typed_sobjects, sobject_read_update_delete]}
+  - {to: concept.errors, rel: uses, via: [platform_events_and_errors]}
+  - {to: lib.grpc, rel: uses, via: [pubsub_api], note: "Pub/Sub API is gRPC-based; the gRPC layer is internal to the package"}
+notes: "Verified against module-ballerinax-salesforce master (8.7.3). The bulk-v2 and apexRestExecute methods on salesforce:Client are deprecated in favour of the bulkv2 and apex submodules, so items use the submodules. Listener ListenerCoordinationConfig/TokenStore multi-replica options exist on master but are left out (not confirmed in the 8.7.3 README). Einstein and Pardot READMEs have no code; op names come from openapi-connectors main."

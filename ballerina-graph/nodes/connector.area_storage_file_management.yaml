@@ -1,0 +1,111 @@
+schema_version: "0.2"
+id: connector.area_storage_file_management
+type: connector
+title: Storage & File Management connectors
+summary: "Connectors for content stores, file-sharing services, document/PDF generation and media APIs: the hand-maintained Alfresco client plus OpenAPI-generated clients (remote methods) for Box, Dropbox, Files.com, OpenText eDocs and File360, DRACOON, Figshare, Api2Pdf, PDFBroker, PandaDoc, Open Design, image/icon APIs, Medium, ReadMe and music, podcast, video and movie APIs."
+priority: long_tail
+status: draft
+modules: [ballerinax/alfresco, ballerinax/api2pdf, ballerinax/box, ballerinax/dracoon.public, ballerinax/dropbox, ballerinax/edocs, ballerinax/figshare, ballerinax/file360, ballerinax/files.com, ballerinax/giphy, ballerinax/icons8, ballerinax/listen.notes, ballerinax/logoraisr, ballerinax/medium, ballerinax/opendesign, ballerinax/pandadoc, ballerinax/pdfbroker, ballerinax/readme, ballerinax/soundcloud, ballerinax/spotify, ballerinax/themoviedb, ballerinax/vimeo]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/alfresco/latest", kind: central, note: "ballerinax/alfresco 2.0.2 README and API docs"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-alfresco/tree/main/examples", kind: github, note: "upload-document and download-document examples"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated client.bal/types.bal of the 1.x OpenAPI connectors in this group"}
+  - {url: "https://central.ballerina.io/ballerinax/box/latest", kind: central, note: "ballerinax/box 1.5.2 API docs"}
+must_cover:
+  - id: generated_client_shape
+    text: "Use the shared shape of the OpenAPI-generated 1.x clients in this group: import the package (e.g. `import ballerinax/dropbox;`), create its `Client` with `check new (config, serviceUrl)` where `ConnectionConfig` carries `auth` (bearer `{token}`, OAuth2 refresh-token or client-credentials config), or with an `ApiKeysConfig` first argument for API-key services, and call remote methods such as `dropboxClient->createFolder({path: \"/reports\"})` with `check`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/dropbox/client.bal", kind: github, note: "dropbox client.bal"}
+  - id: alfresco_client
+    text: "Create an `alfresco:Client` with Basic Authentication only, `check new ({auth: {username, password}}, serviceUrl)` from `configurable` values, and call its remote methods, e.g. `alfresco:CommentPaging comments = check alfresco->listComments(nodeId);` and `createComment(nodeId, payload)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/alfresco/latest", kind: central, note: "Quickstart"}
+  - id: alfresco_upload_download
+    text: "Upload a document to Alfresco by creating a node with `alfrescoClient->createNode(\"-root-\", payload)` where `alfresco:NodeBodyCreate` has `name`, `nodeType: \"cm:content\"`, `aspectNames` and `properties`, then send the bytes from `io:fileReadBytes` with `updateNodeContent(createdNode.entry.id, fileContent)`; download with `byte[]? content = check alfrescoClient->getNodeContent(nodeId)` and read metadata with `getNode(nodeId)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-alfresco/blob/main/examples/upload-document/main.bal", kind: github, note: "Upload example"}
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-alfresco/blob/main/examples/download-document/main.bal", kind: github, note: "Download example"}
+  - id: alfresco_nodes_sites
+    text: "Manage Alfresco repository content with `listNodeChildren(nodeId)`, `deleteNode(nodeId)`, `findNodes(queries = ...)`, create sites with `createSite(alfresco:SiteBodyCreate)` and create shared links with `createSharedLink(alfresco:SharedLinkBodyCreate)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/alfresco/latest", kind: central, note: "alfresco:Client remote methods"}
+  - id: box_files
+    text: "Use `box:Client` (bearer token or OAuth2 refresh-token `auth`) to work with Box files and folders: `getFilesId(fileId)`, download with `getFilesIdContent(fileId)`, upload with `postFilesContent(payload)` or a new version with `postFilesIdContent(fileId, payload)`, create folders with `postFolders(payload)`, list items with `getFoldersIdItems(folderId)` and delete with `deleteFilesId`; large files use `postFilesUploadSessions`, `putFilesUploadSessionsId` and `postFilesUploadSessionsIdCommit`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/box", kind: github, note: "box client.bal"}
+  - id: dropbox_files
+    text: "Use `dropbox:Client` (bearer token, explicit `serviceUrl`) to manage files: `createFolder(dropbox:CreateFolderArg)`, `copyFileOrFolder` and `moveFileOrFolder` with `dropbox:RelocationArg`, `deleteFileOrFolder(dropbox:DeleteArg)`, `searchFiles(dropbox:SearchArg)`, `downloadFiles(dropboxApiArg)`, `getTemporaryLink`, `createSharedLinkWithSettings`, `getFileOrFolderMetadata`, `listRevisions` and `restoreFiles`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/dropbox", kind: github, note: "dropbox client.bal"}
+  - id: files_com
+    text: "Create a `files.com` client with `ApiKeysConfig` `{xFilesapiKey}` and the site `serviceUrl`, then list a folder with `folderListForPath(folderPath)`, create one with `postFoldersPath(folderPath)`, start an upload with `fileActionBeginUpload(filePath, payload)`, download with `fileDownload(filePath)` and remove with `deleteFilesPath(filePath)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/files.com", kind: github, note: "files.com client.bal"}
+  - id: enterprise_content_clients
+    text: "Use document-management clients that need an explicit `serviceUrl`: `edocs` (`ApiKeysConfig` `{xDmDst}`) `connect(payload)`, `getLibraries()`, `getFolders()` and `addNewFolder(library, payload)`; and `file360` `logOn(payload)`, `applications()` and `getDocumentFileInfo`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/edocs", kind: github, note: "edocs client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/file360", kind: github, note: "file360 client.bal"}
+  - id: share_and_research_files
+    text: "Exchange files through public shares and research repositories: `dracoon.public` `requestPublicDownloadShareInfo(accessKey)`, `generateDownloadUrlPublic` and `createShareUploadChannel(accessKey, payload)`; and `figshare` (OAuth2/bearer) `listPrivateArticles()`, `createPrivateArticle(figshare:ArticleCreate)` and `searchPrivateArticles(payload)`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/dracoon.public", kind: github, note: "dracoon.public client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/figshare", kind: github, note: "figshare client.bal"}
+  - id: pdf_generation
+    text: "Generate PDFs: `api2pdf` (`ApiKeysConfig` with `authorization`) `convertHtmlToPdf(api2pdf:ChromeHtmlToPdfRequest)`, `convertWebUrlToPdfPost`, `convertOfficeDocToPdf` and `mergePdfs(api2pdf:MergeRequest)`; and `pdfbroker` (OAuth2 client-credentials `auth`, explicit `serviceUrl`) `createPDFfromXML`, `createPDfFromXSLFO`, `concatenatePDFs` and `addTextonPDFPage`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/api2pdf", kind: github, note: "api2pdf client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/pdfbroker", kind: github, note: "pdfbroker client.bal"}
+  - id: pandadoc_documents
+    text: "Create a `pandadoc:Client` with bearer, OAuth2 refresh-token or `ApiKeysConfig` `{authorization}` auth, create a document with `createDocument(pandadoc:DocumentCreateRequest)`, check it with `statusDocument(id)`, move it on with `changeDocumentStatus`, and list or delete with `listDocuments()` and `deleteDocument`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/pandadoc", kind: github, note: "pandadoc client.bal"}
+  - id: design_image_assets
+    text: "Work with design and image APIs: `opendesign` (bearer) `postDesignUpload`, `postDesignLink`, `postDesignFigmaLink`, `getDesignList()` and `getDesign(designId)`; `logoraisr` `createProject`, `listProjects()` and `readPreviews`; `icons8` (`{token}`) `getByKeyword(term, ...)`, `getCategories()` and `getLatest`; and `giphy` (`{apiKey}`) `searchGifs(q, ...)`, `trendingGifs`, `randomGif` and `translateGif(s)`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/opendesign", kind: github, note: "opendesign client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/logoraisr", kind: github, note: "logoraisr client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/icons8", kind: github, note: "icons8 client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/giphy", kind: github, note: "giphy client.bal"}
+  - id: publishing_docs
+    text: "Publish content: `medium:Client` (bearer/OAuth2) `getUserDetail()`, `getPublicationList(userId)` and `createUserPost(authorId, medium:Post)`; and `readme:Client` with `http:CredentialsConfig` `{auth: {username, password}}` to `getProject()`, `uploadAPISpecification(xReadmeVersion, payload)`, `getAPISpecification` and `updateAPISpecification`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/medium", kind: github, note: "medium client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/readme", kind: github, note: "readme client.bal"}
+  - id: music_podcasts
+    text: "Call music and podcast APIs: `spotify` (bearer/OAuth2 refresh token) `getMyPlaylists()`, `getPlaylistById`, `getPlaylistTracks(playlistId, market)` and `updatePlaylist`; `soundcloud` (`{authorization}`) `getUserDetail()`, `likeTrack` and `getActivities()`; and `listen.notes` (`{xListenapiKey}`) `search(q, ...)`, `getBestPodcasts()`, `getPodcastById` and `getEpisodeById`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/spotify", kind: github, note: "spotify client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/soundcloud", kind: github, note: "soundcloud client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/listen.notes", kind: github, note: "listen.notes client.bal"}
+  - id: video_movies
+    text: "Query video and movie APIs: `vimeo` (OAuth2 client credentials, bearer or refresh token) `searchVideos(query)`, `getVideo(videoId)`, `getCategories()` and `getCategoryVideos(category)`; and `themoviedb` (`ApiKeysConfig` `{apiKey}`) `searchMovie(query)`, `getMovieByMovieId(movieId)`, `getPopularMovies()` and `getUpcomingMovies()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/vimeo", kind: github, note: "vimeo client.bal"}
+      - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi/themoviedb", kind: github, note: "themoviedb client.bal"}
+out_of_scope:
+  - "Local file system and FTP/SFTP access (lib.file, lib.ftp)"
+  - "Generic HTTP client configuration fields shared by every `ConnectionConfig` (lib.http)"
+edges:
+  - {to: concept.client_objects, rel: uses, via: [generated_client_shape, alfresco_client, box_files, dropbox_files]}
+  - {to: concept.records, rel: uses, via: [alfresco_upload_download, dropbox_files, pandadoc_documents]}
+  - {to: lib.http, rel: uses, via: [generated_client_shape, publishing_docs], note: "ConnectionConfig wraps http client settings; readme uses http:CredentialsConfig"}
+  - {to: lib.oauth2, rel: uses, via: [box_files, pdf_generation, video_movies], note: "OAuth2 refresh-token and client-credentials grant configs"}
+  - {to: lib.io, rel: uses, via: [alfresco_upload_download], note: "io:fileReadBytes / io:fileWriteBytes"}
+  - {to: tool.config_toml, rel: uses, via: [alfresco_client]}
+notes: "Alfresco items come from the Central README, the module examples and the Central API docs. Every other package has a stub README on Central; its items come from openapi-connectors client.bal and the Central API docs for the listed version. The `dracoon.public` client's default serviceUrl in the docs points at an unrelated host, so no default URL is stated. ballerinax/box (1.5.2) here differs from the older ballerinax/boxapi listed on connector.area_other."

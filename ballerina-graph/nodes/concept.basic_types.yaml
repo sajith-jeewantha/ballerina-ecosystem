@@ -11,6 +11,8 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2", kind: spec, note: "5.2 Simple values"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.1", kind: spec, note: "5.2.1 Nil"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.2.2", kind: spec, note: "5.2.2 Boolean"}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
+  - {url: "https://ballerina.io/learn/data/", kind: docs, note: "Learn: Data"}
 must_cover:
   - id: value_kinds
     text: 'Classify values into the four kinds of basic type: simple (nil, boolean, int, float, decimal, tagged data), sequence (string, xml), structured (list, mapping, table) and behavioral (error, function, future, object, typedesc, handle, stream)'
@@ -18,12 +20,16 @@ must_cover:
   - id: basic_types_disjoint
     text: Explain that every value belongs to exactly one basic type, so for example the empty string, the empty xml value and nil are distinct values
     difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/structural-typing/", kind: bbe}
   - id: storage_identity
     text: Explain storage identity, that structured and behavioral values have it while simple values do not, so variables and members hold references to such values and mutation through one reference is visible through all of them
     difficulty: [intermediate]
   - id: shapes_semantic_subtyping
     text: Explain that a type denotes a set of shapes and that subtyping is semantic, so S is a subtype of T exactly when every shape in S is in T, with no explicit declaration of compatibility (structural typing)
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/structural-typing/", kind: bbe}
   - id: plain_data
     text: Define plain data as simple values, sequence values and structured values containing no behavioral values at any depth, and know that plain data (even cyclic) can be compared for equality
     difficulty: [intermediate]
@@ -38,9 +44,13 @@ must_cover:
   - id: nil_value
     text: Use the nil value `()` to represent absence of a value, know `null` is an alternative spelling meant only for JSON-related contexts, and that nil is the only basic type with a single value
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/nil/", kind: bbe}
   - id: boolean_values
     text: Use the `boolean` type with the literals `true` and `false`
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/boolean/", kind: bbe}
   - id: simple_types_immutable
     text: Explain that all simple basic types are inherently immutable and that a simple type descriptor contains every value of its basic type
     difficulty: [beginner, intermediate]
@@ -50,6 +60,7 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_8.5", kind: spec, note: "8.5 Module type definition"}
       - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.6.1", kind: spec, note: "5.6.1 Type reference"}
+      - {url: "https://ballerina.io/learn/by-example/type-definitions/", kind: bbe}
   - id: value_belongs_many_types
     text: Explain that a value has exactly one basic type yet can belong to arbitrarily many types, because type descriptors such as unions and singletons describe overlapping subsets of the universe of values
     difficulty: [intermediate]

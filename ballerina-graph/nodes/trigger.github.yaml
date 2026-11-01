@@ -1,0 +1,124 @@
+schema_version: "0.2"
+id: trigger.github
+type: trigger
+title: ballerinax/trigger.github
+summary: "The GitHub trigger: a `github:Listener` that receives GitHub webhook deliveries over HTTP, verifies them with the webhook secret and dispatches each event to the matching remote method of a `github:*Service` service type."
+priority: important
+status: draft
+modules: [ballerinax/trigger.github]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.github/latest", kind: central, note: "ballerinax/trigger.github 0.12.0 package docs and README"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi/github", kind: github, note: "Generated trigger source (listener, service types, dispatcher)"}
+must_cover:
+  - id: listener_init
+    text: "Import `ballerinax/trigger.github` and create a `github:Listener` with `new (listenerConfig, 8090)`, where `listenOn` is an `int` port (default 8090) or an existing `http:Listener`; with no secret use `new (listenOn = 8090)` or just `new ()`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.github/latest", kind: central, note: "Quickstart step 2"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/listener.bal", kind: github, note: "init(ListenerConfig listenerConfig = {webhookSecret: DEFAULT_SECRET}, int|http:Listener listenOn = 8090)"}
+  - id: webhook_secret
+    text: "Set the GitHub webhook secret in a `github:ListenerConfig` record field `webhookSecret` (e.g. `configurable github:ListenerConfig userInput = {webhookSecret: \"...\"};`), so the listener checks the `X-Hub-Signature-256` HMAC of each delivery before dispatching it by its `X-GitHub-Event` header"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/dispatcher_service.bal", kind: github, note: "verifyWebhookSignature, X-GitHub-Event dispatch"}
+  - id: webhook_setup
+    text: "Register the service on GitHub: create a repository or organization webhook, use the service's public URL (adding a trailing `/` if it is missing) as the Payload URL, choose `application/json` as the content type, enter the same secret and select the events to subscribe to"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.github/latest", kind: central, note: "Configure Github webhook"}
+      - {url: "https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks", kind: other, note: "Creating webhooks"}
+  - id: service_types
+    text: "Implement a service on the listener with one of the `github:*Service` service types (e.g. `service github:IssuesService on webhookListener { ... }`), giving every remote method of that type as `remote function onX(github:XEvent payload) returns error?`; attach several services, one per event type, to the same listener"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: issues_events
+    text: "Handle issue activity with `github:IssuesService` (`onReopened`, `onTransferred`, `onUnpinned`, `onAssigned`, `onMilestoned`, `onLabeled`, `onOpened`, `onPinned`, `onTyped`, `onEdited`, `onUntyped`, `onDemilestoned`, `onLocked`, `onUnassigned`, `onUnlocked`, `onUnlabeled`, `onClosed`, `onDeleted`; payload `github:IssuesEvent`), reading `payload.action`, `payload.issue` (`number`, `title`, `body`, `state`, `labels`), `payload.repository` and `payload.sender`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: issue_related_events
+    text: "Handle issue comments and issue hierarchy with `github:IssueCommentService` (`onEdited`, `onPinned`, `onDeleted`, `onCreated`, `onUnpinned`; payload `github:IssueCommentEvent`); `github:SubIssuesService` (`onChildIssueAdded`, `onParentIssueAdded`, `onChildIssueRemoved`, `onParentIssueRemoved`; payload `github:SubIssuesEvent`); `github:IssueDependenciesService` (`onIssueDependencyAdded`, `onIssueDependencyRemoved`; payload `github:IssueDependenciesEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: pull_request_events
+    text: "Handle pull request activity with `github:PullRequestService` (`onEnqueued`, `onReviewRequestRemoved`, `onOpened`, `onReadyForReview`, `onLabeled`, `onUnassigned`, `onEdited`, `onSynchronize`, `onReviewRequested`, `onReopened`, `onAutoMergeDisabled`, `onLocked`, `onAutoMergeEnabled`, `onMilestoned`, `onDequeued`, `onUnlabeled`, `onClosed`, `onUnlocked`, `onAssigned`, `onConvertedToDraft`, `onDemilestoned`; payload `github:PullRequestEvent`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: pull_request_review_events
+    text: "Handle pull request reviews with `github:PullRequestReviewService` (`onSubmitted`, `onEdited`, `onDismissed`; payload `github:PullRequestReviewEvent`); `github:PullRequestReviewCommentService` (`onCreated`, `onDeleted`, `onEdited`; payload `github:PullRequestReviewCommentEvent`); `github:PullRequestReviewThreadService` (`onUnresolved`, `onResolved`; payload `github:PullRequestReviewThreadEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: push_and_ref_events
+    text: "Handle code and ref changes with `github:PushService` (`onPush`; payload `github:PushEvent`); `github:CreateService` (`onCreate`; payload `github:CreateEvent`); `github:DeleteService` (`onDelete`; payload `github:DeleteEvent`); `github:CommitCommentService` (`onCommitComment`; payload `github:CommitCommentEvent`), e.g. reading `ref`, `before`, `after`, `commits`, `head_commit` and `pusher` from a `github:PushEvent`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: repository_activity_events
+    text: "Handle repository engagement and webhook housekeeping with `github:ForkService` (`onFork`; payload `github:ForkEvent`); `github:WatchService` (`onWatch`; payload `github:WatchEvent`); `github:StarService` (`onCreated`, `onDeleted`; payload `github:StarEvent`); `github:PublicService` (`onPublic`; payload `github:PublicEvent`); `github:GollumService` (`onGollum`; payload `github:GollumEvent`); `github:PingService` (`onPing`; payload `github:PingEvent`); `github:MetaService` (`onMeta`; payload `github:MetaEvent`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: release_package_events
+    text: "Handle releases and packages with `github:ReleaseService` (`onCreated`, `onPublished`, `onReleased`, `onPrereleased`, `onUnpublished`, `onDeleted`, `onEdited`; payload `github:ReleaseEvent`); `github:PackageService` (`onPublished`, `onUpdated`; payload `github:PackageEvent`); `github:RegistryPackageService` (`onUpdated`, `onPublished`; payload `github:RegistryPackageEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: label_milestone_events
+    text: "Handle labels and milestones with `github:LabelService` (`onEdited`, `onCreated`, `onDeleted`; payload `github:LabelEvent`); `github:MilestoneService` (`onCreated`, `onEdited`, `onOpened`, `onDeleted`, `onClosed`; payload `github:MilestoneEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: ci_events
+    text: "Handle GitHub Actions, checks and statuses with `github:WorkflowRunService` (`onInProgress`, `onCompleted`, `onRequested`; payload `github:WorkflowRunEvent`); `github:WorkflowJobService` (`onQueued`, `onWaiting`, `onCompleted`, `onInProgress`; payload `github:WorkflowJobEvent`); `github:WorkflowDispatchService` (`onWorkflowDispatch`; payload `github:WorkflowDispatchEvent`); `github:CheckRunService` (`onCreated`, `onCompleted`, `onRequestedAction`, `onRerequested`; payload `github:CheckRunEvent`); `github:CheckSuiteService` (`onCompleted`, `onRequested`, `onRerequested`; payload `github:CheckSuiteEvent`); `github:StatusService` (`onStatus`; payload `github:StatusEvent`); `github:MergeGroupService` (`onDestroyed`, `onChecksRequested`; payload `github:MergeGroupEvent`); `github:PageBuildService` (`onPageBuild`; payload `github:PageBuildEvent`)"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: deployment_events
+    text: "Handle deployments with `github:DeploymentService` (`onDeployment`; payload `github:DeploymentEvent`); `github:DeploymentStatusService` (`onDeploymentStatus`; payload `github:DeploymentStatusEvent`); `github:DeploymentReviewService` (`onRequested`, `onRejected`, `onApproved`; payload `github:DeploymentReviewEvent`); `github:DeploymentProtectionRuleService` (`onDeploymentProtectionRule`; payload `github:DeploymentProtectionRuleEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: security_events
+    text: "Handle security alerts and advisories with `github:CodeScanningAlertService` (`onAppearedInBranch`, `onClosedByUser`, `onCreated`, `onFixed`, `onReopened`, `onReopenedByUser`, `onUpdatedAssignment`; payload `github:CodeScanningAlertEvent`); `github:SecretScanningAlertService` (`onAssigned`, `onReopened`, `onUnassigned`, `onCreated`, `onPubliclyLeaked`, `onValidated`, `onResolved`; payload `github:SecretScanningAlertEvent`); `github:SecretScanningAlertLocationService` (`onSecretScanningAlertLocation`; payload `github:SecretScanningAlertLocationEvent`); `github:SecretScanningScanService` (`onSecretScanningScan`; payload `github:SecretScanningScanEvent`); `github:DependabotAlertService` (`onAutoDismissed`, `onAutoReopened`, `onCreated`, `onDismissed`, `onReopened`, `onReintroduced`, `onAssigneesChanged`, `onFixed`; payload `github:DependabotAlertEvent`); `github:RepositoryVulnerabilityAlertService` (`onResolve`, `onReopen`, `onDismiss`, `onCreate`; payload `github:RepositoryVulnerabilityAlertEvent`); `github:SecurityAdvisoryService` (`onWithdrawn`, `onPublished`, `onUpdated`; payload `github:SecurityAdvisoryEvent`); `github:RepositoryAdvisoryService` (`onReported`, `onPublished`; payload `github:RepositoryAdvisoryEvent`); `github:SecurityAndAnalysisService` (`onSecurityAndAnalysis`; payload `github:SecurityAndAnalysisEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: repository_admin_events
+    text: "Handle repository administration with `github:RepositoryService` (`onPrivatized`, `onCreated`, `onRenamed`, `onTransferred`, `onEdited`, `onDeleted`, `onArchived`, `onPublicized`, `onUnarchived`; payload `github:RepositoryEvent`); `github:RepositoryDispatchService` (`onRepositoryDispatch`; payload `github:RepositoryDispatchEvent`); `github:RepositoryImportService` (`onRepositoryImport`; payload `github:RepositoryImportEvent`); `github:RepositoryRulesetService` (`onCreated`, `onEdited`, `onDeleted`; payload `github:RepositoryRulesetEvent`); `github:BranchProtectionRuleService` (`onDeleted`, `onEdited`, `onCreated`; payload `github:BranchProtectionRuleEvent`); `github:BranchProtectionConfigurationService` (`onEnabled`, `onDisabled`; payload `github:BranchProtectionConfigurationEvent`); `github:DeployKeyService` (`onCreated`, `onDeleted`; payload `github:DeployKeyEvent`); `github:CustomPropertyService` (`onUpdated`, `onDeleted`, `onPromoteToEnterprise`, `onCreated`; payload `github:CustomPropertyEvent`); `github:CustomPropertyValuesService` (`onCustomPropertyValues`; payload `github:CustomPropertyValuesEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: organization_events
+    text: "Handle organization, team and membership changes with `github:OrganizationService` (`onAdded`, `onRemoved`, `onDeleted`, `onRenamed`, `onMemberInvited`; payload `github:OrganizationEvent`); `github:OrgBlockService` (`onBlocked`, `onUnblocked`; payload `github:OrgBlockEvent`); `github:TeamService` (`onCreated`, `onDeleted`, `onEdited`, `onAddedToRepository`, `onRemovedFromRepository`; payload `github:TeamEvent`); `github:TeamAddService` (`onTeamAdd`; payload `github:TeamAddEvent`); `github:MemberService` (`onEdited`, `onAdded`, `onRemoved`; payload `github:MemberEvent`); `github:MembershipService` (`onAdded`, `onRemoved`; payload `github:MembershipEvent`); `github:PersonalAccessTokenRequestService` (`onCreated`, `onApproved`, `onDenied`, `onCancelled`; payload `github:PersonalAccessTokenRequestEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: project_events
+    text: "Handle classic and Projects (v2) boards with `github:ProjectService` (`onDeleted`, `onCreated`, `onClosed`, `onReopened`, `onEdited`; payload `github:ProjectEvent`); `github:ProjectCardService` (`onProjectCardEdited`, `onProjectCardDeleted`, `onProjectCardMoved`, `onProjectCardConverted`, `onProjectCardCreated`; payload `github:ProjectCardEvent`); `github:ProjectColumnService` (`onMoved`, `onEdited`, `onDeleted`, `onCreated`; payload `github:ProjectColumnEvent`); `github:ProjectsV2Service` (`onCreated`, `onEdited`, `onClosed`, `onReopened`, `onDeleted`; payload `github:ProjectsV2Event`); `github:ProjectsV2itemService` (`onEdited`, `onCreated`, `onArchived`, `onDeleted`, `onRestored`, `onReordered`, `onConverted`; payload `github:ProjectsV2ItemEvent`); `github:ProjectsV2statusUpdateService` (`onEdited`, `onDeleted`, `onCreated`; payload `github:ProjectsV2StatusUpdateEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: discussion_events
+    text: "Handle GitHub Discussions with `github:DiscussionService` (`onUnanswered`, `onCreated`, `onTransferred`, `onCategoryChanged`, `onDeleted`, `onUnlocked`, `onPinned`, `onEdited`, `onReopened`, `onAnswered`, `onClosed`, `onUnlabeled`, `onLabeled`, `onUnpinned`, `onLocked`; payload `github:DiscussionEvent`); `github:DiscussionCommentService` (`onDeleted`, `onCreated`, `onEdited`; payload `github:DiscussionCommentEvent`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+  - id: app_marketplace_events
+    text: "Handle GitHub App, Marketplace and Sponsors events with `github:InstallationService` (`onNewPermissionsAccepted`, `onSuspend`, `onCreated`, `onDeleted`, `onUnsuspend`; payload `github:InstallationEvent`); `github:InstallationRepositoriesService` (`onRemoved`, `onAdded`; payload `github:InstallationRepositoriesEvent`); `github:InstallationTargetService` (`onInstallationTarget`; payload `github:InstallationTargetEvent`); `github:GithubAppAuthorizationService` (`onGithubAppAuthorization`; payload `github:GithubAppAuthorizationEvent`); `github:MarketplacePurchaseService` (`onPurchased`, `onCancelled`, `onPendingChangeCancelled`, `onPendingChange`, `onChanged`; payload `github:MarketplacePurchaseEvent`); `github:SponsorshipService` (`onCancelled`, `onEdited`, `onTierChanged`, `onPendingCancellation`, `onCreated`, `onPendingTierChange`; payload `github:SponsorshipEvent`)"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/service_types.bal", kind: github, note: "Service types and remote method signatures"}
+out_of_scope:
+  - "Calling the GitHub REST/GraphQL API (connector.area_developer_tools_1)"
+  - "Writing webhook receivers by hand (lib.http, lib.websub)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [listener_init, service_types]}
+  - {to: lib.http, rel: uses, via: [listener_init], note: "listenOn accepts an http:Listener; the trigger runs an HTTP dispatcher service"}
+  - {to: connector.area_developer_tools_1, rel: uses, via: [webhook_setup, issues_events], note: "The ballerinax/github client complements the trigger for acting on received events"}
+  - {to: tool.config_toml, rel: uses, via: [webhook_secret]}
+  - {to: tool.bal_asyncapi, rel: uses, via: [service_types], note: "The trigger is generated from an AsyncAPI contract"}
+notes: "Service types and method names taken from the Central API docs of trigger.github 0.12.0 (75 service types), cross-checked with service_types.bal on main. The README still shows `secret` in `github:ListenerConfig` and says secret support is pending, but 0.12.0's record field is `webhookSecret` and the dispatcher verifies X-Hub-Signature-256; items follow the API docs. Service type names are case-exact (`ProjectsV2itemService`, `ProjectsV2statusUpdateService`)."

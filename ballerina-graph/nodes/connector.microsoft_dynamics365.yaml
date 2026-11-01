@@ -1,0 +1,68 @@
+schema_version: "0.2"
+id: connector.microsoft_dynamics365
+type: connector
+title: ballerinax/microsoft.dynamics365.*
+summary: "Connectors for Microsoft Dynamics 365: thirty OData-based Dynamics 365 Finance entity packages, Supply Chain Management (`microsoft.dynamics365.scm`) and Business Central (`microsoft.dynamics365businesscentral`), each a generated `Client` with list/create/get/update/delete remote methods per entity."
+priority: long_tail
+status: draft
+modules: [ballerinax/microsoft.dynamics365.finance.budget, ballerinax/microsoft.dynamics365.finance.cashmanagement, ballerinax/microsoft.dynamics365.finance.core, ballerinax/microsoft.dynamics365.finance.coreorg, ballerinax/microsoft.dynamics365.finance.customer, ballerinax/microsoft.dynamics365.finance.customeraccount, ballerinax/microsoft.dynamics365.finance.customermain, ballerinax/microsoft.dynamics365.finance.document, ballerinax/microsoft.dynamics365.finance.expense, ballerinax/microsoft.dynamics365.finance.fiscal, ballerinax/microsoft.dynamics365.finance.fixedasset, ballerinax/microsoft.dynamics365.finance.hr, ballerinax/microsoft.dynamics365.finance.hrdev, ballerinax/microsoft.dynamics365.finance.journalentry, ballerinax/microsoft.dynamics365.finance.ledger, ballerinax/microsoft.dynamics365.finance.mainaccount, ballerinax/microsoft.dynamics365.finance.payment, ballerinax/microsoft.dynamics365.finance.procurement, ballerinax/microsoft.dynamics365.finance.project, ballerinax/microsoft.dynamics365.finance.receivable, ballerinax/microsoft.dynamics365.finance.sysconfig, ballerinax/microsoft.dynamics365.finance.system, ballerinax/microsoft.dynamics365.finance.tax, ballerinax/microsoft.dynamics365.finance.taxregion, ballerinax/microsoft.dynamics365.finance.trade, ballerinax/microsoft.dynamics365.finance.users, ballerinax/microsoft.dynamics365.finance.vendor, ballerinax/microsoft.dynamics365.finance.vendorextended, ballerinax/microsoft.dynamics365.finance.vendorpayment, ballerinax/microsoft.dynamics365.finance.workflow, ballerinax/microsoft.dynamics365.scm, ballerinax/microsoft.dynamics365businesscentral]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.dynamics365.finance.ledger/latest", kind: central, note: "Finance 0.8.x README (identical setup/quickstart shape across the 30 finance packages)"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.dynamics365.finance/tree/main/ballerina", kind: github, note: "One sub-package directory per finance entity group; ledger/client.bal read"}
+  - {url: "https://central.ballerina.io/ballerinax/microsoft.dynamics365.scm/latest", kind: central, note: "microsoft.dynamics365.scm 0.2.0 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.dynamics365.scm/blob/main/ballerina/client.bal", kind: github, note: "SCM client and query records"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/blob/main/openapi/microsoft.dynamics365businesscentral/client.bal", kind: github, note: "Business Central client"}
+must_cover:
+  - id: finance_setup
+    text: "Prepare Dynamics 365 Finance access: register an Entra ID app (client ID, tenant ID, client secret), grant the Dynamics ERP API permission with admin consent, and add the app under System administration > Users as an Azure AD application user with security roles"
+    difficulty: [beginner]
+  - id: finance_client_init
+    text: "Create a finance client such as `ledger:Client` from `microsoft.dynamics365.finance.ledger` with a `ConnectionConfig` whose `auth` is a client credentials grant (`tokenUrl: string `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token``, `clientId`, `clientSecret`, `scopes: [string `${serviceUrl}/.default`]`) and the environment `serviceUrl` (`https://<env>.operations.dynamics.com/data`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.dynamics365.finance/blob/main/ballerina/ledger/client.bal", kind: github, note: "init(ConnectionConfig config, string serviceUrl)"}
+  - id: finance_crud_pattern
+    text: "Use the per-entity remote methods every finance package generates: `listAccountants(*queries)` returning `ledger:AccountantsCollection`, `createAccountants(payload)`, `getAccountants(cPF, cRC)` keyed by the entity's OData key, `updateAccountants` and `deleteAccountants`"
+    difficulty: [intermediate]
+  - id: finance_odata_queries
+    text: "Shape OData requests with the included query record fields `top`, `skip`, `filter`, `orderBy`, `expand`, `selectFields`, `count` and `crossCompany` (e.g. `listWarehouses(queries = {top: 5})`), and pass an `If-Match` etag header on update/delete for optimistic concurrency"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-microsoft.dynamics365.scm/blob/main/ballerina/types.bal", kind: github, note: "ListWarehousesQueries and Delete*Headers"}
+  - id: finance_ledger_accounts
+    text: "Work with general ledger data through `microsoft.dynamics365.finance.ledger` (`listAccountants`, accrual schemes, audit trails), `microsoft.dynamics365.finance.mainaccount` (`mainaccount:Client` `listLeaseBooks`), `microsoft.dynamics365.finance.journalentry` (`listJournalLines`), `microsoft.dynamics365.finance.fiscal` (`listDimensionAttributes`) and `microsoft.dynamics365.finance.budget` (`listBudgetCodes`)"
+    difficulty: [intermediate]
+  - id: finance_customers_receivables
+    text: "Read and maintain customer data with `microsoft.dynamics365.finance.customermain` (`listCustomersV2`), `microsoft.dynamics365.finance.customer` (`listCustomerGroups`), `microsoft.dynamics365.finance.customeraccount` (`listCustomerElectronicAddresses`) and `microsoft.dynamics365.finance.receivable` (`listAdvLines`)"
+    difficulty: [intermediate]
+  - id: finance_vendors_payables
+    text: "Integrate procure-to-pay data with `microsoft.dynamics365.finance.vendor` (`listVendorGroups`), `microsoft.dynamics365.finance.vendorextended` (`listVendorsV2`), `microsoft.dynamics365.finance.vendorpayment` (`listPayAgreements`), `microsoft.dynamics365.finance.payment` (`listCurrencies`) and `microsoft.dynamics365.finance.procurement` (`listDeliveryTerms`)"
+    difficulty: [intermediate]
+  - id: finance_cash_assets_tax
+    text: "Access cash, asset and tax entities with `microsoft.dynamics365.finance.cashmanagement` (`listBankAccounts`), `microsoft.dynamics365.finance.fixedasset` (`listAssetLendings`), `microsoft.dynamics365.finance.expense` (`listExpenseCodes`), `microsoft.dynamics365.finance.tax` (`listCFOPCodes`), `microsoft.dynamics365.finance.taxregion` (`listEFDocSchemas`) and `microsoft.dynamics365.finance.trade` (`listBLWI`)"
+    difficulty: [intermediate]
+  - id: finance_org_hr_projects
+    text: "Read organisation, HR and project entities with `microsoft.dynamics365.finance.core` (`listAddressBooks`), `microsoft.dynamics365.finance.coreorg` (`listCardTypes`), `microsoft.dynamics365.finance.hr` (`listAbsenceCodes`), `microsoft.dynamics365.finance.hrdev` (`listCourseGroups`) and `microsoft.dynamics365.finance.project` (`listCDSProjects`)"
+    difficulty: [intermediate]
+  - id: finance_system_entities
+    text: "Query system and configuration entities with `microsoft.dynamics365.finance.system` (`listAbbreviations`), `microsoft.dynamics365.finance.sysconfig` (`listPSSerialLines`), `microsoft.dynamics365.finance.users` (`listChannelUsers`), `microsoft.dynamics365.finance.workflow` (`listActionClasses`) and `microsoft.dynamics365.finance.document` (`listAgentFeeds`)"
+    difficulty: [intermediate]
+  - id: scm_client
+    text: "Create a `scm:Client` from `microsoft.dynamics365.scm` with `config = {auth: {tokenUrl, clientId, clientSecret, scopes: [\"https://<tenant>.operations.dynamics.com/.default\"]}}` (or a bearer token) and `serviceUrl = \"https://<tenant>.operations.dynamics.com/data\"`, then call `listWarehouses(queries = {top: 5})`, `getWarehouses(dataAreaId, warehouseId)`, `createWarehouses` and `deleteWarehouses`"
+    difficulty: [intermediate]
+  - id: scm_orders_inventory
+    text: "Read supply-chain transactions with SCM operations such as `listSalesOrderHeaders`/`getSalesOrderLines`, `listPurchaseOrderLines`, `listProductionOrderHeaders`, `listProductionOrderRouteOperations`, `listBillOfMaterialsHeaders`/`listBillOfMaterialsLines` and `getTransferOrderLines`, using `crossCompany` for multi-legal-entity queries"
+    difficulty: [intermediate, advanced]
+  - id: business_central
+    text: "Call Business Central with the generated `microsoft.dynamics365businesscentral` `Client` (`http:BearerTokenConfig` auth, default service URL `https://api.businesscentral.dynamics.com/v2.0/sandbox/api/v1.0`): `listCompanies`, then company-scoped `listCustomers(companyId, top = ..., filter = ...)`, `postCustomer`, `patchCustomer`, `listItems`, `postItem`, `listVendors`, `listSalesInvoices`, `listSalesOrders` and `listGeneralLedgerEntries`"
+    difficulty: [intermediate]
+out_of_scope:
+  - "Microsoft 365 productivity connectors (connector.microsoft_365)"
+  - "Other ERP systems (connector.sap, connector.area_erp_business_operations)"
+edges:
+  - {to: lib.http, rel: uses, via: [finance_client_init, business_central]}
+  - {to: lib.oauth2, rel: uses, via: [finance_client_init, scm_client]}
+  - {to: concept.client_objects, rel: uses, via: [finance_crud_pattern, scm_client]}
+  - {to: concept.records, rel: uses, via: [finance_odata_queries, finance_crud_pattern]}
+  - {to: concept.errors, rel: uses, via: [finance_crud_pattern]}
+notes: "The finance READMEs show `new ({ config = {...}, serviceUrl)`, which is not valid Ballerina; the client signature in ledger/client.bal is `init(ConnectionConfig config, string serviceUrl)`, so items describe that form. Entity operations per finance package were taken from each README's quickstart call (one per package); the full entity lists live in each sub-package's client.bal. Business Central method names are from the openapi-connectors main branch (Central 1.5.2)."

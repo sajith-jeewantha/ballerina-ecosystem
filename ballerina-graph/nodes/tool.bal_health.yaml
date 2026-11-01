@@ -1,0 +1,57 @@
+schema_version: "0.2"
+id: tool.bal_health
+type: tool
+title: bal health
+summary: "The Ballerina Health CLI tool (`bal health`) generates Ballerina packages of FHIR profile records and FHIR API service templates from a FHIR implementation guide's definition files, and CDS Hooks service templates from a TOML hook definition file."
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/health-tool/", kind: docs, note: "Health tool guide"}
+  - {url: "https://github.com/ballerina-guides/healthcare-samples/tree/main/working-with-health-tool", kind: github, note: "Package and template generation examples"}
+must_cover:
+  - id: install_tool
+    text: "Install the Health tool from Ballerina Central with `bal tool pull health` (supported from Swan Lake 2201.8.1)"
+    difficulty: [beginner]
+  - id: ig_definitions
+    text: "Prepare input by downloading an implementation guide's JSON definitions archive (from the FHIR IG registry; STU or higher) and extracting it so the directory contains the `StructureDefinition`, `ValueSet` and `CodeSystem` files, which is passed as the last argument of `bal health fhir`"
+    difficulty: [beginner]
+  - id: fhir_command
+    text: "Use the general form `bal health fhir [-m|--mode] <package|template> [-o|--output] <dir> [--package-name] <name> [--dependent-package] <org/pkg> [--org-name] <org> [--included-profile] <url> [--excluded-profile] <url> <fhir-specification-directory-path>`"
+    difficulty: [beginner]
+  - id: package_mode
+    text: "Generate a Ballerina package of IG profile records with `bal health fhir -m package -o ig-carinbb/gen --org-name healthcare_samples --package-name carinbb_package ig-carinbb/definitions/`; `--package-name` names the package and `--org-name` sets its org"
+    difficulty: [intermediate]
+  - id: package_artifacts
+    text: "Recognise the generated package layout: `Ballerina.toml`, `Package.md`, `initializer.bal`, `variables.bal`, one `resource_<profile>.bal` per profile (e.g. `resource_c4bbpatient.bal`, `resource_c4bbcoverage.bal`) with records that carry cardinality constraints and metadata, plus `resources/` and `tests/`"
+    difficulty: [intermediate]
+  - id: publish_package
+    text: "Build and share a generated IG package with `bal pack` and `bal push --repository local` (or push to Ballerina Central), then depend on it from a service project's `Ballerina.toml` and import its records"
+    difficulty: [intermediate]
+  - id: template_mode
+    text: "Generate FHIR API service templates for every profile in an IG with `bal health fhir -m template -o ig-uscore/gen --org-name healthcare_samples --dependent-package ballerinax/health.fhir.r4.uscore501 ig-uscore/definitions`, where `--dependent-package` (mandatory) is the published package that holds the IG records and its name prefixes each template name"
+    difficulty: [intermediate]
+  - id: template_profile_filter
+    text: "Restrict template generation to chosen profiles with one or more `--included-profile <profile-url>` arguments, or skip profiles with `--excluded-profile <profile-url>`"
+    difficulty: [intermediate]
+  - id: template_artifacts
+    text: "Use the generated per-resource template projects (e.g. `patient/`, `practitioner/`, `observation/`), each with `Ballerina.toml`, `api_config.bal`, `service.bal` and `Package.md`, by implementing resource functions such as `isolated resource function get fhir/r4/Practitioner/[string id](r4:FHIRContext fhirContext) returns Practitioner|r4:OperationOutcome|r4:FHIRError` and running `bal run` (served at `http://localhost:9090/fhir/r4/Practitioner/1`)"
+    difficulty: [intermediate]
+  - id: cds_command
+    text: "Generate a CDS Hooks 2.0 service template with `bal health cds --org-name wso2 --package-name cds_service --package-version 1.0.0 -i cds-definitions.toml [-o <dir>]`; `-i/--input` (a TOML file) is mandatory and the package name defaults to `health.fhir.templates.crd`"
+    difficulty: [intermediate]
+  - id: cds_definitions
+    text: "Write the CDS hook definition TOML as `[[cds_services]]` tables with `id`, `hook` (e.g. `patient-view`, `order-dispatch`), `title`, `description`, optional `usageRequirements` and a `[cds_services.prefetch]` table such as `patientToGreet = \"Patient/{{context.patientId}}\"`"
+    difficulty: [intermediate]
+  - id: cds_artifacts
+    text: "Complete the generated CDS project (`service.bal`, `interceptor.bal`, `utils.bal`, `Config.toml`, `decision_engine_connector.bal`) by implementing the placeholder decision functions, e.g. `isolated function connectDecisionSystemForBookImagingCenter(cds:CdsRequest cdsRequest, string hookId) returns cds:CdsResponse|cds:CdsError`, then call `POST http://localhost:8080/cds-services/book-imaging-center`"
+    difficulty: [advanced]
+out_of_scope:
+  - "Using the prebuilt IG packages and templates on Central (connector.health_fhir_igs, connector.health_fhir_templates)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: tool.bal_tool, rel: uses, via: [install_tool]}
+  - {to: connector.health_fhir_igs, rel: uses, via: [template_mode, package_mode], target_items: [us_core_versions, carin_bb]}
+  - {to: connector.health_other, rel: uses, via: [template_artifacts, cds_artifacts], target_items: [fhir_service_listener, resource_api_config, cds_response]}
+  - {to: tool.central, rel: uses, via: [publish_package]}
+  - {to: tool.ballerina_toml, rel: uses, via: [publish_package]}
+notes: "The guide's install example shows health tool 2.0.0. Only `bal health fhir` (package/template modes) and `bal health cds` are documented on ballerina.io; no other subcommands were confirmed."

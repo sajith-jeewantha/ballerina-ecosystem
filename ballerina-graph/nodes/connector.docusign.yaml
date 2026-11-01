@@ -1,0 +1,55 @@
+schema_version: "0.2"
+id: connector.docusign
+type: connector
+title: "DocuSign connectors"
+summary: "DocuSign clients: `docusign.dsesign` for the eSignature REST API v2.1 (envelopes, recipients, documents, templates), `docusign.dsclick` for Click API clickwraps, and generated clients for the Admin, Click, Monitor and Rooms APIs."
+priority: long_tail
+status: draft
+modules: [ballerinax/docusign.admin, ballerinax/docusign.click, ballerinax/docusign.dsclick, ballerinax/docusign.dsesign, ballerinax/docusign.monitor, ballerinax/docusign.rooms]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/docusign.dsesign/latest", kind: central, note: "docusign.dsesign 1.0.1 README"}
+  - {url: "https://central.ballerina.io/ballerinax/docusign.dsclick/latest", kind: central, note: "docusign.dsclick 2.0.2 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerinax-docusign.dsesign/blob/main/ballerina/client.bal", kind: github, note: "init(string serviceUrl, *ConnectionConfig config) and resource paths"}
+  - {url: "https://github.com/ballerina-platform/openapi-connectors/tree/main/openapi", kind: github, note: "Generated docusign.admin, docusign.click, docusign.monitor, docusign.rooms clients"}
+must_cover:
+  - id: esign_client
+    text: "Create a `dsesign:Client` with `check new (serviceUrl, {auth: {clientId, clientSecret, refreshToken, refreshUrl}})`, where `serviceUrl` is e.g. `https://demo.docusign.net/restapi` (the init signature is `init(string serviceUrl, *ConnectionConfig config)`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-docusign.dsesign/tree/main/examples/create-digital-signatures", kind: github, note: "Client construction"}
+  - id: send_envelope
+    text: "Send a document for signature with `docusignClient->/accounts/[accountId]/envelopes.post({documents: [{documentBase64, documentId: \"1\", fileExtension: \"pdf\", name}], emailSubject, recipients: {signers: [{email, name, recipientId}]}, status: \"sent\"})` returning `dsesign:EnvelopeSummary`"
+    difficulty: [beginner, intermediate]
+  - id: list_envelopes
+    text: "List envelopes changed since a date with `->/accounts/[accountId]/envelopes(from_date = \"2024-01-01T00:00Z\")` returning `dsesign:EnvelopesInformation`, and read one with `->/accounts/[accountId]/envelopes/[envelopeId]`"
+    difficulty: [beginner]
+  - id: envelope_details
+    text: "Work with an envelope's parts: `->/accounts/[accountId]/envelopes/[envelopeId]/recipients` (get, post, put, delete), `->/accounts/[accountId]/envelopes/[envelopeId]/documents/[documentId]` to download a document, and `->/accounts/[accountId]/envelopes/[envelopeId]/views/recipient.post` for an embedded signing URL"
+    difficulty: [intermediate, advanced]
+  - id: templates_and_signatures
+    text: "Create and list templates with `->/accounts/[accountId]/templates.post` and `.get`, and manage a user's signature images with `->/accounts/[accountId]/users/[userId]/signatures.post`"
+    difficulty: [intermediate]
+  - id: connect_webhooks
+    text: "Configure DocuSign Connect (envelope status webhooks) through `->/accounts/[accountId]/connect` (get, post, put)"
+    difficulty: [advanced]
+  - id: clickwrap_client
+    text: "Create a `dsclick:Client` (`docusign.dsclick`) with `check new (serviceUrl, {auth: {clientId, clientSecret, refreshToken, refreshUrl}})` and create a clickwrap with `->/v1/accounts/[accountId]/clickwraps.post` of a `dsclick:ClickwrapRequest` (`clickwrapName`, `documents`, `displaySettings` such as `consentButtonText`, `format: \"modal\"`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerinax-docusign.dsclick/tree/main/examples/return-policy-agreement", kind: github, note: "Clickwrap lifecycle"}
+  - id: clickwrap_versions
+    text: "Update and audit clickwraps: `->/v1/accounts/[accountId]/clickwraps/[clickwrapId]/versions/[versionId].put(payload)`, list agreeing users with `->/v1/accounts/[accountId]/clickwraps/[clickwrapId]/versions/[versionId]/users()`, and delete with `->/v1/accounts/[accountId]/clickwraps/[clickwrapId].delete()`"
+    difficulty: [intermediate]
+  - id: click_legacy
+    text: "Use the older generated `docusign.click` client (bearer or refresh-token `auth`) remote methods `postClickwrap`, `getClickwraps`, `checkIfUserHasAgreed`, `getClickwrapAgreements` and `getAgreementPdf`"
+    difficulty: [intermediate]
+  - id: admin_rooms_monitor
+    text: "Administer an organization with `docusign.admin` (`getOrganizationList`, `createImportUsersRequest`, `createUserListExportRequest`), manage real-estate rooms with `docusign.rooms` (`getAccountInformation`, `getFormLibraries`, `createFormGroup`), and read security events with `docusign.monitor` `getDatasetsByDataSetName`"
+    difficulty: [intermediate, advanced]
+edges:
+  - {to: lib.http, rel: uses, via: [esign_client, clickwrap_client]}
+  - {to: lib.oauth2, rel: uses, via: [esign_client, clickwrap_client]}
+  - {to: concept.client_objects, rel: uses, via: [esign_client, clickwrap_client]}
+  - {to: concept.resource_methods, rel: uses, via: [send_envelope, list_envelopes, envelope_details, clickwrap_versions]}
+  - {to: concept.records, rel: uses, via: [send_envelope, clickwrap_client]}
+notes: "The dsesign and dsclick READMEs pass `serviceUrl` inside the config record (`new({auth: ..., serviceUrl = ...})`), which does not match `init(string serviceUrl, *ConnectionConfig config)`; items follow the code and the repo examples. docusign.admin, click, monitor and rooms are openapi-connectors packages (1 pull each); names come from openapi-connectors main."

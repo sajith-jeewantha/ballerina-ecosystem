@@ -9,10 +9,14 @@ sources:
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2", kind: spec, note: "5.4.2 Mappings"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_5.4.2.1", kind: spec, note: "5.4.2.1 Map types"}
   - {url: "https://ballerina.io/spec/lang/2024R1/#section_6.7.2", kind: spec, note: "6.7.2 Mapping constructor"}
+  - {url: "https://ballerina.io/learn/by-example/array-map-symmetry/", kind: bbe}
+  - {url: "https://ballerina.io/learn/language-basics/", kind: docs, note: "Learn: Language basics"}
 must_cover:
   - id: map_type
     text: 'Declare `map<T>` types, where every field value must belong to `T` and every key is a string, e.g. `map<int> ages = {alice: 30};`'
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/maps/", kind: bbe}
   - id: mapping_constructor_basics
     text: 'Construct mappings with `{name: value}` fields using either a field name or a string literal key (`{"first name": "Ann"}`), and use the shorthand `{x}` as equivalent to `{x: x}`'
     difficulty: [beginner]
@@ -22,6 +26,8 @@ must_cover:
   - id: computed_name_fields
     text: 'Use computed-name fields `[keyExpr]: value`, whose key expression has contextually expected type `string`, and explain that they are applied in order after the rest of the mapping is built and panic if incompatible with the inherent type'
     difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/computed-field-key/", kind: bbe}
   - id: inherent_type_from_context
     text: 'Explain how a mapping constructor takes its inherent type from the contextually expected type, and how in a union the members inconsistent with the specific-field names are discarded so that exactly one mapping type must remain'
     difficulty: [advanced]
@@ -48,6 +54,7 @@ must_cover:
     difficulty: [beginner, intermediate]
     sources:
       - {url: "https://ballerina.io/spec/lang/2024R1/#lang.map", kind: spec, note: "11.3.9 lang.map module"}
+      - {url: "https://ballerina.io/learn/by-example/maps/", kind: bbe}
   - id: map_functional
     text: 'Use `lang.map` functions `length`, `keys`, `toArray`, `entries` (returns `map<[string, T]>`), `map`, `filter`, `reduce` and `forEach` on mappings'
     difficulty: [beginner, intermediate]

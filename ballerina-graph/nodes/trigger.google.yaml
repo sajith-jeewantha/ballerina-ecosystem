@@ -1,0 +1,101 @@
+schema_version: "0.2"
+id: trigger.google
+type: trigger
+title: ballerinax/trigger.google.*
+summary: "Google Workspace triggers: listeners that receive Google Calendar, Google Drive, Gmail and Google Sheets change notifications over HTTP and dispatch them to the remote methods of `calendar:CalendarService`, `drive:DriveService`, `mail:GmailService` and `sheets:SheetRowService`."
+priority: important
+status: draft
+modules: [ballerinax/trigger.google.calendar, ballerinax/trigger.google.drive, ballerinax/trigger.google.mail, ballerinax/trigger.google.sheets]
+sources:
+  - {url: "https://central.ballerina.io/ballerinax/trigger.google.calendar/latest", kind: central, note: "trigger.google.calendar 0.12.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.google.drive/latest", kind: central, note: "trigger.google.drive 0.11.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.google.mail/latest", kind: central, note: "trigger.google.mail 0.12.0"}
+  - {url: "https://central.ballerina.io/ballerinax/trigger.google.sheets/latest", kind: central, note: "trigger.google.sheets 0.10.0"}
+  - {url: "https://github.com/ballerina-platform/asyncapi-triggers/tree/main/asyncapi", kind: github, note: "Trigger sources"}
+must_cover:
+  - id: google_oauth_credentials
+    text: "Obtain the OAuth2 credentials the Calendar, Drive and Gmail listeners need: in the Google API Console create a project, enable the `Google Calendar API` / `Google Drive API`, configure the OAuth consent screen and scopes, create a `Web Application` OAuth client ID (adding `https://developers.google.com/oauthplayground` as an authorized redirect URI), then exchange an authorization code for a refresh token in the OAuth 2.0 Playground using your own client ID and secret"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.calendar/latest", kind: central, note: "Prerequisites"}
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.drive/latest", kind: central, note: "Prerequisites"}
+  - id: calendar_listener
+    text: "Create a `calendar:Listener` from `ballerinax/trigger.google.calendar` with a `calendar:ListenerConfig` giving `calendarId` (e.g. `\"primary\"`), `callbackURL` (the public URL of the service), `clientId`, `clientSecret`, `refreshUrl` (`\"https://oauth2.googleapis.com/token\"`), `refreshToken` and optional `expiration`, plus an optional `listenOn` port (default 8090) or `http:Listener`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.calendar/listener.bal", kind: github, note: "init(ListenerConfig listenerConfig, int|http:Listener listenOn = 8090)"}
+  - id: calendar_service
+    text: "Implement `calendar:CalendarService` (`onNewEvent`, `onEventUpdate`, `onEventDelete`; payload `calendar:Event`) to react to events created, updated or deleted in the watched calendar"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.calendar/latest", kind: central, note: "Step 3: Invoke listener triggers"}
+  - id: calendar_watch_channel
+    text: "Know that attaching a service registers a Calendar watch channel for `calendarId` that is renewed before it expires, and that `gracefulStop`/`immediateStop` on the `calendar:Listener` stop the channel before shutting down the HTTP listener"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.calendar/listener.bal", kind: github, note: "registerWatchChannel, scheduleNextChannelRenewal, stopChannel"}
+  - id: drive_listener
+    text: "Create a `drive:Listener` from `ballerinax/trigger.google.drive` with a `drive:ListenerConfig` giving `clientId`, `clientSecret`, `refreshUrl`, `refreshToken` and `callbackURL`, plus optional `listenOn` (default 8090)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.drive/data_types.bal", kind: github, note: "ListenerConfig"}
+  - id: drive_service
+    text: "Implement `drive:DriveService` (`onFileCreate`, `onFolderCreate`, `onFileUpdate`, `onFolderUpdate`, `onDelete`, `onFileTrash`, `onFolderTrash`; payload `drive:Change`), reading `fileId`, `changeType`, `mimeType`, `time`, `removed` and `file` from the `drive:Change`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.drive/latest", kind: central, note: "Step 3: Invoke listener triggers"}
+  - id: drive_specific_resource
+    text: "Watch a single folder or file instead of the whole drive by setting `specificFolderOrFileId` in `drive:ListenerConfig`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.drive/data_types.bal", kind: github, note: "specificFolderOrFileId"}
+  - id: drive_channel_renewal
+    text: "Tune Drive watch-channel renewal with `channelRenewalConfig: {retryCount, retryInterval, leadTime, domainVerificationDelay}` (`drive:ChannelRenewalConfig`), and set `domainVerificationFileContent` so the listener serves Google's site-verification HTML file for the callback domain"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.drive/dispatcher_service.bal", kind: github, note: "GET resource serving the domain verification file"}
+  - id: mail_listener
+    text: "Create a `mail:Listener` from `ballerinax/trigger.google.mail` with `new (config, 8090)`, where `mail:ListenerConfig` gives `clientId`, `clientSecret`, `refreshUrl`, `refreshToken`, `project` (the Google Cloud project ID), `callbackURL` (the listener's public endpoint) and optional `secureSocketConfig`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.mail/listener.bal", kind: github, note: "ListenerConfig fields used by init"}
+  - id: mail_pubsub
+    text: "Enable the `Cloud Pub/Sub API` for the project (or use a service account with the Pub/Sub admin role), since the Gmail listener creates a Pub/Sub topic and push subscription to `callbackURL` in `project`, then watches the `INBOX` label and renews the watch; stopping the listener stops the mailbox watch"
+    difficulty: [intermediate, advanced]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.mail/latest", kind: central, note: "Prerequisites"}
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.mail/listener.bal", kind: github, note: "createTopic, watchMailbox, stop"}
+  - id: mail_service
+    text: "Implement `mail:GmailService` (`onNewEmail(mail:Message)`, `onNewThread(mail:MailThread)`, `onEmailLabelAdded(mail:ChangedLabel)`, `onEmailStarred(mail:Message)`, `onEmailLabelRemoved(mail:ChangedLabel)`, `onEmailStarRemoved(mail:Message)`, `onNewAttachment(mail:MailAttachment)`)"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.mail/latest", kind: central, note: "Step 3: GmailService"}
+  - id: sheets_listener
+    text: "Create a `sheets:Listener` from `ballerinax/trigger.google.sheets` with a `sheets:ListenerConfig` holding the `spreadsheetId` (taken from the sheet URL `https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit`), e.g. `configurable sheets:ListenerConfig userInput = {spreadsheetId: \"...\"}; listener sheets:Listener sheetListener = new (userInput);`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.sheets/latest", kind: central, note: "Step 2"}
+  - id: sheets_apps_script
+    text: "Make the spreadsheet push edits to the listener with Google Apps Script: under `Extensions > Apps Script` add the `atChange` and `atEdit` functions that POST the edit details as JSON with `UrlFetchApp.fetch('<BASE_URL>/', options)`, then add installable triggers running `atChange` on `On change` and `atEdit` on `On edit` from the spreadsheet"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.sheets/latest", kind: central, note: "Prerequisites: Apps Script code and triggers"}
+  - id: sheets_service
+    text: "Implement `sheets:SheetRowService` (`onAppendRow`, `onUpdateRow`; payload `sheets:GSheetEvent`), reading `spreadsheetId`, `worksheetName`, `rangeUpdated`, `startingRowPosition`, `newValues`, `lastRowWithContent`, `eventType` and the raw `eventData` from the `sheets:GSheetEvent`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerinax/trigger.google.sheets/latest", kind: central, note: "Step 3"}
+  - id: shared_http_listener
+    text: "Pass an existing `http:Listener` as the `listenOn` argument of a Google trigger listener so its dispatcher shares a port with other services, and expose the local port publicly (e.g. with ngrok) for the callback URL"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/google.sheets/listener.bal", kind: github, note: "int|http:Listener listenOn = 8090"}
+out_of_scope:
+  - "Calling the Google Workspace APIs directly (connector.google_workspace)"
+edges:
+  - {to: concept.services_listeners, rel: uses, via: [calendar_service, drive_service, mail_service, sheets_service]}
+  - {to: connector.google_workspace, rel: uses, via: [calendar_listener, drive_listener, mail_listener], note: "The listeners call the Calendar, Drive and Gmail APIs (googleapis.* connectors) to manage watch channels and fetch changes"}
+  - {to: lib.oauth2, rel: uses, via: [google_oauth_credentials, calendar_listener, drive_listener, mail_listener], note: "Refresh-token grant built from the config fields"}
+  - {to: lib.http, rel: uses, via: [shared_http_listener]}
+  - {to: tool.config_toml, rel: uses, via: [sheets_listener]}
+notes: "Config fields follow the Central API docs of each version. The Calendar README shows `address` and a nested `auth` record and the Gmail README shows `pushEndpoint`, but the published `ListenerConfig` records have flat `clientId`/`clientSecret`/`refreshUrl`/`refreshToken` and `callbackURL` fields, so items use the API-doc names. The Drive README omits `callbackURL`, which is required in the record."

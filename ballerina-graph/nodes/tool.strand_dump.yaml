@@ -1,0 +1,55 @@
+schema_version: "0.2"
+id: tool.strand_dump
+type: tool
+title: Strand dump
+summary: "A strand dump prints the state of every strand and strand group of a running Ballerina program to its standard output when the process receives the `SIGTRAP` signal. It is used to troubleshoot hangs, deadlocks, livelocks and race conditions."
+priority: long_tail
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/strand-dump-tool/", kind: docs}
+must_cover:
+  - id: purpose_platforms
+    text: "Use a strand dump to troubleshoot runtime errors, find data races, race conditions, livelocks and deadlocks, and inspect strand and strand group status, on operating systems that support the `SIGTRAP` POSIX signal (not Windows)"
+    difficulty: [beginner]
+  - id: find_pid
+    text: "Find the process ID of a program started with `bal run` by running `jps` and taking the PID of the `$_init` main class"
+    difficulty: [beginner]
+  - id: test_pid
+    text: "Find the process ID of tests started with `bal test` by taking the PID of the `BTestMain` class in the `jps` output"
+    difficulty: [intermediate]
+  - id: send_sigtrap
+    text: "Trigger the dump with `kill -SIGTRAP <pid>` or `kill -5 <pid>`, which prints it in text format to the program's standard output stream"
+    difficulty: [beginner]
+  - id: dump_header
+    text: "Read the dump header `Ballerina Strand Dump [<date time>]` and its counts: `Total strand group count`, `Total strand count`, `Active strand group count` and `Active strand count`"
+    difficulty: [beginner, intermediate]
+  - id: strand_group_line
+    text: "Read a strand group line such as `group 5 [QUEUED]: [3]`: the strand group ID, its state (`RUNNABLE`, or `QUEUED` when blocked, completed or not yet scheduled) and the number of strands in the group, which run on the same thread one at a time"
+    difficulty: [intermediate]
+  - id: strand_line
+    text: "Read a strand line such as `strand 4 \"sender\" [demo.strandDump.0:addnum][3] [BLOCKED]:` giving the strand ID, optional strand name, the module and function that created it, the parent strand ID and the strand state"
+    difficulty: [intermediate]
+  - id: yield_stack_trace
+    text: "Read the yielded-location stack trace of a blocked strand, one `module name:function name(filename:line number)` frame per line (e.g. `at demo.strandDump.0.1.0:addnum(main.bal:22)`), omitted for `RUNNABLE` and `DONE` strands"
+    difficulty: [intermediate]
+  - id: worker_message_states
+    text: "Recognise worker-message states: `BLOCKED ON WORKER MESSAGE SEND` (a sync send `->>`), `BLOCKED ON WORKER MESSAGE RECEIVE` (a receive `<-`) and `BLOCKED ON WORKER MESSAGE FLUSH` (a `flush`)"
+    difficulty: [advanced]
+  - id: other_states
+    text: "Recognise the other strand states: `WAITING` (blocked on a `wait` action), `WAITING FOR LOCK` (waiting to acquire a lock), `BLOCKED` (any other reason such as `runtime:sleep` or an external function call), `RUNNABLE` and `DONE`"
+    difficulty: [intermediate, advanced]
+  - id: diagnose_workers
+    text: "Diagnose a program that uses `start`, `wait` and named workers (e.g. a `future<int>` from `start addnum(1, 2)` whose `sender` worker sleeps before `num1 -> receiver`) by matching each strand's state and stack trace to the blocking statement"
+    difficulty: [advanced]
+out_of_scope:
+  - "Step debugging with breakpoints (tool.debugger)"
+  - "Workers, futures and worker messages themselves (concept.strands_workers, concept.futures_wait, concept.worker_messages)"
+edges:
+  - {to: tool.bal, rel: requires}
+  - {to: platform.runtime, rel: uses, via: [purpose_platforms, send_sigtrap]}
+  - {to: tool.bal_test, rel: uses, via: [test_pid]}
+  - {to: concept.strands_workers, rel: uses, via: [strand_group_line, strand_line, diagnose_workers]}
+  - {to: concept.worker_messages, rel: uses, via: [worker_message_states, diagnose_workers]}
+  - {to: concept.futures_wait, rel: uses, via: [other_states, diagnose_workers]}
+  - {to: lib.lang.runtime, rel: uses, via: [other_states]}
+notes: "Only the ballerina.io page documents this tool. The `->>` syntax for sync send comes from the language (the page only says \"sync send action\"). The page's sample output dates from 2022; it does not say whether newer runtimes changed the format."

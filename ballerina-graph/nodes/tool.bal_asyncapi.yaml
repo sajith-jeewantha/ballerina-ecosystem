@@ -5,9 +5,11 @@ title: bal asyncapi
 summary: The `bal asyncapi` CLI tool generates a Ballerina listener, service types and an event dispatcher from an AsyncAPI 2.x contract for an HTTP-based event API (webhooks), so you can implement one remote method per event type.
 priority: long_tail
 status: draft
+modules: [ballerinax/asyncapi.native.handler]
 sources:
 - {url: 'https://ballerina.io/learn/asyncapi-tool/', kind: docs, note: AsyncAPI tool}
 - {url: 'https://github.com/ballerina-platform/asyncapi-tools', kind: github}
+- {url: 'https://central.ballerina.io/ballerinax/asyncapi.native.handler/latest', kind: central, note: 'ballerinax/asyncapi.native.handler 0.6.0'}
 must_cover:
 - id: event_identifier_extension
   text: 'Add `x-ballerina-event-identifier` with `type` and `path` at the top of the contract so the listener can find the event type in an incoming request (only `type: "body"`, with `path` as the JSON path such as `event.type`, is currently supported)'
@@ -27,12 +29,21 @@ must_cover:
 - id: customize_listener
   text: Extend the `init` function in the generated `listener.bal` when the listener needs secrets, endpoint URLs or tokens
   difficulty: [advanced]
+- id: native_handler_dependency
+  text: "Know that generated dispatchers depend on `ballerinax/asyncapi.native.handler`: they hold a `handler:NativeHandler` whose `invokeRemoteFunction(event, eventName, eventFunction, serviceObj)` calls the user's remote method and whose `bindEventPayload(serviceObj, eventFunction, payload)` binds the JSON payload to the type of that method's first parameter via `data.jsondata` (honouring `@jsondata:Name`); triggers generated with dynamic payload binding need version 0.6.0 or later"
+  difficulty: [advanced]
+  sources:
+  - {url: 'https://central.ballerina.io/ballerinax/asyncapi.native.handler/latest', kind: central}
+  - {url: 'https://github.com/ballerina-platform/asyncapi-triggers/blob/main/asyncapi/github/dispatcher_service.bal', kind: github, note: 'Generated dispatcher using handler:NativeHandler'}
 out_of_scope: [Writing HTTP listeners and services by hand (lib.http), Event-driven design in general (topic.event_driven)]
 edges:
 - {to: tool.bal, rel: requires}
 - to: lib.http
   rel: uses
   via: [generate_sources, customize_dispatcher]
+- to: lib.data.jsondata
+  rel: uses
+  via: [native_handler_dependency]
 - to: concept.services_listeners
   rel: uses
   via: [implement_event_service, customize_listener]

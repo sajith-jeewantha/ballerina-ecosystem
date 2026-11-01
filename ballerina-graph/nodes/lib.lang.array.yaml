@@ -15,12 +15,16 @@ must_cover:
   - id: push_pop
     text: "Mutate an array at its end with `push(...vals)` (appends values) and `pop()` (removes and returns the last member; the array must not be empty)"
     difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/arrays/", kind: bbe}
   - id: shift_unshift
     text: "Mutate an array at its start with `shift()` (removes and returns the first member; the array must not be empty) and `unshift(...vals)` (adds values at the start, keeping them in the order given)"
     difficulty: [beginner]
   - id: remove_members
     text: "Remove members with `remove(index)` (returns the removed member and panics if there is no member at `index`) and `removeAll()` (panics if any member cannot be removed)"
     difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/arrays/", kind: bbe}
   - id: set_length
     text: "Change an array's length in place with `setLength(n)`, knowing that `setLength(arr, 0)` is equivalent to `removeAll(arr)`"
     difficulty: [intermediate]

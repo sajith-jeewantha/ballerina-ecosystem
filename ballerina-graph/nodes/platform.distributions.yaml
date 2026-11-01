@@ -1,0 +1,113 @@
+schema_version: "0.2"
+id: platform.distributions
+type: platform
+title: Swan Lake distributions
+summary: Ballerina Swan Lake is shipped as versioned distributions (2201.x.y) that bundle the compiler, libraries and a Java runtime. They are installed with OS installers, Homebrew or a ZIP file, and managed with the update tool (`bal update`, `bal dist ...`).
+priority: important
+status: draft
+sources:
+  - {url: "https://ballerina.io/learn/update-tool/", kind: docs, note: "Distributions, release channels, patch releases, bal update and bal dist"}
+  - {url: "https://ballerina.io/downloads/installation-options/", kind: docs, note: "Installers, Homebrew, ZIP, verify, update, uninstall"}
+  - {url: "https://ballerina.io/downloads/", kind: docs, note: "Current release 2201.14.1 (Swan Lake Update 14)"}
+  - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.0.0/", kind: docs, note: "Version format $YYMM.$UPDATE.$PATCH ($CODE_NAME)"}
+must_cover:
+  - id: version_format
+    text: "Read a Swan Lake version such as `2201.9.0` as `$YYMM.$UPDATE.$PATCH ($CODE_NAME)`, where `2201.0.0` is the first Swan Lake release and `2201.N.0` is Swan Lake Update N (e.g. `2201.14.1` is a patch of Update 14)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.0.0/", kind: docs}
+  - id: patch_vs_update
+    text: "Distinguish update releases (`2201.x.0`), which add language, library and tooling features and may contain backward-incompatible changes, from patch releases (`2201.x.y` with y > 0), which carry bug, stability and security fixes"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs, note: "Patch releases"}
+  - id: install_installers
+    text: "Install Ballerina with the platform installer: the macOS `.pkg` (into `/Library/Ballerina`, with a separate macOS ARM installer since 2201.5.0), `brew install bal`, the Windows `.msi` (into `C:\\Program Files\\Ballerina`), or the Linux `.deb`/`.rpm` (`dpkg -i ...deb`, `rpm -i ...rpm`)"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.5.0/", kind: docs, note: "New macOS-ARM installer"}
+  - id: install_zip
+    text: "Install from the ZIP file on unsupported systems by unzipping `ballerina-<VERSION>`, adding its `bin` directory to `PATH` and setting `JAVA_HOME` to a JRE of the Java version that update needs"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs}
+  - id: verify_install
+    text: "Check the installation with `bal version`, which prints the Ballerina version and Swan Lake update, the language specification version and the update tool version"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs}
+  - id: install_layout
+    text: "Describe the installation layout: `bin/bal`, the bundled JREs in `dependencies/` (e.g. `jdk-11.0.18+10-jre`), installed versions in `distributions/` (e.g. `ballerina-2201.5.0`) and the update tool JAR in `lib/`, with only one active distribution at a time"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+  - id: command_delegation
+    text: "Explain that the `bal` tool delegates `build`, `test`, `run`, `pull` and `push` to the active distribution, while `dist` and `version` are handled by the tool itself"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+  - id: bal_update
+    text: "Update the update tool itself with `bal update`, whose version is independent of distribution versions, and run it before `bal dist update` when coming from a version older than 2201.0.0"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.2.0/", kind: docs, note: "Upgrade steps from versions below 2201.0.0"}
+  - id: dist_list
+    text: "List local and remote distributions with `bal dist list` (and `bal dist list -a` for every version in each channel), where `*` marks the active distribution and remote versions are grouped by the Swan Lake and 1.x channels"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+  - id: dist_update_pull
+    text: "Move to a newer distribution with `bal dist update`, `bal dist pull latest` or `bal dist pull 2201.14.1`, each of which downloads the distribution and its JRE dependency if missing and sets it as active"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs, note: "Update Ballerina table"}
+  - id: dist_use_remove
+    text: "Switch the active version with `bal dist use 2201.4.2`, and clean up with `bal dist remove <version>` or `bal dist remove -a` to remove all non-active distributions"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/learn/update-tool/", kind: docs}
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs, note: "Uninstall Ballerina"}
+  - id: uninstall
+    text: "Uninstall Ballerina with `brew uninstall bal`, `apt-get remove ballerina-<VERSION>-swan-lake`, `rpm -e ballerina-<VERSION>-swan-lake`, the Windows control panel, or by deleting the installation directory"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://ballerina.io/downloads/installation-options/", kind: docs}
+  - id: verify_artifacts
+    text: "Verify a downloaded installer (from 2201.7.0) with `cosign verify-blob <installer> --certificate <installer>.pem --signature <installer>.sig ...` or by looking up its SHA-256 in the Rekor transparency log"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/downloads/verify-ballerina-artifacts/", kind: docs}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.7.0/", kind: docs}
+  - id: distribution_field
+    text: "Read the `distribution = \"2201.x.y\"` entry in the `[package]` table of `Ballerina.toml`, and know that building an existing package with a newer Swan Lake update makes the compiler update `Dependencies.toml` to the latest dependency minor versions compatible with that distribution"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/manage-dependencies/", kind: docs, note: "Upgrading packages to use new Swan Lake update distributions"}
+      - {url: "https://ballerina.io/learn/customize-formatting/", kind: docs, note: "Ballerina.toml example with distribution = \"2201.9.0\""}
+  - id: distribution_repository
+    text: "Explain that each distribution ships a local platform distribution repository with the lang library and standard library packages, searched together with Ballerina Central when a dependency gives no `repository`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-spec/blob/master/packages/package-spec.md", kind: github, note: "5.3.1 Platform distribution repository"}
+  - id: tool_compat
+    text: "Know that `bal tool pull <tool>` fetches the latest tool version compatible with the active distribution, and that from Update 13 tools such as `openapi`, `graphql`, `grpc` and `persist` are released separately and updated with `bal tool update openapi`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/ballerina-lang/blob/master/cli/ballerina-cli/src/main/resources/cli-help/ballerina-tool-pull.help", kind: github, note: "bal tool pull help"}
+      - {url: "https://ballerina.io/downloads/swan-lake-release-notes/swan-lake-2201.13.0/", kind: docs, note: "Decoupled CLI tools from the distribution"}
+out_of_scope:
+  - "What each update changed (platform.releases)"
+  - "Java version per update and runtime behaviour (platform.runtime)"
+  - "Full `bal` CLI reference (tool.bal) and Ballerina.toml fields (tool.ballerina_toml)"
+edges:
+  - {to: tool.bal, rel: uses, via: [bal_update, dist_list, dist_update_pull, dist_use_remove, command_delegation]}
+  - {to: tool.ballerina_toml, rel: uses, via: [distribution_field]}
+  - {to: tool.dependencies_toml, rel: uses, via: [distribution_field]}
+  - {to: tool.packages, rel: uses, via: [distribution_repository]}
+  - {to: tool.bal_tool, rel: uses, via: [tool_compat]}
+  - {to: platform.releases, rel: related, via: [patch_vs_update, version_format]}
+  - {to: platform.runtime, rel: related, via: [install_layout, install_zip]}
+notes: "The Learn update-tool page says `bal dist update` updates to the latest Ballerina version, while the installation page's table says it updates to the latest patch of the active distribution; recent release notes use `bal dist update` to move to a new update, so item dist_update_pull does not say which one it picks. The update-tool page examples use older versions (2201.4.x to 2201.6.0, jdk-11 JREs)."

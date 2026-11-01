@@ -1,0 +1,69 @@
+schema_version: "0.2"
+id: lib.etl
+type: library
+title: ballerina/etl
+summary: "Dependently typed data-processing functions over arrays of records for ETL pipelines: categorization, cleaning, enrichment, filtering, security (AES encryption and PII masking) and extraction of records from unstructured text, some of them backed by OpenAI models."
+priority: long_tail
+status: draft
+modules: [ballerina/etl]
+sources:
+  - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "ballerina/etl 0.8.1 README"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-etl/tree/v0.8.1/ballerina", kind: github, note: "Function signatures at the v0.8.1 tag"}
+must_cover:
+  - id: dependent_typing
+    text: "Call `etl` functions on a `record {}[]` dataset and bind the result to your own record type through the inferred `typedesc`, e.g. `Customer[] uniqueData = check etl:removeDuplicates(dataset);`, handling `etl:Error`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Dependent Type Support"}
+  - id: categorize_numeric
+    text: "Group records by a numeric field with `etl:categorizeNumeric(dataset, \"totalAmount\", categoryRanges)` where `etl:CategoryRanges` is `[min, [breakpoints...], max]` (e.g. `[0, [10, 20], 30]`), returning a nested array `T[][]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-etl/blob/v0.8.1/ballerina/categorization.bal", kind: github}
+  - id: categorize_regex_semantic
+    text: "Group records by a string field with `etl:categorizeRegex(dataset, fieldName, regexArray)` using `regexp:RegExp[]` patterns, or with `etl:categorizeSemantic(dataset, fieldName, categories)` using LLM classification into a `string[]` of category names"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-etl/blob/v0.8.1/ballerina/categorization.bal", kind: github}
+  - id: cleaning
+    text: "Clean datasets with `etl:removeDuplicates`, `etl:removeEmptyValues`, `etl:handleWhiteSpaces`, `etl:removeField(dataset, fieldName)` and `etl:replaceText(dataset, fieldName, searchValue, replaceValue)` with a `regexp:RegExp` search pattern"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Data Cleaning"}
+  - id: sort_standardize_dedupe
+    text: "Sort with `etl:sortData(dataset, fieldName, etl:DESCENDING)` (default `etl:ASCENDING`), map a field to standard values with `etl:standardizeData(dataset, fieldName, standardValues)`, and group near-duplicates with `etl:groupApproximateDuplicates(dataset)` (unique records first, then groups)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Data Cleaning"}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-etl/blob/v0.8.1/ballerina/cleaning.bal", kind: github}
+  - id: enrichment
+    text: "Enrich data with `etl:joinData(dataset1, dataset2, fieldName)` to merge two datasets on a common field and `etl:mergeData([dataset1, dataset2])` to flatten several datasets into one"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Data Enrichment"}
+  - id: filtering
+    text: "Filter records with `etl:filterDataByRatio(dataset, 0.5)` (random sample), `etl:filterDataByRegex(dataset, fieldName, regexPattern)` and `etl:filterDataByRelativeExp(dataset, \"age\", etl:GREATER_THAN, 25)` using the `etl:Operation` enum"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-etl/blob/v0.8.1/ballerina/filtering.bal", kind: github}
+  - id: security
+    text: "Protect fields with `etl:encryptData(dataset, fieldNames, key)` and `etl:decryptData(dataset, fieldNames, key)` (AES-ECB with a `byte[16]` key) and mask PII with `etl:maskSensitiveData(dataset, \"*\")` (default masking character `X`)"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-etl/blob/v0.8.1/ballerina/security.bal", kind: github}
+  - id: extraction
+    text: "Extract a typed record from unstructured text with `Customer customer = check etl:extractFromText(sourceText);`"
+    difficulty: [beginner, intermediate]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Unstructured Data Extraction"}
+  - id: openai_config
+    text: "Configure `[ballerina.etl.modelConfig]` with `openAiToken`, `model` (`gpt-4-turbo`, `gpt-4o` or `gpt-4o-mini`) and optional `timeout` (default 60 s) in `Config.toml`, required by `categorizeSemantic`, `extractFromText`, `groupApproximateDuplicates`, `maskSensitiveData` and `standardizeData`"
+    difficulty: [beginner]
+    sources:
+      - {url: "https://central.ballerina.io/ballerina/etl/latest", kind: central, note: "Configurations"}
+edges:
+  - {to: concept.typedesc, rel: uses, via: [dependent_typing, extraction]}
+  - {to: concept.records, rel: uses, via: [dependent_typing, enrichment]}
+  - {to: lib.lang.regexp, rel: uses, via: [categorize_regex_semantic, cleaning, filtering]}
+  - {to: tool.config_toml, rel: uses, via: [openai_config]}
+notes: "The README lists `categorizeRegexData`, but the v0.8.1 (and main 0.8.2) source names the function `categorizeRegex`; items use the source name. The README describes `decryptData` as encrypting (copy error); the source documents it as decryption. Example links in the README point to a broken GitHub path."
