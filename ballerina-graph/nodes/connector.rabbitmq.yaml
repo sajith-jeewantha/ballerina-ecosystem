@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.rabbitmq
-type: library
+schema_version: "0.2"
+id: connector.rabbitmq
+type: connector
 title: ballerinax/rabbitmq
 summary: "RabbitMQ (AMQP 0-9-1) connector: a `rabbitmq:Client` to declare queues and exchanges, publish and pull messages, and a `rabbitmq:Listener` whose consumer services receive messages through `onMessage`/`onRequest` with data binding, acknowledgements and transactions."
 priority: important

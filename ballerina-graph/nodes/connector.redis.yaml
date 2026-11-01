@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.redis
-type: library
+schema_version: "0.2"
+id: connector.redis
+type: connector
 title: ballerinax/redis
 summary: "The Redis connector: a `redis:Client` for standalone or cluster Redis servers with remote methods for strings, counters, lists, sets, sorted sets, hashes and key management, usable as a database or cache."
 priority: important
@@ -60,4 +60,5 @@ edges:
   - {to: concept.maps, rel: uses, via: [hash_commands, sorted_set_commands, string_commands]}
   - {to: concept.errors, rel: uses, via: [errors_and_close]}
   - {to: lib.crypto, rel: uses, via: [pooling_cluster_tls]}
+  - {to: lib.cache, rel: alternative_to, note: "Remote/distributed cache versus in-process cache"}
 notes: "Verified against module-ballerinax-redis master (3.5.0). The README shows `string value = check redis->get(\"key\");`, but `get` returns `string|Error?`; the item states the nilable result. `set` returns `string|Error` (the server reply)."

@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.nats
-type: library
+schema_version: "0.2"
+id: connector.nats
+type: connector
 title: ballerinax/nats
 summary: "NATS connector for core publish-subscribe and request-reply messaging through `nats:Client` and `nats:Listener` services, plus persistent JetStream messaging through `nats:JetStreamClient` and `nats:JetStreamListener`."
 priority: long_tail
@@ -97,5 +97,5 @@ edges:
   - {to: concept.errors, rel: uses, via: [on_error_validation]}
   - {to: lib.constraint, rel: uses, via: [on_error_validation]}
   - {to: lib.crypto, rel: uses, via: [tls]}
-  - {to: lib.rabbitmq, rel: alternative_to, note: "Both provide broker-based publish/consume clients and listener services"}
+  - {to: connector.rabbitmq, rel: alternative_to, note: "Both provide broker-based publish/consume clients and listener services"}
 notes: "Verified against module-ballerinax-nats master (3.3.2, same as latest on Central). The README snippet `natsClient->publish(...)` does not match the API (the method is `publishMessage`). The JetStream BBEs are not listed on the BBE site (isLearnByExample false); the BBE URLs are given by slug. `nats:JetStreamCaller` (ack/nak/inProgress) exists, but no README/BBE shows it as an `onMessage` parameter, so it is not listed as a service item."

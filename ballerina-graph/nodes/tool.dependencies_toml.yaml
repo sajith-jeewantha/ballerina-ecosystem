@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: tool.dependencies_toml
 type: tool
 title: Dependencies.toml

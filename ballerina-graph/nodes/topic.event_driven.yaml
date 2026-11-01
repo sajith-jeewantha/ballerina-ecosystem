@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.event_driven
 type: topic
 title: Event-driven
@@ -89,19 +89,19 @@ must_cover:
     sources:
       - {url: "https://ballerina.io/learn/pre-built-integrations/kafka-to-salesforce-integration/", kind: docs}
 out_of_scope:
-  - "Broker client configuration, security (SSL/SASL) and full APIs (lib.kafka, lib.rabbitmq, lib.nats, lib.mqtt, lib.java.jms)"
+  - "Broker client configuration, security (SSL/SASL) and full APIs (connector.kafka, connector.rabbitmq, connector.nats, lib.mqtt, connector.java_jms)"
   - "Consumer error handling and acknowledgements for reliability (topic.resiliency)"
-  - "WebSub hubs (lib.websubhub)"
+  - "WebSub hubs (lib.websub)"
   - "AsyncAPI code generation (tool.bal_asyncapi)"
 edges:
-  - {to: lib.kafka, rel: uses, via: [http_to_kafka, kafka_listener_service, kafka_poll_consumer, kafka_manual_commit, message_validation, pubsub_to_websocket, events_to_saas]}
-  - {to: lib.rabbitmq, rel: uses, via: [rabbitmq_publish, rabbitmq_service, message_validation]}
-  - {to: lib.nats, rel: uses, via: [nats_service]}
+  - {to: connector.kafka, rel: uses, via: [http_to_kafka, kafka_listener_service, kafka_poll_consumer, kafka_manual_commit, message_validation, pubsub_to_websocket, events_to_saas]}
+  - {to: connector.rabbitmq, rel: uses, via: [rabbitmq_publish, rabbitmq_service, message_validation]}
+  - {to: connector.nats, rel: uses, via: [nats_service]}
   - {to: lib.mqtt, rel: uses, via: [mqtt_service]}
-  - {to: lib.java.jms, rel: uses, via: [jms_service]}
+  - {to: connector.java_jms, rel: uses, via: [jms_service]}
   - {to: lib.websub, rel: uses, via: [websub_webhook]}
-  - {to: lib.cdc, rel: uses, via: [cdc_listener]}
-  - {to: lib.mysql, rel: uses, via: [cdc_listener]}
+  - {to: connector.cdc, rel: uses, via: [cdc_listener]}
+  - {to: connector.mysql, rel: uses, via: [cdc_listener]}
   - {to: lib.websocket, rel: uses, via: [pubsub_to_websocket]}
   - {to: lib.http, rel: uses, via: [http_to_kafka, pubsub_to_websocket]}
   - {to: lib.constraint, rel: uses, via: [message_validation]}

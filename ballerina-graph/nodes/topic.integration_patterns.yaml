@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.integration_patterns
 type: topic
 title: Integration patterns
@@ -107,7 +107,7 @@ edges:
   - {to: concept.query_expressions, rel: uses, via: [scatter_gather, message_translator]}
   - {to: concept.records, rel: uses, via: [content_enricher, message_translator, routing_slip]}
   - {to: concept.xml, rel: uses, via: [normalizer]}
-  - {to: lib.kafka, rel: uses, via: [claim_check]}
+  - {to: connector.kafka, rel: uses, via: [claim_check]}
   - {to: lib.uuid, rel: uses, via: [claim_check]}
   - {to: lib.email, rel: uses, via: [email_notification]}
   - {to: tool.config_toml, rel: uses, via: [configurable_backends, email_notification]}

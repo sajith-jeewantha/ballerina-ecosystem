@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.kafka
-type: library
+schema_version: "0.2"
+id: connector.kafka
+type: connector
 title: ballerinax/kafka
 summary: "Apache Kafka connector: a `kafka:Producer` client to publish records, a `kafka:Consumer` client to poll them with data binding into Ballerina types, and a `kafka:Listener` that dispatches polled records to `onConsumerRecord` remote methods, with SSL/SASL security and manual offset control."
 priority: important
@@ -115,5 +115,5 @@ edges:
   - {to: concept.errors, rel: uses, via: [on_error_seek]}
   - {to: lib.constraint, rel: uses, via: [constraint_validation]}
   - {to: lib.crypto, rel: uses, via: [ssl]}
-  - {to: lib.rabbitmq, rel: alternative_to, note: "Both are message brokers with producer/consumer clients and listener services"}
+  - {to: connector.rabbitmq, rel: alternative_to, note: "Both are message brokers with producer/consumer clients and listener services"}
 notes: "Verified against module-ballerinax-kafka master (4.6.7, same as latest on Central). The README mentions Kafka transactions but documents no API beyond the `transactionalId`/`transactionTimeout`/`isolationLevel` configuration fields, so no transaction-block item is included. The `@kafka:Payload` parameter annotation exists in source but is not documented in README/spec/BBEs and is omitted."

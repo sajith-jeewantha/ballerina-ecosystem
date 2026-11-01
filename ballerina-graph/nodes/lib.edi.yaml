@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.edi
 type: library
 title: ballerina/edi
@@ -61,7 +61,7 @@ must_cover:
       - {url: "https://github.com/ballerina-platform/module-ballerina-edi/blob/main/ballerina/edi_translator.bal", kind: github}
 out_of_scope:
   - "Full command reference of the EDI CLI tool, including libgen (tool.bal_edi)"
-  - "Sending the parsed transactions to brokers such as Kafka (lib.kafka)"
+  - "Sending the parsed transactions to brokers such as Kafka (connector.kafka)"
 edges:
   - {to: concept.records, rel: uses, via: [prebuilt_edifact, record_to_edi, interchange_parsing]}
   - {to: concept.json_anydata, rel: uses, via: [low_level_json, custom_schema]}

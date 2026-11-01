@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.connectors
 type: topic
 title: Connectors
@@ -90,7 +90,7 @@ edges:
   - {to: tool.bal_test, rel: uses, via: [test_connector]}
   - {to: tool.config_toml, rel: uses, via: [token_auth_from_config, oauth_refresh_config, base_url_config]}
   - {to: lib.http, rel: uses, via: [generate_from_openapi]}
-  - {to: lib.mysql, rel: uses, via: [database_to_saas]}
+  - {to: connector.mysql, rel: uses, via: [database_to_saas]}
   - {to: lib.email, rel: uses, via: [report_by_email]}
   - {to: concept.client_objects, rel: uses, via: [resource_and_remote_calls, token_auth_from_config]}
   - {to: concept.modules_imports, rel: uses, via: [import_connector]}

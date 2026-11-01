@@ -1,16 +1,19 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.grpc
 type: library
-title: ballerina/grpc
-summary: The gRPC library implements gRPC services and clients over HTTP/2 from Protocol Buffers definitions, supporting unary, server-streaming, client-streaming and bidirectional-streaming RPCs, headers, deadlines and security.
+title: "ballerina/grpc"
+summary: "The gRPC library implements gRPC services and clients over HTTP/2 from Protocol Buffers definitions, supporting unary, server-streaming, client-streaming and bidirectional-streaming RPCs, headers, deadlines and security. The protobuf library provides Ballerina representations of the protobuf well-known types (wrappers, Any, Empty, Timestamp, Duration, Struct) and the descriptor annotation used by generated gRPC stubs."
 priority: important
 status: draft
-modules: [ballerina/grpc]
+modules: [ballerina/grpc, ballerina/protobuf, ballerina/protobuf.types.wrappers, ballerina/protobuf.types.any, ballerina/protobuf.types.empty, ballerina/protobuf.types.timestamp, ballerina/protobuf.types.duration, ballerina/protobuf.types.struct]
 sources:
   - {url: "https://central.ballerina.io/ballerina/grpc/latest", kind: central}
   - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/ballerina/README.md", kind: github, note: "Module README"}
   - {url: "https://ballerina.io/spec/grpc/", kind: docs, note: "Ballerina gRPC library specification"}
   - {url: "https://ballerina.io/learn/by-example/grpc-service-simple/", kind: bbe, note: "gRPC BBE series"}
+  - {url: "https://central.ballerina.io/ballerina/protobuf/latest", kind: central}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/tree/master/ballerina", kind: github, note: "Module and submodule sources"}
+  - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "gRPC spec section 3, protobuf to Ballerina mapping"}
 must_cover:
   - id: proto_stub_generation
     text: "Start from a `.proto` service definition and generate the Ballerina stub (`*_pb.bal` with message records, the `<Service>Client` and the descriptor constant) using `bal grpc --input <file>.proto --mode service|client --output <dir>`, then copy it into the package"
@@ -100,21 +103,49 @@ must_cover:
     difficulty: [intermediate]
     sources:
       - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "3. Protocol buffers to Ballerina data mapping"}
+  - id: descriptor_annotation
+    text: "Recognise `@protobuf:Descriptor {value: <DESC_CONSTANT>}` on message record types in generated `*_pb.bal` stubs, which links each record to its protobuf message descriptor"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/annotation.bal", kind: github}
+  - id: wrapper_context_types
+    text: "Use the context records from `ballerina/protobuf.types.wrappers` such as `wrappers:ContextString` and `wrappers:ContextInt` (fields `content` and `headers`) to send and receive gRPC headers alongside a scalar message"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://ballerina.io/learn/by-example/grpc-service-headers/", kind: bbe}
+      - {url: "https://ballerina.io/learn/by-example/grpc-client-headers/", kind: bbe}
+  - id: any_pack_unpack
+    text: "Pack a record or scalar into the protobuf `Any` type with `'any:pack(value)` (giving an `'any:Any` with `typeUrl` and `value`) and recover it with `'any:unpack(anyValue, TargetType)` from `ballerina/protobuf.types.'any`, handling `'any:TypeMismatchError`"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.any/any.bal", kind: github}
+  - id: well_known_type_mapping
+    text: "Map protobuf well-known types to Ballerina values: `google.protobuf.Timestamp` to `time:Utc`, `Duration` to `time:Seconds`, `Struct` to `map<anydata>`, `Empty` to `()`, and wrapper types to `int`, `float`, `string`, `boolean` and `byte[]`"
+    difficulty: [intermediate]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-grpc/blob/master/docs/spec/spec.md", kind: github, note: "3. Protocol buffers to Ballerina data mapping"}
+  - id: context_and_stream_types
+    text: "Use the typed context and stream records for well-known types, such as `timestamp:ContextTimestamp`, `struct:ContextStruct`, `empty:ContextNil` and `'any:ContextAnyStream`, when an RPC needs headers or streams of those types"
+    difficulty: [advanced]
+    sources:
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.timestamp/timestamp.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.struct/struct.bal", kind: github}
+      - {url: "https://github.com/ballerina-platform/module-ballerina-protobuf/blob/master/ballerina/modules/types.empty/empty.bal", kind: github}
 out_of_scope:
   - "The `bal grpc` command options in depth (tool.bal_grpc)"
-  - "Protobuf well-known type submodules and `'any:pack`/`unpack` (lib.protobuf)"
   - "JWT and OAuth2 internals (lib.jwt, lib.oauth2)"
+  - "Generating stubs from .proto files (tool.bal_grpc)"
 edges:
   - {to: concept.services_listeners, rel: requires}
   - {to: concept.client_objects, rel: uses, via: [unary_client, client_streaming, bidirectional_streaming]}
   - {to: concept.streams, rel: uses, via: [server_streaming, client_streaming, bidirectional_streaming]}
-  - {to: concept.records, rel: uses, via: [headers, proto_type_mapping]}
+  - {to: concept.records, rel: uses, via: [headers, proto_type_mapping, wrapper_context_types, context_and_stream_types]}
   - {to: concept.errors, rel: uses, via: [error_types, deadlines]}
-  - {to: concept.annotations, rel: uses, via: [unary_service, service_auth]}
+  - {to: concept.annotations, rel: uses, via: [unary_service, service_auth, descriptor_annotation]}
   - {to: concept.futures_wait, rel: uses, via: [bidirectional_streaming]}
-  - {to: lib.protobuf, rel: uses, via: [headers, proto_type_mapping], target_items: [wrapper_context_types, well_known_type_mapping]}
-  - {to: lib.time, rel: uses, via: [deadlines]}
+  - {to: lib.time, rel: uses, via: [deadlines, well_known_type_mapping]}
   - {to: lib.jwt, rel: uses, via: [service_auth, client_auth]}
   - {to: lib.oauth2, rel: uses, via: [service_auth, client_auth]}
   - {to: tool.bal_grpc, rel: uses, via: [proto_stub_generation]}
-notes: "In the BBEs the gRPC service name is a string literal matching the proto service (`service \"HelloWorld\" on ...`); the README also shows an identifier form. The README's client-streaming sample uses `sendstring` (lowercase) while the BBE uses `sendString`; items follow the BBE."
+  - {to: concept.typedesc, rel: uses, via: [any_pack_unpack]}
+notes: "In the BBEs the gRPC service name is a string literal matching the proto service (`service \"HelloWorld\" on ...`); the README also shows an identifier form. The README's client-streaming sample uses `sendstring` (lowercase) while the BBE uses `sendString`; items follow the BBE. The module README is a two-line overview; items are built from the submodule sources and the gRPC spec mapping table. Prefix names such as `timestamp:` and `struct:` assume default import prefixes of the submodules; `'any` needs a quoted identifier because `any` is a keyword."

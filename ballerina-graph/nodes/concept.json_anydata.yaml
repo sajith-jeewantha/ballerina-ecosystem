@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.json_anydata
 type: concept
 title: JSON and anydata

@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.mssql
-type: library
+schema_version: "0.2"
+id: connector.mssql
+type: connector
 title: ballerinax/mssql
 summary: "The Microsoft SQL Server connector: an `mssql:Client` implementing the `sql:Client` API, with SQL Server connection options, TLS encryption, money and spatial typed values, and an `mssql:CdcListener` for SQL Server change data capture."
 priority: long_tail
@@ -41,11 +41,11 @@ must_cover:
     difficulty: [advanced]
 out_of_scope:
   - "Generic query/execute/call semantics and common typed values (lib.sql)"
-  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "CDC service handlers, options and offset storage (connector.cdc)"
   - "Using SQL Server through generated persist clients (lib.persist)"
 edges:
   - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, money_values], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, connection_pools]}
-  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: connector.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
   - {to: concept.classes, rel: uses, via: [money_values, spatial_values]}
   - {to: lib.crypto, rel: uses, via: [tls]}

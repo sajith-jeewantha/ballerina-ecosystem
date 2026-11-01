@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.avro
 type: library
 title: ballerina/avro
@@ -41,8 +41,8 @@ must_cover:
     sources:
       - {url: "https://github.com/ballerina-platform/module-ballerina-avro/blob/master/ballerina/error.bal", kind: github}
 out_of_scope:
-  - "Kafka producers and consumers that carry Avro payloads (lib.kafka)"
-  - "Protocol Buffers serialization (lib.protobuf)"
+  - "Kafka producers and consumers that carry Avro payloads (connector.kafka)"
+  - "Protocol Buffers serialization (lib.grpc)"
 edges:
   - {to: concept.classes, rel: uses, via: [create_schema]}
   - {to: concept.records, rel: uses, via: [record_schema, from_avro]}

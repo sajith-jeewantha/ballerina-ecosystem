@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.asb
-type: library
+schema_version: "0.2"
+id: connector.asb
+type: connector
 title: ballerinax/asb
 summary: "Azure Service Bus connector: an `asb:AdminClient` to manage queues, topics, subscriptions and rules, `asb:MessageSender` and `asb:MessageReceiver` clients to send, receive and settle messages, and an `asb:Listener` for event-driven consumption."
 priority: long_tail

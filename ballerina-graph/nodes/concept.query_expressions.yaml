@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.query_expressions
 type: concept
 title: Query expressions

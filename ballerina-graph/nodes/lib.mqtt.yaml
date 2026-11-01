@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: lib.mqtt
 type: library
 title: ballerina/mqtt
@@ -45,7 +45,7 @@ must_cover:
     text: "Manage client connections with `isConnected()`, `reconnect()`, `disconnect()` and `close()`"
     difficulty: [intermediate]
 out_of_scope:
-  - "Other messaging brokers (lib.kafka, lib.rabbitmq, lib.nats)"
+  - "Other messaging brokers (connector.kafka, connector.rabbitmq, connector.nats)"
   - "Event-driven architecture patterns (topic.event_driven)"
 edges:
   - {to: concept.client_objects, rel: uses, via: [publish, connection_management]}

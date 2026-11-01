@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.postgresql
-type: library
+schema_version: "0.2"
+id: connector.postgresql
+type: connector
 title: ballerinax/postgresql
 summary: "The PostgreSQL connector: a `postgresql:Client` implementing the `sql:Client` API, PostgreSQL connection options and SSL, PostgreSQL-specific typed values and OUT parameters (JSON, UUID, network, geometric, interval, range types), and a `postgresql:CdcListener` based on logical replication."
 priority: important
@@ -55,11 +55,11 @@ must_cover:
       - {url: "https://github.com/ballerina-platform/module-ballerinax-postgresql/blob/master/ballerina/listener_types.bal", kind: github, note: "PostgresDatabaseConnection, ReplicationConfiguration, PublicationConfiguration"}
 out_of_scope:
   - "Generic query/execute/call semantics and the common sql:TypedValue/OutParameter types (lib.sql)"
-  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "CDC service handlers, options and offset storage (connector.cdc)"
   - "Using PostgreSQL through generated persist clients (lib.persist)"
 edges:
   - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, json_uuid_values, out_parameters], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, out_parameters, connection_pools]}
-  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: connector.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
   - {to: concept.classes, rel: uses, via: [json_uuid_values, network_geometric_values, interval_range_values]}
   - {to: concept.json_anydata, rel: uses, via: [json_uuid_values]}

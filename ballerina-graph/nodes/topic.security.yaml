@@ -1,4 +1,4 @@
-schema_version: "0.1"
+schema_version: "0.2"
 id: topic.security
 type: topic
 title: Security
@@ -104,7 +104,7 @@ must_cover:
       - {url: "https://ballerina.io/learn/scan-rules/", kind: docs, note: "ballerina/http:1, ballerina/http:2"}
 out_of_scope:
   - "LDAP user stores (lib.ldap)"
-  - "Security on gRPC, GraphQL, WebSocket and message-broker clients (lib.grpc, lib.graphql, lib.websocket, lib.kafka)"
+  - "Security on gRPC, GraphQL, WebSocket and message-broker clients (lib.grpc, lib.graphql, lib.websocket, connector.kafka)"
   - "Full crypto, jwt, oauth2 and auth module APIs (lib.crypto, lib.jwt, lib.oauth2, lib.auth)"
   - "Running `bal scan` (tool.bal_scan)"
 edges:

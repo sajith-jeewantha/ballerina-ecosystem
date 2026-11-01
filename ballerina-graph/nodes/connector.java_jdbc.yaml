@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.java.jdbc
-type: library
+schema_version: "0.2"
+id: connector.java_jdbc
+type: connector
 title: ballerinax/java.jdbc
 summary: "The generic JDBC connector: a `jdbc:Client` that implements the `sql:Client` API for any relational database reachable through a JDBC URL and a driver JAR added to the package."
 priority: important
@@ -34,7 +34,7 @@ must_cover:
     difficulty: [beginner]
 out_of_scope:
   - "Generic query/execute/call semantics, typed values and errors (lib.sql)"
-  - "Database-specific connectors with dedicated options and types (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb)"
+  - "Database-specific connectors with dedicated options and types (connector.mysql, connector.postgresql, connector.mssql, connector.oracledb)"
 edges:
   - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, client_close], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, connection_pools, client_lifecycle]}
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}

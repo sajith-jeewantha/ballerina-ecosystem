@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.mongodb
-type: library
+schema_version: "0.2"
+id: connector.mongodb
+type: connector
 title: ballerinax/mongodb
 summary: "The MongoDB connector: a `mongodb:Client` connected by connection parameters or a connection string, with `mongodb:Database` and `mongodb:Collection` clients for document CRUD, typed queries returning streams, aggregation pipelines and index management."
 priority: important

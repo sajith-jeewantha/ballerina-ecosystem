@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.cdc
-type: library
+schema_version: "0.2"
+id: connector.cdc
+type: connector
 title: ballerinax/cdc
 summary: "The change data capture (CDC) library, built on Debezium: database-specific CDC listeners (`mysql:CdcListener`, `postgresql:CdcListener`, `mssql:CdcListener`, `oracledb:CdcListener`) deliver insert, update and delete events to `cdc:Service` remote methods."
 priority: long_tail
@@ -57,7 +57,7 @@ must_cover:
     text: "Expose a liveness probe by calling `cdc:isLive(cdcListener)` from an HTTP resource and returning `http:OK` or `http:SERVICE_UNAVAILABLE`, with the check interval set by `livenessInterval`"
     difficulty: [advanced]
 out_of_scope:
-  - "Database-side CDC setup (binlog, logical replication, SQL Server CDC, LogMiner) and DB-specific listener fields (lib.mysql, lib.postgresql, lib.mssql, lib.oracledb)"
+  - "Database-side CDC setup (binlog, logical replication, SQL Server CDC, LogMiner) and DB-specific listener fields (connector.mysql, connector.postgresql, connector.mssql, connector.oracledb)"
   - "Event-driven architecture patterns (topic.event_driven)"
 edges:
   - {to: concept.services_listeners, rel: uses, via: [cdc_listener, service_handlers, service_config_tables]}

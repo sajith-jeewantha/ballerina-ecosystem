@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.ibm.ibmmq
-type: library
+schema_version: "0.2"
+id: connector.ibm_ibmmq
+type: connector
 title: ballerinax/ibm.ibmmq
 summary: "IBM MQ connector: connect to a queue manager with `ibmmq:QueueManager`, put and get messages on `ibmmq:Queue` and `ibmmq:Topic` clients, and consume asynchronously with an `ibmmq:Listener` service."
 priority: long_tail
@@ -77,7 +77,7 @@ must_cover:
       - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/ballerina/errors.bal", kind: github}
       - {url: "https://github.com/ballerina-platform/module-ballerinax-ibm.ibmmq/blob/main/docs/spec/spec.md", kind: github, note: "7.3.2 Service functions"}
 out_of_scope:
-  - "Generic JMS providers and the JMS session API (lib.java.jms)"
+  - "Generic JMS providers and the JMS session API (connector.java_jms)"
   - "Configurable variables and Config.toml (tool.config_toml)"
   - "Declaring platform dependencies in Ballerina.toml in general (tool.ballerina_toml)"
 edges:
@@ -89,5 +89,5 @@ edges:
   - {to: concept.errors, rel: uses, via: [errors]}
   - {to: lib.crypto, rel: uses, via: [tls]}
   - {to: tool.ballerina_toml, rel: uses, via: [driver_dependency]}
-  - {to: lib.java.jms, rel: related, note: "Same service/Caller/ack-mode model; Topic.send uses the JMS API"}
+  - {to: connector.java_jms, rel: related, note: "Same service/Caller/ack-mode model; Topic.send uses the JMS API"}
 notes: "Verified against module-ballerinax-ibm.ibmmq main (Ballerina.toml 1.4.5; Central latest 1.4.6). The README's accessTopic snippet omits the `openTopicOption` argument that the API requires; the item follows the source signature. The spec's usage sample puts `ibmmq:Caller` first in `onMessage`, while 7.3.2 shows `(ibmmq:Message message, ibmmq:Caller caller)`."

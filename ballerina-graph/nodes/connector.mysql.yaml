@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.mysql
-type: library
+schema_version: "0.2"
+id: connector.mysql
+type: connector
 title: ballerinax/mysql
 summary: "The MySQL connector: a `mysql:Client` that implements the `sql:Client` API for MySQL, plus MySQL-specific connection options (SSL, failover, timeouts, XA) and a `mysql:CdcListener` for change data capture."
 priority: important
@@ -64,14 +64,14 @@ must_cover:
       - {url: "https://github.com/ballerina-platform/module-ballerinax-mysql/blob/master/ballerina/types.bal", kind: github, note: "MySqlDatabaseConnection, MySqlListenerConfiguration"}
 out_of_scope:
   - "Generic query/execute/call semantics, typed values and error types (lib.sql)"
-  - "CDC service handlers, options and offset storage (lib.cdc)"
+  - "CDC service handlers, options and offset storage (connector.cdc)"
   - "Using MySQL through generated persist clients (lib.persist)"
 edges:
   - {to: lib.sql, rel: implements, via: [sql_operations, auto_increment_key, stored_procedures, connection_pool], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, connection_pools]}
-  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
+  - {to: connector.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, table_filtering]}
   - {to: concept.transactions, rel: uses, via: [atomic_transaction, xa_transactions]}
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
   - {to: concept.services_listeners, rel: uses, via: [sql_operations]}
   - {to: lib.crypto, rel: uses, via: [ssl], note: "key/cert are crypto:KeyStore / crypto:TrustStore"}
   - {to: tool.ballerina_toml, rel: uses, via: [custom_driver_jar]}
-notes: "Verified against module-ballerinax-mysql master (1.19.1). The MySQL CDC driver package (`ballerinax/mysql.cdc.driver`) is listed on lib.cdc."
+notes: "Verified against module-ballerinax-mysql master (1.19.1). The MySQL CDC driver package (`ballerinax/mysql.cdc.driver`) is listed on connector.cdc."

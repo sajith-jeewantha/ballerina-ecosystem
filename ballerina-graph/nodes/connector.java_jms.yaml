@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.java.jms
-type: library
+schema_version: "0.2"
+id: connector.java_jms
+type: connector
 title: ballerinax/java.jms
 summary: "Java Message Service connector that works with any JMS provider (such as ActiveMQ) through a `jms:Connection`, `jms:Session`, `jms:MessageProducer` and `jms:MessageConsumer`, plus a `jms:Listener` whose services receive messages asynchronously."
 priority: long_tail
@@ -85,7 +85,7 @@ must_cover:
       - {url: "https://github.com/ballerina-platform/module-ballerinax-java.jms/blob/v1.2.2/ballerina/message_listener.bal", kind: github, note: "consumerOptions uses ConsumerOptions"}
 out_of_scope:
   - "General listener and service declaration semantics (concept.services_listeners)"
-  - "IBM MQ native queue-manager API (lib.ibm.ibmmq)"
+  - "IBM MQ native queue-manager API (connector.ibm_ibmmq)"
   - "Declaring Java platform dependencies in Ballerina.toml (tool.ballerina_toml)"
 edges:
   - {to: concept.client_objects, rel: uses, via: [connection, producer_send, consumer_receive, session_transactions]}

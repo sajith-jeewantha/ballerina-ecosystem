@@ -1,6 +1,6 @@
-schema_version: "0.1"
-id: lib.oracledb
-type: library
+schema_version: "0.2"
+id: connector.oracledb
+type: connector
 title: ballerinax/oracledb
 summary: "The Oracle Database connector: an `oracledb:Client` implementing the `sql:Client` API, Oracle connection options, Oracle-specific types (INTERVAL, VARRAY, nested tables, OBJECT types) and OUT parameters, and an `oracledb:CdcListener` based on LogMiner."
 priority: long_tail
@@ -44,10 +44,10 @@ must_cover:
     difficulty: [advanced]
 out_of_scope:
   - "Generic query/execute/call semantics and common typed values (lib.sql)"
-  - "CDC service handlers, snapshot options and offset storage (lib.cdc)"
+  - "CDC service handlers, snapshot options and offset storage (connector.cdc)"
 edges:
   - {to: lib.sql, rel: implements, via: [sql_operations, connection_pool, varray_nested_table, out_parameters], target_items: [query_stream, query_row, execute, batch_execute, call_procedures, typed_values, out_parameters, connection_pools]}
-  - {to: lib.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, cdc_drivers, table_filtering]}
+  - {to: connector.cdc, rel: uses, via: [cdc_listener_config], target_items: [cdc_listener, cdc_drivers, table_filtering]}
   - {to: concept.client_objects, rel: uses, via: [client_init, sql_operations]}
   - {to: concept.records, rel: uses, via: [interval_types, varray_nested_table, object_types]}
   - {to: concept.classes, rel: uses, via: [varray_nested_table, object_types, out_parameters]}
