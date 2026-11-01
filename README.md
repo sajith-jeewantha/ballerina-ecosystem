@@ -11,15 +11,16 @@ The nodes are built from:
 - the module READMEs and API sources in the
   [ballerina-platform](https://github.com/orgs/ballerina-platform/repositories) GitHub org
 - [Ballerina by Example](https://ballerina.io/learn/by-example/)
-- [Ballerina Central](https://central.ballerina.io/ballerina-library)
+- [Ballerina Central](https://central.ballerina.io/) (every published package, its README and API docs)
 - the [Learn](https://ballerina.io/learn/) docs (tools, packages, guides)
+- the Swan Lake release notes (runtime, distributions and changes after spec 2024R1)
 
 Every node cites the pages it was built from in its `sources`.
 
 **View the graph:** https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/viewer.html
 (raw data: [graph.json](https://sajith-jeewantha.github.io/ballerina-ecosystem/ballerina-graph/build/graph.json))
 
-![The graph viewer showing all 159 nodes, the filters and the coverage summary](docs/images/ballerina-knowledge-graph.png)
+![The graph viewer showing the nodes, the filters and the coverage summary](docs/images/ballerina-knowledge-graph.png)
 
 ## Repository layout
 
@@ -86,9 +87,9 @@ Each node is a YAML file in `ballerina-graph/nodes/` named after its id, for exa
 `concept.arrays_tuples.yaml`:
 
 ```yaml
-schema_version: "0.1"
+schema_version: "0.2"
 id: concept.arrays_tuples
-type: concept            # concept | library | tool | topic
+type: concept            # concept | library | connector | trigger | tool | platform | topic
 title: Arrays and tuples
 summary: ...
 priority: core           # core | important | long_tail
@@ -111,9 +112,15 @@ Node types and id prefixes:
 | Type | Prefix | Covers |
 |---|---|---|
 | `concept` | `concept.` | Language features defined by the spec, including the lang library |
-| `library` | `lib.` | Standard-library and connector modules, such as `ballerina/http` |
-| `tool` | `tool.` | The `bal` CLI and tooling |
+| `library` | `lib.` | `ballerina/*` packages: the standard library and the lang library, such as `ballerina/http` |
+| `connector` | `connector.` | `ballerinax/*` packages that connect to an external system: SaaS APIs, databases, message brokers, AI services |
+| `trigger` | `trigger.` | `ballerinax/trigger.*` event listeners for external systems, such as GitHub or Slack webhooks |
+| `tool` | `tool.` | The `bal` CLI, its subcommands, build and config files, IDEs and CI/CD |
+| `platform` | `platform.` | The runtime, Swan Lake distributions, releases and the specifications |
 | `topic` | `topic.` | Cross-cutting guidance such as idioms and best practices |
+
+`library`, `connector` and `trigger` nodes are package nodes and must list the Central packages
+they cover in `modules`.
 
 ### Authoring rules
 
@@ -128,25 +135,38 @@ Node types and id prefixes:
 
 ## Current status
 
-All nodes are `status: draft` and await domain-expert review.
+All nodes are `status: draft` and await domain-expert review, except `lib.regex`, `lib.xmldata`
+and `lib.yaml`, which are `status: deprecated` and name their replacements in `replaced_by`.
 
 | | Count |
 |---|---|
-| Nodes | 159: 50 concept, 79 library, 20 tool, 10 topic |
-| `must_cover` items | 2,054 |
-| Edges | 1,088 (uses 912, requires 109, related 37, part_of 13, implements 11, alternative_to 4, counterpart_of 2) |
-| Priority | core 43, important 76, long_tail 40 |
+| Nodes | 242: 51 concept, 71 library, 69 connector, 6 trigger, 27 tool, 4 platform, 14 topic |
+| `must_cover` items | 3,257 |
+| Edges | 1,704 (uses 1,487, requires 117, related 65, part_of 16, implements 14, alternative_to 4, counterpart_of 1) |
+| Priority | core 43, important 107, long_tail 92 |
 
-`validate` reports `OK: 159 nodes, 2054 items, 1088 edges, 0 warning(s)`.
+`validate` reports `OK: 242 nodes, 3257 items, 1704 edges, 0 warning(s)`.
+
+Coverage of the sources:
+
+| Source | Covered |
+|---|---|
+| Ballerina Central packages (`ballerina/*` and `ballerinax/*`) | 856 of 856: each package is listed in a node's `modules` and named in at least one item |
+| Ballerina by Example programs | 592 of 592 cited as sources |
+| Learn pages | 77 of 77 cited as sources |
 
 What the nodes cover:
 
-| Type | Nodes | Scope |
-|---|---|---|
-| `concept` | 50 | Language features from spec 2024R1 chapters 2 to 10 (types, expressions, statements, concurrency, XML, queries, transactions...) |
-| `library` | 79 | The lang library (`langlib` and 13 `ballerina/lang.*` modules); the `ballerina/*` standard library (HTTP, GraphQL, gRPC, WebSocket, SQL, persist, IO, data.*, auth, JWT, OAuth2, crypto, log, test, observe, AI, MCP...); key `ballerinax/*` connectors (MySQL, PostgreSQL, MSSQL, Oracle, JDBC, MongoDB, Redis, Kafka, RabbitMQ, NATS, JMS, IBM MQ, Azure Service Bus, AI model providers, Pinecone) |
-| `tool` | 20 | `bal` and its subcommands, packages, `Ballerina.toml`, `Dependencies.toml`, `Config.toml`, Ballerina Central, testing, code generators (OpenAPI, GraphQL, gRPC, AsyncAPI, persist, bindgen, WSDL, EDI), Code to Cloud, GraalVM, VS Code |
-| `topic` | 10 | Cross-cutting guides: REST APIs, best practices, data mapping, integration patterns, AI agents, security, observability, connectors, event-driven, resiliency |
+| Type | Nodes | Items | Scope |
+|---|---|---|---|
+| `concept` | 51 | 718 | Language features from spec 2024R1 chapters 2 to 10 (types, expressions, statements, concurrency, XML, queries, transactions...), plus natural expressions added in Update 13 |
+| `library` | 71 | 883 | The lang library (`langlib` and the `ballerina/lang.*` modules); the `ballerina/*` standard library (HTTP, GraphQL, gRPC, WebSocket, SQL, persist, IO, data.*, auth, JWT, OAuth2, crypto, log, test, observe, AI, MCP, workflow, messaging, file formats...) and the deprecated `regex`, `xmldata` and `yaml` packages |
+| `connector` | 69 | 915 | Every `ballerinax/*` connector: databases and brokers, AI model providers and vector stores, Salesforce, HubSpot, SAP, Workday, Microsoft 365, Azure, AWS, Google, healthcare (FHIR, HL7v2), B2B (EDI, AS2), and the long tail grouped by business area |
+| `trigger` | 6 | 90 | `ballerinax/trigger.*` listeners: GitHub, Google, HubSpot, Shopify, Slack and others |
+| `tool` | 27 | 353 | `bal` and its subcommands, packages, `Ballerina.toml`, `Dependencies.toml`, `Config.toml`, Ballerina Central, testing, code generators, Code to Cloud, GraalVM, debugger, profiler, VS Code, IntelliJ, CI/CD |
+| `platform` | 4 | 65 | The runtime, Swan Lake distributions, the release history and the specifications |
+| `topic` | 14 | 233 | Cross-cutting guides: REST APIs, best practices, data mapping, integration patterns, AI agents, security, observability, connectors, event-driven, resiliency, data services, file integration, deployment, healthcare |
 
-Library titles are the package names you import (`ballerina/http`, `ballerinax/mysql`).
-SaaS connectors (Salesforce, GitHub, Slack...) are not included yet.
+Library and connector titles are the package names you import (`ballerina/http`,
+`ballerinax/mysql`). Connector nodes that group many small generated packages are titled after
+their business area.
